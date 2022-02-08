@@ -2,7 +2,7 @@
 Here is the basic information about the game's story, mechanics, goals, and art style.
 
 # Lore
-?
+Parklour?
 
 # Gameplay
 
