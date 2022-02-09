@@ -5,7 +5,7 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 
 # Tasks
 - [ ] Basic rendering
-    1. - [ ] render some cubes and lighting
+    1. - [X] render some cubes and lighting
     2. - [ ] texture loading (probably use a texture atlas)
     3. - [ ] store / render different blocks in a 3D array
 - [ ] Basic player movement (just get input and move the player with jumping, and gravity)
