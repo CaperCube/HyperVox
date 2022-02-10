@@ -1,29 +1,52 @@
+////////////////////////////////////////////////////
+// Vars
+////////////////////////////////////////////////////
 let camera, scene, renderer;
 let mesh;
 let frame = 0;
+let controls;
 
-let tileScale = 100;
+let tileScale = 1;
+let worldSize = 50; // In num of tiles
+let playerHeight = tileScale * 1.5;
 
+let moveForward, moveBackward, moveLeft, moveRight;
+let moveSpeed = tileScale/20;
+
+////////////////////////////////////////////////////
+// Init function calls
+////////////////////////////////////////////////////
 init();
 animate();
 
+////////////////////////////////////////////////////
+// Scene init
+////////////////////////////////////////////////////
 function init() {
 
     // Create camera
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 5000 );
-    camera.position.x = 2500;
-    camera.position.z = -2500;
-    camera.position.y = 100;
+    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, tileScale/5, 5000 );
+    // Put camera in center and at player height
+    camera.position.x = (worldSize/2) * tileScale;
+    camera.position.z = -(worldSize/2) * tileScale;
+    camera.position.y = playerHeight;
 
     // Create scene
     //scene = new THREE.Scene();
     scene = new THREE.Scene();
     {
         const color = 0x000000;  // white
-        const near = 10;
-        const far = 1000;
+        const near = tileScale;
+        const far = tileScale*10;
         scene.fog = new THREE.Fog(color, near, far);
     }
+
+    // FPS controls
+    controls = new THREE.PointerLockControls( camera, document.body );
+    document.body.addEventListener( 'click', () => { controls.lock(); } );
+    scene.add( controls.getObject() );
+
+    initMovementControls();
 
     // Load texture
     const texture = new THREE.TextureLoader().load( './client/src/textures/textures.png' );
@@ -39,8 +62,8 @@ function init() {
     // scene.add( mesh );
 
     // Create floor
-    for (let i = 0; i < 50; i++) {
-        for (let j = 0; j < 50; j++) {
+    for (let i = 0; i < worldSize; i++) {
+        for (let j = 0; j < worldSize; j++) {
             let randTile = Math.floor(Math.random() * 8);
             createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile );
         }
@@ -57,6 +80,9 @@ function init() {
 
 }
 
+////////////////////////////////////////////////////
+// Misc. Event Listeners
+////////////////////////////////////////////////////
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -66,6 +92,9 @@ function onWindowResize() {
 
 }
 
+////////////////////////////////////////////////////
+// Animation loop
+////////////////////////////////////////////////////
 function animate() {
 
     requestAnimationFrame( animate );
@@ -75,15 +104,21 @@ function animate() {
     // mesh.rotation.x += 0.005;
     // mesh.rotation.y += 0.01;
 
-    camera.position.y = (Math.sin(frame/5) * 5) + 155;
-    camera.position.x = (Math.sin(frame/250) * 1000) + 2500;
-    camera.position.z = (Math.cos(frame/250) * 1000) - 2500;
-    camera.rotation.y = (frame/250) - Math.PI/3;
+    // camera.position.y = (Math.sin(frame/5) * 5) + 155;
+    // camera.position.x = (Math.sin(frame/250) * 1000) + 2500;
+    // camera.position.z = (Math.cos(frame/250) * 1000) - 2500;
+    // camera.rotation.y = (frame/250) - Math.PI/3;
+
+    // Movement update
+    movementUpdate();
 
     renderer.render( scene, camera );
 
 }
 
+////////////////////////////////////////////////////
+// Basic mesh creation
+////////////////////////////////////////////////////
 function createCubeWithUV() {
     // UV coordiantes
     //https://stackoverflow.com/questions/20774648/three-js-generate-uv-coordinate
@@ -135,4 +170,97 @@ function getTileUVByIndex(idx) {
         {u: (left), v: (1-bottom)}, // 2 - Bottom Left
         {u: (right), v: (1-bottom)}  // 3 - Bottom Right
     ];
+}
+
+////////////////////////////////////////////////////
+// Basic FPS movement
+////////////////////////////////////////////////////
+function initMovementControls() {
+    const onKeyDown = function ( event ) {
+
+        switch ( event.code ) {
+
+            case 'ArrowUp':
+            case 'KeyW':
+                moveForward = true;
+                break;
+
+            case 'ArrowLeft':
+            case 'KeyA':
+                moveLeft = true;
+                break;
+
+            case 'ArrowDown':
+            case 'KeyS':
+                moveBackward = true;
+                break;
+
+            case 'ArrowRight':
+            case 'KeyD':
+                moveRight = true;
+                break;
+
+            case 'Space':
+                //if ( canJump === true ) velocity.y += 350;
+                //canJump = false;
+                break;
+
+        }
+    }
+
+    const onKeyUp = function ( event ) {
+
+        switch ( event.code ) {
+
+            case 'ArrowUp':
+            case 'KeyW':
+                moveForward = false;
+                break;
+
+            case 'ArrowLeft':
+            case 'KeyA':
+                moveLeft = false;
+                break;
+
+            case 'ArrowDown':
+            case 'KeyS':
+                moveBackward = false;
+                break;
+
+            case 'ArrowRight':
+            case 'KeyD':
+                moveRight = false;
+                break;
+
+        }
+
+    };
+
+    document.addEventListener( 'keydown', onKeyDown );
+    document.addEventListener( 'keyup', onKeyUp );
+}
+
+function movementUpdate() {
+    // Move controler
+    let isMoving = false;
+    if (moveForward) {
+        controls.moveForward(moveSpeed);
+        isMoving = true;
+    }
+    if (moveBackward) {
+        controls.moveForward(-moveSpeed);
+        isMoving = true;
+    }
+
+    if (moveRight) {
+        controls.moveRight(moveSpeed);
+        isMoving = true;
+    }
+    if (moveLeft) {
+        controls.moveRight(-moveSpeed);
+        isMoving = true;
+    }
+
+    // Bob camera
+    if (isMoving) camera.position.y = (Math.sin(frame/4) * (tileScale/20)) + playerHeight;
 }

@@ -4,6 +4,13 @@ Here is the basic information about the game's story, mechanics, goals, and art 
 # Lore
 Parklour?
 
+Boss names:
+- ParkOrb (menacing sphere)
+- ParKing (King of the parking lot)
+- ParkLord (Lord of the park)
+- ParKernal (Parkour Army dude)
+- ParKyle (Nice guy)
+
 # Gameplay
 
 ## Game Tags
