@@ -6,7 +6,7 @@ If you have ideas to add to this list, it would be nice to hear from you first s
 # Content Ideas
 ## Core content
 - Proc Gen world (not infinite)
-- 
+- Fun and thrilling open world MMO RPG experience 
 
 ## Misc. Content
 - Nuke button (you can't lock your chests, but you can make a nuke trap)
