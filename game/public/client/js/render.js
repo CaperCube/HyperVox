@@ -6,6 +6,8 @@ let mesh;
 let frame = 0;
 let controls;
 
+let resFactor = 4;
+
 let tileScale = 1;
 let worldSize = 50; // In num of tiles
 let playerHeight = tileScale * 1.5;
@@ -64,14 +66,15 @@ function init() {
     // Create floor
     for (let i = 0; i < worldSize; i++) {
         for (let j = 0; j < worldSize; j++) {
-            let randTile = Math.floor(Math.random() * 8);
+            let randTile = 0;//Math.floor(Math.random() * 8);
+            if (j >= 24 && j <= 26 && i >= 24 && i <= 26) randTile = 4;
             createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile );
         }
     }
 
     // Create renderer
     renderer = new THREE.WebGLRenderer( { antialias: false } );
-    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setPixelRatio( window.devicePixelRatio/resFactor );
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
