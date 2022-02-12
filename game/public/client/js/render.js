@@ -66,7 +66,8 @@ function init() {
     // Create floor
     for (let i = 0; i < worldSize; i++) {
         for (let j = 0; j < worldSize; j++) {
-            let randTile = 0;//Math.floor(Math.random() * 8);
+            // let randTile = 0;
+            let randTile = Math.floor(Math.random() * 8);
             if (j >= 24 && j <= 26 && i >= 24 && i <= 26) randTile = 4;
             createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile );
         }
