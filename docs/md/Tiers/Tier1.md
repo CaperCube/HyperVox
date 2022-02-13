@@ -6,7 +6,7 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 # Tasks
 - [ ] Basic rendering
     1. - [X] render some cubes and lighting
-    2. - [ ] Switch to Babylon.js (they have colission detection)
+    2. - [X] Switch to Babylon.js (they have colission detection)
     3. - [ ] texture loading (probably use a texture atlas)
     4. - [ ] store / render different blocks in a 3D array
 - [X] Basic player movement (just get input and move the player with jumping, and gravity)

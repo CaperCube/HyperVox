@@ -20,6 +20,7 @@ let moveSpeed = tileScale/20;
 ////////////////////////////////////////////////////
 init();
 animate();
+initMovementControls();
 
 ////////////////////////////////////////////////////
 // Scene init
@@ -47,8 +48,6 @@ function init() {
     controls = new THREE.PointerLockControls( camera, document.body );
     document.body.addEventListener( 'click', () => { controls.lock(); } );
     scene.add( controls.getObject() );
-
-    initMovementControls();
 
     // Load texture
     const texture = new THREE.TextureLoader().load( './client/src/textures/textures.png' );

@@ -24,8 +24,8 @@
   "author": "CaperCube",
   "license": "ISC",
   "dependencies": {
+    "babylonjs": "^4.2.1",
     "dotenv": "^16.0.0",
-    "express": "^4.17.2",
-    "three": "^0.137.5"
+    "express": "^4.17.2"
   }
 }
