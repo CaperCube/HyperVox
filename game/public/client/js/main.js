@@ -1,12 +1,34 @@
-// Texture 
-//'./client/src/textures/textures.png'
-// main canvas
-// $("#main-canvas")
+// `var block = 0x00000000` A single hex value to represent the block ID, orientation, damage value, and state (open/closed, other)
+// 0x 0000      00      0       0
+//    BlockID   Rot     Damage  State
+// `var chunk = [[[]]]` A 16x16x16 array to hold the current chunk's blocks
+// `chunk = [ [ [ 0x010000, 0x010000, 0x010000, ... ], ... ], ... ]` Example chunk
+// `var visibleChunks = [[[]]]` A 5x5x5 array to hold the visible chunks
+// `var world.chunks = [[[]]]` A _x_x_ array to hold the chunks for the whole world
+// `var visibleMesh = FlattenChunks(visibleChunks)`
 
 ////////////////////////////////////////////////////
 // Vars
 ////////////////////////////////////////////////////
+// Chunk coordinate format: chunk[y][x][z]
+const testChunk = [
+    [ [-1,-1,-1,-1,-1],     [-1,-1,-1,-1,-1],   [-1,-1,3,-1,-1],    [-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1] ],    // Top Y layer
+    [ [-1,-1,-1,-1,-1],     [-1,-1,-1,-1,-1],   [-1,-1,3,-1,-1],    [-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1] ],
+    [ [-1,-1,6,-1,-1],      [-1,-1,6,-1,-1],    [4,4,-1,4,4],       [-1,-1,6,-1,-1],    [-1,-1,6,-1,-1] ],
+    [ [-1,-1,-1,-1,-1],     [-1,-1,-1,-1,-1],   [-1,-1,3,-1,-1],    [-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1] ],
+    [ [-1,-1,-1,-1,-1],     [-1,-1,-1,-1,-1],   [-1,-1,3,-1,-1],    [-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1] ]     // Bottom Y layer
+]
 
+const chunkSize = 16
+let genChunk = [[[]]]
+let genY = 0, genX = 0, genZ = 0
+
+// Noise vars
+const seed = '0000'
+const noiseScale = 0.1
+const noiseTolerance = 0.5
+const genNoise = new perlinNoise3d()
+//genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
 
 // Material for most blocks
 let mat, texture
@@ -16,7 +38,7 @@ let frame = 0
 let renderScale = 1
 
 let tileScale = 1
-let worldSize = 50 // In num of tiles
+let worldSize = 3 // In num of chunks
 let playerHeight = tileScale * 1.5
 
 let moveForward, moveBackward, moveLeft, moveRight
@@ -32,9 +54,12 @@ const createTestScene = () => {
 
     // Create new camera in scene
     //const camera = new BABYLON.FreeCamera( "camera1", new BABYLON.Vector3( 0, 0, -10 ), scene )
-    var camera = new BABYLON.ArcRotateCamera('camera1', 0, 0, 0, new BABYLON.Vector3(0, 0, -10), scene)
+    let middle = (chunkSize/2)-(tileScale/2)
+    let middleTarget = new BABYLON.Vector3(middle, middle, middle)
+    var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, middleTarget, scene)
     camera.minZ = tileScale/5
-    camera.setTarget(BABYLON.Vector3.Zero())
+    
+    //camera.setTarget(middleTarget)
     camera.attachControl(canvas, true)
 
     // Create light in scene
@@ -42,14 +67,14 @@ const createTestScene = () => {
 
     // Create block material
     mat = new BABYLON.StandardMaterial('mat')
-    texture = new BABYLON.Texture('./client/src/textures/textures.png', scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
     mat.diffuseTexture = texture
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
 
     // Fog
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP
-    scene.fogDensity = 0//0.1
-    scene.fogStart = tileScale
+    scene.fogDensity = 0//0.05
+    scene.fogStart = tileScale*5
     scene.fogEnd = tileScale*50
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
     
@@ -67,10 +92,19 @@ rescaleCanvas(renderScale)
 
 // Init scene
 const scene = createTestScene()
-createBlockWithUV({x: 0, y: 0, z: 0}, 0)
+// createRandomFloor(worldSize)
+// let blockMeshes = createBlocksFromChunk(testChunk)
+// console.log(blockMeshes)
+
+for (let x = 0; x < worldSize; x++) {
+    for (let z = 0; z < worldSize; z++) {
+        let chunkOffset = { x: x*16, y: 0, z: z*16 }
+        let myOtherChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
+        let combinedMesh = BABYLON.Mesh.MergeMeshes(myOtherChunkMeshes, true)
+    }
+}
 
 initMovementControls()
-//createRandomFloor()
 
 ////////////////////////////////////////////////////
 // Misc. Event Listeners
@@ -95,10 +129,14 @@ function rescaleCanvas(ratio) {
 // Render loop
 ////////////////////////////////////////////////////
 engine.runRenderLoop(function(){
-    //frame++
+    frame++
     //movementUpdate()
-
     // Update scene
+
+    // generate new blocks
+    // animateGeneratePerlinChunk()
+
+    // render scene
     scene.render()
 })
 
@@ -106,58 +144,15 @@ engine.runRenderLoop(function(){
 // Basic mesh creation
 ////////////////////////////////////////////////////
 // Return UV coordinates for a quad based on the tile index
-function getTileUVByIndex(idx) {
-    let row = 0
-    let maxTileRow = 16 // the totla number of tiles in a row & col
-    let tileInc = 1/maxTileRow
-    
-    // calculate the UV points for the tile
-    let top = row * tileInc
-    let bottom = top + tileInc
-    let left = idx * tileInc
-    let right = left + tileInc
-
-    return [
-        {u: (left), v: (1-top)}, // 0 - Top Left
-        {u: (right), v: (1-top)}, // 1 - Top Right
-        {u: (left), v: (1-bottom)}, // 2 - Bottom Left
-        {u: (right), v: (1-bottom)}  // 3 - Bottom Right
-    ]
-}
-
-// Get the tile index UVs and create a quad
-function createQuadwithUV( {x, y, z}, tex, idx) {
-    const geometry = new THREE.PlaneGeometry( tileScale, tileScale )
-
-    // Set UV of geometry
-    let tileUV = getTileUVByIndex(idx)
-    let uvAttribute = geometry.attributes.uv
-    uvAttribute.setXY( 0, tileUV[0].u, tileUV[0].v )
-    uvAttribute.setXY( 1, tileUV[1].u, tileUV[1].v )
-    uvAttribute.setXY( 2, tileUV[2].u, tileUV[2].v )
-    uvAttribute.setXY( 3, tileUV[3].u, tileUV[3].v )
-
-    // Make object
-    const material = new THREE.MeshBasicMaterial( { map: tex/*, side: THREE.DoubleSide */ } )
-    const plane = new THREE.Mesh( geometry, material )
-
-    // Rotate and position plane
-    plane.rotation.x = -Math.PI/2
-    plane.position.x = x
-    plane.position.y = y
-    plane.position.z = z
-
-    // Add to scene
-    scene.add( plane )
-}
-
-function createBlockWithUV({x, y, z}, idx) {
-    // Set UVs
-    let faceUV = []
+function getBlockUVByIndex(idx) {
+    // Calculate ID offset
     const rows = 16
     const columns = 16
-    let c = 0
-    let r = 0
+    let c = idx % columns
+    let r = Math.floor(idx / columns)
+
+    // Set UVs
+    let faceUV = []
     for (let i = 0; i < 6; i++) {
         faceUV[i] = new BABYLON.Vector4(
             c / columns,        // U1
@@ -167,27 +162,112 @@ function createBlockWithUV({x, y, z}, idx) {
         );
     }
 
+    return faceUV
+}
+
+// Get the tile index UVs and create a box
+function createBlockWithUV({x, y, z}, idx) {
     // Create box
     const block = BABYLON.MeshBuilder.CreateBox("Block", {
         size: tileScale,
-        faceUV: faceUV, //[new BABYLON.Vector4(0, 0, 0, 0)] // Array of 6 (one for each face)
+        faceUV: getBlockUVByIndex(idx),
         wrap: true
     }, scene)
 
     block.material = mat
+    block.position = new BABYLON.Vector3(x, y, z)
+
+    return block
 }
 
-// Creat floor using createQuadwithUV()
-function createRandomFloor() {
+// TODO: Remove this
+// Create floor using createBlockWithUV()
+function createRandomFloor(floorSize) {
     // Create floor
-    for (let i = 0; i < worldSize; i++) {
-        for (let j = 0; j < worldSize; j++) {
+    for (let i = 0; i < floorSize; i++) {
+        for (let j = 0; j < floorSize; j++) {
             // let randTile = 0
             let randTile = Math.floor(Math.random() * 8)
             if (j >= 24 && j <= 26 && i >= 24 && i <= 26) randTile = 4
-            createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile )
+            createBlockWithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, randTile )
+            //createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile )
         }
     }
+}
+
+// Create blocks from chunk (returns mesh array)
+function createBlocksFromChunk(chunk, offset = { x: 0, y: 0, z: 0 }) {
+    // Create chunk blocks
+    let meshArray = []
+    for (let y = 0; y < chunk.length; y++) {
+        for (let x = 0; x < chunk[y].length; x++) {
+            for (let z = 0; z < chunk[y][x].length; z++) {
+                let tileID = chunk[y][x][z]
+                if (tileID >= 0) {
+                    const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: ((chunk.length-y)+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
+                    meshArray.push(newBlock)
+                }
+            }
+        }
+    }
+    return meshArray
+}
+
+// Perlin generate chunk (render loop function that lets us see it happen)
+function animateGeneratePerlinChunk() {
+    if (frame % 1 === 0) {
+        if (genY < chunkSize) {
+            if (genZ < chunkSize) {
+                genZ++
+                // Create block
+                const noiseVal = genNoise.get(genX*noiseScale, genY*noiseScale, genZ*noiseScale)
+                if (noiseVal > noiseTolerance) {
+                    // Create mesh
+                    let randTile = Math.floor(Math.random() * 8)
+                    createBlockWithUV({x: genX*tileScale, y: genY*tileScale, z: genZ*tileScale}, randTile)
+                    // Put new ID into stored chunk
+                    genChunk[genY][genX][genZ] = randTile
+                }
+            }
+            else {
+                genZ = 0
+                if (genX < chunkSize-1) {
+                    genX++
+                    // Extend the chunk
+                    genChunk[genY][genX] = []
+                }
+                else {
+                    genX = 0
+                    genY++
+                    // Extend the chunk
+                    genChunk[genY] = [[]]
+                }
+            }
+        }
+    }
+}
+
+// Perlin generate chunk
+function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}) {
+    let newChunk = [[[]]]
+
+    for (let y = 0; y < 16; y++) { // Y
+        newChunk[y] = []
+        for (let x = 0; x < 16; x++) { // X
+            newChunk[y][x] = []
+            for (let z = 0; z < 16; z++) { // Z
+                // Generate block ID
+                const noiseVal = genNoise.get((x+offset.x)*noiseScale, (y+offset.y)*noiseScale, (z+offset.z)*noiseScale)
+                let randTile = -1
+                if (noiseVal > noiseTolerance) randTile = Math.floor(Math.random() * 7)
+
+                // Put new ID into stored chunk
+                newChunk[y][x][z] = randTile
+            }
+        }
+    }
+
+    return newChunk
 }
 
 ////////////////////////////////////////////////////

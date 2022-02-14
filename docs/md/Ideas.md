@@ -20,17 +20,8 @@ If you have ideas to add to this list, it would be nice to hear from you first s
 - This should be a web-based 3d game that is hosted from a node server.
 - Single-player sessions should be possible by running the game from a static non-multiplayer web-server
 	- Single-player worlds should be download/uploadable in single-player and multi-player games
-- Multiplayer sessions could be a node server hosted on a player's machine and their session link sent to the other players
+- Multiplayer sessions could be a node server hosted on a player's machine
 - Multiplayer servers should hybernate when no players are in the game
 	- If the last player leaves the game, store the time the user left
 	- Compare current time to the last-player-online time for any events needing time
-- Game client should be able to work without a game server. If someone wants to play single player, a "static" godaddy site should be able to host it.
-- Dynamic mesh flattening to reduce draw calls (on a timer? something like a few seconds after placing blocks)
-
-## Pseudo Code:
-- `var block = 0x000000` A single hex value to represent the block ID, orientation, damage value, and state (open/closed, other)
-- `var chunk = [[[]]]` A 16x16x16 array to hold the current chunk's blocks
-	- `chunk = [ [ [ 0x010000, 0x010000, 0x010000, ... ], ... ], ... ]` Example chunk
-- `var visibleChunks = [[[]]]` A 5x5x5 array to hold the visible chunks
-- `var world.chunks = [[[]]]` A _x_x_ array to hold the chunks for the whole world
-- `var visibleMesh = FlattenChunks(visibleChunks)`
+- Game client should be able to work without a game server. If someone wants to play single player, a simple godaddy site should be able to host it.

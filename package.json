@@ -26,6 +26,7 @@
   "dependencies": {
     "babylonjs": "^4.2.1",
     "dotenv": "^16.0.0",
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "perlin-noise-3d": "^0.5.4"
   }
 }
