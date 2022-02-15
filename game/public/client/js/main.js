@@ -38,7 +38,7 @@ let frame = 0
 let renderScale = 1
 
 const tileScale = 1
-const worldSize = 4 // In num of chunks
+const worldSize = 1//4 // In num of chunks
 const chunkSize = 16
 const fogDist = 1000//tileScale*chunkSize*2
 let middle = ((worldSize * chunkSize) / 2) - (tileScale/2)
@@ -101,24 +101,28 @@ const scene = createTestScene()
 // createRandomFloor(worldSize)
 // let blockMeshes = createBlocksFromChunk(testChunk)
 // console.log(blockMeshes)
+//createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 0)
+createChunkMesh(generatePerlinChunk())
+/*
 let combinedMesh = []
 for (let y = 0; y < worldSize; y++) {
     for (let x = 0; x < worldSize; x++) {
         for (let z = 0; z < worldSize; z++) {
             let chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-            let myOtherChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
-            combinedMesh.push(BABYLON.Mesh.MergeMeshes(myOtherChunkMeshes, true))
+            let myChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
+            combinedMesh.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
 
             // let thisMesh = combinedMesh[combinedMesh.length-1]
             // if (thisMesh) {
             //     //console.log(combinedMesh)
-            //     //combinedMesh.simplify([{quality:0.75, distance: 0, /*optimizeMesh: true*/}])
+            //     //combinedMesh.simplify([{quality:0.75, distance: 0, }])//optimizeMesh: true}])
             //     //combinedMesh.convertToUnIndexedMesh()
             //     //combinedMesh.cullingStrategy = BABYLON.AbstractMesh.CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY
             // }
         }
     }
 }
+*/
 //BABYLON.Mesh.MergeMeshes(combinedMesh, true)
 
 
@@ -163,6 +167,25 @@ engine.runRenderLoop(function(){
 // Basic mesh creation
 ////////////////////////////////////////////////////
 // Return UV coordinates for a quad based on the tile index
+function getQuadUVByIndex(idx) {
+    // Calculate ID offset
+    const rows = 16
+    const columns = 16
+    let c = idx % columns
+    let r = Math.floor(idx / columns)
+
+    // Set UV
+    let faceUV = new BABYLON.Vector4(
+        c / columns,        // U1
+        (r + 1) / rows,     // V1
+        (c + 1) / columns,  // U2
+        r / rows            // V2
+    );
+
+    return faceUV
+}
+
+// Return UV coordinates for a block based on the tile index
 function getBlockUVByIndex(idx) {
     // Calculate ID offset
     const rows = 16
@@ -214,21 +237,112 @@ function createRandomFloor(floorSize) {
     }
 }
 
+function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx) {
+    // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
+    // Create quad
+    const quad = BABYLON.MeshBuilder.CreatePlane("Quad", {
+        size: tileScale,
+        frontUVs: getQuadUVByIndex(idx),
+        backUVs: getQuadUVByIndex(idx),
+        sideOrientation: BABYLON.Mesh.DOUBLESIDE
+    }, scene)
+
+    // Set material, position, and rotation
+    // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
+    quad.material = mat
+    let offset = {x: 0, y: 0, z: 0}
+    let rot = {x: 0, y: 0, z: 0}
+    switch (face) {
+        case 'front':
+            offset.x = 0.5
+            rot.y = Math.PI/2
+            break
+        case 'back':
+            offset.x = -0.5
+            rot.y = -Math.PI/2
+            break
+        case 'left':
+            offset.z = -0.5
+            rot.y = Math.PI
+            break
+        case 'right':
+            offset.z = 0.5
+            rot.y = 0
+            break
+        case 'top':
+            offset.y = 0.5
+            rot.x = Math.PI/2
+            break
+        case 'bottom':
+            offset.y = -0.5
+            rot.x = -Math.PI/2
+            break
+        default:
+            break
+    }
+    quad.position = new BABYLON.Vector3((pos.x + offset.x)*tileScale, (pos.y + offset.y)*tileScale, (pos.z + offset.z)*tileScale)
+    quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
+
+    return quad
+}
+
+// Create a hollow mesh from chunk
+function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }) {
+    // Step through each block in the chunk
+    // if the surrounding blocks are transparent / air blocks, add the indexed face
+
+    // We'll store our quads here
+    let meshArray = []
+    const transparentTiles = [-1]
+
+    for (let y = 0; y < chunk.length; y++) {
+    for (let x = 0; x < chunk[y].length; x++) {
+    for (let z = 0; z < chunk[y][x].length; z++) {
+        let tileID = chunk[y][x][z]
+        // if this is not an air block, continue
+        if (!transparentTiles.includes(tileID)) {
+            // Check front, back, left, right, top, bottom
+            // Front
+            let checkSpot = chunk[y]?.[x+1]?.[z]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'front', tileID)
+
+            // Back
+            checkSpot = chunk[y]?.[x-1]?.[z]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'back', tileID)
+
+            // Left
+            checkSpot = chunk[y]?.[x]?.[z-1]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'left', tileID)
+
+            // Right
+            checkSpot = chunk[y]?.[x]?.[z+1]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'right', tileID)
+
+            // Top
+            checkSpot = chunk[y+1]?.[x]?.[z]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'top', tileID)
+
+            // Bottom
+            checkSpot = chunk[y-1]?.[x]?.[z]
+            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'bottom', tileID)
+        }
+    }}}
+    return meshArray
+}
+
 // Create blocks from chunk (returns mesh array)
 function createBlocksFromChunk(chunk, offset = { x: 0, y: 0, z: 0 }) {
     // Create chunk blocks
     let meshArray = []
     for (let y = 0; y < chunk.length; y++) {
-        for (let x = 0; x < chunk[y].length; x++) {
-            for (let z = 0; z < chunk[y][x].length; z++) {
-                let tileID = chunk[y][x][z]
-                if (tileID >= 0) {
-                    const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
-                    meshArray.push(newBlock)
-                }
-            }
+    for (let x = 0; x < chunk[y].length; x++) {
+    for (let z = 0; z < chunk[y][x].length; z++) {
+        let tileID = chunk[y][x][z]
+        if (tileID >= 0) {
+            const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
+            meshArray.push(newBlock)
         }
-    }
+    }}}
     return meshArray
 }
 
