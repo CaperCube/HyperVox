@@ -19,7 +19,6 @@ const testChunk = [
     [ [-1,-1,-1,-1,-1],     [-1,-1,-1,-1,-1],   [-1,-1,3,-1,-1],    [-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1] ]     // Bottom Y layer
 ]
 
-const chunkSize = 16
 let genChunk = [[[]]]
 let genY = 0, genX = 0, genZ = 0
 
@@ -28,7 +27,8 @@ const seed = '0000'
 const noiseScale = 0.1
 const noiseTolerance = 0.5
 const genNoise = new perlinNoise3d()
-//genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
+genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
+console.log(genNoise)
 
 // Material for most blocks
 let mat, texture
@@ -37,8 +37,11 @@ let frame = 0
 
 let renderScale = 1
 
-let tileScale = 1
-let worldSize = 3 // In num of chunks
+const tileScale = 1
+const worldSize = 4 // In num of chunks
+const chunkSize = 16
+const fogDist = 1000//tileScale*chunkSize*2
+let middle = ((worldSize * chunkSize) / 2) - (tileScale/2)
 let playerHeight = tileScale * 1.5
 
 let moveForward, moveBackward, moveLeft, moveRight
@@ -54,28 +57,31 @@ const createTestScene = () => {
 
     // Create new camera in scene
     //const camera = new BABYLON.FreeCamera( "camera1", new BABYLON.Vector3( 0, 0, -10 ), scene )
-    let middle = (chunkSize/2)-(tileScale/2)
     let middleTarget = new BABYLON.Vector3(middle, middle, middle)
     var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, middleTarget, scene)
+    //var camera = new BABYLON.UniversalCamera('playerCamera', middleTarget, scene)
     camera.minZ = tileScale/5
-    
-    //camera.setTarget(middleTarget)
+    camera.maxZ = fogDist
     camera.attachControl(canvas, true)
 
     // Create light in scene
     const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+    //light.intensity = 1
+    //const light2 = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(1, -1, 0), scene);
 
     // Create block material
     mat = new BABYLON.StandardMaterial('mat')
     texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
     mat.diffuseTexture = texture
+    //mat.backFaceCulling = true;
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
 
     // Fog
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP
-    scene.fogDensity = 0//0.05
-    scene.fogStart = tileScale*5
-    scene.fogEnd = tileScale*50
+    scene.fogDensity = 0//0.15
+    scene.fogStart = fogDist/2//tileScale*5
+    scene.fogEnd = fogDist
+    scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR//FOGMODE_EXP
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
     
     // Return the scene to the renderer
@@ -95,15 +101,28 @@ const scene = createTestScene()
 // createRandomFloor(worldSize)
 // let blockMeshes = createBlocksFromChunk(testChunk)
 // console.log(blockMeshes)
+let combinedMesh = []
+for (let y = 0; y < worldSize; y++) {
+    for (let x = 0; x < worldSize; x++) {
+        for (let z = 0; z < worldSize; z++) {
+            let chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
+            let myOtherChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
+            combinedMesh.push(BABYLON.Mesh.MergeMeshes(myOtherChunkMeshes, true))
 
-for (let x = 0; x < worldSize; x++) {
-    for (let z = 0; z < worldSize; z++) {
-        let chunkOffset = { x: x*16, y: 0, z: z*16 }
-        let myOtherChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
-        let combinedMesh = BABYLON.Mesh.MergeMeshes(myOtherChunkMeshes, true)
+            // let thisMesh = combinedMesh[combinedMesh.length-1]
+            // if (thisMesh) {
+            //     //console.log(combinedMesh)
+            //     //combinedMesh.simplify([{quality:0.75, distance: 0, /*optimizeMesh: true*/}])
+            //     //combinedMesh.convertToUnIndexedMesh()
+            //     //combinedMesh.cullingStrategy = BABYLON.AbstractMesh.CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY
+            // }
+        }
     }
 }
+//BABYLON.Mesh.MergeMeshes(combinedMesh, true)
 
+
+//scene.freezeActiveMeshes()
 initMovementControls()
 
 ////////////////////////////////////////////////////
@@ -204,7 +223,7 @@ function createBlocksFromChunk(chunk, offset = { x: 0, y: 0, z: 0 }) {
             for (let z = 0; z < chunk[y][x].length; z++) {
                 let tileID = chunk[y][x][z]
                 if (tileID >= 0) {
-                    const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: ((chunk.length-y)+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
+                    const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
                     meshArray.push(newBlock)
                 }
             }
@@ -259,7 +278,7 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}) {
                 // Generate block ID
                 const noiseVal = genNoise.get((x+offset.x)*noiseScale, (y+offset.y)*noiseScale, (z+offset.z)*noiseScale)
                 let randTile = -1
-                if (noiseVal > noiseTolerance) randTile = Math.floor(Math.random() * 7)
+                if (noiseVal > noiseTolerance) randTile = Math.floor(Math.random() * 9)
 
                 // Put new ID into stored chunk
                 newChunk[y][x][z] = randTile
