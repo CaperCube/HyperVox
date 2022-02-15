@@ -1,269 +1,132 @@
 ////////////////////////////////////////////////////
+// This should be in charge of rendering firing client-side updates
+////////////////////////////////////////////////////
+
+// `var block = 0x00000000` A single hex value to represent the block ID, orientation, damage value, and state (open/closed, other)
+// 0x 0000      00      0       0
+//    BlockID   Rot     Damage  State
+
+// `var chunk = [[[]]]` A 16x16x16 array to hold the current chunk's block IDs
+// Chunk coordinate format: chunk[y][x][z]
+
+// `var visibleChunks = [[[]]]` A 5x5x5 array to hold the visible chunks
+// `var world.chunks = [[[]]]` A _x_x_ array to hold the chunks for the whole world
+// `var visibleMesh = FlattenChunks(visibleChunks)`
+
+////////////////////////////////////////////////////
 // Vars
 ////////////////////////////////////////////////////
-let camera, scene, renderer;
-let mesh;
-let frame = 0;
-let controls;
 
-let resFactor = 4;
+// World vars
+const newWorld = new World({
+    worldSeed: 'helloworld',
+    worldSize: 3
+})
+let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
+//let worldCenter = ((3 * 16) / 2) - (1/2)
+console.log(newWorld)
 
-let tileScale = 1;
-let worldSize = 50; // In num of tiles
-let playerHeight = tileScale * 1.5;
+// Render vars
+const canvas = $('#main-canvas')
+let engine
+let renderScale = 1
+let frame = 0
+const fogDist = 1000
+// Material for most blocks
+let mat, texture
 
-let moveForward, moveBackward, moveLeft, moveRight;
-let moveSpeed = tileScale/20;
-
-////////////////////////////////////////////////////
-// Init function calls
-////////////////////////////////////////////////////
-init();
-animate();
-initMovementControls();
 
 ////////////////////////////////////////////////////
 // Scene init
 ////////////////////////////////////////////////////
-function init() {
 
-    // Create camera
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, tileScale/5, 5000 );
-    // Put camera in center and at player height
-    camera.position.x = (worldSize/2) * tileScale;
-    camera.position.z = -(worldSize/2) * tileScale;
-    camera.position.y = playerHeight;
+// TODO: Clean this function up
+const createScene = () => {
+    // Create new scene
+    const scene = new BABYLON.Scene(engine)
+    scene.clearColor = new BABYLON.Color3.Black()
 
-    // Create scene
-    //scene = new THREE.Scene();
-    scene = new THREE.Scene();
-    {
-        const color = 0x000000;  // white
-        const near = tileScale;
-        const far = tileScale*10;
-        scene.fog = new THREE.Fog(color, near, far);
-    }
+    // Create new camera in scene
+    //const camera = new BABYLON.FreeCamera( "camera1", new BABYLON.Vector3( 0, 0, -10 ), scene )
+    let centerTarget = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
+    var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
+    //var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
+    camera.minZ = newWorld.getTileScale()/5
+    camera.maxZ = fogDist
+    camera.attachControl(canvas, true)
 
-    // FPS controls
-    controls = new THREE.PointerLockControls( camera, document.body );
-    document.body.addEventListener( 'click', () => { controls.lock(); } );
-    scene.add( controls.getObject() );
+    // Create light in scene
+    const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+    //light.intensity = 1
 
-    // Load texture
-    const texture = new THREE.TextureLoader().load( './client/src/textures/textures.png' );
-    texture.minFilter = THREE.NearestFilter; //THREE.LinearMipMapLinearFilter;
-    texture.magFilter = THREE.NearestFilter;
+    // Create block material
+    // TODO: set this as the scene's default scene so it can be referenced that way
+    mat = new BABYLON.StandardMaterial('mat')
+    texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    mat.diffuseTexture = texture
+    //mat.backFaceCulling = true;
+    mat.specularColor = new BABYLON.Color3(0, 0, 0)
 
-    // Create geometry
-    const geometry = new THREE.BoxGeometry( tileScale, tileScale, tileScale );
-    const material = new THREE.MeshBasicMaterial( { map: texture } );
+    // Fog
+    scene.fogDensity = 0//0.15
+    scene.fogStart = fogDist/2
+    scene.fogEnd = fogDist
+    scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR//FOGMODE_EXP
+    scene.fogColor = new BABYLON.Color3(0, 0, 0)
 
-    // Add mesh to scene
-    mesh = new THREE.Mesh( geometry, material );
-    // scene.add( mesh );
-
-    // Create floor
-    for (let i = 0; i < worldSize; i++) {
-        for (let j = 0; j < worldSize; j++) {
-            // let randTile = 0;
-            let randTile = Math.floor(Math.random() * 8);
-            if (j >= 24 && j <= 26 && i >= 24 && i <= 26) randTile = 4;
-            createQuadwithUV( {x: i*tileScale, y: 0, z: -j*tileScale}, texture, randTile );
-        }
-    }
-
-    // Create renderer
-    renderer = new THREE.WebGLRenderer( { antialias: false } );
-    renderer.setPixelRatio( window.devicePixelRatio/resFactor );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
-
-    // Set event listener
-    window.addEventListener( 'resize', onWindowResize );
-
+    // Generate world
+    generateSimpleWorld({
+        seed: newWorld.getWorldSeed(),
+        tileScale: newWorld.getTileScale(),
+        chunkSize: newWorld.getChunkSize(),
+        worldSize: newWorld.getWorldSize(),
+        scene: scene
+    })
+    
+    // Return the scene to the renderer
+    return scene
 }
+
+////////////////////////////////////////////////////
+// Init function calls
+////////////////////////////////////////////////////
+
+// Init engine
+rescaleCanvas(renderScale)
+
+// Init scene
+const scene = createScene()
 
 ////////////////////////////////////////////////////
 // Misc. Event Listeners
 ////////////////////////////////////////////////////
+
+// Set window resize listener
+window.addEventListener( 'resize', onWindowResize );
 function onWindowResize() {
+    rescaleCanvas(renderScale)
+}
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+function rescaleCanvas(ratio) {
+    canvas.style.width = `${ratio*100}%`
+    canvas.style.height = `${ratio*100}%`
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    engine = new BABYLON.Engine(canvas, false)
 
+    canvas.style.width = "100%"
+    canvas.style.height = "100%"
 }
 
 ////////////////////////////////////////////////////
-// Animation loop
+// Render loop
 ////////////////////////////////////////////////////
-function animate() {
 
-    requestAnimationFrame( animate );
+engine.runRenderLoop(function(){
+    // Update frame
+    frame++
 
-    frame++;
+    //movementUpdate()
 
-    // mesh.rotation.x += 0.005;
-    // mesh.rotation.y += 0.01;
-
-    // camera.position.y = (Math.sin(frame/5) * 5) + 155;
-    // camera.position.x = (Math.sin(frame/250) * 1000) + 2500;
-    // camera.position.z = (Math.cos(frame/250) * 1000) - 2500;
-    // camera.rotation.y = (frame/250) - Math.PI/3;
-
-    // Movement update
-    movementUpdate();
-
-    renderer.render( scene, camera );
-
-}
-
-////////////////////////////////////////////////////
-// Basic mesh creation
-////////////////////////////////////////////////////
-function createCubeWithUV() {
-    // UV coordiantes
-    //https://stackoverflow.com/questions/20774648/three-js-generate-uv-coordinate
-    // Minecrafty
-    //https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_minecraft.html
-    // Performance
-    //https://threejs.org/examples/#webgl_instancing_performance
-}
-
-function createQuadwithUV( {x, y, z}, tex, idx) {
-    const geometry = new THREE.PlaneGeometry( tileScale, tileScale );
-
-    // Set UV of geometry
-    let tileUV = getTileUVByIndex(idx);
-    let uvAttribute = geometry.attributes.uv;
-    uvAttribute.setXY( 0, tileUV[0].u, tileUV[0].v );
-    uvAttribute.setXY( 1, tileUV[1].u, tileUV[1].v );
-    uvAttribute.setXY( 2, tileUV[2].u, tileUV[2].v );
-    uvAttribute.setXY( 3, tileUV[3].u, tileUV[3].v );
-
-    // Make object
-    const material = new THREE.MeshBasicMaterial( { map: tex/*, side: THREE.DoubleSide */ } );
-    const plane = new THREE.Mesh( geometry, material );
-
-    // Rotate and position plane
-    plane.rotation.x = -Math.PI/2;
-    plane.position.x = x;
-    plane.position.y = y;
-    plane.position.z = z;
-
-    // Add to scene
-    scene.add( plane );
-}
-
-function getTileUVByIndex(idx) {
-    let row = 0;
-    let maxTileRow = 16; // the totla number of tiles in a row & col
-    let tileInc = 1/maxTileRow;
-    
-    // calculate the UV points for the tile
-    let top = row * tileInc;
-    let bottom = top + tileInc;
-    let left = idx * tileInc;
-    let right = left + tileInc;
-
-    return [
-        {u: (left), v: (1-top)}, // 0 - Top Left
-        {u: (right), v: (1-top)}, // 1 - Top Right
-        {u: (left), v: (1-bottom)}, // 2 - Bottom Left
-        {u: (right), v: (1-bottom)}  // 3 - Bottom Right
-    ];
-}
-
-////////////////////////////////////////////////////
-// Basic FPS movement
-////////////////////////////////////////////////////
-function initMovementControls() {
-    const onKeyDown = function ( event ) {
-
-        switch ( event.code ) {
-
-            case 'ArrowUp':
-            case 'KeyW':
-                moveForward = true;
-                break;
-
-            case 'ArrowLeft':
-            case 'KeyA':
-                moveLeft = true;
-                break;
-
-            case 'ArrowDown':
-            case 'KeyS':
-                moveBackward = true;
-                break;
-
-            case 'ArrowRight':
-            case 'KeyD':
-                moveRight = true;
-                break;
-
-            case 'Space':
-                //if ( canJump === true ) velocity.y += 350;
-                //canJump = false;
-                break;
-
-        }
-    }
-
-    const onKeyUp = function ( event ) {
-
-        switch ( event.code ) {
-
-            case 'ArrowUp':
-            case 'KeyW':
-                moveForward = false;
-                break;
-
-            case 'ArrowLeft':
-            case 'KeyA':
-                moveLeft = false;
-                break;
-
-            case 'ArrowDown':
-            case 'KeyS':
-                moveBackward = false;
-                break;
-
-            case 'ArrowRight':
-            case 'KeyD':
-                moveRight = false;
-                break;
-
-        }
-
-    };
-
-    document.addEventListener( 'keydown', onKeyDown );
-    document.addEventListener( 'keyup', onKeyUp );
-}
-
-function movementUpdate() {
-    // Move controler
-    let isMoving = false;
-    if (moveForward) {
-        controls.moveForward(moveSpeed);
-        isMoving = true;
-    }
-    if (moveBackward) {
-        controls.moveForward(-moveSpeed);
-        isMoving = true;
-    }
-
-    if (moveRight) {
-        controls.moveRight(moveSpeed);
-        isMoving = true;
-    }
-    if (moveLeft) {
-        controls.moveRight(-moveSpeed);
-        isMoving = true;
-    }
-
-    // Bob camera
-    if (isMoving) camera.position.y = (Math.sin(frame/4) * (tileScale/20)) + playerHeight;
-}
+    // render scene
+    scene.render()
+})
