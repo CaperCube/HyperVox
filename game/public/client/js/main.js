@@ -27,7 +27,7 @@ const seed = '0000'
 const noiseScale = 0.1
 const noiseTolerance = 0.5
 const genNoise = new perlinNoise3d()
-genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
+//genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
 console.log(genNoise)
 
 // Material for most blocks
@@ -38,7 +38,7 @@ let frame = 0
 let renderScale = 1
 
 const tileScale = 1
-const worldSize = 1//4 // In num of chunks
+const worldSize = 4 // In num of chunks
 const chunkSize = 16
 const fogDist = 1000//tileScale*chunkSize*2
 let middle = ((worldSize * chunkSize) / 2) - (tileScale/2)
@@ -102,14 +102,14 @@ const scene = createTestScene()
 // let blockMeshes = createBlocksFromChunk(testChunk)
 // console.log(blockMeshes)
 //createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 0)
-createChunkMesh(generatePerlinChunk())
-/*
+
 let combinedMesh = []
 for (let y = 0; y < worldSize; y++) {
     for (let x = 0; x < worldSize; x++) {
         for (let z = 0; z < worldSize; z++) {
             let chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-            let myChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
+            // let myChunkMeshes = createBlocksFromChunk(generatePerlinChunk(chunkOffset), chunkOffset)
+            let myChunkMeshes = createChunkMesh(generatePerlinChunk(chunkOffset), chunkOffset)
             combinedMesh.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
 
             // let thisMesh = combinedMesh[combinedMesh.length-1]
@@ -122,7 +122,7 @@ for (let y = 0; y < worldSize; y++) {
         }
     }
 }
-*/
+
 //BABYLON.Mesh.MergeMeshes(combinedMesh, true)
 
 
@@ -240,7 +240,7 @@ function createRandomFloor(floorSize) {
 function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx) {
     // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
     // Create quad
-    const quad = BABYLON.MeshBuilder.CreatePlane("Quad", {
+    const quad = BABYLON.MeshBuilder.CreatePlane("BlockFace", {
         size: tileScale,
         frontUVs: getQuadUVByIndex(idx),
         backUVs: getQuadUVByIndex(idx),
@@ -250,37 +250,38 @@ function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx) {
     // Set material, position, and rotation
     // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
     quad.material = mat
+    const offsetAmmount = (tileScale/2)
     let offset = {x: 0, y: 0, z: 0}
     let rot = {x: 0, y: 0, z: 0}
     switch (face) {
         case 'front':
-            offset.x = 0.5
+            offset.x = offsetAmmount
             rot.y = Math.PI/2
             break
         case 'back':
-            offset.x = -0.5
+            offset.x = -offsetAmmount
             rot.y = -Math.PI/2
             break
         case 'left':
-            offset.z = -0.5
+            offset.z = -offsetAmmount
             rot.y = Math.PI
             break
         case 'right':
-            offset.z = 0.5
+            offset.z = offsetAmmount
             rot.y = 0
             break
         case 'top':
-            offset.y = 0.5
+            offset.y = offsetAmmount
             rot.x = Math.PI/2
             break
         case 'bottom':
-            offset.y = -0.5
+            offset.y = -offsetAmmount
             rot.x = -Math.PI/2
             break
         default:
             break
     }
-    quad.position = new BABYLON.Vector3((pos.x + offset.x)*tileScale, (pos.y + offset.y)*tileScale, (pos.z + offset.z)*tileScale)
+    quad.position = new BABYLON.Vector3((pos.x + offset.x), (pos.y + offset.y), (pos.z + offset.z))
     quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
 
     return quad
@@ -302,29 +303,36 @@ function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }) {
         // if this is not an air block, continue
         if (!transparentTiles.includes(tileID)) {
             // Check front, back, left, right, top, bottom
+            let tilePos = {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}
             // Front
-            let checkSpot = chunk[y]?.[x+1]?.[z]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'front', tileID)
+            let blockHere = chunk[y]?.[x+1]?.[z]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'front', tileID) )
 
             // Back
-            checkSpot = chunk[y]?.[x-1]?.[z]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'back', tileID)
+            blockHere = chunk[y]?.[x-1]?.[z]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'back', tileID) )
 
             // Left
-            checkSpot = chunk[y]?.[x]?.[z-1]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'left', tileID)
+            blockHere = chunk[y]?.[x]?.[z-1]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'left', tileID) )
 
             // Right
-            checkSpot = chunk[y]?.[x]?.[z+1]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'right', tileID)
+            blockHere = chunk[y]?.[x]?.[z+1]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'right', tileID) )
 
             // Top
-            checkSpot = chunk[y+1]?.[x]?.[z]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'top', tileID)
+            blockHere = chunk[y+1]?.[x]?.[z]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'top', tileID) )
 
             // Bottom
-            checkSpot = chunk[y-1]?.[x]?.[z]
-            if (!checkSpot) createQuadWithUVs({x:x,y:y,z:z}, 'bottom', tileID)
+            blockHere = chunk[y-1]?.[x]?.[z]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, 'bottom', tileID) )
         }
     }}}
     return meshArray
@@ -385,20 +393,18 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}) {
     let newChunk = [[[]]]
 
     for (let y = 0; y < 16; y++) { // Y
-        newChunk[y] = []
-        for (let x = 0; x < 16; x++) { // X
-            newChunk[y][x] = []
-            for (let z = 0; z < 16; z++) { // Z
-                // Generate block ID
-                const noiseVal = genNoise.get((x+offset.x)*noiseScale, (y+offset.y)*noiseScale, (z+offset.z)*noiseScale)
-                let randTile = -1
-                if (noiseVal > noiseTolerance) randTile = Math.floor(Math.random() * 9)
+    newChunk[y] = []
+    for (let x = 0; x < 16; x++) { // X
+    newChunk[y][x] = []
+    for (let z = 0; z < 16; z++) { // Z
+        // Generate block ID
+        const noiseVal = genNoise.get((x+offset.x)*noiseScale, (y+offset.y)*noiseScale, (z+offset.z)*noiseScale)
+        let randTile = -1
+        if (noiseVal > noiseTolerance) randTile = 4//Math.floor(Math.random() * 9)
 
-                // Put new ID into stored chunk
-                newChunk[y][x][z] = randTile
-            }
-        }
-    }
+        // Put new ID into stored chunk
+        newChunk[y][x][z] = randTile
+    }}}
 
     return newChunk
 }
