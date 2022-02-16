@@ -4,9 +4,16 @@ const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
 
 // Noise vars
-let pixelSize = canvas.width/64
+let pixelSize = canvas.width/32
 let pattern = [[]]
 const genNoise = new perlinNoise3d()
+const noiseTolerance = 0.5
+const toleranceMode = true
+const noiseScale = 0.1
+
+
+// String to number (this is and should be the same as it is in the game)
+const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
 
 ////////////////////////////////////////////////////////
 // DOM function
@@ -14,13 +21,13 @@ const genNoise = new perlinNoise3d()
 
 function DOMNoiseFnc() {
     // Get selected function
-    const selPattern = basicNoise // This should be an optin in a dropdown list
+    const selPattern = perlinNoise // This should be an optin in a dropdown list
     
     // Get seed based on choice
     const random = true // This should be a toggle option
-    const seed = random ? Math.random() : $('#DOM_seed').value
+    const seed = random ? `${Math.random()}` : $('#DOM_seed').value
     // Set seed
-    genNoise.noiseSeed(seed)
+    genNoise.noiseSeed(stringToSeed(seed))
 
     // Get z based on slider selection
     let steps = canvas.width / pixelSize
@@ -54,7 +61,7 @@ function generateNoise(func, firstZ, seed) {
     pattern[y][x] = []
     for (let z = 0; z < steps; z++) {
         // Fill pixel here
-        pattern[y][x][z] = func(x,y,z,seed)*255
+        pattern[y][x][z] = func(x,y,z,seed)
     }}}
 
     // Draw pattern to canvas
@@ -67,7 +74,8 @@ function drawPattern(p, z) {
     for (let x = 0; x < p[y].length; x++) {
         // Draw pixel
         let val = p[y][x][z]
-        ctx.fillStyle = `rgb( ${val}, ${val}, ${val} )`
+        if (toleranceMode) val = (val > noiseTolerance) ? 1 : 0
+        ctx.fillStyle = `rgb( ${val*255}, ${val*255}, ${val*255} )`
         ctx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
     }}
 }
@@ -84,5 +92,5 @@ function basicNoise(x,y,z,seed) {
 // Perlin
 function perlinNoise(x,y,z,seed) {
     // Return noise
-    return genNoise.get(x,y,z)
+    return genNoise.get(x*noiseScale,y*noiseScale,z*noiseScale)
 }

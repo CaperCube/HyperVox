@@ -32,8 +32,10 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}, chunkSize) {
 
 // Generate world
 // Returns new Mesh[]
+// String to number
 function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene}) {
-    if (seed) genNoise.noiseSeed(seed) // changing the seed will change the value of `genNoise.get(x,y,z)`
+    const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
+    if (seed) genNoise.noiseSeed(stringToSeed(seed)) // changing the seed will change the value of `genNoise.get(x,y,z)`
 
     let combinedMesh = []
     for (let y = 0; y < worldSize; y++) {
