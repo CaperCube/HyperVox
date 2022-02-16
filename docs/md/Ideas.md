@@ -16,6 +16,14 @@ If you have ideas to add to this list, it would be nice to hear from you first s
 		- Capture size (changes the size of the capture area)
 		- Export entire world
 
+# Art Style Ideas
+- [ ] 32x strict palette pixel-art
+- [ ] Kinda grungy (maybe db32)
+- [ ] Low-res?
+- [ ] Black void + black fog
+- [ ] Spacey Nebula
+- [ ] Cool alien planet?
+
 # Code Ideas
 - This should be a web-based 3d game that is hosted from a node server.
 - Single-player sessions should be possible by running the game from a static non-multiplayer web-server
