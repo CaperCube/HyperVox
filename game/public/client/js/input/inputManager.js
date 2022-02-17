@@ -192,15 +192,24 @@ function GetInput(btnAr) {
     return check;
 }
 
+function assignFunctionToInput(btnAr, downFunc, upFunc) {
+    for (var i = 0; i < btnAr.length; i++) {
+        if (btnAr[i]) {
+            btnAr[i].onPress = downFunc
+            btnAr[i].onRelease = upFunc
+        }
+    }
+}
+
 var Controls = {
     Player1: {
-        upAxis1: [Buttons.up],
-        downAxis1: [Buttons.down],
-        leftAxis1: [Buttons.left],
-        rightAxis1: [Buttons.right],
-        run: [Buttons.z],
-        jump: [Buttons.x],
-        fire1: [Buttons.c],
+        upAxis1: [Buttons.w],
+        downAxis1: [Buttons.s],
+        leftAxis1: [Buttons.a],
+        rightAxis1: [Buttons.d],
+        run: [Buttons.shift],
+        jump: [Buttons.space],
+        fire1: [Buttons.e],
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
         resapwn: [Buttons.r]

@@ -20,7 +20,7 @@
 // World vars
 const newWorld = new World({
     worldSeed: 'helloworld',
-    worldSize: 6
+    worldSize: 2//6
 })
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)
@@ -35,6 +35,7 @@ const fogDist = 1000
 // Material for most blocks
 let mat, texture
 
+let player
 
 ////////////////////////////////////////////////////
 // Scene init
@@ -49,8 +50,8 @@ const createScene = () => {
     // Create new camera in scene
     //const camera = new BABYLON.FreeCamera( "camera1", new BABYLON.Vector3( 0, 0, -10 ), scene )
     let centerTarget = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
-    var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
-    //var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
+    //var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
+    var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
     camera.minZ = newWorld.getTileScale()/5
     camera.maxZ = fogDist
     camera.attachControl(canvas, true)
@@ -82,6 +83,9 @@ const createScene = () => {
         worldSize: newWorld.getWorldSize(),
         scene: scene
     })
+
+    // Create player
+    //player = new ClientPlayer(Controls.Player1, camera)
     
     // Return the scene to the renderer
     return scene
@@ -126,6 +130,8 @@ engine.runRenderLoop(function(){
     frame++
 
     //movementUpdate()
+    //player.movementUpdate()
+    //camera.position.y += 1
 
     // render scene
     scene.render()
