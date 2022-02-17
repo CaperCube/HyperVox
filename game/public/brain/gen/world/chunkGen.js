@@ -38,9 +38,8 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}, chunkSize) {
     else return null
 }
 
-// Generate world
+// Generate world (This should be changed to return a full world chunk array, which will be stored in the currently open `World` object)
 // Returns new Mesh[]
-// String to number
 function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene}) {
     const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
     if (seed) genNoise.noiseSeed(stringToSeed(seed)) // changing the seed will change the value of `genNoise.get(x,y,z)`
@@ -95,8 +94,14 @@ function World({worldSeed, tileScale, chunkSize, worldSize}) {
 ////////////////////////////////////////////////////
 // Noise functions
 ////////////////////////////////////////////////////
+//include block type in the noise generator
+//noiseVal = customNoise(pos.x, pos.y, pos.z)
+//e.g `customNoise()` returns `{value, block}`
+
+// Used to clamp the generated values between 0 and 1
 const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max) }
 
+// Example custom noise function
 function customNoise( x, y, z ) {
     // Return noise
     let noise = genNoise.get( x, y*2, z )

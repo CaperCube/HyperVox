@@ -6,6 +6,10 @@ If you have ideas to add to this list, it would be nice to hear from you first s
 # Content Ideas
 ## Core content
 - Proc Gen world (not infinite)
+- Fun movement mechanics (who cares about balancing if it's fun?)
+- Multiplayer coop or pvp
+- Creative, Normal, Race, Death Match game modes
+- Any modding utilities that seem fun / cool
 
 ## Misc. Content
 - Nuke button (you can't lock your chests, but you can make a nuke trap)
@@ -15,6 +19,14 @@ If you have ideas to add to this list, it would be nice to hear from you first s
 		- Join similar (only combines meshs of the same block type)
 		- Capture size (changes the size of the capture area)
 		- Export entire world
+- World-gen pattern editor
+- Options for proc. gen content
+	- Block textures (using existing texture parts)
+	- Block props (damage, biome, drops, other)
+	- NPCs (Pos of limbs, Health, general behavior, and other props)
+	- Structures
+	- Bosses / Challenges
+	- Structures
 
 # Art Style Ideas
 - [ ] 32x strict palette pixel-art
