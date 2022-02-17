@@ -20,7 +20,7 @@
 // World vars
 const newWorld = new World({
     worldSeed: 'helloworld',
-    worldSize: 3
+    worldSize: 6
 })
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)

@@ -4,12 +4,22 @@ const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
 
 // Noise vars
-let pixelSize = canvas.width/32
+let resolution = 32
+let pixelSize = canvas.width/resolution
 let pattern = [[]]
+
+// let genSettings = {
+//     useSeed: !$('#DOM_useSeed').checked,
+//     seed: $('#DOM_seed').value,
+//     toleranceMode: $('#DOM_useTolerance').checked,
+//     noiseTolerance = 0.5,
+//     noiseScale = 0.1
+// }
+
 const genNoise = new perlinNoise3d()
 const noiseTolerance = 0.5
-const toleranceMode = true
-const noiseScale = 0.1
+let toleranceMode = $('#DOM_useTolerance').checked
+let noiseScale = 0.1
 
 
 // String to number (this is and should be the same as it is in the game)
@@ -21,11 +31,16 @@ const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce(
 
 function DOMNoiseFnc() {
     // Get selected function
-    const selPattern = perlinNoise // This should be an optin in a dropdown list
+    const selPattern = customNoise//perlinNoise // This should be an optin in a dropdown list
     
     // Get seed based on choice
-    const random = true // This should be a toggle option
+    const random = !$('#DOM_useSeed').checked // This should be a toggle option
     const seed = random ? `${Math.random()}` : $('#DOM_seed').value
+    
+    // Generator settings
+    toleranceMode = $('#DOM_useTolerance').checked
+    //noiseScale = $('#DOM_scale').value
+
     // Set seed
     genNoise.noiseSeed(stringToSeed(seed))
 
@@ -39,20 +54,29 @@ function DOMNoiseFnc() {
 }
 
 function updateZ(el) {
-    // Draw pattern with new z index
-    drawPattern(pattern, el.value)
-
     // Update label
     $("#DOM_zindex").innerHTML = `Z Index: ${el.value}`
+
+    // Redraw pattern with new z index
+    drawPattern(pattern, el.value)
+}
+
+function updateTolerance(el) {
+    // Update mode
+    toleranceMode = $('#DOM_useTolerance').checked
+
+    // Redraw pattern
+    drawPattern(pattern, $('#DOM_zSlider').value)
 }
 
 ////////////////////////////////////////////////////////
 // Pattern Gen and Drawing
 ////////////////////////////////////////////////////////
 
-function generateNoise(func, firstZ, seed) {
+function generateNoise(func, firstZ) {
     // Set number of steps
     let steps = canvas.width / pixelSize
+    pattern = [[[]]]
 
     // Generate pattern
     for (let y = 0; y < steps; y++) {
@@ -61,7 +85,8 @@ function generateNoise(func, firstZ, seed) {
     pattern[y][x] = []
     for (let z = 0; z < steps; z++) {
         // Fill pixel here
-        pattern[y][x][z] = func(x,y,z,seed)
+        let pos = { x: x*noiseScale, y: (resolution-y)*noiseScale, z: z*noiseScale }
+        pattern[y][x][z] = func( pos.x, pos.y, pos.z )
     }}}
 
     // Draw pattern to canvas
@@ -83,14 +108,27 @@ function drawPattern(p, z) {
 ////////////////////////////////////////////////////////
 // Noise patterns
 ////////////////////////////////////////////////////////
+const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max) }
 
 // Basic
-function basicNoise(x,y,z,seed) {
+function basicNoise( x, y, z ) {
     return Math.random()
 }
 
 // Perlin
-function perlinNoise(x,y,z,seed) {
+function perlinNoise( x, y, z ) {
     // Return noise
-    return genNoise.get(x*noiseScale,y*noiseScale,z*noiseScale)
+    let noise = genNoise.get( x, y, z )
+    return noise
 }
+
+// Custom
+function customNoise( x, y, z ) {
+    // Return noise
+    let noise = genNoise.get( x, y*2, z )
+    noise += 1 / ((y+1)*2)
+    noise -= 0.25
+
+    return clamp(noise, 0, 1)
+}
+
