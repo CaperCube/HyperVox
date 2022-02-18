@@ -20,15 +20,17 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}, chunkSize) {
     newChunk[y][x] = []
     for (let z = 0; z < chunkSize; z++) { // Z
         // Generate block ID
-        let pos = { x: (x+offset.x)*noiseScale, y: (y+offset.y)*noiseScale, z: (z+offset.z)*noiseScale }
+        //let pos = { x: (x+offset.x)*noiseScale, y: (y+offset.y)*noiseScale, z: (z+offset.z)*noiseScale }
+        let pos = { x: (x+offset.x), y: (y+offset.y), z: (z+offset.z) }
         //const noiseVal = genNoise.get((x+offset.x)*noiseScale, (y+offset.y)*noiseScale, (z+offset.z)*noiseScale)
-        const noiseVal = customNoise(pos.x, pos.y, pos.z)
-        let randTile = -1
-        if (noiseVal > noiseTolerance) {
-            randTile = Math.floor(Math.random() * 9)
-            chunkEmpty = false
-        }
-        if (pos.y === 0) randTile = 5
+        // const noiseVal = customNoise(pos.x, pos.y, pos.z)
+        let randTile = customNoise(pos.x, pos.y, pos.z)
+        if (randTile > 0) chunkEmpty = false
+        // if (noiseVal > noiseTolerance) {
+        //     randTile = 1 + Math.floor(Math.random() * 9)
+        //     chunkEmpty = false
+        // }
+        if (pos.y === 0) randTile = 6
 
         // Put new ID into stored chunk
         newChunk[y][x][z] = randTile
@@ -44,7 +46,7 @@ function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene})
     const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
     if (seed) genNoise.noiseSeed(stringToSeed(seed)) // changing the seed will change the value of `genNoise.get(x,y,z)`
 
-    let combinedMesh = []
+    let worldChunkMeshes = []
     for (let y = 0; y < worldSize; y++) {
     for (let x = 0; x < worldSize; x++) {
     for (let z = 0; z < worldSize; z++) {
@@ -53,10 +55,10 @@ function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene})
         // Only create mesh if chunk is empty
         if (chunk) {
             let myChunkMeshes = createChunkMesh(chunk, chunkOffset, tileScale, scene)
-            combinedMesh.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
+            worldChunkMeshes.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
         }
     }}}
-    return combinedMesh
+    return worldChunkMeshes
 }
 
 function World({worldSeed, tileScale, chunkSize, worldSize}) {
@@ -102,11 +104,41 @@ function World({worldSeed, tileScale, chunkSize, worldSize}) {
 const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max) }
 
 // Example custom noise function
+// function customNoise( x, y, z ) {
+//     // Return noise
+//     let noise = genNoise.get( x, y*2, z )
+//     noise += 1 / ((y+1)*2)
+//     noise -= 0.25
+
+//     return clamp(noise, 0, 1)
+// }
+
 function customNoise( x, y, z ) {
     // Return noise
-    let noise = genNoise.get( x, y*2, z )
-    noise += 1 / ((y+1)*2)
-    noise -= 0.25
+    function getNoiseVal( x, y, z ) {
+        x=x*noiseScale
+        y=y*noiseScale
+        z=z*noiseScale
+        let noise = genNoise.get( x, y, z )
+        noise += 1 / ((y+1)*2)
+        noise -= 0.25
+        return noise
+    }
+    
+    const baseNoise = getNoiseVal( x, y, z )
+    const blockAbove = getNoiseVal( x, y+1, z )
+    const blockBelow = getNoiseVal( x, y-1, z )
+    const blockMuchAbove = getNoiseVal( x, y+3, z )
 
-    return clamp(noise, 0, 1)
+    // gen blockID
+    let blockID = 0
+    if (baseNoise > noiseTolerance) {
+        if (blockAbove <= noiseTolerance) blockID = 4
+        else if (blockMuchAbove > noiseTolerance) blockID = 3
+        else blockID = 2
+
+        if (blockBelow <= noiseTolerance) blockID = 3
+    }
+
+    return blockID
 }

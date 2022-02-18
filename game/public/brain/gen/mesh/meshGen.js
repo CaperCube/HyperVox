@@ -8,8 +8,8 @@ function getQuadUVByIndex(idx) {
     // Calculate ID offset
     const rows = 16
     const columns = 16
-    let c = idx % columns
-    let r = Math.floor(idx / columns)
+    let c = (idx-1) % columns
+    let r = Math.floor((idx-1) / columns)
 
     // Set UV
     let faceUV = new BABYLON.Vector4(
@@ -17,7 +17,7 @@ function getQuadUVByIndex(idx) {
         (r + 1) / rows,     // V1
         (c + 1) / columns,  // U2
         r / rows            // V2
-    );
+    )
 
     return faceUV
 }
@@ -28,8 +28,8 @@ function getBlockUVByIndex(idx) {
     // Calculate ID offset
     const rows = 16
     const columns = 16
-    let c = idx % columns
-    let r = Math.floor(idx / columns)
+    let c = (idx-1) % columns
+    let r = Math.floor((idx-1) / columns)
 
     // Set UVs
     let faceUV = []
@@ -39,7 +39,7 @@ function getBlockUVByIndex(idx) {
             (r + 1) / rows,     // V1
             (c + 1) / columns,  // U2
             r / rows            // V2
-        );
+        )
     }
 
     return faceUV
@@ -83,21 +83,21 @@ function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, tileScale, face = 'front', 
     let offset = {x: 0, y: 0, z: 0}
     let rot = {x: 0, y: 0, z: 0}
     switch (face) {
-        case 'front':
+        case 'front': // TODO: change these, Z is the forward vector in Babylon.js
             offset.x = offsetAmmount
-            rot.y = Math.PI/2
+            rot.y = -Math.PI/2
             break
         case 'back':
             offset.x = -offsetAmmount
-            rot.y = -Math.PI/2
+            rot.y = Math.PI/2
             break
         case 'left':
             offset.z = -offsetAmmount
-            rot.y = Math.PI
+            rot.y = 0
             break
         case 'right':
             offset.z = offsetAmmount
-            rot.y = 0
+            rot.y = Math.PI
             break
         case 'top':
             offset.y = offsetAmmount
@@ -124,7 +124,7 @@ function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }, tileScale, scene)
 
     // We'll store our quads here
     let meshArray = []
-    const transparentTiles = [-1]
+    const transparentTiles = [0,255,256]
 
     for (let y = 0; y < chunk.length; y++) {
     for (let x = 0; x < chunk[y].length; x++) {
@@ -178,10 +178,30 @@ function createBlocksFromChunk(chunk, offset = { x: 0, y: 0, z: 0 }) {
     for (let x = 0; x < chunk[y].length; x++) {
     for (let z = 0; z < chunk[y][x].length; z++) {
         let tileID = chunk[y][x][z]
-        if (tileID >= 0) {
+        if (tileID > 0) {
             const newBlock = createBlockWithUV( {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}, tileID )
             meshArray.push(newBlock)
         }
     }}}
     return meshArray
+}
+
+// Create chunk border
+function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, wallSize, scene) {
+    // Create quad
+    const UVs = getQuadUVByIndex(256)
+
+    const plane = BABYLON.MeshBuilder.CreateTiledPlane("ChunkBorder", {
+        size: wallSize,
+        tileSize: 2,
+        frontUVs: UVs,
+        backUVs: UVs,
+        sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
+    }, scene)
+    plane.material = mat2
+
+    plane.position = new BABYLON.Vector3(pos.x, pos.y, pos.z)
+    plane.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
+
+    return plane
 }

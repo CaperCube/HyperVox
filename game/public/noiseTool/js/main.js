@@ -2,6 +2,8 @@
 const canvas = $('#main-canvas')
 const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
+const textureSheet = new Image(512,512)
+textureSheet.src = '../client/src/textures/textures.png'
 
 // Noise vars
 let resolution = 32
@@ -11,14 +13,12 @@ let pattern = [[]]
 // let genSettings = {
 //     useSeed: !$('#DOM_useSeed').checked,
 //     seed: $('#DOM_seed').value,
-//     toleranceMode: $('#DOM_useTolerance').checked,
 //     noiseTolerance = 0.5,
 //     noiseScale = 0.1
 // }
 
 const genNoise = new perlinNoise3d()
 const noiseTolerance = 0.5
-let toleranceMode = $('#DOM_useTolerance').checked
 let noiseScale = 0.1
 
 
@@ -38,7 +38,6 @@ function DOMNoiseFnc() {
     const seed = random ? `${Math.random()}` : $('#DOM_seed').value
     
     // Generator settings
-    toleranceMode = $('#DOM_useTolerance').checked
     //noiseScale = $('#DOM_scale').value
 
     // Set seed
@@ -61,14 +60,6 @@ function updateZ(el) {
     drawPattern(pattern, el.value)
 }
 
-function updateTolerance(el) {
-    // Update mode
-    toleranceMode = $('#DOM_useTolerance').checked
-
-    // Redraw pattern
-    drawPattern(pattern, $('#DOM_zSlider').value)
-}
-
 ////////////////////////////////////////////////////////
 // Pattern Gen and Drawing
 ////////////////////////////////////////////////////////
@@ -85,12 +76,22 @@ function generateNoise(func, firstZ) {
     pattern[y][x] = []
     for (let z = 0; z < steps; z++) {
         // Fill pixel here
-        let pos = { x: x*noiseScale, y: (resolution-y)*noiseScale, z: z*noiseScale }
+        let pos = { x: x, y: (resolution-y), z: z }
         pattern[y][x][z] = func( pos.x, pos.y, pos.z )
     }}}
 
     // Draw pattern to canvas
     drawPattern(pattern, firstZ)
+}
+
+function drawTileHere(x, y, size, id) {
+    // Calculate ID offset
+    const rows = 16
+    const columns = 16
+    let c = (id-1) % columns
+    let r = Math.floor((id-1) / columns)
+    // Draw
+    ctx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
 }
 
 function drawPattern(p, z) {
@@ -99,9 +100,10 @@ function drawPattern(p, z) {
     for (let x = 0; x < p[y].length; x++) {
         // Draw pixel
         let val = p[y][x][z]
-        if (toleranceMode) val = (val > noiseTolerance) ? 1 : 0
-        ctx.fillStyle = `rgb( ${val*255}, ${val*255}, ${val*255} )`
-        ctx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
+        //if (toleranceMode) val = (val > noiseTolerance) ? 1 : 0
+        ctx.fillStyle = `rgb( 0, 0, 0 )`
+        if (val === 0) ctx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
+        else drawTileHere(x, y, pixelSize, val)
     }}
 }
 
@@ -112,23 +114,59 @@ const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max)
 
 // Basic
 function basicNoise( x, y, z ) {
-    return Math.random()
+    let noise = Math.random()
+
+    // gen blockID
+    let blockID = 0
+    if (noise > noiseTolerance) {
+        blockID = 1 + Math.floor(Math.random() * 9)
+    }
+
+    return blockID
 }
 
 // Perlin
 function perlinNoise( x, y, z ) {
     // Return noise
     let noise = genNoise.get( x, y, z )
-    return noise
+
+    // gen blockID
+    let blockID = 0
+    if (noise > noiseTolerance) {
+        blockID = 1 + Math.floor(Math.random() * 9)
+    }
+    
+    return blockID
 }
 
 // Custom
 function customNoise( x, y, z ) {
     // Return noise
-    let noise = genNoise.get( x, y*2, z )
-    noise += 1 / ((y+1)*2)
-    noise -= 0.25
+    function getNoiseVal( x, y, z ) {
+        x=x*noiseScale
+        y=y*noiseScale
+        z=z*noiseScale
+        let noise = genNoise.get( x, y, z )
+        noise += 1 / ((y+1)*2)
+        noise -= 0.25
+        return noise
+    }
+    
+    const baseNoise = getNoiseVal( x, y, z )
+    const blockAbove = getNoiseVal( x, y+1, z )
+    const blockBelow = getNoiseVal( x, y-1, z )
+    const blockMuchAbove = getNoiseVal( x, y+3, z )
 
-    return clamp(noise, 0, 1)
+    // gen blockID
+    let blockID = 0
+    if (baseNoise > noiseTolerance) {
+        if (blockAbove <= noiseTolerance) blockID = 4
+        else if (blockMuchAbove > noiseTolerance) blockID = 3
+        else blockID = 2
+
+        if (blockBelow <= noiseTolerance) blockID = 3
+    }
+
+    return blockID
 }
 

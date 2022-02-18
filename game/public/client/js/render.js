@@ -20,7 +20,7 @@
 // World vars
 const newWorld = new World({
     worldSeed: 'helloworld',
-    worldSize: 2//6
+    worldSize: 3
 })
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)
@@ -33,7 +33,7 @@ let renderScale = 1
 let frame = 0
 const fogDist = 1000
 // Material for most blocks
-let mat, texture
+let mat, mat2, texture
 
 let player
 
@@ -54,7 +54,6 @@ const createScene = () => {
     var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
     camera.minZ = newWorld.getTileScale()/5
     camera.maxZ = fogDist
-    camera.attachControl(canvas, true)
 
     // Create light in scene
     const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
@@ -67,26 +66,80 @@ const createScene = () => {
     mat.diffuseTexture = texture
     //mat.backFaceCulling = true;
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
+    //mat.diffuseTexture.hasAlpha = true
+    //mat.useAlphaFromDiffuseTexture = true
+    
+    mat2 = new BABYLON.StandardMaterial('mat')
+    mat2.diffuseTexture = texture
+    mat2.emissiveTexture = texture
+    mat2.specularColor = new BABYLON.Color3(0, 0, 0)
+    mat2.diffuseTexture.hasAlpha = true
+    mat2.useAlphaFromDiffuseTexture = true
+    mat2.alpha = 0.5
 
     // Fog
-    scene.fogDensity = 0//0.15
-    scene.fogStart = fogDist/2
-    scene.fogEnd = fogDist
-    scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR//FOGMODE_EXP
+    scene.fogDensity = 0//0.1
+    scene.fogStart = 8//fogDist/2
+    scene.fogEnd = 128
+    scene.fogMode = BABYLON.Scene.FOGMODE_EXP//BABYLON.Scene.FOGMODE_LINEAR
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
 
     // Generate world
-    generateSimpleWorld({
+    const worldMeshes = generateSimpleWorld({
         seed: newWorld.getWorldSeed(),
         tileScale: newWorld.getTileScale(),
         chunkSize: newWorld.getChunkSize(),
         worldSize: newWorld.getWorldSize(),
         scene: scene
     })
+    // Make chunks check for colissions
+    worldMeshes.map(mesh=>{ mesh.checkCollisions = true })
+
+    // Create world borders
+    let worldBorders = []
+    const wallSize = newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()
+    const borderOffset = (newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()) - (newWorld.getTileScale()/2)
+    const borderOffsetHalf = ((newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())/2) - (newWorld.getTileScale()/2)
+    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, scene)) // Front
+    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: -(newWorld.getTileScale()/2)}, {x: 0, y: 0, z: 0}, wallSize, scene)) // Back
+    worldBorders.push(createChunkBorder({x: -(newWorld.getTileScale()/2), y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, scene)) // Left
+    worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, scene)) // Right
+    //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
     // Create player
-    //player = new ClientPlayer(Controls.Player1, camera)
+    player = new ClientPlayer(Controls.Player1, camera)
+    // Lock cursor to game (release with escape key)
+    scene.onPointerDown = (evt) => { if (evt.button === 0) {
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock
+        canvas.requestPointerLock()
+
+        // To unlock (without pressing escape)
+        // document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
+        // document.exitPointerLock()
+    }}
+
+    // Gravity / collisions
+    //const framesPS = 60
+    //const gravity = -9.8
+    //scene.gravity = new BABYLON.Vector3(0, gravity/framesPS, 0)
+    scene.collisionsEnabled = true
+
+    camera.attachControl(canvas, true)
+    camera.inputs.attached.keyboard.detachControl()
+    camera.inertia = 0 // no mouse smoothing
+    camera.speed = 0 // Movement speed
+    camera.fov = 1.35 // 1 is default
+    camera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
+    //camera.applyGravity = true
+    camera.checkCollisions = true
+    camera.ellipsoid = new BABYLON.Vector3(0.5,0.5,0.5) // Collider for the camera
     
+    //camera.keysUp.push(Buttons.w.code)
+    //camera.keysDown.push(Buttons.s.code)
+    //camera.keysLeft.push(Buttons.a.code)
+    //camera.keysRight.push(Buttons.d.code)
+    //Controls.Player1.jump.onPress = ()=>{camera.velocity}
+
     // Return the scene to the renderer
     return scene
 }
@@ -130,8 +183,7 @@ engine.runRenderLoop(function(){
     frame++
 
     //movementUpdate()
-    //player.movementUpdate()
-    //camera.position.y += 1
+    player.movementUpdate()
 
     // render scene
     scene.render()

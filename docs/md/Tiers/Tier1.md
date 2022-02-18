@@ -14,6 +14,11 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     2. - [ ] Move player with velocity (jumping too)
     3. - [ ] Basic collision with blocks
 - [ ] Basic place / break blocks
+    - [ ] Updating chunks
+        - Check difference between `chunk` and `updatedChunk`
+        - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
+        - Add new faces to this area
+        - Merge faces into chunkMesh
 - [ ] Basic game menu
     - [ ] `New Game`
     - [ ] Placeholder `Settings`
