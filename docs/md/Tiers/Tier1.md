@@ -5,16 +5,18 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 
 # Tasks
 - [X] Basic rendering
-    1. - [X] render some cubes and lighting
-    2. - [X] Switch to Babylon.js (they have colission detection)
-    3. - [X] texture loading (probably use a texture atlas)
-    4. - [X] store / render different blocks in a 3D array
+    - [X] render some cubes and lighting
+    - [X] Switch to Babylon.js (they have colission detection)
+    - [X] texture loading (probably use a texture atlas)
+    - [X] store / render different blocks in a 3D array
 - [ ] Basic player movement
-    1. - [X] Get basic input from player
-    2. - [ ] Move player with velocity (jumping too)
-    3. - [ ] Basic collision with blocks
+    - [X] Get basic input from player
+    - [X] Basic spectating movement
+    - [ ] Move player with velocity (jumping too)
+    - [ ] Basic collision with blocks
 - [ ] Basic place / break blocks
-    - [ ] Updating chunks
+    - [ ] Raycasting for selection block placement / blocks to destroy
+    - [ ] Updating chunks (send to brain to update the chunk)
         - Check difference between `chunk` and `updatedChunk`
         - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
         - Add new faces to this area

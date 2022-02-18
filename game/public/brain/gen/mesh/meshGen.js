@@ -1,4 +1,9 @@
 ////////////////////////////////////////////////////
+// Mesh related generators
+// (Consider moving this to 'client' as this is not directly game logic)
+////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
 // UV generators
 ////////////////////////////////////////////////////
 
@@ -22,7 +27,7 @@ function getQuadUVByIndex(idx) {
     return faceUV
 }
 
-// Return UV coordinates for a block based on the tile index
+// (Deprecated) Return UV coordinates for a block based on the tile index
 // Returns new Vector4[]
 function getBlockUVByIndex(idx) {
     // Calculate ID offset
