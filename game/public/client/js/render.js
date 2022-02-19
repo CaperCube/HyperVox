@@ -1,3 +1,5 @@
+import ClientPlayer from './entities/player.js'
+
 ////////////////////////////////////////////////////
 // This should be in charge of rendering firing client-side updates
 ////////////////////////////////////////////////////
@@ -68,6 +70,7 @@ const createScene = () => {
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
     //mat.diffuseTexture.hasAlpha = true
     //mat.useAlphaFromDiffuseTexture = true
+    scene.defaultMaterial = mat
     
     mat2 = new BABYLON.StandardMaterial('mat')
     mat2.diffuseTexture = texture
@@ -76,6 +79,7 @@ const createScene = () => {
     mat2.diffuseTexture.hasAlpha = true
     mat2.useAlphaFromDiffuseTexture = true
     mat2.alpha = 0.5
+    scene.transparentMaterial = mat2
 
     // Fog
     scene.fogDensity = 0//0.1
@@ -100,10 +104,10 @@ const createScene = () => {
     const wallSize = newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()
     const borderOffset = (newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()) - (newWorld.getTileScale()/2)
     const borderOffsetHalf = ((newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())/2) - (newWorld.getTileScale()/2)
-    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, scene)) // Front
-    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: -(newWorld.getTileScale()/2)}, {x: 0, y: 0, z: 0}, wallSize, scene)) // Back
-    worldBorders.push(createChunkBorder({x: -(newWorld.getTileScale()/2), y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, scene)) // Left
-    worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, scene)) // Right
+    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, mat2, scene)) // Front
+    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: -(newWorld.getTileScale()/2)}, {x: 0, y: 0, z: 0}, wallSize, mat2, scene)) // Back
+    worldBorders.push(createChunkBorder({x: -(newWorld.getTileScale()/2), y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, mat2, scene)) // Left
+    worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, mat2, scene)) // Right
     //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
     // Create player

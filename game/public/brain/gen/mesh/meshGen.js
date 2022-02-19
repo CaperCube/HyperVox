@@ -56,7 +56,7 @@ function getBlockUVByIndex(idx) {
 
 // Get the tile index UVs and create a box
 // Returns new Mesh
-function createBlockWithUV({x, y, z}, idx) {
+function createBlockWithUV({x, y, z}, idx, scene) {
     // Create box
     const block = BABYLON.MeshBuilder.CreateBox("Block", {
         size: tileScale,
@@ -64,7 +64,7 @@ function createBlockWithUV({x, y, z}, idx) {
         wrap: true
     }, scene)
 
-    block.material = mat
+    block.material = scene.defaultMaterial
     block.position = new BABYLON.Vector3(x, y, z)
 
     return block
@@ -83,7 +83,7 @@ function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, tileScale, face = 'front', 
     }, scene)
 
     // Set material, position, and rotation
-    quad.material = mat
+    quad.material = scene.defaultMaterial
     const offsetAmmount = (tileScale/2)
     let offset = {x: 0, y: 0, z: 0}
     let rot = {x: 0, y: 0, z: 0}
@@ -192,7 +192,7 @@ function createBlocksFromChunk(chunk, offset = { x: 0, y: 0, z: 0 }) {
 }
 
 // Create chunk border
-function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, wallSize, scene) {
+function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, wallSize, material, scene) {
     // Create quad
     const UVs = getQuadUVByIndex(256)
 
@@ -203,7 +203,7 @@ function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, w
         backUVs: UVs,
         sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
     }, scene)
-    plane.material = mat2
+    plane.material = scene.transparentMaterial//material
 
     plane.position = new BABYLON.Vector3(pos.x, pos.y, pos.z)
     plane.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)

@@ -121,3 +121,5 @@ function ClientPlayer(controls, avatar){//, camera) {
 
     init()
 }
+
+export default ClientPlayer
