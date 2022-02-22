@@ -21,8 +21,8 @@ import ClientPlayer from './entities/player.js'
 
 // World vars
 const newWorld = new World({
-    worldSeed: 'helloworld',
-    worldSize: 3
+    //worldSeed: 'helloworld',
+    worldSize: 2
 })
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)
@@ -80,6 +80,7 @@ const createScene = () => {
     mat2.useAlphaFromDiffuseTexture = true
     mat2.alpha = 0.5
     scene.transparentMaterial = mat2
+    mat2.zOffset = -1 // Give this material depth prioraty
 
     // Fog
     scene.fogDensity = 0//0.1
@@ -102,11 +103,11 @@ const createScene = () => {
     // Create world borders
     let worldBorders = []
     const wallSize = newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()
-    const borderOffset = (newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()) - (newWorld.getTileScale()/2)
-    const borderOffsetHalf = ((newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())/2) - (newWorld.getTileScale()/2)
+    const borderOffset = (newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())
+    const borderOffsetHalf = ((newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())/2)
     worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, mat2, scene)) // Front
-    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: -(newWorld.getTileScale()/2)}, {x: 0, y: 0, z: 0}, wallSize, mat2, scene)) // Back
-    worldBorders.push(createChunkBorder({x: -(newWorld.getTileScale()/2), y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, mat2, scene)) // Left
+    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: 0}, {x: 0, y: 0, z: 0}, wallSize, mat2, scene)) // Back
+    worldBorders.push(createChunkBorder({x: 0, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, mat2, scene)) // Left
     worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, mat2, scene)) // Right
     //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
@@ -182,13 +183,22 @@ function rescaleCanvas(ratio) {
 // Render loop
 ////////////////////////////////////////////////////
 
+// For fixed framerate:
+// `engine.stopRenderLoop()
+// setInterval( ()=>{ scene.render() }, frameRate )`
+//engine.stopRenderLoop()
 engine.runRenderLoop(function(){
+// setInterval( function(){ 
     // Update frame
     frame++
 
+    // Update materials
+    if (mat2) mat2.alpha = (Math.sin(frame/60) * 0.25) + 0.25
+
     //movementUpdate()
-    player.movementUpdate()
+    player.platformMovementUpdate(engine)
 
     // render scene
     scene.render()
+// }, 1000/90 )
 })

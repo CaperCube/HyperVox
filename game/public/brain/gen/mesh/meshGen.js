@@ -84,32 +84,39 @@ function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, tileScale, face = 'front', 
 
     // Set material, position, and rotation
     quad.material = scene.defaultMaterial
-    const offsetAmmount = (tileScale/2)
+    const offsetAmmount = tileScale
+    const halfOffsetAmmount = offsetAmmount/2
     let offset = {x: 0, y: 0, z: 0}
     let rot = {x: 0, y: 0, z: 0}
     switch (face) {
-        case 'front': // TODO: change these, Z is the forward vector in Babylon.js
-            offset.x = offsetAmmount
-            rot.y = -Math.PI/2
-            break
-        case 'back':
-            offset.x = -offsetAmmount
-            rot.y = Math.PI/2
-            break
-        case 'left':
-            offset.z = -offsetAmmount
-            rot.y = 0
-            break
-        case 'right':
-            offset.z = offsetAmmount
+        case 'front':
+            // offset.z = offsetAmmount
+            offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount }
             rot.y = Math.PI
             break
+        case 'back':
+            // offset.z = 0//-offsetAmmount
+            offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 }
+            rot.y = 0
+            break
+        case 'left':
+            // offset.x = 0//-offsetAmmount
+            offset = {x: 0, y: halfOffsetAmmount, z:halfOffsetAmmount }
+            rot.y = Math.PI/2
+            break
+        case 'right':
+            // offset.x = offsetAmmount
+            offset = {x: offsetAmmount, y: halfOffsetAmmount, z:halfOffsetAmmount }
+            rot.y = -Math.PI/2
+            break
         case 'top':
-            offset.y = offsetAmmount
+            // offset.y = offsetAmmount
+            offset = {x: halfOffsetAmmount, y: offsetAmmount, z:halfOffsetAmmount }
             rot.x = Math.PI/2
             break
         case 'bottom':
-            offset.y = -offsetAmmount
+            // offset.y = 0//-offsetAmmount
+            offset = {x: halfOffsetAmmount, y: 0, z:halfOffsetAmmount }
             rot.x = -Math.PI/2
             break
         default:
@@ -139,25 +146,25 @@ function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }, tileScale, scene)
         if (!transparentTiles.includes(tileID)) {
             // Check front, back, left, right, top, bottom
             let tilePos = {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}
-            // Front
+            // Right
             let blockHere = chunk[y]?.[x+1]?.[z]
             if (!blockHere || transparentTiles.includes(blockHere))
-                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'front', tileID, scene) )
-
-            // Back
-            blockHere = chunk[y]?.[x-1]?.[z]
-            if (!blockHere || transparentTiles.includes(blockHere))
-                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'back', tileID, scene) )
+                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'right', tileID, scene) )
 
             // Left
-            blockHere = chunk[y]?.[x]?.[z-1]
+            blockHere = chunk[y]?.[x-1]?.[z]
             if (!blockHere || transparentTiles.includes(blockHere))
                 meshArray.push( createQuadWithUVs(tilePos, tileScale, 'left', tileID, scene) )
 
-            // Right
+            // Back
+            blockHere = chunk[y]?.[x]?.[z-1]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'back', tileID, scene) )
+
+            // Front
             blockHere = chunk[y]?.[x]?.[z+1]
             if (!blockHere || transparentTiles.includes(blockHere))
-                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'right', tileID, scene) )
+                meshArray.push( createQuadWithUVs(tilePos, tileScale, 'front', tileID, scene) )
 
             // Top
             blockHere = chunk[y+1]?.[x]?.[z]
@@ -210,3 +217,6 @@ function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, w
 
     return plane
 }
+
+
+// export { createBlockWithUV, createQuadWithUVs, createChunkMesh, createChunkBorder }

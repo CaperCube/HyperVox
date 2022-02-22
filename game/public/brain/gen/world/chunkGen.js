@@ -62,7 +62,7 @@ function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene})
 }
 
 function World({worldSeed, tileScale, chunkSize, worldSize}) {
-    const wSeed = worldSeed || Math.random()
+    const wSeed = worldSeed || `${Math.random()}`
     this.getWorldSeed = () => { return wSeed }
 
     const _tileScale = tileScale || 1

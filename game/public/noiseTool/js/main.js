@@ -19,7 +19,7 @@ let pattern = [[]]
 
 const genNoise = new perlinNoise3d()
 const noiseTolerance = 0.5
-let noiseScale = 0.1
+let noiseScale = 0.09
 
 
 // String to number (this is and should be the same as it is in the game)
@@ -31,7 +31,7 @@ const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce(
 
 function DOMNoiseFnc() {
     // Get selected function
-    const selPattern = customNoise//perlinNoise // This should be an optin in a dropdown list
+    const selPattern = customNoise //perlinNoise // This should be an optin in a dropdown list
     
     // Get seed based on choice
     const random = !$('#DOM_useSeed').checked // This should be a toggle option
@@ -128,7 +128,7 @@ function basicNoise( x, y, z ) {
 // Perlin
 function perlinNoise( x, y, z ) {
     // Return noise
-    let noise = genNoise.get( x, y, z )
+    let noise = genNoise.get( x*noiseScale, y*noiseScale, z*noiseScale )
 
     // gen blockID
     let blockID = 0
