@@ -22,11 +22,12 @@ import ClientPlayer from './entities/player.js'
 // World vars
 const newWorld = new World({
     //worldSeed: 'helloworld',
+    worldSeed: '0.45918579693005546',
     worldSize: 2
 })
+Buttons.i.onPress = () => {console.log(newWorld.getWorldSeed())}
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)
-console.log(newWorld)
 
 // Render vars
 const canvas = $('#main-canvas')
@@ -90,13 +91,16 @@ const createScene = () => {
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
 
     // Generate world
-    const worldMeshes = generateSimpleWorld({
+    const genWorld = generateSimpleWorld({
         seed: newWorld.getWorldSeed(),
         tileScale: newWorld.getTileScale(),
         chunkSize: newWorld.getChunkSize(),
         worldSize: newWorld.getWorldSize(),
         scene: scene
     })
+    
+    const worldMeshes = genWorld.worldChunkMeshes
+    newWorld.worldChunks = genWorld.worldChunks
     // Make chunks check for colissions
     worldMeshes.map(mesh=>{ mesh.checkCollisions = true })
 
@@ -122,6 +126,7 @@ const createScene = () => {
         // document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
         // document.exitPointerLock()
     }}
+    Buttons.n.onPress = () => {player.spectateMode = !player.spectateMode}
 
     // Gravity / collisions
     //const framesPS = 60
@@ -145,6 +150,7 @@ const createScene = () => {
     //camera.keysRight.push(Buttons.d.code)
     //Controls.Player1.jump.onPress = ()=>{camera.velocity}
 
+    console.log(newWorld)
     // Return the scene to the renderer
     return scene
 }
@@ -196,7 +202,8 @@ engine.runRenderLoop(function(){
     if (mat2) mat2.alpha = (Math.sin(frame/60) * 0.25) + 0.25
 
     //movementUpdate()
-    player.platformMovementUpdate(engine)
+    player.platformMovementUpdate(engine, newWorld)
+    // player.movementUpdate(engine)
 
     // render scene
     scene.render()

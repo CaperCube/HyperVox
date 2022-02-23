@@ -47,21 +47,26 @@ function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene})
     if (seed) genNoise.noiseSeed(stringToSeed(seed)) // changing the seed will change the value of `genNoise.get(x,y,z)`
 
     let worldChunkMeshes = []
+    let worldChunks = [[[]]]
     for (let y = 0; y < worldSize; y++) {
+        worldChunks[y] = []
     for (let x = 0; x < worldSize; x++) {
+        worldChunks[y][x] = []
     for (let z = 0; z < worldSize; z++) {
         let chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
         let chunk = generatePerlinChunk(chunkOffset, chunkSize)
+        worldChunks[y][x][z] = chunk
         // Only create mesh if chunk is empty
         if (chunk) {
             let myChunkMeshes = createChunkMesh(chunk, chunkOffset, tileScale, scene)
             worldChunkMeshes.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
         }
     }}}
-    return worldChunkMeshes
+    return {worldChunkMeshes, worldChunks}
 }
 
 function World({worldSeed, tileScale, chunkSize, worldSize}) {
+    this.worldChunks = [[[]]]
     const wSeed = worldSeed || `${Math.random()}`
     this.getWorldSeed = () => { return wSeed }
 
