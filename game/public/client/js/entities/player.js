@@ -264,7 +264,9 @@ function ClientPlayer(controls, avatar){//, camera) {
         }}}}}}
         }
 
-        // Get player pos in chnk/block coordinates
+        // Get player pos in chunk/block coordinates
+        // TODO: This does not yet work at the edges of chunks
+        // TODO: it just doesn't work well at all
         const chunkSize = world.getChunkSize()
         let worldPos = {x: Math.floor(avatar.position.x/chunkSize), y: Math.floor(avatar.position.y/chunkSize), z: Math.floor(avatar.position.z/chunkSize)}
         let chunkPos = {x: Math.floor(avatar.position.x % chunkSize), y: Math.floor(avatar.position.y % chunkSize), z: Math.floor(avatar.position.z % chunkSize)}
