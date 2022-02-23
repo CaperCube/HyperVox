@@ -125,7 +125,6 @@ const createScene = () => {
         // document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
         // document.exitPointerLock()
     }}
-    Buttons.n.onPress = () => {player.spectateMode = !player.spectateMode}
 
     // Gravity / collisions
     //const framesPS = 60

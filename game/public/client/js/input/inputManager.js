@@ -212,7 +212,7 @@ var Controls = {
         fire1: [Buttons.e],
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
-        resapwn: [Buttons.r]
+        respawn: [Buttons.r]
     }
 }
 
