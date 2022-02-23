@@ -22,7 +22,6 @@ import ClientPlayer from './entities/player.js'
 // World vars
 const newWorld = new World({
     //worldSeed: 'helloworld',
-    worldSeed: '0.45918579693005546',
     worldSize: 2
 })
 Buttons.i.onPress = () => {console.log(newWorld.getWorldSeed())}
@@ -55,7 +54,7 @@ const createScene = () => {
     let centerTarget = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
     //var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
     var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
-    camera.minZ = newWorld.getTileScale()/5
+    camera.minZ = newWorld.getTileScale()/10
     camera.maxZ = fogDist
 
     // Create light in scene
@@ -116,7 +115,7 @@ const createScene = () => {
     //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
     // Create player
-    player = new ClientPlayer(Controls.Player1, camera)
+    player = new ClientPlayer(Controls.Player1, camera, scene)
     // Lock cursor to game (release with escape key)
     scene.onPointerDown = (evt) => { if (evt.button === 0) {
         canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock
@@ -199,7 +198,7 @@ engine.runRenderLoop(function(){
     frame++
 
     // Update materials
-    if (mat2) mat2.alpha = (Math.sin(frame/60) * 0.25) + 0.25
+    if (mat2) mat2.alpha = (Math.sin(frame/30) * 0.15) + 0.25
 
     //movementUpdate()
     player.platformMovementUpdate(engine, newWorld)

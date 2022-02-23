@@ -23,7 +23,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 
 // Player object
 
-function ClientPlayer(controls, avatar){//, camera) {
+function ClientPlayer(controls, avatar, thisScene){//, camera) {
     // Player vars
     this.playerHeight = 2//tileScale * 1.5
     // The object in the scene the player will be controlling
@@ -57,9 +57,18 @@ function ClientPlayer(controls, avatar){//, camera) {
     //let moveDirection = 0
     let moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown
 
+    const scene = thisScene
+    let greenMesh, blueMesh, redMesh
     // Init player
     const init = () => {
         registerControls(this.controls)
+
+        // greenMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 254, scene)
+        // greenMesh.material = scene.transparentMaterial
+        // redMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 252, scene)
+        // redMesh.material = scene.transparentMaterial
+        // blueMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 253, scene)
+        // blueMesh.material = scene.transparentMaterial
     }
 
     // Register controls with actions
@@ -69,7 +78,7 @@ function ClientPlayer(controls, avatar){//, camera) {
         assignFunctionToInput(c.leftAxis1, ()=>{moveLeft=true}, ()=>{moveLeft=false})
         assignFunctionToInput(c.rightAxis1, ()=>{moveRight=true}, ()=>{moveRight=false})
         //assignFunctionToInput(c.jump, ()=>{moveUp=true}, ()=>{moveUp=false})
-        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else {playerVelocity.y = 0.25; usedJump++}}, ()=>{moveUp=false})
+        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else {playerVelocity.y = 0.2; usedJump++}}, ()=>{moveUp=false})
         assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
         assignFunctionToInput(c.fire1, ()=>{console.log('shoot!')}, ()=>{})
     }
@@ -267,15 +276,29 @@ function ClientPlayer(controls, avatar){//, camera) {
         // Get player pos in chunk/block coordinates
         // TODO: This does not yet work at the edges of chunks
         // TODO: it just doesn't work well at all
+        const getArrayPos = (pos, chunkSize) => {
+            return {
+                world: {x: Math.floor(pos.x / chunkSize), y: Math.floor(pos.y / chunkSize), z: Math.floor(pos.z / chunkSize) },
+                chunk: {x: Math.floor(pos.x % chunkSize), y: Math.floor(pos.y % chunkSize), z: Math.floor(pos.z % chunkSize) }
+            }
+        }
         const chunkSize = world.getChunkSize()
-        let worldPos = {x: Math.floor(avatar.position.x/chunkSize), y: Math.floor(avatar.position.y/chunkSize), z: Math.floor(avatar.position.z/chunkSize)}
-        let chunkPos = {x: Math.floor(avatar.position.x % chunkSize), y: Math.floor(avatar.position.y % chunkSize), z: Math.floor(avatar.position.z % chunkSize)}
-        //console.log(worldPos, chunkPos)
+        
+        // greenMesh.position.x = Math.floor(avatar.position.x)+0.5
+        // greenMesh.position.y = Math.floor(avatar.position.y-1)+0.5
+        // greenMesh.position.z = Math.floor(avatar.position.z+1)+0.5
+        // redMesh.position.x = Math.floor(avatar.position.x+1)+0.5
+        // redMesh.position.y = Math.floor(avatar.position.y-1)+0.5
+        // redMesh.position.z = Math.floor(avatar.position.z)+0.5
+        // blueMesh.position.x = Math.floor(avatar.position.x)+0.5
+        // blueMesh.position.y = Math.floor(avatar.position.y-2)+0.5
+        // blueMesh.position.z = Math.floor(avatar.position.z)+0.5
 
         const checkYCol = (block) => {
             // Check Y
             let playerPosCheck = playerBox
             playerPosCheck.y += playerVelocity.y
+            block.y += 1
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceY()
@@ -287,6 +310,7 @@ function ClientPlayer(controls, avatar){//, camera) {
             // Check X
             let playerPosCheck = playerBox
             playerPosCheck.x += playerVelocity.x
+            block.y += 1
             //playerPosCheck.y += (playerBox.h/4)
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
@@ -299,6 +323,7 @@ function ClientPlayer(controls, avatar){//, camera) {
             // Check Z
             let playerPosCheck = playerBox
             playerPosCheck.z += playerVelocity.z
+            block.y += 1
             //playerPosCheck.y += (playerBox.h/4)
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
@@ -308,61 +333,115 @@ function ClientPlayer(controls, avatar){//, camera) {
         }
         
         if (!this.spectateMode) {
-            // Check Y
+            // Check X
+            // +1
+            let blockPos = {x: avatar.position.x+1, y: avatar.position.y, z: avatar.position.z}
+            let arrayPos = getArrayPos(blockPos, chunkSize)
+            let worldPos = arrayPos.world
+            let chunkPos = arrayPos.chunk
+
             let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-                checkYCol(blockHere)
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkXCol(blockHere)
             }
 
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y-1]?.[chunkPos.x]?.[chunkPos.z]
+            // -1
+            blockPos = {x: avatar.position.x-1, y: avatar.position.y, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            if (blockID > 0) {
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkXCol(blockHere)
+            }
+
+            // 0
+            blockPos = {x: avatar.position.x+1, y: avatar.position.y, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            if (blockID > 0) {
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkXCol(blockHere)
+            }
+
+            // Check Z
+            // +1
+            blockPos = {x: avatar.position.x, y: avatar.position.y, z: avatar.position.z+1}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            if (blockID > 0) {
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkZCol(blockHere)
+            }
+
+            // -1
+            blockPos = {x: avatar.position.x, y: avatar.position.y, z: avatar.position.z-1}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            if (blockID > 0) {
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkZCol(blockHere)
+            }
+
+            // 0
+            blockPos = {x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            if (blockID > 0) {
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkZCol(blockHere)
+            }
+
+            // Check Y
+            // 0
+            blockPos = {x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             if (blockID > 0) {
                 let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                 checkYCol(blockHere)
             }
 
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y-2]?.[chunkPos.x]?.[chunkPos.z]
+            // -1
+            blockPos = {x: avatar.position.x, y: avatar.position.y -1, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
+
+            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)-1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                 checkYCol(blockHere)
             }
 
-            // Check X
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x+1]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize)+1, y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-                checkXCol(blockHere)
-            }
-
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x-1]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize)-1, y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-                checkXCol(blockHere)
-            }
+            // -2
+            blockPos = {x: avatar.position.x, y: avatar.position.y -2, z: avatar.position.z}
+            arrayPos = getArrayPos(blockPos, chunkSize)
+            worldPos = arrayPos.world
+            chunkPos = arrayPos.chunk
 
             blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-                checkXCol(blockHere)
-            }
-
-            // Check Z
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z+1]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize)+1, w: 1, h: 1, d: 1}
-                checkZCol(blockHere)
-            }
-
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x-1]?.[worldPos.z-1]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize)-1, w: 1, h: 1, d: 1}
-                checkZCol(blockHere)
-            }
-
-            blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            if (blockID > 0) {
-                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize)+1, z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-                checkZCol(blockHere)
+                let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                checkYCol(blockHere)
             }
         }
 

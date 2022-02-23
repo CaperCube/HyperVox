@@ -59,12 +59,12 @@ function getBlockUVByIndex(idx) {
 function createBlockWithUV({x, y, z}, idx, scene) {
     // Create box
     const block = BABYLON.MeshBuilder.CreateBox("Block", {
-        size: tileScale,
+        size: 1,
         faceUV: getBlockUVByIndex(idx),
         wrap: true
     }, scene)
 
-    block.material = scene.defaultMaterial
+    //block.material = scene.defaultMaterial
     block.position = new BABYLON.Vector3(x, y, z)
 
     return block
