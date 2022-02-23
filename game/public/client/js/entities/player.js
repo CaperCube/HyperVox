@@ -45,7 +45,7 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
     // }
 
     // Movement vars
-    this.spectateMode = true
+    this.spectateMode = false
     this.moveSpeed = 0.025//tileScale/20
 
     // Private vars
