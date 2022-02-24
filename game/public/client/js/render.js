@@ -22,6 +22,7 @@ import ClientPlayer from './entities/player.js'
 // World vars
 const newWorld = new World({
     //worldSeed: 'helloworld',
+    //worldSeed: '0.505861828545028',
     worldSize: 2
 })
 Buttons.i.onPress = () => {console.log(newWorld.getWorldSeed())}
@@ -37,7 +38,9 @@ const fogDist = 1000
 // Material for most blocks
 let mat, mat2, texture
 
-let player
+let player, player2
+
+let debugLines
 
 ////////////////////////////////////////////////////
 // Scene init
@@ -115,7 +118,14 @@ const createScene = () => {
     //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
     // Create player
-    player = new ClientPlayer(Controls.Player1, camera, scene)
+    player = new ClientPlayer(Controls.Player1, camera, debugLines, scene)
+
+    const player2Mesh = createBlockWithUV({x: camera.position.x, y: camera.position.y, z: camera.position.z}, 255, scene)
+    player2 = new ClientPlayer(Controls.Player2, player2Mesh, debugLines, scene)
+    player2.debug = true
+
+    Buttons.c.onPress = () => { player.registerControls(player.controls); player2.registerControls(player2.controls) }
+
     // Lock cursor to game (release with escape key)
     scene.onPointerDown = (evt) => { if (evt.button === 0) {
         canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock
@@ -147,6 +157,9 @@ const createScene = () => {
     //camera.keysLeft.push(Buttons.a.code)
     //camera.keysRight.push(Buttons.d.code)
     //Controls.Player1.jump.onPress = ()=>{camera.velocity}
+
+    // Create debug line mesh
+    debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), scene, true)
 
     console.log(newWorld)
     // Return the scene to the renderer
@@ -201,6 +214,7 @@ engine.runRenderLoop(function(){
 
     //movementUpdate()
     player.platformMovementUpdate(engine, newWorld)
+    player2.platformMovementUpdate(engine, newWorld)
     // player.movementUpdate(engine)
 
     // render scene

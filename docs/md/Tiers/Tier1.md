@@ -12,7 +12,7 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 - [ ] Basic player movement
     - [X] Get basic input from player
     - [X] Basic spectating movement
-    - [ ] Move player with velocity (jumping too)
+    - [X] Move player with velocity (jumping too)
     - [ ] Basic collision with blocks
 - [ ] Basic place / break blocks
     - [ ] Raycasting for selection block placement / blocks to destroy

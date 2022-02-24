@@ -1,3 +1,5 @@
+//let debugPath = []
+
 // colission code
 function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) {
     var a = {
@@ -16,6 +18,21 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
         minY : box2.y - (box2.h/2),
         maxY : box2.y + (box2.h/2),
     }
+
+    // debugPath = [
+    //     new BABYLON.Vector3(a.minX, a.minZ, a.minY),
+    //     new BABYLON.Vector3(a.maxX, a.minZ, a.minY),
+    //     new BABYLON.Vector3(a.maxX, a.maxZ, a.minY),
+    //     new BABYLON.Vector3(a.minX, a.maxZ, a.minY),
+    //     new BABYLON.Vector3(a.minX, a.minZ, a.minY),
+
+    //     new BABYLON.Vector3(a.minX, a.minZ, a.maxY),
+    //     new BABYLON.Vector3(a.maxX, a.minZ, a.maxY),
+    //     new BABYLON.Vector3(a.maxX, a.maxZ, a.maxY),
+    //     new BABYLON.Vector3(a.minX, a.maxZ, a.maxY),
+    //     new BABYLON.Vector3(a.minX, a.minZ, a.maxY)
+    // ]
+
     return (a.minX <= b.maxX && a.maxX >= b.minX) &&
            (a.minY <= b.maxY && a.maxY >= b.minY) &&
            (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
@@ -23,7 +40,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 
 // Player object
 
-function ClientPlayer(controls, avatar, thisScene){//, camera) {
+function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
     // Player vars
     this.playerHeight = 2//tileScale * 1.5
     // The object in the scene the player will be controlling
@@ -44,8 +61,10 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
     //     respawn: [Buttons.r]
     // }
 
+    this.debug = false
+
     // Movement vars
-    this.spectateMode = false
+    this.spectateMode = true
     this.moveSpeed = 0.025//tileScale/20
 
     // Private vars
@@ -61,7 +80,7 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
     let greenMesh, blueMesh, redMesh
     // Init player
     const init = () => {
-        registerControls(this.controls)
+        this.registerControls(this.controls)
 
         greenMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 254, scene)
         greenMesh.material = scene.transparentMaterial
@@ -72,7 +91,7 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
     }
 
     // Register controls with actions
-    const registerControls = (c) => {
+    this.registerControls = (c) => {
         assignFunctionToInput(c.upAxis1, ()=>{moveForward=true}, ()=>{moveForward=false})
         assignFunctionToInput(c.downAxis1, ()=>{moveBackward=true}, ()=>{moveBackward=false})
         assignFunctionToInput(c.leftAxis1, ()=>{moveLeft=true}, ()=>{moveLeft=false})
@@ -225,7 +244,7 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
         const deltaTime = engine.getDeltaTime()
         const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
         //const playerBox = {x: (avatar.position.x - 0.5) + playerVelocity.x, y: avatar.position.y + playerVelocity.y, z: (avatar.position.z - 0.5) + playerVelocity.z, w: 0.5, h: 2, d: 0.5}
-        const playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 1, d: 0.5}
+        const playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
 
         //for (let y = -4; y < 4; y++) {
             //let checkPos = {x: Math.floor(avatar.position.x), y: Math.floor(avatar.position.y), z: Math.floor(avatar.position.z)}
@@ -286,15 +305,15 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
         }
         const chunkSize = world.getChunkSize()
         
-        greenMesh.position.x = Math.floor(avatar.position.x)+0.5
-        greenMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        greenMesh.position.z = Math.floor(avatar.position.z+1)+0.5
-        redMesh.position.x = Math.floor(avatar.position.x+1)+0.5
-        redMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        redMesh.position.z = Math.floor(avatar.position.z)+0.5
-        blueMesh.position.x = Math.floor(avatar.position.x)+0.5
-        blueMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        blueMesh.position.z = Math.floor(avatar.position.z)+0.5
+        // greenMesh.position.x = Math.floor(avatar.position.x)+0.5
+        // greenMesh.position.y = Math.floor(avatar.position.y-2)+0.5
+        // greenMesh.position.z = Math.floor(avatar.position.z+1)+0.5
+        // redMesh.position.x = Math.floor(avatar.position.x+1)+0.5
+        // redMesh.position.y = Math.floor(avatar.position.y-2)+0.5
+        // redMesh.position.z = Math.floor(avatar.position.z)+0.5
+        // blueMesh.position.x = Math.floor(avatar.position.x)+0.5
+        // blueMesh.position.y = Math.floor(avatar.position.y-2)+0.5
+        // blueMesh.position.z = Math.floor(avatar.position.z)+0.5
 
         const checkYCol = (block, bOnly) => {
 
@@ -302,12 +321,14 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
             // Check Y
             let playerPosCheck = playerBox
             playerPosCheck.y += playerVelocity.y
-            block.y += 1
+            block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceY()
-                if (!bounceOnly) avatar.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
-                allowGrav = false
+                if (!bounceOnly) {
+                    avatar.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
+                    allowGrav = false
+                }
             }
         }
 
@@ -322,7 +343,7 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
                 // Bounce
                 this.bounceX()
                 //avatar.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
-                allowMoveX = false
+                //allowMoveX = false
             }
         }
 
@@ -337,54 +358,99 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
                 // Bounce
                 this.bounceZ()
                 //avatar.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
-                allowMoveZ = false
+                //allowMoveZ = false
             }
         }
         
         if (!this.spectateMode) {
             // Check X
-            for (let cy = -1; cy < 1; cy++) {
-            for (let cx = -1; cx < 1; cx++) {
-                let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z}
+            for (let cy = -2; cy < 2; cy++) {
+            for (let cx = -1; cx < 2; cx++) {
+            for (let cz = -1; cz < 2; cz++) {
+
+                // Check X
+                //let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z}
+                let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z+cz}
                 let arrayPos = getArrayPos(blockPos, chunkSize)
                 let worldPos = arrayPos.world
                 let chunkPos = arrayPos.chunk
 
                 let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-                if (blockID > 0) {
+                let skipMid = (cy >= 0)
+                if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkXCol(blockHere)
+                    redMesh.position.x = Math.floor(blockHere.x)+0.5
+                    redMesh.position.y = Math.floor(blockHere.y)+0.5
+                    redMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
-            }}
 
-            // Check Z
-            for (let cy = -1; cy < 1; cy++) {
-            for (let cz = -1; cz < 1; cz++) {
-                let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z+cz}
-                let arrayPos = getArrayPos(blockPos, chunkSize)
-                let worldPos = arrayPos.world
-                let chunkPos = arrayPos.chunk
+                // Check Z
+                // blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z+cz}
+                // arrayPos = getArrayPos(blockPos, chunkSize)
+                // worldPos = arrayPos.world
+                // chunkPos = arrayPos.chunk
 
-                let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-                if (blockID > 0) {
+                // blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+                if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkZCol(blockHere)
+                    greenMesh.position.x = Math.floor(blockHere.x)+0.5
+                    greenMesh.position.y = Math.floor(blockHere.y)+0.5
+                    greenMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
-            }}
 
-            // Check Y
-            for (let cy = -2; cy < 1; cy++) {
-                let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z}
-                let arrayPos = getArrayPos(blockPos, chunkSize)
-                let worldPos = arrayPos.world
-                let chunkPos = arrayPos.chunk
+                // Check Y
+                // blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z}
+                // arrayPos = getArrayPos(blockPos, chunkSize)
+                // worldPos = arrayPos.world
+                // chunkPos = arrayPos.chunk
 
-                let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-                if (blockID > 0) {
+                // blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+                skipMid = (cy < 0 || cy > 0)
+                if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkYCol(blockHere, (cy > 0))
+                    blueMesh.position.x = Math.floor(blockHere.x)+0.5
+                    blueMesh.position.y = Math.floor(blockHere.y)+0.5
+                    blueMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
-            }
+            }}}
+
+            // Check Z
+            // for (let cy = -1; cy < 1; cy++) {
+            // for (let cz = -1; cz < 2; cz++) {
+            //     let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z+cz}
+            //     let arrayPos = getArrayPos(blockPos, chunkSize)
+            //     let worldPos = arrayPos.world
+            //     let chunkPos = arrayPos.chunk
+
+            //     let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            //     if (blockID > 0) {
+            //         let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+            //         checkZCol(blockHere)
+            //         greenMesh.position.x = Math.floor(blockHere.x)+0.5
+            //         greenMesh.position.y = Math.floor(blockHere.y)+0.5
+            //         greenMesh.position.z = Math.floor(blockHere.z)+0.5
+            //     }
+            // }}
+
+            // Check Y
+            // for (let cy = -2; cy < 1; cy++) {
+            //     let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z}
+            //     let arrayPos = getArrayPos(blockPos, chunkSize)
+            //     let worldPos = arrayPos.world
+            //     let chunkPos = arrayPos.chunk
+
+            //     let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+            //     if (blockID > 0) {
+            //         let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+            //         checkYCol(blockHere, (cy > 0))
+            //         blueMesh.position.x = Math.floor(blockHere.x)+0.5
+            //         blueMesh.position.y = Math.floor(blockHere.y)-0.5
+            //         blueMesh.position.z = Math.floor(blockHere.z)+0.5
+            //     }
+            // }
         }
 
         // World floor
@@ -408,6 +474,24 @@ function ClientPlayer(controls, avatar, thisScene){//, camera) {
 
         // Bob camera
         //if (isMoving) camera.position.y = (Math.sin(frame/4) * (tileScale/20)) + playerHeight
+
+        // Debug lines
+        //playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 0.75, d: 0.5}
+        let pBoxOffset = {x: 0.5, y: 0.5, z: 0.5}
+        let debugPath = [
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+    
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z)
+        ]
+        if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
     this.bounceY = () => {

@@ -213,6 +213,18 @@ var Controls = {
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
         respawn: [Buttons.r]
+    },
+    Player2: {
+        upAxis1: [Buttons.up],
+        downAxis1: [Buttons.down],
+        leftAxis1: [Buttons.left],
+        rightAxis1: [Buttons.right],
+        run: [Buttons.o],
+        jump: [Buttons.p],
+        fire1: [Buttons.e],
+        invUp: [Buttons.equals],
+        invDown: [Buttons.minus],
+        respawn: [Buttons.l]
     }
 }
 
