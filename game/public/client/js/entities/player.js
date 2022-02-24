@@ -1,5 +1,3 @@
-//let debugPath = []
-
 // colission code
 function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) {
     var a = {
@@ -18,31 +16,15 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
         minY : box2.y - (box2.h/2),
         maxY : box2.y + (box2.h/2),
     }
-
-    // debugPath = [
-    //     new BABYLON.Vector3(a.minX, a.minZ, a.minY),
-    //     new BABYLON.Vector3(a.maxX, a.minZ, a.minY),
-    //     new BABYLON.Vector3(a.maxX, a.maxZ, a.minY),
-    //     new BABYLON.Vector3(a.minX, a.maxZ, a.minY),
-    //     new BABYLON.Vector3(a.minX, a.minZ, a.minY),
-
-    //     new BABYLON.Vector3(a.minX, a.minZ, a.maxY),
-    //     new BABYLON.Vector3(a.maxX, a.minZ, a.maxY),
-    //     new BABYLON.Vector3(a.maxX, a.maxZ, a.maxY),
-    //     new BABYLON.Vector3(a.minX, a.maxZ, a.maxY),
-    //     new BABYLON.Vector3(a.minX, a.minZ, a.maxY)
-    // ]
-
     return (a.minX <= b.maxX && a.maxX >= b.minX) &&
            (a.minY <= b.maxY && a.maxY >= b.minY) &&
            (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
 }
 
 // Player object
-
-function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
+function ClientPlayer(controls, avatar, debugLines, thisScene){
     // Player vars
-    this.playerHeight = 2//tileScale * 1.5
+    this.playerHeight = 1.75//tileScale * 1.75
     // The object in the scene the player will be controlling
     this.avatar = avatar
     //this.playerCamera = camera
@@ -73,21 +55,20 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
     const bounce = 0.05
     let usedJump = 0
     let playerVelocity = BABYLON.Vector3.Zero()
-    //let moveDirection = 0
     let moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown
 
     const scene = thisScene
-    let greenMesh, blueMesh, redMesh
+    //let greenMesh, blueMesh, redMesh
     // Init player
     const init = () => {
         this.registerControls(this.controls)
 
-        greenMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 254, scene)
-        greenMesh.material = scene.transparentMaterial
-        redMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 252, scene)
-        redMesh.material = scene.transparentMaterial
-        blueMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 253, scene)
-        blueMesh.material = scene.transparentMaterial
+        // greenMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 254, scene)
+        // greenMesh.material = scene.transparentMaterial
+        // redMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 252, scene)
+        // redMesh.material = scene.transparentMaterial
+        // blueMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 253, scene)
+        // blueMesh.material = scene.transparentMaterial
     }
 
     // Register controls with actions
@@ -96,7 +77,6 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
         assignFunctionToInput(c.downAxis1, ()=>{moveBackward=true}, ()=>{moveBackward=false})
         assignFunctionToInput(c.leftAxis1, ()=>{moveLeft=true}, ()=>{moveLeft=false})
         assignFunctionToInput(c.rightAxis1, ()=>{moveRight=true}, ()=>{moveRight=false})
-        //assignFunctionToInput(c.jump, ()=>{moveUp=true}, ()=>{moveUp=false})
         assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else {playerVelocity.y = 0.2; usedJump++}}, ()=>{moveUp=false})
         assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
         assignFunctionToInput(c.fire1, ()=>{console.log('shoot!')}, ()=>{})
@@ -175,44 +155,30 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
         // Dampen
         if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
         else playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y + gravity, playerVelocity.z * groundFric)
-
-        // Bob camera
-        //if (isMoving) camera.position.y = (Math.sin(frame/4) * (tileScale/20)) + playerHeight
     }
 
     this.platformMovementUpdate = (engine, world) => {
-        const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
-        const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
+        //const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+        //const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
         const avRight = avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
 
         let inputVector = new BABYLON.Vector3(0,0,0)
-        //if (!(GetInput(c.upAxis1) && GetInput(c.downAxis1))) inputVector.z = 0
+
         // Move controler
         let isMoving = false
         if (moveForward) {
-            //console.log('moving')
-            //controls.moveForward(moveSpeed)
-            //avatar.position.z += this.moveSpeed
             inputVector.z = 1
-            //console.log(avDir)
-            //avatar.position = new BABYLON.Vector3( avatar.position.x + newSpeed.x, avatar.position.y, avatar.position.z + newSpeed.z)
             isMoving = true
         }
         if (moveBackward) {
-            //controls.moveForward(-moveSpeed)
-            // avatar.position.z -= this.moveSpeed
             inputVector.z = -1
             isMoving = true
         }
         if (moveRight) {
-            //controls.moveRight(moveSpeed)
-            // avatar.position.x += this.moveSpeed
             inputVector.x = 1
             isMoving = true
         }
         if (moveLeft) {
-            //controls.moveRight(-moveSpeed)
-            // avatar.position.x -= this.moveSpeed
             inputVector.x = -1
             isMoving = true
         }
@@ -243,56 +209,13 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
         // Apply movement
         const deltaTime = engine.getDeltaTime()
         const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        //const playerBox = {x: (avatar.position.x - 0.5) + playerVelocity.x, y: avatar.position.y + playerVelocity.y, z: (avatar.position.z - 0.5) + playerVelocity.z, w: 0.5, h: 2, d: 0.5}
-        const playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+        let playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: this.playerHeight, d: 0.5}
 
-        //for (let y = -4; y < 4; y++) {
-            //let checkPos = {x: Math.floor(avatar.position.x), y: Math.floor(avatar.position.y), z: Math.floor(avatar.position.z)}
-            //let blockID = thisChunk[checkPos.y][checkPos.x][checkPos.z]
-            //let blockToCheck = {x: checkPos.x, y: checkPos.y, z: checkPos.z, w: 1, h: 1, d: 1}
-            //if (!boxIsIntersecting()) this.keepMovingY(dT, frameRateMult)
-            //else this.bounceY()
-        //}
         // Blocks
         let allowMoveX = true
         let allowMoveY = true
         let allowMoveZ = true
         let allowGrav = true
-        if (!this.spectateMode && 1 === 2) {
-            // Change this to check a radius around the player, not the entire world
-        for (let wy = 0; wy < world.worldChunks.length; wy++) {
-        for (let wx = 0; wx < world.worldChunks[wy]?.length; wx++) {
-        for (let wz = 0; wz < world.worldChunks[wy]?.[wx]?.length; wz++) {
-            for (let y = 0; y < world.worldChunks[wy]?.[wx]?.[wz]?.length; y++) {
-            for (let x = 0; x < world.worldChunks[wy]?.[wx]?.[wz]?.[y]?.length; x++) {
-            for (let z = 0; z < world.worldChunks[wy]?.[wx]?.[wz]?.[y]?.[x]?.length; z++) {
-                const blockID = world.worldChunks[wy]?.[wx]?.[wz]?.[y]?.[x]?.[z]
-                if (blockID > 0) {
-                    const blockToCheck = {x: x+(wx*16), y: y+(wy*16), z: z+(wz*16), w: 1, h: 1, d: 1}
-
-                    // Check Y
-                    // if (boxIsIntersecting(playerBox, blockToCheck)) {
-                    //     this.bounceY()
-                    //     avatar.position.y = blockToCheck.y + (blockToCheck.h/2) + (playerBox.h/2) //+ this.moveSpeed
-                    // }
-
-                    // Check X
-                    // let playerPosCheck = playerBox
-                    // playerPosCheck.x += playerVelocity.x
-                    // if (!boxIsIntersecting(playerBox, blockToCheck)) { allowMoveX = true } else { this.bounceX() }
-
-                    // // Check Z
-                    // playerPosCheck = playerBox
-                    // playerPosCheck.z += playerVelocity.z
-                    // if (!boxIsIntersecting(playerBox, blockToCheck)) { allowMoveZ = true } else { this.bounceZ() }
-
-                    // // Check Y
-                    // playerPosCheck = playerBox
-                    // playerPosCheck.y += playerVelocity.y
-                    // if (!boxIsIntersecting(playerBox, blockToCheck)) { allowMoveY = true } else { this.bounceY() }
-                }
-        }}}}}}
-        }
 
         // Get player pos in chunk/block coordinates
         // TODO: This does not yet work at the edges of chunks
@@ -304,22 +227,28 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
             }
         }
         const chunkSize = world.getChunkSize()
-        
-        // greenMesh.position.x = Math.floor(avatar.position.x)+0.5
-        // greenMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        // greenMesh.position.z = Math.floor(avatar.position.z+1)+0.5
-        // redMesh.position.x = Math.floor(avatar.position.x+1)+0.5
-        // redMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        // redMesh.position.z = Math.floor(avatar.position.z)+0.5
-        // blueMesh.position.x = Math.floor(avatar.position.x)+0.5
-        // blueMesh.position.y = Math.floor(avatar.position.y-2)+0.5
-        // blueMesh.position.z = Math.floor(avatar.position.z)+0.5
+
+        // Debug lines
+        let pBoxOffset = {x: 0.5, y: 0.5, z: 0.5}
+        let debugPath = [
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+    
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
+            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z)
+        ]
 
         const checkYCol = (block, bOnly) => {
 
             let bounceOnly = bOnly || false
             // Check Y
-            let playerPosCheck = playerBox
+            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.y += playerVelocity.y
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
@@ -334,11 +263,10 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
 
         const checkXCol = (block) => {
             // Check X
-            let playerPosCheck = playerBox
+            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.x += playerVelocity.x
-            //block.x -= (block.w/2)
             block.y += 0
-            //playerPosCheck.y += (playerBox.h/4)
+
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceX()
@@ -349,11 +277,10 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
 
         const checkZCol = (block) => {
             // Check Z
-            let playerPosCheck = playerBox
+            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.z += playerVelocity.z
-            //block.z += (block.d/2)
             block.y += 0
-            //playerPosCheck.y += (playerBox.h/4)
+
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceZ()
@@ -369,7 +296,6 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
             for (let cz = -1; cz < 2; cz++) {
 
                 // Check X
-                //let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z}
                 let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z+cz}
                 let arrayPos = getArrayPos(blockPos, chunkSize)
                 let worldPos = arrayPos.world
@@ -380,84 +306,37 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkXCol(blockHere)
-                    redMesh.position.x = Math.floor(blockHere.x)+0.5
-                    redMesh.position.y = Math.floor(blockHere.y)+0.5
-                    redMesh.position.z = Math.floor(blockHere.z)+0.5
+                    // redMesh.position.x = Math.floor(blockHere.x)+0.5
+                    // redMesh.position.y = Math.floor(blockHere.y)+0.5
+                    // redMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
 
                 // Check Z
-                // blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z+cz}
-                // arrayPos = getArrayPos(blockPos, chunkSize)
-                // worldPos = arrayPos.world
-                // chunkPos = arrayPos.chunk
-
-                // blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkZCol(blockHere)
-                    greenMesh.position.x = Math.floor(blockHere.x)+0.5
-                    greenMesh.position.y = Math.floor(blockHere.y)+0.5
-                    greenMesh.position.z = Math.floor(blockHere.z)+0.5
+                    // greenMesh.position.x = Math.floor(blockHere.x)+0.5
+                    // greenMesh.position.y = Math.floor(blockHere.y)+0.5
+                    // greenMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
 
                 // Check Y
-                // blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z}
-                // arrayPos = getArrayPos(blockPos, chunkSize)
-                // worldPos = arrayPos.world
-                // chunkPos = arrayPos.chunk
-
-                // blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 skipMid = (cy < 0 || cy > 0)
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
                     checkYCol(blockHere, (cy > 0))
-                    blueMesh.position.x = Math.floor(blockHere.x)+0.5
-                    blueMesh.position.y = Math.floor(blockHere.y)+0.5
-                    blueMesh.position.z = Math.floor(blockHere.z)+0.5
+                    // blueMesh.position.x = Math.floor(blockHere.x)+0.5
+                    // blueMesh.position.y = Math.floor(blockHere.y)+0.5
+                    // blueMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
             }}}
-
-            // Check Z
-            // for (let cy = -1; cy < 1; cy++) {
-            // for (let cz = -1; cz < 2; cz++) {
-            //     let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z+cz}
-            //     let arrayPos = getArrayPos(blockPos, chunkSize)
-            //     let worldPos = arrayPos.world
-            //     let chunkPos = arrayPos.chunk
-
-            //     let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            //     if (blockID > 0) {
-            //         let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-            //         checkZCol(blockHere)
-            //         greenMesh.position.x = Math.floor(blockHere.x)+0.5
-            //         greenMesh.position.y = Math.floor(blockHere.y)+0.5
-            //         greenMesh.position.z = Math.floor(blockHere.z)+0.5
-            //     }
-            // }}
-
-            // Check Y
-            // for (let cy = -2; cy < 1; cy++) {
-            //     let blockPos = {x: avatar.position.x, y: avatar.position.y+cy, z: avatar.position.z}
-            //     let arrayPos = getArrayPos(blockPos, chunkSize)
-            //     let worldPos = arrayPos.world
-            //     let chunkPos = arrayPos.chunk
-
-            //     let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-            //     if (blockID > 0) {
-            //         let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
-            //         checkYCol(blockHere, (cy > 0))
-            //         blueMesh.position.x = Math.floor(blockHere.x)+0.5
-            //         blueMesh.position.y = Math.floor(blockHere.y)-0.5
-            //         blueMesh.position.z = Math.floor(blockHere.z)+0.5
-            //     }
-            // }
         }
 
         // World floor
         let frameGrav = ((gravity/frameRateMult) * deltaTime)
         if (((avatar.position.y)) <= 1) {
             this.bounceY()
-            avatar.position.y = 1 //+ this.moveSpeed
+            avatar.position.y = 1
         }
         else if (!this.spectateMode && allowGrav) {
             // Apply gravity
@@ -466,31 +345,15 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
         this.keepMovingY(deltaTime, frameRateMult)
         if (allowMoveX) this.keepMovingX(deltaTime, frameRateMult)
         if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
-        //this.keepMoving(engine)
 
         // Dampen
         if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
         else playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y, playerVelocity.z * groundFric)
 
         // Bob camera
-        //if (isMoving) camera.position.y = (Math.sin(frame/4) * (tileScale/20)) + playerHeight
+        // ...
 
         // Debug lines
-        //playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 0.75, d: 0.5}
-        let pBoxOffset = {x: 0.5, y: 0.5, z: 0.5}
-        let debugPath = [
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-    
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z)
-        ]
         if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
@@ -551,3 +414,27 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){//, camera) {
 }
 
 export default ClientPlayer
+
+
+/*
+Thanks for helping out! https://github.com/grothedev
+
+For cutting down player colission to a single boxIsColliding() call:
+
+movementFrame(){
+  if (boxIsColliding(playerboxOfNextFrame)){
+    reverseComponenOfVelocityPerpindicularToPlaneOfCollision()
+  }
+}
+
+boxIsColling(box){
+  use code similar to current boxcollidecheck func to see if future playerbox will intersect.
+  blockIndexX = box.x / motionUnitsPerBlock  //y&z etc.
+  world[blockIndexX, etc.]  is either a block or nothing
+  if one of the box [faces or vertices or edges idk what's best] is intersecting, the plane of intersection is that which is in between the two blocks
+  return this plane
+}
+
+"i think it's probably best to check the 8 vertices. then when one has collided, you can use same vertex of current playerbox (right before collision) to find plane. at this point it doesn't matter which particular blocks are being collided with, because you only need to do  velocity.dimensionOfPlaneNormal *= -1;"
+
+*/

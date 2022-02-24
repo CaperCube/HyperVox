@@ -23,7 +23,7 @@ import ClientPlayer from './entities/player.js'
 const newWorld = new World({
     //worldSeed: 'helloworld',
     //worldSeed: '0.505861828545028',
-    worldSize: 2
+    worldSize: 10
 })
 Buttons.i.onPress = () => {console.log(newWorld.getWorldSeed())}
 let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
@@ -123,8 +123,6 @@ const createScene = () => {
     const player2Mesh = createBlockWithUV({x: camera.position.x, y: camera.position.y, z: camera.position.z}, 255, scene)
     player2 = new ClientPlayer(Controls.Player2, player2Mesh, debugLines, scene)
     player2.debug = true
-
-    Buttons.c.onPress = () => { player.registerControls(player.controls); player2.registerControls(player2.controls) }
 
     // Lock cursor to game (release with escape key)
     scene.onPointerDown = (evt) => { if (evt.button === 0) {

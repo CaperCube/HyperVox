@@ -9,11 +9,11 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] Switch to Babylon.js (they have colission detection)
     - [X] texture loading (probably use a texture atlas)
     - [X] store / render different blocks in a 3D array
-- [ ] Basic player movement
+- [X] Basic player movement
     - [X] Get basic input from player
     - [X] Basic spectating movement
     - [X] Move player with velocity (jumping too)
-    - [ ] Basic collision with blocks
+    - [X] Basic collision with blocks
 - [ ] Basic place / break blocks
     - [ ] Raycasting for selection block placement / blocks to destroy
     - [ ] Updating chunks (send to brain to update the chunk)
