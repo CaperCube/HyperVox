@@ -65,3 +65,12 @@ Contact me about contributing to this project. I do hope to work with more peopl
 
 - Generate world data and send to player when the reach their world limit
 - If no chunk data exists, fill area with a visual world border / "loading chunk" zone
+
+## when removing a block
+- Modify the chunk data
+- Remove the selected bloock faces of the chnk mesh
+- Create new faces based on surrounding blocks
+- Merge new faces with chunk mesh (async function ()?)
+
+## Other
+- Weapons have different ammounts of recoil

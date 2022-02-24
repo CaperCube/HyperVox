@@ -1,4 +1,16 @@
-// colission code
+/* ToDo still:
+    [ ] Player position seperate from avatar position (i.e. avitar.position = this.position + avitarOffset)
+    [ ] Iron out colission code to be more robust & efficient
+    [ ] Seperate camera modes (i.e. Third-pseron, First-person, No-camera (for npcs or other))
+    [ ] Camera animations (movement bobbing, tilt while wall-running, fov change when moving faster, etc...)
+    [ ] Seperate into modules, (PlayerManager(for management of all player systems ), Movement(for managing movement types(spectating, platforming, vehicle, etc...) and collisions), Avatar(for managing models, animations, etc...))
+        - Think through design of these systems to be efficiently but not needlesly modular.
+        - Player object should also be used by NPCs
+    [ ] Grapling hook
+*/
+
+
+// collision code
 function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) {
     var a = {
         minX : box1.x - (box1.w/2),
