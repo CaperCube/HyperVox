@@ -1,4 +1,5 @@
 import ClientPlayer from './entities/player.js'
+import { tileScale, defaultWorldSize } from './clientConstants.js'
 
 ////////////////////////////////////////////////////
 // This should be in charge of rendering firing client-side updates
@@ -23,10 +24,10 @@ import ClientPlayer from './entities/player.js'
 const newWorld = new World({
     //worldSeed: 'helloworld',
     //worldSeed: '0.505861828545028',
-    worldSize: 10
+    worldSize: defaultWorldSize
 })
 Buttons.i.onPress = () => {console.log(newWorld.getWorldSeed())}
-let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (newWorld.getTileScale()/2)
+let worldCenter = ((newWorld.getWorldSize() * newWorld.getChunkSize()) / 2) - (tileScale/2)
 //let worldCenter = ((3 * 16) / 2) - (1/2)
 
 // Render vars
@@ -35,6 +36,7 @@ let engine
 let renderScale = 1
 let frame = 0
 const fogDist = 1000
+
 // Material for most blocks
 let mat, mat2, texture
 
@@ -53,11 +55,10 @@ const createScene = () => {
     scene.clearColor = new BABYLON.Color3.Black()
 
     // Create new camera in scene
-    //const camera = new BABYLON.FreeCamera( "camera1", new BABYLON.Vector3( 0, 0, -10 ), scene )
     let centerTarget = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
     //var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
     var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
-    camera.minZ = newWorld.getTileScale()/10
+    camera.minZ = tileScale/10
     camera.maxZ = fogDist
 
     // Create light in scene
@@ -69,10 +70,8 @@ const createScene = () => {
     mat = new BABYLON.StandardMaterial('mat')
     texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
     mat.diffuseTexture = texture
-    //mat.backFaceCulling = true;
+    //mat.backFaceCulling = true
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
-    //mat.diffuseTexture.hasAlpha = true
-    //mat.useAlphaFromDiffuseTexture = true
     scene.defaultMaterial = mat
     
     mat2 = new BABYLON.StandardMaterial('mat')
@@ -95,7 +94,7 @@ const createScene = () => {
     // Generate world
     const genWorld = generateSimpleWorld({
         seed: newWorld.getWorldSeed(),
-        tileScale: newWorld.getTileScale(),
+        tileScale: tileScale,
         chunkSize: newWorld.getChunkSize(),
         worldSize: newWorld.getWorldSize(),
         scene: scene
@@ -108,20 +107,22 @@ const createScene = () => {
 
     // Create world borders
     let worldBorders = []
-    const wallSize = newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize()
-    const borderOffset = (newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())
-    const borderOffsetHalf = ((newWorld.getTileScale() * newWorld.getChunkSize() * newWorld.getWorldSize())/2)
+    const wallSize = tileScale * newWorld.getChunkSize() * newWorld.getWorldSize()
+    const borderOffset = (tileScale * newWorld.getChunkSize() * newWorld.getWorldSize())
+    const borderOffsetHalf = ((tileScale * newWorld.getChunkSize() * newWorld.getWorldSize())/2)
     worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, mat2, scene)) // Front
     worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: 0}, {x: 0, y: 0, z: 0}, wallSize, mat2, scene)) // Back
     worldBorders.push(createChunkBorder({x: 0, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, mat2, scene)) // Left
     worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, mat2, scene)) // Right
-    //const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
+    const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
 
     // Create player
     player = new ClientPlayer(Controls.Player1, camera, debugLines, scene)
+    player.position = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
 
     const player2Mesh = createBlockWithUV({x: camera.position.x, y: camera.position.y, z: camera.position.z}, 255, scene)
     player2 = new ClientPlayer(Controls.Player2, player2Mesh, debugLines, scene)
+    player2.position = new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
     player2.debug = true
 
     // Lock cursor to game (release with escape key)
@@ -134,12 +135,6 @@ const createScene = () => {
         // document.exitPointerLock()
     }}
 
-    // Gravity / collisions
-    //const framesPS = 60
-    //const gravity = -9.8
-    //scene.gravity = new BABYLON.Vector3(0, gravity/framesPS, 0)
-    scene.collisionsEnabled = true
-
     camera.attachControl(canvas, true)
     camera.inputs.attached.keyboard.detachControl()
     camera.inertia = 0 // no mouse smoothing
@@ -149,12 +144,6 @@ const createScene = () => {
     //camera.applyGravity = true
     camera.checkCollisions = true
     camera.ellipsoid = new BABYLON.Vector3(0.5,0.5,0.5) // Collider for the camera
-    
-    //camera.keysUp.push(Buttons.w.code)
-    //camera.keysDown.push(Buttons.s.code)
-    //camera.keysLeft.push(Buttons.a.code)
-    //camera.keysRight.push(Buttons.d.code)
-    //Controls.Player1.jump.onPress = ()=>{camera.velocity}
 
     // Create debug line mesh
     debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), scene, true)
@@ -198,10 +187,6 @@ function rescaleCanvas(ratio) {
 // Render loop
 ////////////////////////////////////////////////////
 
-// For fixed framerate:
-// `engine.stopRenderLoop()
-// setInterval( ()=>{ scene.render() }, frameRate )`
-//engine.stopRenderLoop()
 engine.runRenderLoop(function(){
 // setInterval( function(){ 
     // Update frame
@@ -210,10 +195,9 @@ engine.runRenderLoop(function(){
     // Update materials
     if (mat2) mat2.alpha = (Math.sin(frame/30) * 0.15) + 0.25
 
-    //movementUpdate()
+    // Update player (change this to a loop for local machine players if we do that)
     player.platformMovementUpdate(engine, newWorld)
     player2.platformMovementUpdate(engine, newWorld)
-    // player.movementUpdate(engine)
 
     // render scene
     scene.render()

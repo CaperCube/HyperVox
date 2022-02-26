@@ -1,5 +1,7 @@
+import { tileScale } from '../clientConstants.js'
+
 /* ToDo still:
-    [ ] Player position seperate from avatar position (i.e. avitar.position = this.position + avitarOffset)
+    [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
     [ ] Iron out colission code to be more robust & efficient
     [ ] Seperate camera modes (i.e. Third-pseron, First-person, No-camera (for npcs or other))
     [ ] Camera animations (movement bobbing, tilt while wall-running, fov change when moving faster, etc...)
@@ -36,7 +38,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 // Player object
 function ClientPlayer(controls, avatar, debugLines, thisScene){
     // Player vars
-    this.playerHeight = 1.75//tileScale * 1.75
+    this.playerHeight = tileScale * 1.75
     // The object in the scene the player will be controlling
     this.avatar = avatar
     //this.playerCamera = camera
@@ -54,18 +56,22 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
     //     invDown: [Buttons.minus],
     //     respawn: [Buttons.r]
     // }
-
     this.debug = false
+
+    this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
+    const avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
+    const cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
 
     // Movement vars
     this.spectateMode = true
-    this.moveSpeed = 0.025//tileScale/20
+    this.moveSpeed = tileScale/40 //0.025
+    this.allowedJumps = 2
 
     // Private vars
     const groundFric = 0.75
     const gravity = -0.0125
     const bounce = 0.05
-    let usedJump = 0
+    let usedJumps = 0
     let playerVelocity = BABYLON.Vector3.Zero()
     let moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown
 
@@ -75,11 +81,11 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
     const init = () => {
         this.registerControls(this.controls)
 
-        // greenMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 254, scene)
+        // greenMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 254, scene)
         // greenMesh.material = scene.transparentMaterial
-        // redMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 252, scene)
+        // redMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, scene)
         // redMesh.material = scene.transparentMaterial
-        // blueMesh = createBlockWithUV({x: avatar.position.x, y: avatar.position.y, z: avatar.position.z}, 253, scene)
+        // blueMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 253, scene)
         // blueMesh.material = scene.transparentMaterial
     }
 
@@ -89,86 +95,13 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         assignFunctionToInput(c.downAxis1, ()=>{moveBackward=true}, ()=>{moveBackward=false})
         assignFunctionToInput(c.leftAxis1, ()=>{moveLeft=true}, ()=>{moveLeft=false})
         assignFunctionToInput(c.rightAxis1, ()=>{moveRight=true}, ()=>{moveRight=false})
-        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else {playerVelocity.y = 0.2; usedJump++}}, ()=>{moveUp=false})
+        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else if (usedJumps < this.allowedJumps) {playerVelocity.y = 0.2; usedJumps++}}, ()=>{moveUp=false})
         assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
         assignFunctionToInput(c.fire1, ()=>{console.log('shoot!')}, ()=>{})
         assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
     }
 
     // Update player movement
-    this.movementUpdate = (engine) => {
-        const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
-        const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
-        const avRight = avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
-
-        let inputVector = new BABYLON.Vector3(0,0,0)
-        //if (!(GetInput(c.upAxis1) && GetInput(c.downAxis1))) inputVector.z = 0
-        // Move controler
-        let isMoving = false
-        if (moveForward) {
-            //console.log('moving')
-            //controls.moveForward(moveSpeed)
-            //avatar.position.z += this.moveSpeed
-            inputVector.z = 1
-            //console.log(avDir)
-            //avatar.position = new BABYLON.Vector3( avatar.position.x + newSpeed.x, avatar.position.y, avatar.position.z + newSpeed.z)
-            isMoving = true
-        }
-        if (moveBackward) {
-            //controls.moveForward(-moveSpeed)
-            // avatar.position.z -= this.moveSpeed
-            inputVector.z = -1
-            isMoving = true
-        }
-        if (moveRight) {
-            //controls.moveRight(moveSpeed)
-            // avatar.position.x += this.moveSpeed
-            inputVector.x = 1
-            isMoving = true
-        }
-        if (moveLeft) {
-            //controls.moveRight(-moveSpeed)
-            // avatar.position.x -= this.moveSpeed
-            inputVector.x = -1
-            isMoving = true
-        }
-        if (this.spectateMode) {
-            if (moveUp) {
-                inputVector.y = 1
-                isMoving = true
-            }
-            if (moveDown) {
-                inputVector.y = -1
-                isMoving = true
-            }
-        }
-
-        // Apply Input
-        // if grounded, get ground normal, use it when calculating movement on slopes
-        let forwardMove = new BABYLON.Vector3( inputVector.z * avForward.x, 0, inputVector.z * avForward.z )
-        let horzMove = new BABYLON.Vector3( inputVector.x * avRight.x, 0, inputVector.x * avRight.z )
-        let vertMove = new BABYLON.Vector3( 0, inputVector.y, 0 )
-        let movementVector = new BABYLON.Vector3( forwardMove.x + horzMove.x, vertMove.y, forwardMove.z + horzMove.z )
-        
-        // Apply velocity
-        playerVelocity.x += (movementVector.x * this.moveSpeed)
-        if (this.spectateMode) playerVelocity.y += (vertMove.y * this.moveSpeed)
-        playerVelocity.z += (movementVector.z * this.moveSpeed)
-
-        // Apply position
-        const dT = engine.getDeltaTime()
-        const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        avatar.position = new BABYLON.Vector3(
-            avatar.position.x + ((playerVelocity.x/frameRateMult) * dT),
-            avatar.position.y + ((playerVelocity.y/frameRateMult) * dT),
-            avatar.position.z + ((playerVelocity.z/frameRateMult) * dT)
-        )
-
-        // Dampen
-        if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
-        else playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y + gravity, playerVelocity.z * groundFric)
-    }
-
     this.platformMovementUpdate = (engine, world) => {
         //const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         //const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
@@ -221,7 +154,7 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         // Apply movement
         const deltaTime = engine.getDeltaTime()
         const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        let playerBox = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: this.playerHeight, d: 0.5}
+        let playerBox = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: this.playerHeight, d: 0.5}
 
         // Blocks
         let allowMoveX = true
@@ -260,14 +193,14 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
 
             let bounceOnly = bOnly || false
             // Check Y
-            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.y += playerVelocity.y
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceY()
                 if (!bounceOnly) {
-                    avatar.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
+                    this.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
                     allowGrav = false
                 }
             }
@@ -275,28 +208,28 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
 
         const checkXCol = (block) => {
             // Check X
-            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.x += playerVelocity.x
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceX()
-                //avatar.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
+                //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
                 //allowMoveX = false
             }
         }
 
         const checkZCol = (block) => {
             // Check Z
-            let playerPosCheck = {x: (avatar.position.x - 0.5), y: avatar.position.y, z: (avatar.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.z += playerVelocity.z
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
                 this.bounceZ()
-                //avatar.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
+                //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
                 //allowMoveZ = false
             }
         }
@@ -308,7 +241,7 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
             for (let cz = -1; cz < 2; cz++) {
 
                 // Check X
-                let blockPos = {x: avatar.position.x+cx, y: avatar.position.y+cy, z: avatar.position.z+cz}
+                let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
                 let arrayPos = getArrayPos(blockPos, chunkSize)
                 let worldPos = arrayPos.world
                 let chunkPos = arrayPos.chunk
@@ -346,9 +279,9 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
 
         // World floor
         let frameGrav = ((gravity/frameRateMult) * deltaTime)
-        if (((avatar.position.y)) <= 1) {
+        if (((this.position.y)) <= 1) {
             this.bounceY()
-            avatar.position.y = 1
+            this.position.y = 1
         }
         else if (!this.spectateMode && allowGrav) {
             // Apply gravity
@@ -357,6 +290,9 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         this.keepMovingY(deltaTime, frameRateMult)
         if (allowMoveX) this.keepMovingX(deltaTime, frameRateMult)
         if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
+
+        // Apply positions
+        avatar.position = new BABYLON.Vector3( this.position.x + avatarOffset.x, this.position.y + avatarOffset.y, this.position.z + avatarOffset.z )
 
         // Dampen
         if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
@@ -370,7 +306,7 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
     }
 
     this.bounceY = () => {
-        if (Math.abs(playerVelocity.y) > 0) usedJump = 0 // reset jump
+        if (Math.abs(playerVelocity.y) > 0) usedJumps = 0 // reset jump
         playerVelocity.y *= -bounce
     }
 
@@ -382,43 +318,32 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         playerVelocity.z *= -bounce
     }
 
-    this.keepMoving = (engine) => {
-        // Apply position
-        const dT = engine.getDeltaTime()
-        const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        avatar.position = new BABYLON.Vector3(
-            avatar.position.x + ((playerVelocity.x/frameRateMult) * dT),
-            avatar.position.y + ((playerVelocity.y/frameRateMult) * dT),
-            avatar.position.z + ((playerVelocity.z/frameRateMult) * dT)
-        )
-    }
-
     this.keepMovingY = (deltaTime, frameRateMult) => {
         // Apply position 
         //if (Math.abs(playerVelocity.y) > this.moveSpeed) {
-            avatar.position = new BABYLON.Vector3(
-                avatar.position.x,
-                avatar.position.y + ((playerVelocity.y/frameRateMult) * deltaTime),
-                avatar.position.z
+            this.position = new BABYLON.Vector3(
+                this.position.x,
+                this.position.y + ((playerVelocity.y/frameRateMult) * deltaTime),
+                this.position.z
             )
         //}
     }
 
     this.keepMovingX = (deltaTime, frameRateMult) => {
         // Apply position
-        avatar.position = new BABYLON.Vector3(
-            avatar.position.x + ((playerVelocity.x/frameRateMult) * deltaTime),
-            avatar.position.y,
-            avatar.position.z
+        this.position = new BABYLON.Vector3(
+            this.position.x + ((playerVelocity.x/frameRateMult) * deltaTime),
+            this.position.y,
+            this.position.z
         )
     }
 
     this.keepMovingZ = (deltaTime, frameRateMult) => {
         // Apply position
-        avatar.position = new BABYLON.Vector3(
-            avatar.position.x,
-            avatar.position.y,
-            avatar.position.z + ((playerVelocity.z/frameRateMult) * deltaTime)
+        this.position = new BABYLON.Vector3(
+            this.position.x,
+            this.position.y,
+            this.position.z + ((playerVelocity.z/frameRateMult) * deltaTime)
         )
     }
 

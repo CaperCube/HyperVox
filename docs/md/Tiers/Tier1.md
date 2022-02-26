@@ -17,10 +17,13 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 - [ ] Basic place / break blocks
     - [ ] Raycasting for selection block placement / blocks to destroy
     - [ ] Updating chunks (send to brain to update the chunk)
-        - Check difference between `chunk` and `updatedChunk`
-        - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
-        - Add new faces to this area
-        - Merge faces into chunkMesh
+        - [ ] Fill in some basic brain behavior to allow the creation of a world & game from the client
+        - [ ] Move mesh gen logic to client
+        - [ ] Follow this procedure:
+            - Check difference between `chunk` and `updatedChunk`
+            - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
+            - Add new faces to this area
+            - Merge faces into chunkMesh
 - [ ] Basic game menu
     - [ ] `New Game`
     - [ ] Placeholder `Settings`

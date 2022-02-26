@@ -27,3 +27,4 @@ Tier shaping needed...
 - [ ] Basic networking
     - [ ] Send/Receive players, movement, and chunk changes
     - [ ] Work on generic messages for extendability?
+- [ ] Clean & Orginize code
