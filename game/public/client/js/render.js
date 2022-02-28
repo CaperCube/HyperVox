@@ -97,6 +97,7 @@ const createScene = () => {
         tileScale: tileScale,
         chunkSize: newWorld.getChunkSize(),
         worldSize: newWorld.getWorldSize(),
+        //genMesh: false,
         scene: scene
     })
     

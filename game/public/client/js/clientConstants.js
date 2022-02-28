@@ -4,7 +4,7 @@
 /////////////////////////////////////////////////////////
 
 const tileScale = 1
-const defaultWorldSize = 3
+const defaultWorldSize = 10
 
 export {
     tileScale,

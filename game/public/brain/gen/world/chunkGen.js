@@ -42,7 +42,7 @@ function generatePerlinChunk(offset = {x: 0, y: 0, z: 0}, chunkSize) {
 
 // Generate world (This should be changed to return a full world chunk array, which will be stored in the currently open `World` object)
 // Returns new Mesh[]
-function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene}) {
+function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, genMesh = true, scene}) {
     const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
     if (seed) genNoise.noiseSeed(stringToSeed(seed)) // changing the seed will change the value of `genNoise.get(x,y,z)`
 
@@ -53,11 +53,11 @@ function generateSimpleWorld({seed, tileScale = 1, chunkSize, worldSize, scene})
     for (let x = 0; x < worldSize; x++) {
         worldChunks[y][x] = []
     for (let z = 0; z < worldSize; z++) {
-        let chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-        let chunk = generatePerlinChunk(chunkOffset, chunkSize)
+        const chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
+        const chunk = generatePerlinChunk(chunkOffset, chunkSize)
         worldChunks[y][x][z] = chunk
         // Only create mesh if chunk is empty
-        if (chunk) {
+        if (chunk && genMesh && !!scene) {
             let myChunkMeshes = createChunkMesh(chunk, chunkOffset, tileScale, scene)
             worldChunkMeshes.push(BABYLON.Mesh.MergeMeshes(myChunkMeshes, true))
         }
