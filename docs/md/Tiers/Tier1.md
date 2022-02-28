@@ -30,3 +30,4 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [ ] Simple loading screen (for preloading assets & world gen)
 - [ ] Clean & Orginize code
     - [ ] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
+    - [ ] Change objects to Class structure
