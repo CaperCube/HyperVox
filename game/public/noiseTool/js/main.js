@@ -1,3 +1,6 @@
+// ToDo: use the ChunkGenerator and noise functions from './brain/' to reduce duplicate code
+// import ChunkGenerator from "../../brain/gen/world/chunkGen"
+
 // Canvas vars
 const canvas = $('#main-canvas')
 const ctx = canvas.getContext('2d')
@@ -6,16 +9,10 @@ const textureSheet = new Image(512,512)
 textureSheet.src = '../client/src/textures/textures.png'
 
 // Noise vars
+// const generator = new ChunkGenerator()
 let resolution = 32
 let pixelSize = canvas.width/resolution
 let pattern = [[]]
-
-// let genSettings = {
-//     useSeed: !$('#DOM_useSeed').checked,
-//     seed: $('#DOM_seed').value,
-//     noiseTolerance = 0.5,
-//     noiseScale = 0.1
-// }
 
 const genNoise = new perlinNoise3d()
 const noiseTolerance = 0.5
