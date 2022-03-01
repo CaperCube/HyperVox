@@ -1,11 +1,12 @@
 import World from "./gen/world/world.js"
+import ChunkGenerator from "./gen/world/chunkGen.js"
 import { tileScale, defaultWorldSize } from '../client/js/clientConstants.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class Game {
     constructor() {    
         ///////////////////////////////////////////////////////
-        // Public vars
+        // Game vars
         ///////////////////////////////////////////////////////
         this.GameOptions = {
             gameTickSpeed: 10000, // Time in ms between game ticks
@@ -13,9 +14,7 @@ class Game {
             validatePlayerActions: false // Corrects player movement server-side
         }
 
-        ///////////////////////////////////////////////////////
-        // Private vars
-        ///////////////////////////////////////////////////////
+        this.generator = new ChunkGenerator()
         this.world = null
         this.players = []
         this.testVal = "null"
@@ -34,14 +33,16 @@ class Game {
     // Methods
     ///////////////////////////////////////////////////////
     createNewWorld = () => {
+        // Create new world object
         this.world = new World({worldSize: defaultWorldSize})
-        const genWorld = generateSimpleWorld({
+
+        // Generate the world's chunk data
+        const genWorld = this.generator.generateWorld({
             seed: this.world.getWorldSeed(),
             chunkSize: this.world.getChunkSize(),
-            worldSize: this.world.getWorldSize(),
-            genMesh: false
+            worldSize: this.world.getWorldSize()
         })
-        this.world.worldChunks = genWorld.worldChunks
+        this.world.worldChunks = genWorld
     }
 
     ///////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
+// ToDo: (Consider moving this to 'client' as this is not directly game logic)
+
 ////////////////////////////////////////////////////
 // Mesh related generators
-// (Consider moving this to 'client' as this is not directly game logic)
 ////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////
@@ -220,3 +221,5 @@ function createChunkBorder(pos = {x: 0, y: 0, z: 0}, rot = {x: 0, y: 0, z: 0}, w
 
 
 // export { createBlockWithUV, createQuadWithUVs, createChunkMesh, createChunkBorder }
+// Or
+// export default MeshGenerator
