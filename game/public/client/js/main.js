@@ -119,7 +119,7 @@ const createScene = () => {
     camera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
 
     // Create player
-    player = new ClientPlayer(Controls.Player1, camera, debugLines, scene)
+    player = new ClientPlayer(Controls.Player1, camera, debugLines, game.world, scene)
     player.position = new BABYLON.Vector3(worldCenter, worldCenter*2, 0)
 
     // Lock cursor to game (release with escape key)
@@ -220,10 +220,10 @@ engine.runRenderLoop(function(){
     frame++
 
     // Update materials
-    if (mat2) mat2.alpha = (Math.sin(frame/30) * 0.15) + 0.25
+    if (mat2) mat2.alpha = (Math.sin(frame/30) * 0.2) + 0.4
 
     // Update player (change this to a loop for local machine players if we do that)
-    player.platformMovementUpdate(engine, game.world)
+    player.platformMovementUpdate(engine)
 
     // render scene
     scene.render()

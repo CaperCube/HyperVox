@@ -76,7 +76,7 @@ function createBlockWithUV({x, y, z}, idx, scene) {
 function createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, tileScale, face = 'front', idx, scene) {
     // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
     // Create quad
-    const quad = BABYLON.MeshBuilder.CreatePlane("BlockFace", {
+    const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
         size: tileScale,
         frontUVs: getQuadUVByIndex(idx),
         backUVs: getQuadUVByIndex(idx),
@@ -138,13 +138,18 @@ function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }, tileScale, scene)
     // We'll store our quads here
     let meshArray = []
     const transparentTiles = [0,255,256]
+    let chunkIsEmpty = true
 
     for (let y = 0; y < chunk.length; y++) {
     for (let x = 0; x < chunk[y].length; x++) {
     for (let z = 0; z < chunk[y][x].length; z++) {
         let tileID = chunk[y][x][z]
         // if this is not an air block, continue
-        if (!transparentTiles.includes(tileID)) {
+        if (tileID !== 0) {
+
+            // If even 1 block is created, the chunk is not empty
+            chunkIsEmpty = false
+
             // Check front, back, left, right, top, bottom
             let tilePos = {x: (x+offset.x)*tileScale, y: (y+offset.y)*tileScale, z: (z+offset.z)*tileScale}
             // Right
@@ -178,7 +183,7 @@ function createChunkMesh(chunk, offset = { x: 0, y: 0, z: 0 }, tileScale, scene)
                 meshArray.push( createQuadWithUVs(tilePos, tileScale, 'bottom', tileID, scene) )
         }
     }}}
-    return meshArray
+    return chunkIsEmpty? null: meshArray
 }
 
 // (Depricated)

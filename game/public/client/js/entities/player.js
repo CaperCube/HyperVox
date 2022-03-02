@@ -2,6 +2,7 @@ import { tileScale } from '../clientConstants.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
+    [ ] Use 'class' instead of 'function'
     [ ] Iron out colission code to be more robust & efficient
     [ ] Seperate camera modes (i.e. Third-pseron, First-person, No-camera (for npcs or other))
     [ ] Camera animations (movement bobbing, tilt while wall-running, fov change when moving faster, etc...)
@@ -36,7 +37,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 }
 
 // Player object
-function ClientPlayer(controls, avatar, debugLines, thisScene){
+function ClientPlayer(controls, avatar, debugLines, world, thisScene){
     // Player vars
     this.playerHeight = tileScale * 1.75
     // The object in the scene the player will be controlling
@@ -66,6 +67,10 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
     this.spectateMode = true
     this.moveSpeed = tileScale/40 //0.025
     this.allowedJumps = 2
+    
+    this.blockReach = 4
+    let selectMesh
+    this.selectCursor = {x: 0, y: 0, z: 0}
 
     // Private vars
     const groundFric = 0.75
@@ -76,11 +81,16 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
     let moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown
 
     const scene = thisScene
-    //let greenMesh, blueMesh, redMesh
+    let chunkSize = world.getChunkSize() || 16
+    let worldSize = world.getWorldSize() || 1
+    // let greenMesh, blueMesh, redMesh
+
     // Init player
     const init = () => {
         this.registerControls(this.controls)
 
+        selectMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, scene)
+        selectMesh.material = scene.transparentMaterial
         // greenMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 254, scene)
         // greenMesh.material = scene.transparentMaterial
         // redMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, scene)
@@ -97,12 +107,12 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         assignFunctionToInput(c.rightAxis1, ()=>{moveRight=true}, ()=>{moveRight=false})
         assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else if (usedJumps < this.allowedJumps) {playerVelocity.y = 0.2; usedJumps++}}, ()=>{moveUp=false})
         assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
-        assignFunctionToInput(c.fire1, ()=>{console.log('shoot!')}, ()=>{})
+        assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
         assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
     }
 
     // Update player movement
-    this.platformMovementUpdate = (engine, world) => {
+    this.platformMovementUpdate = (engine) => {
         //const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         //const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
         const avRight = avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
@@ -161,17 +171,6 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         let allowMoveY = true
         let allowMoveZ = true
         let allowGrav = true
-
-        // Get player pos in chunk/block coordinates
-        // TODO: This does not yet work at the edges of chunks
-        // TODO: it just doesn't work well at all
-        const getArrayPos = (pos, chunkSize) => {
-            return {
-                world: {x: Math.floor(pos.x / chunkSize), y: Math.floor(pos.y / chunkSize), z: Math.floor(pos.z / chunkSize) },
-                chunk: {x: Math.floor(pos.x % chunkSize), y: Math.floor(pos.y % chunkSize), z: Math.floor(pos.z % chunkSize) }
-            }
-        }
-        const chunkSize = world.getChunkSize()
 
         // Debug lines
         let pBoxOffset = {x: 0.5, y: 0.5, z: 0.5}
@@ -242,7 +241,7 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
 
                 // Check X
                 let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
-                let arrayPos = getArrayPos(blockPos, chunkSize)
+                let arrayPos = this.getArrayPos(blockPos, chunkSize)
                 let worldPos = arrayPos.world
                 let chunkPos = arrayPos.chunk
 
@@ -298,11 +297,68 @@ function ClientPlayer(controls, avatar, debugLines, thisScene){
         if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
         else playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y, playerVelocity.z * groundFric)
 
+        // Position selector
+        const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+        this.selectCursor = {
+            // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * this.blockReach) ) + 0.5,
+            // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * this.blockReach) ) + 0.5,
+            // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * this.blockReach) ) + 0.5
+            x: Math.round( avatar.position.x - 0.5 + (avForward.x * this.blockReach) ) + 0.5,
+            y: Math.round( avatar.position.y + (avForward.y * this.blockReach) ) + 0.5,
+            z: Math.round( avatar.position.z - 0.5 + (avForward.z * this.blockReach) ) + 0.5
+        }
+
+        let isObstructed = false
+        for (let i = this.blockReach; i > 0; i--) {
+            let testPos = {
+                // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * i) ) + 0.5,
+                // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * i) ) + 0.5,
+                // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * i) ) + 0.5
+                x: Math.round( avatar.position.x - 0.5 + (avForward.x * i) ) + 0.5,
+                y: Math.round( avatar.position.y + (avForward.y * i) ) + 0.5,
+                z: Math.round( avatar.position.z - 0.5 + (avForward.z * i) ) + 0.5
+            }
+            const testWorldPos = this.getArrayPos(testPos, chunkSize)
+            const testID = world.worldChunks[testWorldPos.world.y]?.[testWorldPos.world.x]?.[testWorldPos.world.z]?.[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]
+            if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
+                if (isObstructed) {
+                    this.selectCursor = testPos
+                    break
+                }
+            }
+            else isObstructed = true
+        }
+        selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
+
         // Bob camera
         // ...
 
         // Debug lines
         if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
+    }
+
+    // Get player pos in chunk/block coordinates
+    this.getArrayPos = (pos, chunkSize) => {
+        return {
+            world: {x: Math.floor(pos.x / chunkSize), y: Math.floor(pos.y / chunkSize), z: Math.floor(pos.z / chunkSize) },
+            chunk: {x: Math.floor(pos.x % chunkSize), y: Math.floor(pos.y % chunkSize), z: Math.floor(pos.z % chunkSize) }
+        }
+    }
+
+    this.placeBlock = () => {
+        // Get world position
+        const newBlockWorldPos = this.getArrayPos(this.selectCursor, chunkSize)
+        const isWithinExsitingChunk = (
+            newBlockWorldPos.world.z < worldSize && newBlockWorldPos.world.z >= 0 &&
+            newBlockWorldPos.world.x < worldSize && newBlockWorldPos.world.x >= 0 &&
+            newBlockWorldPos.world.y < worldSize && newBlockWorldPos.world.y >= 0
+        )
+        if (isWithinExsitingChunk) {
+            // Update chunk
+            world.worldChunks[newBlockWorldPos.world.y][newBlockWorldPos.world.x][newBlockWorldPos.world.z][newBlockWorldPos.chunk.y][newBlockWorldPos.chunk.x][newBlockWorldPos.chunk.z] = 1
+            // Create mesh ( we'll want to change this to a chunk update function)
+            createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, 1, scene)
+        }
     }
 
     this.bounceY = () => {

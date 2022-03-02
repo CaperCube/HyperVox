@@ -35,8 +35,7 @@ class ChunkGenerator {
             newChunk[y][x][z] = randTile
         }}}
     
-        if (!chunkEmpty) return newChunk
-        else return null // What would be the use in storing a chunk full of only 0's?
+        return newChunk
     }
 
     // Generate world (This should be changed to return a full world chunk array, which will be stored in the currently open `World` object)

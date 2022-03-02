@@ -15,9 +15,9 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] Move player with velocity (jumping too)
     - [X] Basic collision with blocks
 - [ ] Basic place / break blocks
-    - [ ] Raycasting for selection block placement / blocks to destroy
+    - [X] Raycasting for selection block placement / blocks to destroy
     - [ ] Updating chunks (send to brain to update the chunk)
-        - [ ] Fill in some basic brain behavior to allow the creation of a world & game from the client
+        - [X] Fill in some basic brain behavior to allow the creation of a world & game from the client
         - [ ] Move mesh gen logic to client
         - [ ] Follow this procedure:
             - Check difference between `chunk` and `updatedChunk`
