@@ -25,6 +25,9 @@ Tier shaping needed...
     - [ ] Better velocity curves
     - [ ] Slopes & sliding?
 - [ ] Basic networking
+    - [ ] Basic event system?
+        - [ ] Create communication layer to be used to send messages between the client(s) and brain
+        - [ ] Create the ability to trigger events in the Game object (i.e. add / remove / change block)
     - [ ] Send/Receive players, movement, and chunk changes
     - [ ] Work on generic messages for extendability?
 - [ ] Clean & Orginize code
