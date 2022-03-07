@@ -1,8 +1,12 @@
-importScripts('./dist/babylon.max.js', '../../brain/gen/mesh/meshGen.js')
+// importScripts('../dist/babylon.max.js', './meshGen.js')
+import '../dist/babylon.max.js'
+import MeshGenerator from './meshGen.js'
 
 // Using NullEngine so we don't have to define a canvas or render anything
 const engine = new BABYLON.NullEngine()
 const scene = new BABYLON.Scene(engine)
+
+const meshGen = new MeshGenerator()
 
 // Generate a mesh for each chunk in the world data
 function workerGenMeshesFromChunks(world) {
@@ -12,7 +16,7 @@ function workerGenMeshesFromChunks(world) {
         if (world?.[y]?.[x]?.[z]) {
             const chunkSize = 16 // ToDo: get a message from the main thread to set this value
             const chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-            const myChunkMeshes = createChunkMesh(world[y][x][z], chunkOffset, 1, scene)
+            const myChunkMeshes = meshGen.createChunkMesh(world[y][x][z], chunkOffset, scene)
 
             if (myChunkMeshes !== null) {
                 const chunkMesh = BABYLON.Mesh.MergeMeshes(myChunkMeshes, true)

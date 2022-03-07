@@ -1,6 +1,7 @@
-import ClientPlayer from './entities/player.js'
-import Game from '../../brain/game.js'
 import { tileScale, defaultWorldSize } from './clientConstants.js'
+import Game from '../../brain/game.js'
+import MeshGenerator from './mesh/meshGen.js'
+import ClientPlayer from './entities/player.js'
 
 ////////////////////////////////////////////////////
 // This should be in charge of rendering firing client-side updates
@@ -27,6 +28,8 @@ const game = new Game()
 // Generate world data
 game.createNewWorld()
 let worldCenter = ((game.world.getWorldSize() * game.world.getChunkSize()) / 2) - (tileScale/2)
+
+const meshGen = new MeshGenerator()
 
 // Render vars
 const canvas = $('#main-canvas')
@@ -90,15 +93,7 @@ const createScene = () => {
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
 
     // Create world border mesh
-    let worldBorders = []
-    const wallSize = tileScale * game.world.getChunkSize() * game.world.getWorldSize()
-    const borderOffset = (tileScale * game.world.getChunkSize() * game.world.getWorldSize())
-    const borderOffsetHalf = ((tileScale * game.world.getChunkSize() * game.world.getWorldSize())/2)
-    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: borderOffset}, {x: 0, y: Math.PI, z: 0}, wallSize, mat2, scene)) // Front
-    worldBorders.push(createChunkBorder({x: borderOffsetHalf, y: borderOffsetHalf, z: 0}, {x: 0, y: 0, z: 0}, wallSize, mat2, scene)) // Back
-    worldBorders.push(createChunkBorder({x: 0, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: Math.PI/2, z: 0}, wallSize, mat2, scene)) // Left
-    worldBorders.push(createChunkBorder({x: borderOffset, y: borderOffsetHalf, z: borderOffsetHalf}, {x: 0, y: -Math.PI/2, z: 0}, wallSize, mat2, scene)) // Right
-    const worldBorderMeshes = BABYLON.Mesh.MergeMeshes(worldBorders, true)
+    meshGen.createWorldBorders(game.world, scene)
 
     ////////////////////////////////////////////////////
     // Player and Camera
@@ -119,7 +114,7 @@ const createScene = () => {
     camera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
 
     // Create player
-    player = new ClientPlayer(Controls.Player1, camera, debugLines, game.world, scene)
+    player = new ClientPlayer(Controls.Player1, camera, debugLines, game.world, meshGen, scene)
     player.position = new BABYLON.Vector3(worldCenter, worldCenter*2, 0)
 
     // Lock cursor to game (release with escape key)
@@ -183,7 +178,7 @@ function genMeshesFromChunks(world, scene) {
 
     // To start the thread work
     if (window.Worker) {
-        chunkWorker = new Worker('./client/js/workerTest.js')
+        chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
         chunkWorker.postMessage({world: world.worldChunks})
     }
 

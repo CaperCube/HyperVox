@@ -36,8 +36,11 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
            (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
 }
 
+// ToDo: Clean-p a bunch of these object references from CleintPlayer
+// We don't want the player to have access to all this garbage
+
 // Player object
-function ClientPlayer(controls, avatar, debugLines, world, thisScene){
+function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     // Player vars
     this.playerHeight = tileScale * 1.75
     // The object in the scene the player will be controlling
@@ -89,7 +92,7 @@ function ClientPlayer(controls, avatar, debugLines, world, thisScene){
     const init = () => {
         this.registerControls(this.controls)
 
-        selectMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, scene)
+        selectMesh = meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, scene)
         selectMesh.material = scene.transparentMaterial
         // greenMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 254, scene)
         // greenMesh.material = scene.transparentMaterial
@@ -357,7 +360,7 @@ function ClientPlayer(controls, avatar, debugLines, world, thisScene){
             // Update chunk
             world.worldChunks[newBlockWorldPos.world.y][newBlockWorldPos.world.x][newBlockWorldPos.world.z][newBlockWorldPos.chunk.y][newBlockWorldPos.chunk.x][newBlockWorldPos.chunk.z] = 1
             // Create mesh ( we'll want to change this to a chunk update function)
-            createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, 1, scene)
+            meshGen.createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, 1, scene)
         }
     }
 
