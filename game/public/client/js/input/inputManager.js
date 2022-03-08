@@ -209,7 +209,8 @@ var Controls = {
         rightAxis1: [Buttons.d],
         run: [Buttons.shift],
         jump: [Buttons.space],
-        fire1: [Buttons.e],
+        fire1: [Buttons.lmb],
+        fire2: [Buttons.rmb],
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
         respawn: [Buttons.r]
@@ -222,6 +223,7 @@ var Controls = {
         run: [Buttons.o],
         jump: [Buttons.p],
         fire1: [Buttons.e],
+        fire2: [Buttons.q],
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
         respawn: [Buttons.l]

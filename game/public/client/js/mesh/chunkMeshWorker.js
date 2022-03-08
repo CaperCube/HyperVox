@@ -26,7 +26,8 @@ function workerGenMeshesFromChunks(world) {
                     normal: chunkMesh.geometry.getVertexBuffers().normal.getData(),
                     position: chunkMesh.geometry.getVertexBuffers().position.getData(),
                     uv: chunkMesh.geometry.getVertexBuffers().uv.getData(),
-                    indices: chunkMesh.geometry.getIndices()
+                    indices: chunkMesh.geometry.getIndices(),
+                    chunkPostion: {x: x, y: y, z: z}
                 }
 
                 // Send back to the main thread

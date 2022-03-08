@@ -235,8 +235,10 @@ class MeshGenerator {
     ////////////////////////////////////////////////////
 
     // Update chunk mesh
-    updateChunkMesh(chunk) {
-        //...
+    updateChunkMesh(chunk, changePostion, removing) {
+        // Check parts of chunk that have changed
+        // if (removing) Remove connecting block faces
+        // generate new faces
     }
 }
 

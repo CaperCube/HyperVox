@@ -55,7 +55,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     //     rightAxis1: [Buttons.right],
     //     run: [Buttons.z],
     //     jump: [Buttons.x],
-    //     fire1: [Buttons.c],
+    //     fire1: [Buttons.lmb],
     //     invUp: [Buttons.equals],
     //     invDown: [Buttons.minus],
     //     respawn: [Buttons.r]
@@ -111,6 +111,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else if (usedJumps < this.allowedJumps) {playerVelocity.y = 0.2; usedJumps++}}, ()=>{moveUp=false})
         assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
         assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
+        assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
         assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
     }
 
@@ -306,9 +307,9 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
             // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * this.blockReach) ) + 0.5,
             // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * this.blockReach) ) + 0.5,
             // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * this.blockReach) ) + 0.5
-            x: Math.round( avatar.position.x - 0.5 + (avForward.x * this.blockReach) ) + 0.5,
-            y: Math.round( avatar.position.y + (avForward.y * this.blockReach) ) + 0.5,
-            z: Math.round( avatar.position.z - 0.5 + (avForward.z * this.blockReach) ) + 0.5
+            x: Math.floor( avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
+            y: Math.floor( avatar.position.y  + (avForward.y * this.blockReach) ) + 0.5,
+            z: Math.floor( avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
         }
 
         let isObstructed = false
@@ -317,19 +318,20 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
                 // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * i) ) + 0.5,
                 // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * i) ) + 0.5,
                 // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * i) ) + 0.5
-                x: Math.round( avatar.position.x - 0.5 + (avForward.x * i) ) + 0.5,
-                y: Math.round( avatar.position.y + (avForward.y * i) ) + 0.5,
-                z: Math.round( avatar.position.z - 0.5 + (avForward.z * i) ) + 0.5
+                x: Math.floor( avatar.position.x + (avForward.x * i) ) + 0.5,
+                y: Math.floor( avatar.position.y + (avForward.y * i) ) + 0.5,
+                z: Math.floor( avatar.position.z + (avForward.z * i) ) + 0.5
             }
-            const testWorldPos = this.getArrayPos(testPos, chunkSize)
-            const testID = world.worldChunks[testWorldPos.world.y]?.[testWorldPos.world.x]?.[testWorldPos.world.z]?.[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]
-            if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
-                if (isObstructed) {
-                    this.selectCursor = testPos
-                    break
-                }
-            }
-            else isObstructed = true
+            // ToDo: refine this to allow for better selection accuracy
+            // const testWorldPos = this.getArrayPos(testPos, chunkSize)
+            // const testID = world.worldChunks[testWorldPos.world.y]?.[testWorldPos.world.x]?.[testWorldPos.world.z]?.[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]
+            // if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
+            //     if (isObstructed) {
+            //         this.selectCursor = testPos
+            //         break
+            //     }
+            // }
+            // else isObstructed = true
         }
         selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
 
@@ -358,9 +360,40 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         )
         if (isWithinExsitingChunk) {
             // Update chunk
-            world.worldChunks[newBlockWorldPos.world.y][newBlockWorldPos.world.x][newBlockWorldPos.world.z][newBlockWorldPos.chunk.y][newBlockWorldPos.chunk.x][newBlockWorldPos.chunk.z] = 1
-            // Create mesh ( we'll want to change this to a chunk update function)
+            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
+            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
+            let updatedChunk = world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 1
+
+            // Send event to brain to update the chunk
+            //...
+
+            // Update mesh (this will happen once the brain sends back an event)
             meshGen.createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, 1, scene)
+            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, false)
+        }
+    }
+
+    this.removeBlock = () => {
+        // Get world position
+        const newBlockWorldPos = this.getArrayPos(this.selectCursor, chunkSize)
+        const isWithinExsitingChunk = (
+            newBlockWorldPos.world.z < worldSize && newBlockWorldPos.world.z >= 0 &&
+            newBlockWorldPos.world.x < worldSize && newBlockWorldPos.world.x >= 0 &&
+            newBlockWorldPos.world.y < worldSize && newBlockWorldPos.world.y >= 0
+        )
+        if (isWithinExsitingChunk) {
+            // Update chunk
+            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
+            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
+            let updatedChunk = world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 0
+
+            // Send event to brain to update the chunk
+            //...
+
+            // Update mesh (this will happen once the brain sends back an event)
+            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, true)
         }
     }
 

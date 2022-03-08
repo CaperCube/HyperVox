@@ -30,6 +30,7 @@ game.createNewWorld()
 let worldCenter = ((game.world.getWorldSize() * game.world.getChunkSize()) / 2) - (tileScale/2)
 
 const meshGen = new MeshGenerator()
+let worldChunkMeshes = []
 
 // Render vars
 const canvas = $('#main-canvas')
@@ -43,7 +44,7 @@ let mat, mat2, texture
 
 let player
 
-let debugLines
+let debugLines, utilLayer, crosshair
 
 ////////////////////////////////////////////////////
 // Scene init
@@ -127,6 +128,18 @@ const createScene = () => {
         // document.exitPointerLock()
     }}
 
+    // Create crosshair
+    utilLayer = new BABYLON.UtilityLayerRenderer(scene)
+    let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
+    let utilLight2 = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(-1, -1, 0), utilLayer.utilityLayerScene)
+
+    //createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene)
+    crosshair = meshGen.createQuadWithUVs({x: player.position.x - 0.5, y: player.position.y + 0.5, z: player.position.z + 4}, 'front', 250, utilLayer.utilityLayerScene)
+    crosshair.material = scene.defaultMaterial
+    crosshair.setParent(camera)
+    crosshair.position = new BABYLON.Vector3(0, 0, 4)
+
+
     // Create debug line mesh
     debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), scene, true)
 
@@ -201,6 +214,12 @@ function genMeshesFromChunks(world, scene) {
 
             vertexData.applyToMesh(customMesh)
             customMesh.material = scene.defaultMaterial
+
+            // Append mesh to array
+            if (!worldChunkMeshes[event.data.chunkPostion.y]) worldChunkMeshes[event.data.chunkPostion.y] = []
+            if (!worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x]) worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x] = []
+            if (!worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z]) worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z] = []
+            worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z].push(customMesh)
         }
     }
 }
@@ -218,7 +237,7 @@ engine.runRenderLoop(function(){
     if (mat2) mat2.alpha = (Math.sin(frame/30) * 0.2) + 0.4
 
     // Update player (change this to a loop for local machine players if we do that)
-    player.platformMovementUpdate(engine)
+    if (player) player.platformMovementUpdate(engine)
 
     // render scene
     scene.render()
