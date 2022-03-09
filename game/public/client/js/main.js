@@ -44,7 +44,9 @@ let mat, mat2, texture
 
 let player
 
-let debugLines, utilLayer, crosshair
+let debugLines, utilLayer, crosshair, skybox, stars, stars2
+
+let light
 
 ////////////////////////////////////////////////////
 // Scene init
@@ -64,7 +66,6 @@ const createScene = () => {
     mat = new BABYLON.StandardMaterial('mat')
     texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
     mat.diffuseTexture = texture
-    //mat.backFaceCulling = true
     mat.specularColor = new BABYLON.Color3(0, 0, 0)
     scene.defaultMaterial = mat
     
@@ -79,15 +80,77 @@ const createScene = () => {
     mat2.zOffset = -1 // Gives this material depth prioraty
 
     ////////////////////////////////////////////////////
+    // Skybox
+    ////////////////////////////////////////////////////
+    skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene)
+    skybox.infiniteDistance = true
+    skybox.renderingGroupId = 0
+
+    let skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMat", scene)
+    skyboxMaterial.backFaceCulling = false
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(imageSRC.Skybox, scene, [`_px.png`, `_nx.png`, `_py.png`, `_ny.png`, `_pz.png`, `_nz.png`], false)
+    skyboxMaterial.reflectionTexture.onLoadObservable.add(() => {
+        skyboxMaterial.reflectionTexture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    })
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0)
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0)
+
+    skybox.material = skyboxMaterial
+    skybox.applyFog = false
+
+    // Stars
+    stars = BABYLON.MeshBuilder.CreateSphere("stars", { diameter: 200.0 }, scene)
+    stars.infiniteDistance = true
+    stars.renderingGroupId = 0
+
+    stars.scaling = new BABYLON.Vector3 (1, 5, 1)
+    stars.rotation.z = Math.PI/2
+
+    let starMaterial = new BABYLON.StandardMaterial("starsMat", scene)
+    starMaterial.backFaceCulling = false
+    starMaterial.diffuseTexture = new BABYLON.Texture(imageSRC.Stars, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    starMaterial.specularColor = new BABYLON.Color3(0, 0, 0)
+    starMaterial.diffuseTexture.hasAlpha = true
+    starMaterial.useAlphaFromDiffuseTexture = true
+    starMaterial.alpha = 0.75
+
+    BABYLON.Animation.CreateAndStartAnimation("u", starMaterial.diffuseTexture, "vOffset", 30, 240, 0, 1, 1)
+    BABYLON.Animation.CreateAndStartAnimation("u", starMaterial.diffuseTexture, "uOffset", 30, 800, 0, 1, 1)
+    stars.material = starMaterial
+    stars.applyFog = false
+
+    // Stars 2
+    stars2 = BABYLON.MeshBuilder.CreateSphere("stars", { diameter: 400.0 }, scene)
+    stars2.infiniteDistance = true
+    stars2.renderingGroupId = 0
+
+    stars2.scaling = new BABYLON.Vector3 (1, 1, 1)
+    stars2.rotation.z = Math.PI/2
+
+    let starMaterial2 = new BABYLON.StandardMaterial("starsMat", scene)
+    starMaterial2.backFaceCulling = false
+    starMaterial2.diffuseTexture = new BABYLON.Texture(imageSRC.Stars, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    starMaterial2.specularColor = new BABYLON.Color3(0, 0, 0)
+    starMaterial2.diffuseTexture.hasAlpha = true
+    starMaterial2.useAlphaFromDiffuseTexture = true
+    starMaterial2.alpha = 0.25
+    BABYLON.Animation.CreateAndStartAnimation("u", starMaterial2.diffuseTexture, "vOffset", 30, 800, 0, 1, 1)
+    BABYLON.Animation.CreateAndStartAnimation("u", starMaterial2.diffuseTexture, "uOffset", 30, 4000, 0, 1, 1)
+    stars2.material = starMaterial2
+    stars2.applyFog = false
+
+    ////////////////////////////////////////////////////
     // Lighting and fog
     ////////////////////////////////////////////////////
 
     // Create light in scene
-    const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+    light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
     //light.intensity = 1
+    light.diffuse = new BABYLON.Color3(203/255, 219/255, 252/255) // Light Blue
+    light.groundColor = new BABYLON.Color3(69/255, 40/255, 60/255) // Dark Purple
 
     // Fog
-    scene.fogDensity = 0//0.1
+    scene.fogDensity = 0.02
     scene.fogStart = 8//fogDist/2
     scene.fogEnd = 128
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP//BABYLON.Scene.FOGMODE_LINEAR
@@ -116,7 +179,7 @@ const createScene = () => {
 
     // Create player
     player = new ClientPlayer(Controls.Player1, camera, debugLines, game.world, meshGen, scene)
-    player.position = new BABYLON.Vector3(worldCenter, worldCenter*2, 0)
+    player.position = new BABYLON.Vector3(worldCenter, worldCenter*2, worldCenter)
 
     // Lock cursor to game (release with escape key)
     scene.onPointerDown = (evt) => { if (evt.button === 0) {
@@ -131,9 +194,8 @@ const createScene = () => {
     // Create crosshair
     utilLayer = new BABYLON.UtilityLayerRenderer(scene)
     let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
-    let utilLight2 = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(-1, -1, 0), utilLayer.utilityLayerScene)
+    utilLight.groundColor = new BABYLON.Color3(1, 1, 1)
 
-    //createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene)
     crosshair = meshGen.createQuadWithUVs({x: player.position.x - 0.5, y: player.position.y + 0.5, z: player.position.z + 4}, 'front', 250, utilLayer.utilityLayerScene)
     crosshair.material = scene.defaultMaterial
     crosshair.setParent(camera)
@@ -238,6 +300,11 @@ engine.runRenderLoop(function(){
 
     // Update player (change this to a loop for local machine players if we do that)
     if (player) player.platformMovementUpdate(engine)
+
+    if (skybox) {
+        // skybox.rotation.x += 0.0001
+        // skybox.rotation.z += 0.0001
+    }
 
     // render scene
     scene.render()

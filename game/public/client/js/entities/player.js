@@ -74,6 +74,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     this.blockReach = 4
     let selectMesh
     this.selectCursor = {x: 0, y: 0, z: 0}
+    this.selectedBlock = 1
 
     // Private vars
     const groundFric = 0.75
@@ -113,6 +114,8 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
         assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
         assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
+        assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 9) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
+        assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 9; console.log(this.selectedBlock);}, ()=>{})
     }
 
     // Update player movement
@@ -363,13 +366,13 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
             const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
             const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
             let updatedChunk = world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 1
+            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = this.selectedBlock
 
             // Send event to brain to update the chunk
             //...
 
             // Update mesh (this will happen once the brain sends back an event)
-            meshGen.createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, 1, scene)
+            meshGen.createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, this.selectedBlock, scene)
             // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, false)
         }
     }
