@@ -14,6 +14,12 @@ class MeshGenerator {
     
     // Return UV coordinates for a quad based on the tile index
     // Returns new Vector4
+    
+    // We have defined an array called faceUV with size as 6 which are the sides of the cube. This array will always have Vector4 elements. Each Vector4(x, y, z, w) will be defined as follows −
+    // x = Ubottom
+    // y = Vbottom
+    // z = Utop
+    // w = Vtop
     getQuadUVByIndex(idx) {
         // Calculate ID offset
         const rows = 16
