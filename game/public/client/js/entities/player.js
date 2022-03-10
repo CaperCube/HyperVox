@@ -2,7 +2,7 @@ import { tileScale } from '../clientConstants.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
-    [ ] Use 'class' instead of 'function'
+    [X] Use 'class' instead of 'function'
     [ ] Iron out colission code to be more robust & efficient
     [ ] Seperate camera modes (i.e. Third-pseron, First-person, No-camera (for npcs or other))
     [ ] Camera animations (movement bobbing, tilt while wall-running, fov change when moving faster, etc...)
@@ -40,61 +40,64 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 // We don't want the player to have access to all this garbage
 
 // Player object
-function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
-    // Player vars
-    this.playerHeight = tileScale * 1.75
-    // The object in the scene the player will be controlling
-    this.avatar = avatar
-    //this.playerCamera = camera
-    // Player controls
-    this.controls = controls
-    // controls: {
-    //     upAxis1: [Buttons.up],
-    //     downAxis1: [Buttons.down],
-    //     leftAxis1: [Buttons.left],
-    //     rightAxis1: [Buttons.right],
-    //     run: [Buttons.z],
-    //     jump: [Buttons.x],
-    //     fire1: [Buttons.lmb],
-    //     invUp: [Buttons.equals],
-    //     invDown: [Buttons.minus],
-    //     respawn: [Buttons.r]
-    // }
-    this.debug = false
-
-    this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
-    const avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
-    const cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
-
-    // Movement vars
-    this.spectateMode = true
-    this.moveSpeed = tileScale/40 //0.025
-    this.allowedJumps = 2
-    
-    this.blockReach = 4
-    let selectMesh
-    this.selectCursor = {x: 0, y: 0, z: 0}
-    this.selectedBlock = 1
-
-    // Private vars
-    const groundFric = 0.75
-    const gravity = -0.0125
-    const bounce = 0.05
-    let usedJumps = 0
-    let playerVelocity = BABYLON.Vector3.Zero()
-    let moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown
-
-    const scene = thisScene
-    let chunkSize = world.getChunkSize() || 16
-    let worldSize = world.getWorldSize() || 1
-    // let greenMesh, blueMesh, redMesh
+class ClientPlayer {
 
     // Init player
-    const init = () => {
+    constructor(controls, avatar, debugLines, world, meshGen, thisScene) {
+        // Player vars
+        this.playerHeight = tileScale * 1.75
+        // The object in the scene the player will be controlling
+        this.avatar = avatar
+        //this.playerCamera = camera
+        // Player controls
+        this.controls = controls
+        // controls: {
+        //     upAxis1: [Buttons.up],
+        //     downAxis1: [Buttons.down],
+        //     leftAxis1: [Buttons.left],
+        //     rightAxis1: [Buttons.right],
+        //     run: [Buttons.z],
+        //     jump: [Buttons.x],
+        //     fire1: [Buttons.lmb],
+        //     invUp: [Buttons.equals],
+        //     invDown: [Buttons.minus],
+        //     respawn: [Buttons.r]
+        // }
+        this.debug = false
+
+        this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
+        this.avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
+        this.cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
+
+        // Movement vars
+        this.spectateMode = true
+        this.moveSpeed = tileScale/40 //0.025
+        this.allowedJumps = 2
+
+        // Private vars
+        this.groundFric = 0.75
+        this.gravity = -0.0125
+        this.bounce = 0.05
+        this.usedJumps = 0
+        this.playerVelocity = BABYLON.Vector3.Zero()
+        this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
+
+        this.meshGen = meshGen
+        this.scene = thisScene
+        this.world = world
+        this.chunkSize = world.getChunkSize() || 16
+        this.worldSize = world.getWorldSize() || 1
+        // let greenMesh, blueMesh, redMesh
+
         this.registerControls(this.controls)
 
-        selectMesh = meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, scene)
-        selectMesh.material = scene.transparentMaterial
+        // Selection vars
+        this.blockReach = 4
+        this.selectCursor = {x: 0, y: 0, z: 0}
+        this.selectedBlock = 1
+
+        this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
+        this.selectMesh.material = this.scene.transparentMaterial
         // greenMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 254, scene)
         // greenMesh.material = scene.transparentMaterial
         // redMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, scene)
@@ -104,13 +107,13 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     }
 
     // Register controls with actions
-    this.registerControls = (c) => {
-        assignFunctionToInput(c.upAxis1, ()=>{moveForward=true}, ()=>{moveForward=false})
-        assignFunctionToInput(c.downAxis1, ()=>{moveBackward=true}, ()=>{moveBackward=false})
-        assignFunctionToInput(c.leftAxis1, ()=>{moveLeft=true}, ()=>{moveLeft=false})
-        assignFunctionToInput(c.rightAxis1, ()=>{moveRight=true}, ()=>{moveRight=false})
-        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) moveUp=true; else if (usedJumps < this.allowedJumps) {playerVelocity.y = 0.2; usedJumps++}}, ()=>{moveUp=false})
-        assignFunctionToInput(c.run, ()=>{moveDown=true}, ()=>{moveDown=false})
+    registerControls = (c) => {
+        assignFunctionToInput(c.upAxis1, ()=>{this.moveForward=true}, ()=>{this.moveForward=false})
+        assignFunctionToInput(c.downAxis1, ()=>{this.moveBackward=true}, ()=>{this.moveBackward=false})
+        assignFunctionToInput(c.leftAxis1, ()=>{this.moveLeft=true}, ()=>{this.moveLeft=false})
+        assignFunctionToInput(c.rightAxis1, ()=>{this.moveRight=true}, ()=>{this.moveRight=false})
+        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = 0.2; this.usedJumps++}}, ()=>{this.moveUp=false})
+        assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
         assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
         assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
         assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
@@ -119,37 +122,37 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     }
 
     // Update player movement
-    this.platformMovementUpdate = (engine) => {
+    platformMovementUpdate = (engine) => {
         //const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         //const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
-        const avRight = avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
+        const avRight = this.avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
 
         let inputVector = new BABYLON.Vector3(0,0,0)
 
         // Move controler
         let isMoving = false
-        if (moveForward) {
+        if (this.moveForward) {
             inputVector.z = 1
             isMoving = true
         }
-        if (moveBackward) {
+        if (this.moveBackward) {
             inputVector.z = -1
             isMoving = true
         }
-        if (moveRight) {
+        if (this.moveRight) {
             inputVector.x = 1
             isMoving = true
         }
-        if (moveLeft) {
+        if (this.moveLeft) {
             inputVector.x = -1
             isMoving = true
         }
         if (this.spectateMode) {
-            if (moveUp) {
+            if (this.moveUp) {
                 inputVector.y = 1
                 isMoving = true
             }
-            if (moveDown) {
+            if (this.moveDown) {
                 inputVector.y = -1
                 isMoving = true
             }
@@ -158,15 +161,15 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         // Apply Input
         // if grounded, get ground normal, use it when calculating movement on slopes
         //let forwardMove = new BABYLON.Vector3( inputVector.z * avForward.x, 0, inputVector.z * avForward.z )
-        let forwardMove = new BABYLON.Vector3( inputVector.z * Math.sin(avatar.rotation.y), 0, inputVector.z * Math.cos(avatar.rotation.y) )
+        let forwardMove = new BABYLON.Vector3( inputVector.z * Math.sin(this.avatar.rotation.y), 0, inputVector.z * Math.cos(this.avatar.rotation.y) )
         let horzMove = new BABYLON.Vector3( inputVector.x * avRight.x, 0, inputVector.x * avRight.z )
         let vertMove = new BABYLON.Vector3( 0, inputVector.y, 0 )
         let movementVector = new BABYLON.Vector3( forwardMove.x + horzMove.x, vertMove.y, forwardMove.z + horzMove.z )
         
         // Apply velocity
-        playerVelocity.x += (movementVector.x * this.moveSpeed)
-        if (this.spectateMode) playerVelocity.y += (vertMove.y * this.moveSpeed)
-        playerVelocity.z += (movementVector.z * this.moveSpeed)
+        this.playerVelocity.x += (movementVector.x * this.moveSpeed)
+        if (this.spectateMode) this.playerVelocity.y += (vertMove.y * this.moveSpeed)
+        this.playerVelocity.z += (movementVector.z * this.moveSpeed)
 
         // Apply movement
         const deltaTime = engine.getDeltaTime()
@@ -200,7 +203,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
             let bounceOnly = bOnly || false
             // Check Y
             let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            playerPosCheck.y += playerVelocity.y
+            playerPosCheck.y += this.playerVelocity.y
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
                 // Bounce
@@ -215,7 +218,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         const checkXCol = (block) => {
             // Check X
             let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            playerPosCheck.x += playerVelocity.x
+            playerPosCheck.x += this.playerVelocity.x
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
@@ -229,7 +232,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         const checkZCol = (block) => {
             // Check Z
             let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            playerPosCheck.z += playerVelocity.z
+            playerPosCheck.z += this.playerVelocity.z
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
@@ -248,14 +251,14 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
 
                 // Check X
                 let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
-                let arrayPos = this.getArrayPos(blockPos, chunkSize)
+                let arrayPos = this.getArrayPos(blockPos)
                 let worldPos = arrayPos.world
                 let chunkPos = arrayPos.chunk
 
-                let blockID = world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+                let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 let skipMid = (cy >= 0)
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkXCol(blockHere)
                     // redMesh.position.x = Math.floor(blockHere.x)+0.5
                     // redMesh.position.y = Math.floor(blockHere.y)+0.5
@@ -264,7 +267,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
 
                 // Check Z
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkZCol(blockHere)
                     // greenMesh.position.x = Math.floor(blockHere.x)+0.5
                     // greenMesh.position.y = Math.floor(blockHere.y)+0.5
@@ -274,7 +277,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
                 // Check Y
                 skipMid = (cy < 0 || cy > 0)
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*chunkSize), y: chunkPos.y+(worldPos.y*chunkSize), z: chunkPos.z+(worldPos.z*chunkSize), w: 1, h: 1, d: 1}
+                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkYCol(blockHere, (cy > 0))
                     // blueMesh.position.x = Math.floor(blockHere.x)+0.5
                     // blueMesh.position.y = Math.floor(blockHere.y)+0.5
@@ -284,35 +287,35 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         }
 
         // World floor
-        let frameGrav = ((gravity/frameRateMult) * deltaTime)
+        let frameGrav = ((this.gravity/frameRateMult) * deltaTime)
         if (((this.position.y)) <= 1) {
             this.bounceY()
             this.position.y = 1
         }
         else if (!this.spectateMode && allowGrav) {
             // Apply gravity
-            playerVelocity.y += frameGrav
+            this.playerVelocity.y += frameGrav
         }
         this.keepMovingY(deltaTime, frameRateMult)
         if (allowMoveX) this.keepMovingX(deltaTime, frameRateMult)
         if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
 
         // Apply positions
-        avatar.position = new BABYLON.Vector3( this.position.x + avatarOffset.x, this.position.y + avatarOffset.y, this.position.z + avatarOffset.z )
+        this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
 
         // Dampen
-        if (this.spectateMode) playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y * groundFric, playerVelocity.z * groundFric)
-        else playerVelocity = new BABYLON.Vector3(playerVelocity.x * groundFric, playerVelocity.y, playerVelocity.z * groundFric)
+        if (this.spectateMode) this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y * this.groundFric, this.playerVelocity.z * this.groundFric)
+        else this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y, this.playerVelocity.z * this.groundFric)
 
         // Position selector
-        const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+        const avForward = this.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         this.selectCursor = {
             // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * this.blockReach) ) + 0.5,
             // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * this.blockReach) ) + 0.5,
             // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * this.blockReach) ) + 0.5
-            x: Math.floor( avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
-            y: Math.floor( avatar.position.y  + (avForward.y * this.blockReach) ) + 0.5,
-            z: Math.floor( avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
+            x: Math.floor( this.avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
+            y: Math.floor( this.avatar.position.y  + (avForward.y * this.blockReach) ) + 0.5,
+            z: Math.floor( this.avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
         }
 
         let isObstructed = false
@@ -321,9 +324,9 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
                 // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * i) ) + 0.5,
                 // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * i) ) + 0.5,
                 // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * i) ) + 0.5
-                x: Math.floor( avatar.position.x + (avForward.x * i) ) + 0.5,
-                y: Math.floor( avatar.position.y + (avForward.y * i) ) + 0.5,
-                z: Math.floor( avatar.position.z + (avForward.z * i) ) + 0.5
+                x: Math.floor( this.avatar.position.x + (avForward.x * i) ) + 0.5,
+                y: Math.floor( this.avatar.position.y + (avForward.y * i) ) + 0.5,
+                z: Math.floor( this.avatar.position.z + (avForward.z * i) ) + 0.5
             }
             // ToDo: refine this to allow for better selection accuracy
             // const testWorldPos = this.getArrayPos(testPos, chunkSize)
@@ -336,7 +339,7 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
             // }
             // else isObstructed = true
         }
-        selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
+        this.selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
 
         // Bob camera
         // ...
@@ -346,50 +349,50 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
     }
 
     // Get player pos in chunk/block coordinates
-    this.getArrayPos = (pos, chunkSize) => {
+    getArrayPos = (pos) => {
         return {
-            world: {x: Math.floor(pos.x / chunkSize), y: Math.floor(pos.y / chunkSize), z: Math.floor(pos.z / chunkSize) },
-            chunk: {x: Math.floor(pos.x % chunkSize), y: Math.floor(pos.y % chunkSize), z: Math.floor(pos.z % chunkSize) }
+            world: {x: Math.floor(pos.x / this.chunkSize), y: Math.floor(pos.y / this.chunkSize), z: Math.floor(pos.z / this.chunkSize) },
+            chunk: {x: Math.floor(pos.x % this.chunkSize), y: Math.floor(pos.y % this.chunkSize), z: Math.floor(pos.z % this.chunkSize) }
         }
     }
 
-    this.placeBlock = () => {
+    placeBlock = () => {
         // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor, chunkSize)
+        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
         const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < worldSize && newBlockWorldPos.world.y >= 0
+            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
+            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
+            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
         )
         if (isWithinExsitingChunk) {
             // Update chunk
             const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
             const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
             updatedChunk[changePostion.y][changePostion.x][changePostion.z] = this.selectedBlock
 
             // Send event to brain to update the chunk
             //...
 
             // Update mesh (this will happen once the brain sends back an event)
-            meshGen.createBlockWithUV({x: selectMesh.position.x, y: selectMesh.position.y, z: selectMesh.position.z}, this.selectedBlock, scene)
+            this.meshGen.createBlockWithUV({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.selectedBlock, this.scene)
             // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, false)
         }
     }
 
-    this.removeBlock = () => {
+    removeBlock = () => {
         // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor, chunkSize)
+        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
         const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < worldSize && newBlockWorldPos.world.y >= 0
+            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
+            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
+            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
         )
         if (isWithinExsitingChunk) {
             // Update chunk
             const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
             const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
             updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 0
 
             // Send event to brain to update the chunk
@@ -400,49 +403,47 @@ function ClientPlayer(controls, avatar, debugLines, world, meshGen, thisScene){
         }
     }
 
-    this.bounceY = () => {
-        if (Math.abs(playerVelocity.y) > 0) usedJumps = 0 // reset jump
-        playerVelocity.y *= -bounce
+    bounceY = () => {
+        if (Math.abs(this.playerVelocity.y) > 0) this.usedJumps = 0 // reset jump
+        this.playerVelocity.y *= -this.bounce
     }
 
-    this.bounceX = () => {
-        playerVelocity.x *= -bounce
+    bounceX = () => {
+        this.playerVelocity.x *= -this.bounce
     }
 
-    this.bounceZ = () => {
-        playerVelocity.z *= -bounce
+    bounceZ = () => {
+        this.playerVelocity.z *= -this.bounce
     }
 
-    this.keepMovingY = (deltaTime, frameRateMult) => {
+    keepMovingY = (deltaTime, frameRateMult) => {
         // Apply position 
         //if (Math.abs(playerVelocity.y) > this.moveSpeed) {
             this.position = new BABYLON.Vector3(
                 this.position.x,
-                this.position.y + ((playerVelocity.y/frameRateMult) * deltaTime),
+                this.position.y + ((this.playerVelocity.y/frameRateMult) * deltaTime),
                 this.position.z
             )
         //}
     }
 
-    this.keepMovingX = (deltaTime, frameRateMult) => {
+    keepMovingX = (deltaTime, frameRateMult) => {
         // Apply position
         this.position = new BABYLON.Vector3(
-            this.position.x + ((playerVelocity.x/frameRateMult) * deltaTime),
+            this.position.x + ((this.playerVelocity.x/frameRateMult) * deltaTime),
             this.position.y,
             this.position.z
         )
     }
 
-    this.keepMovingZ = (deltaTime, frameRateMult) => {
+    keepMovingZ = (deltaTime, frameRateMult) => {
         // Apply position
         this.position = new BABYLON.Vector3(
             this.position.x,
             this.position.y,
-            this.position.z + ((playerVelocity.z/frameRateMult) * deltaTime)
+            this.position.z + ((this.playerVelocity.z/frameRateMult) * deltaTime)
         )
     }
-
-    init()
 }
 
 export default ClientPlayer
