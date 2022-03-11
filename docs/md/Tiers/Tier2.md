@@ -20,6 +20,10 @@ Tier shaping needed...
     - [X] Keyboard input
     - [ ] Controler input?
     - [ ] Attempt virtual controller for touch devices
+- [ ] Menu improvements
+    - [ ] Pause Menu in-game
+    - [ ] Animation suppoer
+    - [ ] Graphic improvements
 - [ ] Improved player movement
     - [ ] Running
     - [ ] Better velocity curves

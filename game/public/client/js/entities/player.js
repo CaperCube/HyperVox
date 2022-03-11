@@ -3,6 +3,7 @@ import { tileScale } from '../clientConstants.js'
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
     [X] Use 'class' instead of 'function'
+    [ ] Clean this class up, it's very messy right now
     [ ] Iron out colission code to be more robust & efficient
     [ ] Seperate camera modes (i.e. Third-pseron, First-person, No-camera (for npcs or other))
     [ ] Camera animations (movement bobbing, tilt while wall-running, fov change when moving faster, etc...)
@@ -10,6 +11,29 @@ import { tileScale } from '../clientConstants.js'
         - Think through design of these systems to be efficiently but not needlesly modular.
         - Player object should also be used by NPCs
     [ ] Grapling hook
+*/
+
+/*
+Thanks for helping out! https://github.com/grothedev
+
+For cutting down player colission to a single boxIsColliding() call:
+
+movementFrame(){
+  if (boxIsColliding(playerboxOfNextFrame)){
+    reverseComponenOfVelocityPerpindicularToPlaneOfCollision()
+  }
+}
+
+boxIsColling(box){
+  use code similar to current boxcollidecheck func to see if future playerbox will intersect.
+  blockIndexX = box.x / motionUnitsPerBlock  //y&z etc.
+  world[blockIndexX, etc.]  is either a block or nothing
+  if one of the box [faces or vertices or edges idk what's best] is intersecting, the plane of intersection is that which is in between the two blocks
+  return this plane
+}
+
+"i think it's probably best to check the 8 vertices. then when one has collided, you can use same vertex of current playerbox (right before collision) to find plane. at this point it doesn't matter which particular blocks are being collided with, because you only need to do  velocity.dimensionOfPlaneNormal *= -1;"
+
 */
 
 
@@ -447,27 +471,3 @@ class ClientPlayer {
 }
 
 export default ClientPlayer
-
-
-/*
-Thanks for helping out! https://github.com/grothedev
-
-For cutting down player colission to a single boxIsColliding() call:
-
-movementFrame(){
-  if (boxIsColliding(playerboxOfNextFrame)){
-    reverseComponenOfVelocityPerpindicularToPlaneOfCollision()
-  }
-}
-
-boxIsColling(box){
-  use code similar to current boxcollidecheck func to see if future playerbox will intersect.
-  blockIndexX = box.x / motionUnitsPerBlock  //y&z etc.
-  world[blockIndexX, etc.]  is either a block or nothing
-  if one of the box [faces or vertices or edges idk what's best] is intersecting, the plane of intersection is that which is in between the two blocks
-  return this plane
-}
-
-"i think it's probably best to check the 8 vertices. then when one has collided, you can use same vertex of current playerbox (right before collision) to find plane. at this point it doesn't matter which particular blocks are being collided with, because you only need to do  velocity.dimensionOfPlaneNormal *= -1;"
-
-*/
