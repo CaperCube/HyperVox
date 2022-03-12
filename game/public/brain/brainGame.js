@@ -3,7 +3,7 @@ import ChunkGenerator from "./gen/world/chunkGen.js"
 import { tileScale, defaultWorldSize } from '../client/js/clientConstants.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
-class Game {
+class BrainGame {
     constructor() {    
         ///////////////////////////////////////////////////////
         // Game vars
@@ -53,4 +53,4 @@ class Game {
     gameTick = () => { /* Here is where all the world updates should happen */ }
 }
 
-export default Game
+export default BrainGame

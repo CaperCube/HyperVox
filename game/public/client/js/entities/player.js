@@ -372,7 +372,9 @@ class ClientPlayer {
         if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
+    // ToDo: Move this to a common location (will be needed often by client AND game)
     // Get player pos in chunk/block coordinates
+    // Returns {world: {x,y,z}, chunk: {x,y,z}}
     getArrayPos = (pos) => {
         return {
             world: {x: Math.floor(pos.x / this.chunkSize), y: Math.floor(pos.y / this.chunkSize), z: Math.floor(pos.z / this.chunkSize) },

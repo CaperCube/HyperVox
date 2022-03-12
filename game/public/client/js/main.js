@@ -1,5 +1,5 @@
 import { tileScale, defaultWorldSize } from './clientConstants.js'
-import Game from '../../brain/game.js'
+import BrainGame from '../../brain/brainGame.js'
 import MeshGenerator from './mesh/meshGen.js'
 import ClientPlayer from './entities/player.js'
 
@@ -23,7 +23,7 @@ import ClientPlayer from './entities/player.js'
 ////////////////////////////////////////////////////
 
 // Game vars
-const game = new Game()
+const game = new BrainGame()
 
 // Generate world data
 game.createNewWorld()
