@@ -88,7 +88,8 @@ const createScene = () => {
 
     let skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMat", scene)
     skyboxMaterial.backFaceCulling = false
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(imageSRC.Skybox, scene, [`_px.png`, `_nx.png`, `_py.png`, `_ny.png`, `_pz.png`, `_nz.png`], false)
+    // suffixes for sides: +x, +y, +z, -x, -y, -z
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(imageSRC.Skybox1, scene, [`right.png`, `bottom.png`, `back.png`, `left.png`, `top.png`, `front.png`], false)
     skyboxMaterial.reflectionTexture.onLoadObservable.add(() => {
         skyboxMaterial.reflectionTexture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE)
     })
@@ -145,9 +146,11 @@ const createScene = () => {
 
     // Create light in scene
     light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
-    //light.intensity = 1
+    // light.intensity = 1
     light.diffuse = new BABYLON.Color3(203/255, 219/255, 252/255) // Light Blue
     light.groundColor = new BABYLON.Color3(69/255, 40/255, 60/255) // Dark Purple
+    // light.groundColor = new BABYLON.Color3(0/255, 6/255, 34/255) // Dark Blue
+    // light.groundColor = new BABYLON.Color3(25/255, 9/255, 19/255) // Dark Blue
 
     // Fog
     scene.fogDensity = 0.02

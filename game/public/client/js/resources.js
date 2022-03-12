@@ -9,8 +9,8 @@ const SOUND_PATH = './client/src/sounds/'
 ///////////////////////////////////////
 const imageSRC = {
     Stars: `${TEXTURE_PATH}skybox/stars.png`,
-    Skybox: `${TEXTURE_PATH}skybox/skybox_1`,
-    Skybox2: `${TEXTURE_PATH}skybox/skybox_2`,
+    Skybox1: `${TEXTURE_PATH}skybox/skybox1/edited/`,
+    Skybox2: `${TEXTURE_PATH}skybox/skybox2/edited/`,
     Atlas: `${TEXTURE_PATH}atlas.png`,
     Tiles: `${TEXTURE_PATH}textures.png`
 }
