@@ -3,7 +3,7 @@ import BrainGame from '../../brain/brainGame.js'
 import MeshGenerator from './mesh/meshGen.js'
 import ClientPlayer from './entities/player.js'
 
-// This will be in charge of all client interactions, rendering will be seperate
+// This will be in charge of all client interactions, (should rendering be seperate?)
 class ClientGame {
     constructor(props = {
         isNetworked: false
@@ -29,6 +29,9 @@ class ClientGame {
         this.localPlayer = new ClientPlayer()
 
         //this.debugLines, utilLayer, crosshair, skybox, stars, stars2
+
+        // The rendering engine
+        //this.engine = new BABYLON.Engine()
     }
 
     ///////////////////////////////////////////////////////
