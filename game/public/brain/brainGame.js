@@ -1,10 +1,14 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
+import BrainComs from "./brainComs.js"
 import { tileScale, defaultWorldSize } from '../client/js/clientConstants.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
-    constructor() {    
+    constructor(props = {
+        isNetworked: false,
+        network: null
+    }) {    
         ///////////////////////////////////////////////////////
         // Game vars
         ///////////////////////////////////////////////////////
@@ -13,6 +17,12 @@ class BrainGame {
             gameUpdateSpeed: 1/30000, // Time in ms between entity updates
             validatePlayerActions: false // Corrects player movement server-side
         }
+        
+        this.brainComs = new BrainComs({
+            brainGame: this,
+            isNetworked: props.isNetworked,
+            network: props.isNetworked? props.network : null
+        })
 
         this.generator = new ChunkGenerator()
         this.world = null
