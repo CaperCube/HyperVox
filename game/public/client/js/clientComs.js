@@ -78,3 +78,5 @@ class ClientComs {
     // changeBlockState(location, state)
 
 }
+
+export default ClientComs

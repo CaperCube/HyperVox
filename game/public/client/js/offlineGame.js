@@ -1,7 +1,21 @@
 import ClientGame from "./clientGame.js"
 
-// `isNetworked: false` automatically creates a `new BrainGame()` inside the ClientGame object
-const clientGame = new ClientGame({ isNetworked: false })
+const canvas = $('#main-canvas')
 
-// Use this to connect to a networked game:
-//clientGame.clientComs.connectToNetworkedGame('localhost:3000')
+// `isNetworked: false` automatically creates a `new BrainGame()` inside the ClientGame object
+const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
+
+// Start game scene
+clientGame.startNewGameScene()
+
+
+
+// [ ] Use `this._clientGame` instead of `this.clientGame` because it should not be messed with otside the class
+
+/*
+// In server for incoming client messages
+socket.on( 'genericClientMessage', ( data ) => {
+    const playerId = socket.connectionID // This does not support multiple players per client in networked games
+    brainComs.clientMessages[data.type]( data.args, playerId )
+})
+*/

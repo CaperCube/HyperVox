@@ -67,7 +67,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 class ClientPlayer {
 
     // Init player
-    constructor(controls, avatar, debugLines, world, meshGen, thisScene) {
+    constructor(controls, avatar, world, meshGen, thisScene) {
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -128,6 +128,8 @@ class ClientPlayer {
         // redMesh.material = scene.transparentMaterial
         // blueMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 253, scene)
         // blueMesh.material = scene.transparentMaterial
+
+        this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
 
     // Register controls with actions
@@ -369,7 +371,7 @@ class ClientPlayer {
         // ...
 
         // Debug lines
-        if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
+        if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
     // ToDo: Move this to a common location (will be needed often by client AND game)

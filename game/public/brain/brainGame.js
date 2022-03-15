@@ -1,7 +1,7 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
-import { tileScale, defaultWorldSize } from '../client/js/clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
@@ -44,7 +44,7 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     createNewWorld = () => {
         // Create new world object
-        this.world = new World({worldSize: defaultWorldSize})
+        this.world = new World({worldSize: defaultWorldSize, chunkSize: defaultChunkSize})
 
         // Generate the world's chunk data
         const genWorld = this.generator.generateWorld({

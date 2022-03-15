@@ -23,14 +23,20 @@ class BrainComs {
         // True: connecting to a server, False: singleplayer / local-machine only
         this.isNetworked = props.isNetworked
 
-        // If online, this is the network object we'll communicate through
+        // If online, this is the network object we'll communicate through (i.e. socket.io)
         this.network = this.isNetworked? props.network : null
-
-        // If online, this is the means of communication
-        //this.socket = this.isNetworked? new scoket(this.host) : null
 
         // If offline, this is the object we communicate to
         this.clientCom// = this.isNetworked? null : props.clientCom
+
+        ////////////////////////////////////////////////////
+        // Incoming messages from a client
+        ////////////////////////////////////////////////////
+        this.clientMessages = {
+            updateSingleBlock: ( data, playerId ) => { console.log( 'update single block', data ) },
+            movePlayer: ( data, playerId ) => { console.log( `move player ${playerId}`, data ) }
+            //...
+        }
     }
 
     ////////////////////////////////////////////////////
@@ -47,6 +53,7 @@ class BrainComs {
 
     ////////////////////////////////////////////////////
     // Client messages (requests from clients / server)
+    // ToDo: move these to `Incoming messages` above
     ////////////////////////////////////////////////////
 
     // This is used for offline / non-networked games and should only be needed once per session

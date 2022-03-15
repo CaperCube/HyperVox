@@ -1,3 +1,4 @@
+//import { defaultChunkSize, defaultWorldSize } from '../../../client/js/clientConstants.js'
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
     constructor({worldSeed, tileScale, chunkSize, worldSize}) {
