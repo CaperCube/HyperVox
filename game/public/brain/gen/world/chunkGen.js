@@ -70,7 +70,7 @@ class ChunkGenerator {
     clamp = (val, min, max) => { return Math.min(Math.max(val, min), max) }
 
     // Basic world generation pattern
-    basicPattern( x, y, z ) {
+    basicPattern = ( x, y, z ) => {
         // Return noise
         const getNoiseVal = ( x, y, z ) => {
             x=x*this.noiseScale

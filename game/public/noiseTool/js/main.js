@@ -1,5 +1,4 @@
-// ToDo: use the ChunkGenerator and noise functions from './brain/' to reduce duplicate code
-// import ChunkGenerator from "../../brain/gen/world/chunkGen"
+import ChunkGenerator from "../../brain/gen/world/chunkGen.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
@@ -9,7 +8,7 @@ const textureSheet = new Image(512,512)
 textureSheet.src = '../client/src/textures/textures.png'
 
 // Noise vars
-// const generator = new ChunkGenerator()
+const generator = new ChunkGenerator()
 let resolution = 32
 let pixelSize = canvas.width/resolution
 let pattern = [[]]
@@ -25,10 +24,12 @@ const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce(
 ////////////////////////////////////////////////////////
 // DOM function
 ////////////////////////////////////////////////////////
+$("#DOM_generateBttn").onclick = DOMNoiseFnc
+$("#DOM_zSlider").oninput = () => { updateZ($("#DOM_zSlider")) }
 
 function DOMNoiseFnc() {
     // Get selected function
-    const selPattern = customNoise //perlinNoise // This should be an optin in a dropdown list
+    const selPattern = generator.basicPattern//customNoise //perlinNoise // This should be an optin in a dropdown list
     
     // Get seed based on choice
     const random = !$('#DOM_useSeed').checked // This should be a toggle option
@@ -39,6 +40,7 @@ function DOMNoiseFnc() {
 
     // Set seed
     genNoise.noiseSeed(stringToSeed(seed))
+    generator.noiseAlgorithm.noiseSeed(stringToSeed(seed))
 
     // Get z based on slider selection
     let steps = canvas.width / pixelSize
@@ -106,6 +108,7 @@ function drawPattern(p, z) {
 
 ////////////////////////////////////////////////////////
 // Noise patterns
+// ToDo: move noise generators from here to `chunkGen.js`
 ////////////////////////////////////////////////////////
 const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max) }
 
