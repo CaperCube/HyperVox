@@ -88,25 +88,16 @@ class ClientComs {
         else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld' } )
     }
 
-    changeSingleBlock(location, id) {
-        //...
-    }
-
-    ////////////////////////////////////////////////////
-    // Brain messages
-    ////////////////////////////////////////////////////
-
-    // This will happen when the client joins the world
-    loadEntireWorld(world) {
-        //...
-    }
-
-    // This will happen when the brain / server 
     updateSingleBlock(location, id) {
         //...
+        console.log('%c Requesting update to block... (client)', 'background: #124; color: #cde')
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['updateSingleBlock']( { location: location, id: id } )
+
+        // Network message
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock' } )
     }
 
-    // Other stuff that needs to be communcated to the game / server
+    // Other stuff that needs to be communcated to the brain / server
     // Like:
     // moveself(newPosition, newSpeed)
     // shootAt(location, direction)

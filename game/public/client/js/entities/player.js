@@ -1,4 +1,5 @@
 import { tileScale } from '../clientConstants.js'
+import { getArrayPos } from '../../../common/positionUtils.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -60,15 +61,11 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
            (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
 }
 
-// ToDo: Clean-p a bunch of these object references from CleintPlayer
-// We don't want the player to have access to all this garbage
-
-// Player object
+// ClientPlayer object
 class ClientPlayer {
 
     // Init player
-    // ToDo: Store reference to clientGame instead of `world, meshGen, thisScene`
-    constructor(controls, avatar, world, meshGen, thisScene) {
+    constructor(controls, avatar, clientGame) {
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -107,11 +104,12 @@ class ClientPlayer {
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
 
-        this.meshGen = meshGen
-        this.scene = thisScene
-        this.world = world
-        this.chunkSize = world.getChunkSize() || 16
-        this.worldSize = world.getWorldSize() || 1
+        this.clientGame = clientGame
+        this.meshGen = clientGame.meshGen
+        this.scene = clientGame.scene
+        this.world = clientGame.clientWorld
+        this.chunkSize = this.world.getChunkSize() || 16
+        this.worldSize = this.world.getWorldSize() || 1
         // let greenMesh, blueMesh, redMesh
 
         this.registerControls(this.controls)
@@ -270,7 +268,7 @@ class ClientPlayer {
             }
         }
         
-        if (!this.spectateMode) {
+        if (!this.spectateMode && this.world) {
             // Check X
             for (let cy = -2; cy < 2; cy++) {
             for (let cx = -1; cx < 2; cx++) {
@@ -278,9 +276,9 @@ class ClientPlayer {
 
                 // Check X
                 let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
-                let arrayPos = this.getArrayPos(blockPos)
-                let worldPos = arrayPos.world
-                let chunkPos = arrayPos.chunk
+                let arrayPos = getArrayPos(blockPos, this.chunkSize)
+                let worldPos = arrayPos.chunk
+                let chunkPos = arrayPos.block
 
                 let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 let skipMid = (cy >= 0)
@@ -356,8 +354,8 @@ class ClientPlayer {
                 z: Math.floor( this.avatar.position.z + (avForward.z * i) ) + 0.5
             }
             // ToDo: refine this to allow for better selection accuracy
-            // const testWorldPos = this.getArrayPos(testPos, chunkSize)
-            // const testID = world.worldChunks[testWorldPos.world.y]?.[testWorldPos.world.x]?.[testWorldPos.world.z]?.[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]
+            // const testWorldPos = getArrayPos(testPos, this.chunkSize)
+            // const testID = world.worldChunks[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]?.[testWorldPos.block.y]?.[testWorldPos.block.x]?.[testWorldPos.block.z]
             // if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
             //     if (isObstructed) {
             //         this.selectCursor = testPos
@@ -375,61 +373,12 @@ class ClientPlayer {
         if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
-    // ToDo: Move this to a common location (will be needed often by client AND game)
-    // Get player pos in chunk/block coordinates
-    // Returns {world: {x,y,z}, chunk: {x,y,z}}
-    getArrayPos = (pos) => {
-        return {
-            world: {x: Math.floor(pos.x / this.chunkSize), y: Math.floor(pos.y / this.chunkSize), z: Math.floor(pos.z / this.chunkSize) },
-            chunk: {x: Math.floor(pos.x % this.chunkSize), y: Math.floor(pos.y % this.chunkSize), z: Math.floor(pos.z % this.chunkSize) }
-        }
-    }
-
     placeBlock = () => {
-        // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
-        const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
-        )
-        if (isWithinExsitingChunk) {
-            // Update chunk
-            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
-            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = this.selectedBlock
-
-            // Send event to brain to update the chunk
-            //...
-
-            // Update mesh (this will happen once the brain sends back an event)
-            this.meshGen.createBlockWithUV({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.selectedBlock, this.scene)
-            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, false)
-        }
+        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.selectedBlock)
     }
 
     removeBlock = () => {
-        // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
-        const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
-        )
-        if (isWithinExsitingChunk) {
-            // Update chunk
-            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
-            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 0
-
-            // Send event to brain to update the chunk
-            //...
-
-            // Update mesh (this will happen once the brain sends back an event)
-            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, true)
-        }
+        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, 0)
     }
 
     bounceY = () => {

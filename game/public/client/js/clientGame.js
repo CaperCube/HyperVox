@@ -1,6 +1,7 @@
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
+import { getArrayPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
@@ -88,7 +89,7 @@ class ClientGame {
             this.canvas.style.width = `${ratio*100}%`
             this.canvas.style.height = `${ratio*100}%`
 
-            //engine = new BABYLON.Engine(canvas, false)
+            this.engine.resize()
 
             this.canvas.style.width = "100%"
             this.canvas.style.height = "100%"
@@ -144,9 +145,9 @@ class ClientGame {
         rescaleCanvas(renderScale)
 
         // Init scene
-        const scene = DefaultScene(this.engine)
+        this.scene = DefaultScene(this.engine)
         // Lock cursor to game (release with escape key)
-        scene.onPointerDown = (evt) => { if (evt.button === 0) {
+        this.scene.onPointerDown = (evt) => { if (evt.button === 0) {
             this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock
             this.canvas.requestPointerLock()
 
@@ -156,10 +157,10 @@ class ClientGame {
         }}
 
         // Create world border mesh
-        this.meshGen.createWorldBorders(this.clientWorld, scene)
+        this.meshGen.createWorldBorders(this.clientWorld, this.scene)
 
         // Start generating chunk meshes
-        genMeshesFromChunks(this.clientWorld, scene)
+        genMeshesFromChunks(this.clientWorld, this.scene)
 
         ////////////////////////////////////////////////////
         // Player and Camera
@@ -168,7 +169,7 @@ class ClientGame {
         // Create new camera in scene
         const worldMax = defaultWorldSize * defaultChunkSize * tileScale
         const centerTarget = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2) //new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
-        this.mainCamera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
+        this.mainCamera = new BABYLON.UniversalCamera('playerCamera', centerTarget, this.scene)
         this.mainCamera.minZ = tileScale/10
         this.mainCamera.maxZ = fogDistance
 
@@ -180,16 +181,16 @@ class ClientGame {
         this.mainCamera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
 
         // Create player
-        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientWorld, this.meshGen, scene)
+        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this)
         this.localPlayer.position = centerTarget
 
         // Create crosshair
-        const utilLayer = new BABYLON.UtilityLayerRenderer(scene)
+        const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
         let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
         utilLight.groundColor = new BABYLON.Color3(1, 1, 1)
 
         this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 250, utilLayer.utilityLayerScene)
-        this.mainCrosshair.material = scene.defaultMaterial
+        this.mainCrosshair.material = this.scene.defaultMaterial
         this.mainCrosshair.setParent(this.mainCamera)
         this.mainCrosshair.position = new BABYLON.Vector3(0, 0, 4)
 
@@ -202,13 +203,13 @@ class ClientGame {
             this.frame++
 
             // Update materials
-            if (scene.transparentMaterial) scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
+            if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
 
             // Update player (change this to a loop for local machine players if we do that)
             if (this.localPlayer) this.localPlayer.platformMovementUpdate(this.engine)
 
             // render scene
-            scene.render()
+            this.scene.render()
         }) // }, 1000/90 )
     }
 
@@ -219,6 +220,41 @@ class ClientGame {
         //delete this._brain
         this._brain = null
         this.clientWorld = null
+    }
+
+    // This is used for client-authored block updates
+    updateSingleBlock(location, id) {
+        if (this.clientWorld) {
+            // Get adjusted position from global position
+            const cSize = this.clientWorld.getChunkSize()
+            const wSize = this.clientWorld.getWorldSize()
+            const worldPos = getArrayPos( location, cSize)
+            
+            // Check if block is within the world
+            const isWithinExsitingChunk = (
+                worldPos.chunk.z < wSize && worldPos.chunk.z >= 0 &&
+                worldPos.chunk.x < wSize && worldPos.chunk.x >= 0 &&
+                worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
+            )
+            if (isWithinExsitingChunk) {
+                // Early update on client (only do this if online)
+                // ToDo: remove the `!` here once chunk updates are working
+                if (!this.isNetworked) {
+                    // Create temporary mesh
+                    if (id > 0) this.meshGen.createBlockWithUV({x: location.x, y: location.y, z: location.z}, id, this.scene)
+
+                    // Update world
+                    const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
+                    const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
+                    let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+                    updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
+                }
+                        
+                // Send event to brain to update the chunk
+                // ToDo: make this actually do something
+                this.clientComs.updateSingleBlock(worldPos, id)
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////
