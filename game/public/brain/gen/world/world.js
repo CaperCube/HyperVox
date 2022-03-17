@@ -3,29 +3,29 @@ class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
     constructor({worldSeed, tileScale, chunkSize, worldSize}) {
         this.worldChunks = [[[]]]
-        const wSeed = worldSeed || `${Math.random()}`
-        this.getWorldSeed = () => { return wSeed }
+        this._wSeed = worldSeed || `${Math.random()}`
+        this.getWorldSeed = () => { return this._wSeed }
 
-        const _tileScale = tileScale || 1
+        this._tileScale = tileScale || 1
         /**
          * Gets the scale of tiles in the world
          * @returns number
          */
-        this.getTileScale = () => { return _tileScale }
+        this.getTileScale = () => { return this._tileScale }
 
-        const _chunkSize = chunkSize || 16
+        this._chunkSize = chunkSize || 16
         /**
          * Gets the number of blocks in a chunk blocks^3 (16 = chunk size of 16x16x16)
          * @returns number
          */
-        this.getChunkSize = () => { return _chunkSize }
+        this.getChunkSize = () => { return this._chunkSize }
 
-        const _worldSize = worldSize || 3
+        this._worldSize = worldSize || 3
         /**
          * Gets the number of chunks in a chunk in chunks^3 (16 = world size of 16x16x16)
          * @returns number
          */
-        this.getWorldSize = () => { return _worldSize }
+        this.getWorldSize = () => { return this._worldSize }
 
         /**
          * Get the world as a string

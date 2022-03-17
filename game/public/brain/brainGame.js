@@ -53,6 +53,9 @@ class BrainGame {
             worldSize: this.world.getWorldSize()
         })
         this.world.worldChunks = genWorld
+
+        // Send world to connected users
+        this.brainComs.sendFullWorld( this.world )
     }
 
     ///////////////////////////////////////////////////////

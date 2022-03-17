@@ -4,6 +4,7 @@ import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
+import World from '../../brain/gen/world/world.js'
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -22,11 +23,11 @@ class ClientGame {
         this.clientComs = new ClientComs({
             isNetworked: props.isNetworked,
             clientGame: this,
-            brainComs: this._brain.brainComs || null
+            brainComs: this._brain?.brainComs || null
         })
 
-        if (!props.isNetworked) this._brain.brainComs.offlineConnect(this.clientComs)
-        // This will change to `this._brain.brainComs.clientMessages['offlineConnect']( this.clientComs )`
+        // Connect the clientCom to brainCom
+        if (!props.isNetworked) this.clientComs.offlineConnect(this.clientComs)
 
         // The client's copy of the world, this will be used for colission, meshGen, and meshUpdates
         this.clientWorld
@@ -61,6 +62,17 @@ class ClientGame {
     // Methods
     ///////////////////////////////////////////////////////
     //...
+
+    deepCopyWorld( world ) {
+        const clone = JSON.parse(JSON.stringify(world))
+        this.clientWorld = new World({
+            worldSeed: clone._wSeed,
+            tileScale: clone._tileScale,
+            chunkSize: clone._chunkSize,
+            worldSize: clone._worldSize
+        })
+        this.clientWorld.worldChunks = clone.worldChunks
+    }
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
@@ -143,15 +155,11 @@ class ClientGame {
             // document.exitPointerLock()
         }}
 
-        // Generate world
-        // ToDo: change this to request the generation instead of forcing it
-        this._brain.createNewWorld()
-
         // Create world border mesh
-        this.meshGen.createWorldBorders(this._brain.world, scene)
+        this.meshGen.createWorldBorders(this.clientWorld, scene)
 
         // Start generating chunk meshes
-        genMeshesFromChunks(this._brain.world, scene)
+        genMeshesFromChunks(this.clientWorld, scene)
 
         ////////////////////////////////////////////////////
         // Player and Camera
@@ -172,7 +180,7 @@ class ClientGame {
         this.mainCamera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
 
         // Create player
-        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this._brain.world /* Change this to `this.clientWorld` */, this.meshGen, scene)
+        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientWorld, this.meshGen, scene)
         this.localPlayer.position = centerTarget
 
         // Create crosshair

@@ -33,8 +33,25 @@ class BrainComs {
         // Incoming messages from a client
         ////////////////////////////////////////////////////
         this.clientMessages = {
-            updateSingleBlock: ( data, playerId ) => { console.log( 'update single block', data ) },
-            movePlayer: ( data, playerId ) => { console.log( `move player ${playerId}`, data ) }
+
+            // This is used for offline / non-networked games and should only be needed once per session
+            offlineConnect: ( data, playerId ) => { this.clientCom = data.clientCom; console.log('%c Connected to clientComs (brain)', 'background: #142; color: #ced') },
+            clientJoin: ( data, playerId ) => {
+                console.log( 'Client joined game (brain)', data )
+                // Store the client's player(s)
+                // Send the world to the client
+                // Send message to client to spawn them in a location in the world
+            },
+
+            // This will happen when the client joins the world
+            createNewWorld: ( data, playerId ) => {
+                console.log( '%c Create new world (brain)', 'background: #142; color: #ced' )
+                this.brainGame.createNewWorld()
+            },
+
+            updateSingleBlock: ( data, playerId ) => { console.log( 'Update single block (brain)', data ) },
+
+            movePlayer: ( data, playerId ) => { console.log( `move player ${playerId} (brain)`, data ) }
             //...
         }
     }
@@ -42,6 +59,14 @@ class BrainComs {
     ////////////////////////////////////////////////////
     // Brain to Client coms
     ////////////////////////////////////////////////////
+
+    sendFullWorld( world ) {
+        console.log('%c Sending world to player... (brain)', 'background: #124; color: #cde')
+        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['loadSentWorld']( { world: world } )
+
+        // Network message
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: { world: world } } )
+    }
 
     updateSingleBlock(location, id) {
         // Tell connected players to update the chunk containing the updated block
@@ -56,20 +81,8 @@ class BrainComs {
     // ToDo: move these to `Incoming messages` above
     ////////////////////////////////////////////////////
 
-    // This is used for offline / non-networked games and should only be needed once per session
-    offlineConnect(clientCom) {
-        this.clientCom = clientCom
-    }
-
-    // This will happen when the client joins the world
-    clientJoin(playerID) {
-        // Store the client's player(s)
-        // Send the world to the client
-        // Send message to client to spawn them in a location in the world
-    }
-
     // This will happen when the brain / server 
-    clientUpdateSingleBlock(playerID, location, id) {
+    clientUpdateSingleBlock(playerId, location, id) {
         //...
     }
 

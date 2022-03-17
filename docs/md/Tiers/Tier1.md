@@ -30,8 +30,5 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [ ] Placeholder `Settings`
     - [ ] Simple loading screen (for preloading assets & world gen)
 - [ ] Clean & Orginize code
-    - [ ] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
-    - [ ] Change objects to Class structure
-        - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
-            - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
-            - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
+    - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
+    - [X] Change objects to Class structure

@@ -6,7 +6,8 @@ const canvas = $('#main-canvas')
 const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
 
 // Start game scene
-clientGame.startNewGameScene()
+// clientGame.startNewGameScene()
+clientGame.clientComs.createNewWorld()
 
 
 

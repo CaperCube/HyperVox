@@ -67,6 +67,7 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 class ClientPlayer {
 
     // Init player
+    // ToDo: Store reference to clientGame instead of `world, meshGen, thisScene`
     constructor(controls, avatar, world, meshGen, thisScene) {
         // Player vars
         this.playerHeight = tileScale * 1.75

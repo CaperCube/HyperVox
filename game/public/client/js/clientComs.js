@@ -24,10 +24,30 @@ class ClientComs {
         this.host = ''
 
         // If online, this is the means of communication
-        //this.socket = this.isNetworked? new scoket(this.host) : null
+        this.network// = this.isNetworked? new scoket(this.host) : null
 
         // If offline, this is the object we communicate to
-        this.brainComs = this.isNetworked? null : props.brain
+        this.brainComs = this.isNetworked? null : props.brainComs
+
+        ////////////////////////////////////////////////////
+        // Incoming messages from brain
+        ////////////////////////////////////////////////////
+        this.brainMessages = {
+            updateSingleBlock: ( data, playerId ) => { console.log( 'Update single block (client)', data ) },
+            loadSentWorld: ( data, playerId ) => {
+                console.log( '%c Load world from brain (client)', 'background: #142; color: #ced' )
+
+                // Store world
+                if (this.isNetworked) this.clientGame.clientWorld = data.world
+                else {
+                    // Deep copy world (if offline)
+                    this.clientGame.deepCopyWorld( data.world )
+                }
+                
+                // Start game
+                this.clientGame.startNewGameScene()
+            },
+        }
     }
 
     ////////////////////////////////////////////////////
@@ -52,6 +72,21 @@ class ClientComs {
     ////////////////////////////////////////////////////
     // Client to Brain coms
     ////////////////////////////////////////////////////
+
+    offlineConnect(cComs) {
+        console.log('%c Offline connecting clientComs to brainComs... (client)', 'background: #124; color: #cde')
+        if (this.brainComs) this.brainComs.clientMessages['offlineConnect']( { clientCom: cComs } )
+        
+        // We don't need a network message version for this since it's an offline only command
+    }
+
+    createNewWorld() {
+        console.log('%c Requesting new world generation... (client)', 'background: #124; color: #cde')
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['createNewWorld']()
+
+        // Network message
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld' } )
+    }
 
     changeSingleBlock(location, id) {
         //...
