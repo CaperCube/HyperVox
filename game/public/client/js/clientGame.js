@@ -1,7 +1,7 @@
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
-import { getArrayPos } from '../../common/positionUtils.js'
+import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
@@ -214,6 +214,7 @@ class ClientGame {
     }
 
     // This is used when switching to an online session
+    // (Not Yet Implemented)
     removeBrain() {
         // Save first?
         // Remove brain from memory
@@ -241,7 +242,7 @@ class ClientGame {
                 // ToDo: remove the `!` here once chunk updates are working
                 if (!this.isNetworked) {
                     // Create temporary mesh
-                    if (id > 0) this.meshGen.createBlockWithUV({x: location.x, y: location.y, z: location.z}, id, this.scene)
+                    //if (id > 0) this.meshGen.createBlockWithUV({x: location.x, y: location.y, z: location.z}, id, this.scene)
 
                     // Update world
                     const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
@@ -257,9 +258,72 @@ class ClientGame {
         }
     }
 
+    // Update the chunk mesh
+    updateChunks(location) {
+
+        // Create a mesh
+        // const id = this.clientWorld.worldChunks
+        // [location.chunk.y][location.chunk.x][location.chunk.z]
+        // [location.block.y][location.block.x][location.block.z]
+        const cSize = this.clientWorld.getChunkSize()
+
+        const globalPos = getGlobalPos(location, cSize)
+        const changedChunk = this.clientWorld.worldChunks[location.chunk.y][location.chunk.x][location.chunk.z]
+        // let allMeshes = this.meshGen.createChunkBlock(changedChunk, globalPos, location.block, id, this.scene)
+
+        // Select the changed mesh
+        const chunkName = `chunk_${location.chunk.x}-${location.chunk.y}-${location.chunk.z}`
+        const chunkMesh = this.scene.getMeshByName(chunkName)
+        
+        // Dispose it
+        if (chunkMesh) chunkMesh.dispose()
+
+        // Generate new chunk mesh
+        // ToDo: Move mesh gen of of main thread
+        const chunkOffset = { x: location.chunk.x * cSize, y:location.chunk.y * cSize, z:location.chunk.z * cSize }//{ x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
+        const newMeshes = this.meshGen.createChunkMesh(changedChunk, chunkOffset, this.scene)
+        const newChunkMesh = BABYLON.Mesh.MergeMeshes(newMeshes, true)
+        newChunkMesh.name = chunkName
+
+        // Try this for better performance in full chunks:
+        // 1. Create worker to generate updated mesh
+        // 2. When complete, set name to `${chunkName}-updated`
+        // 3. Dispose old mesh
+        // 4. Changed updated mesh name to `${chunkName}`
+    }
+
+    ///////////////////////////////////////////////////////
+    // Messages from brain
+    ///////////////////////////////////////////////////////
+
+    // This is used for brain-authored chunk updates
+    updateBlock(location, id) {
+        //
+        console.log('UPDATE', location, id)
+
+        // Update world
+        this.clientWorld.worldChunks
+        [location.chunk.y][location.chunk.x][location.chunk.z]
+        [location.block.y][location.block.x][location.block.z] = id
+
+        // ToDo: Remove this once chunk mesh updates work
+        // const globalPos = getGlobalPos(location, this.clientWorld.getChunkSize())
+        // if (id > 0) this.meshGen.createBlockWithUV(
+        //     { x: globalPos.x + 0.5, y: globalPos.y + 0.5, z: globalPos.z + 0.5 },
+        //     id, this.scene
+        // )
+
+        // Update chunk mesh
+        this.updateChunks(location)
+
+        //this.updateChunks()
+    }
+
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////
+    
+    // (Not Yet Implemented)
     networkUpdate = () => { /* Here is where scheduled network messages should send */ }
 }
 

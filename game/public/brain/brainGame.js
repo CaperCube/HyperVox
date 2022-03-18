@@ -58,6 +58,19 @@ class BrainGame {
         this.brainComs.sendFullWorld( this.world )
     }
 
+    updateSingleBlock = ( location, id ) => {
+        // Validate change
+        // ...
+
+        // Make change
+        this.world.worldChunks
+        [location.chunk.y][location.chunk.x][location.chunk.z]
+        [location.block.y][location.block.x][location.block.z] = id
+
+        // Update players with change (if validated)
+        this.brainComs.updateSingleBlock( location, id )
+
+    }
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////

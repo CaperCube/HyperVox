@@ -29,13 +29,19 @@ class ClientComs {
         // If offline, this is the object we communicate to
         this.brainComs = this.isNetworked? null : props.brainComs
 
+        // Debugging options
+        this.messageDebug = true
+
         ////////////////////////////////////////////////////
         // Incoming messages from brain
         ////////////////////////////////////////////////////
         this.brainMessages = {
-            updateSingleBlock: ( data, playerId ) => { console.log( 'Update single block (client)', data ) },
+            updateSingleBlock: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Update single block (client)', 'background: #142; color: #ced' )
+                this.clientGame.updateBlock( data.location, data.id )
+            },
             loadSentWorld: ( data, playerId ) => {
-                console.log( '%c Load world from brain (client)', 'background: #142; color: #ced' )
+                if (this.messageDebug) console.log( '%c Load world from brain (client)', 'background: #142; color: #ced' )
 
                 // Store world
                 if (this.isNetworked) this.clientGame.clientWorld = data.world
@@ -75,7 +81,8 @@ class ClientComs {
 
     offlineConnect(cComs) {
         console.log('%c Offline connecting clientComs to brainComs... (client)', 'background: #124; color: #cde')
-        if (this.brainComs) this.brainComs.clientMessages['offlineConnect']( { clientCom: cComs } )
+        const data = { clientCom: cComs }
+        if (this.brainComs) this.brainComs.clientMessages['offlineConnect']( data )
         
         // We don't need a network message version for this since it's an offline only command
     }
@@ -89,12 +96,12 @@ class ClientComs {
     }
 
     updateSingleBlock(location, id) {
-        //...
         console.log('%c Requesting update to block... (client)', 'background: #124; color: #cde')
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['updateSingleBlock']( { location: location, id: id } )
+        const data = { location: location, id: id }
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['updateSingleBlock']( data )
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock' } )
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
     }
 
     // Other stuff that needs to be communcated to the brain / server
