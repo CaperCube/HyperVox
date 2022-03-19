@@ -107,29 +107,26 @@ class ClientGame {
 
             // To get the data back
             chunkWorker.onmessage = function(event){
-                // document.getElementById("result").innerHTML = event.data
-                // console.log('Worker data: ', event.data)
                 if (event.data === "doneLoadingChunks") {
                     chunkWorker.terminate()
                     console.log('Worker terminated')
                 }
                 else if (event.data) {
-                    const customMesh = new BABYLON.Mesh(`chunk_${event.data.chunkPostion.x}-${event.data.chunkPostion.y}-${event.data.chunkPostion.z}`, scene)
-                        
-                    let vertexData = new BABYLON.VertexData()
-                    vertexData.indices = event.data.indices
-                    vertexData.normals = event.data.normal
-                    vertexData.positions = event.data.position
-                    vertexData.uvs = event.data.uv
+                    const chunkName = `chunk_${event.data.chunkPostion.x}-${event.data.chunkPostion.y}-${event.data.chunkPostion.z}`
+                    const existingChunkMesh = scene.getMeshByName(chunkName)
 
-                    vertexData.applyToMesh(customMesh)
-                    customMesh.material = scene.defaultMaterial
+                    if (!existingChunkMesh) {
+                        const customMesh = new BABYLON.Mesh(chunkName, scene)
+                            
+                        let vertexData = new BABYLON.VertexData()
+                        vertexData.indices = event.data.indices
+                        vertexData.normals = event.data.normal
+                        vertexData.positions = event.data.position
+                        vertexData.uvs = event.data.uv
 
-                    // Append mesh to array
-                    // if (!worldChunkMeshes[event.data.chunkPostion.y]) worldChunkMeshes[event.data.chunkPostion.y] = []
-                    // if (!worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x]) worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x] = []
-                    // if (!worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z]) worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z] = []
-                    // worldChunkMeshes[event.data.chunkPostion.y][event.data.chunkPostion.x][event.data.chunkPostion.z].push(customMesh)
+                        vertexData.applyToMesh(customMesh)
+                        customMesh.material = scene.defaultMaterial
+                    }
                 }
             }
         }
@@ -276,9 +273,11 @@ class ClientGame {
         const chunkMesh = this.scene.getMeshByName(chunkName)
         
         // Dispose it
-        if (chunkMesh) chunkMesh.dispose()
+        if (chunkMesh) {
+            chunkMesh.dispose()
+        }
 
-        // Generate new chunk mesh
+        // Generate new chunk mesh (if the mesh exists)
         // ToDo: Move mesh gen of of main thread
         const chunkOffset = { x: location.chunk.x * cSize, y:location.chunk.y * cSize, z:location.chunk.z * cSize }//{ x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
         const newMeshes = this.meshGen.createChunkMesh(changedChunk, chunkOffset, this.scene)

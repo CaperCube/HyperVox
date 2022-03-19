@@ -14,7 +14,7 @@ function workerGenMeshesFromChunks(world) {
     for (let x = 0; x < world?.[y]?.length; x++) {
     for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
         if (world?.[y]?.[x]?.[z]) {
-            const chunkSize = 16 // ToDo: get a message from the main thread to set this value
+            const chunkSize = world[y][x][z][0].length//16 // ToDo: get a message from the main thread to set this value
             const chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
             const myChunkMeshes = meshGen.createChunkMesh(world[y][x][z], chunkOffset, scene)
 
