@@ -30,6 +30,12 @@ class ClientGame {
         // Connect the clientCom to brainCom
         if (!props.isNetworked) this.clientComs.offlineConnect(this.clientComs)
 
+        // The client and brain should have their own copies of the world chunk data
+        // This helps with:
+        //     - Reliable client-side colissions
+        //     - Comparing what blocks in a chunk have changed when updating meshes
+        //     - Treating the brain like a server
+
         // The client's copy of the world, this will be used for colission, meshGen, and meshUpdates
         this.clientWorld
 
@@ -57,6 +63,42 @@ class ClientGame {
 
         // mesh helper object
         this.meshGen = new MeshGenerator()
+        this.chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
+
+        this.chunkWorker.onmessage = (event) => {
+            if (this.scene) {
+                if (event.data === "doneLoadingChunks") {
+                    // this.terminate()
+                    console.log('Job done')
+                }
+                else if (event.data) {
+                    const chunkName = `chunk_${event.data.chunkPosition.x}-${event.data.chunkPosition.y}-${event.data.chunkPosition.z}`
+                    const existingChunkMesh = this.scene.getMeshByName(chunkName)
+
+                    if (event.data.chunkEmpty) {
+                        const chunkName = `chunk_${event.data.chunkPosition.x}-${event.data.chunkPosition.y}-${event.data.chunkPosition.z}`
+                        const existingChunkMesh = this.scene.getMeshByName(chunkName)
+                        if (existingChunkMesh) existingChunkMesh.dispose()
+                        return
+                    }
+
+                    // If the mesh already exists, remove it
+                    if (existingChunkMesh) existingChunkMesh.dispose()
+
+                    // Create new mesh with same name
+                    const customMesh = new BABYLON.Mesh(chunkName, this.scene)
+                            
+                    let vertexData = new BABYLON.VertexData()
+                    vertexData.indices = event.data.indices
+                    vertexData.normals = event.data.normal
+                    vertexData.positions = event.data.position
+                    vertexData.uvs = event.data.uv
+
+                    vertexData.applyToMesh(customMesh)
+                    customMesh.material = this.scene.defaultMaterial
+                }
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////
@@ -73,6 +115,20 @@ class ClientGame {
             worldSize: clone._worldSize
         })
         this.clientWorld.worldChunks = clone.worldChunks
+    }
+
+    // Use a worker thread to load chunks
+    genMeshesFromChunks(world, chunkLocation = null) {
+        let chunkWorker = this.chunkWorker
+
+        // To start the thread work
+        if (window.Worker) {
+            if (chunkLocation) chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
+            else chunkWorker.postMessage({world: world.worldChunks, type: 'full' })
+        }
+        else {
+            // ToDo: Create a fall-back solution for browsers that don't support workers
+        }
     }
 
     // Sets up the scene in which the game can be rendered and interacted
@@ -95,41 +151,7 @@ class ClientGame {
             this.canvas.style.height = "100%"
         }
 
-        // Use a worker thread to load chunks
-        function genMeshesFromChunks(world, scene) {
-            let chunkWorker
-
-            // To start the thread work
-            if (window.Worker) {
-                chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
-                chunkWorker.postMessage({world: world.worldChunks})
-            }
-
-            // To get the data back
-            chunkWorker.onmessage = function(event){
-                if (event.data === "doneLoadingChunks") {
-                    chunkWorker.terminate()
-                    console.log('Worker terminated')
-                }
-                else if (event.data) {
-                    const chunkName = `chunk_${event.data.chunkPostion.x}-${event.data.chunkPostion.y}-${event.data.chunkPostion.z}`
-                    const existingChunkMesh = scene.getMeshByName(chunkName)
-
-                    if (!existingChunkMesh) {
-                        const customMesh = new BABYLON.Mesh(chunkName, scene)
-                            
-                        let vertexData = new BABYLON.VertexData()
-                        vertexData.indices = event.data.indices
-                        vertexData.normals = event.data.normal
-                        vertexData.positions = event.data.position
-                        vertexData.uvs = event.data.uv
-
-                        vertexData.applyToMesh(customMesh)
-                        customMesh.material = scene.defaultMaterial
-                    }
-                }
-            }
-        }
+        
 
         // Set window resize listener
         window.addEventListener( 'resize', onWindowResize )
@@ -157,7 +179,10 @@ class ClientGame {
         this.meshGen.createWorldBorders(this.clientWorld, this.scene)
 
         // Start generating chunk meshes
-        genMeshesFromChunks(this.clientWorld, this.scene)
+        this.genMeshesFromChunks(this.clientWorld, null)
+
+
+        
 
         ////////////////////////////////////////////////////
         // Player and Camera
@@ -235,7 +260,7 @@ class ClientGame {
             // Get adjusted position from global position
             const cSize = this.clientWorld.getChunkSize()
             const wSize = this.clientWorld.getWorldSize()
-            const worldPos = getArrayPos( location, cSize)
+            const worldPos = getArrayPos(location, cSize)
             
             // Check if block is within the world
             const isWithinExsitingChunk = (
@@ -244,21 +269,14 @@ class ClientGame {
                 worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
             )
             if (isWithinExsitingChunk) {
-                // Early update on client (only do this if online)
-                // ToDo: remove the `!` here once chunk updates are working
-                if (!this.isNetworked) {
-                    // Create temporary mesh
-                    //if (id > 0) this.meshGen.createBlockWithUV({x: location.x, y: location.y, z: location.z}, id, this.scene)
-
-                    // Update world
-                    const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
-                    const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
-                    let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-                    updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
-                }
+                // Early update on client
+                const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
+                const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
+                let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+                updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
+                // this.updateChunks(worldPos)
                         
                 // Send event to brain to update the chunk
-                // ToDo: make this actually do something
                 this.clientComs.updateSingleBlock(worldPos, id)
             }
         }
@@ -266,38 +284,62 @@ class ClientGame {
 
     // Update the chunk mesh
     updateChunks(location) {
-
-        // Create a mesh
-        // const id = this.clientWorld.worldChunks
-        // [location.chunk.y][location.chunk.x][location.chunk.z]
-        // [location.block.y][location.block.x][location.block.z]
         const cSize = this.clientWorld.getChunkSize()
+        const wSize = this.clientWorld.getWorldSize()
 
-        const globalPos = getGlobalPos(location, cSize)
-        const changedChunk = this.clientWorld.worldChunks[location.chunk.y][location.chunk.x][location.chunk.z]
-        // let allMeshes = this.meshGen.createChunkBlock(changedChunk, globalPos, location.block, id, this.scene)
+        // Start generating chunk meshes
+        const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z })
+        this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
+        // this.chunkWorker.postMessage({ world: this.clientWorld, chunkLocation: location.chunk, type: 'chunk-only' })
+        // this.genMeshesFromChunks(this.clientWorld, location.chunk)
 
-        // Select the changed mesh
-        const chunkName = `chunk_${location.chunk.x}-${location.chunk.y}-${location.chunk.z}`
-        const chunkMesh = this.scene.getMeshByName(chunkName)
-        
-        // Dispose it
-        if (chunkMesh) {
-            chunkMesh.dispose()
+        // Update neighboring chunks if needed
+        const xIsAtChunkFarEdge = (location.block.x === cSize-1)
+        const xIsAtChunkNearEdge = (location.block.x === 0)
+        const yIsAtChunkFarEdge = (location.block.y === cSize-1)
+        const yIsAtChunkNearEdge = (location.block.y === 0)
+        const zIsAtChunkFarEdge = (location.block.z === cSize-1)
+        const zIsAtChunkNearEdge = (location.block.z === 0)
+
+        // X
+        if (xIsAtChunkFarEdge && (location.chunk.x + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x + 1, y: location.chunk.y, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
         }
-
-        // Generate new chunk mesh (if the mesh exists)
-        // ToDo: Move mesh gen of of main thread
-        const chunkOffset = { x: location.chunk.x * cSize, y:location.chunk.y * cSize, z:location.chunk.z * cSize }//{ x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-        const newMeshes = this.meshGen.createChunkMesh(changedChunk, chunkOffset, this.scene)
-        const newChunkMesh = BABYLON.Mesh.MergeMeshes(newMeshes, true)
-        newChunkMesh.name = chunkName
-
-        // Try this for better performance in full chunks:
-        // 1. Create worker to generate updated mesh
-        // 2. When complete, set name to `${chunkName}-updated`
-        // 3. Dispose old mesh
-        // 4. Changed updated mesh name to `${chunkName}`
+        else if (xIsAtChunkNearEdge && (location.chunk.x - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x - 1, y: location.chunk.y, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        // Y
+        if (yIsAtChunkFarEdge && (location.chunk.y + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y + 1, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        else if (yIsAtChunkNearEdge && (location.chunk.y - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y - 1, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        // Z
+        if (zIsAtChunkFarEdge && (location.chunk.z + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z + 1 },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        else if (zIsAtChunkNearEdge && (location.chunk.z - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z - 1 },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
     }
 
     ///////////////////////////////////////////////////////
@@ -306,25 +348,14 @@ class ClientGame {
 
     // This is used for brain-authored chunk updates
     updateBlock(location, id) {
-        //
-        console.log('UPDATE', location, id)
 
         // Update world
         this.clientWorld.worldChunks
         [location.chunk.y][location.chunk.x][location.chunk.z]
         [location.block.y][location.block.x][location.block.z] = id
 
-        // ToDo: Remove this once chunk mesh updates work
-        // const globalPos = getGlobalPos(location, this.clientWorld.getChunkSize())
-        // if (id > 0) this.meshGen.createBlockWithUV(
-        //     { x: globalPos.x + 0.5, y: globalPos.y + 0.5, z: globalPos.z + 0.5 },
-        //     id, this.scene
-        // )
-
         // Update chunk mesh
         this.updateChunks(location)
-
-        //this.updateChunks()
     }
 
     ///////////////////////////////////////////////////////

@@ -232,8 +232,8 @@ var Controls = {
         jump: [Buttons.p],
         fire1: [Buttons.bracketLeft],
         fire2: [Buttons.bracketRight],
-        invUp: [Buttons.equals],
-        invDown: [Buttons.minus],
+        invUp: [Buttons.slash],
+        invDown: [Buttons.period],
         noclip: [Buttons.u]
     }
 }
