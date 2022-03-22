@@ -361,10 +361,11 @@ class ClientPlayer {
                 y: Math.floor( this.avatar.position.y + (avForward.y * i) ) + 0.5,
                 z: Math.floor( this.avatar.position.z + (avForward.z * i) ) + 0.5
             }
-            // ToDo: refine this to allow for better selection accuracy
+            // ToDo: Use Raycaster instead
+            
             // const testWorldPos = getArrayPos(testPos, this.chunkSize)
             // const testID = world.worldChunks[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]?.[testWorldPos.block.y]?.[testWorldPos.block.x]?.[testWorldPos.block.z]
-            // if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
+            // if (testID === 0) { // Change to `if (testID !==null || !unselectable.includes(testID))`
             //     if (isObstructed) {
             //         this.selectCursor = testPos
             //         break

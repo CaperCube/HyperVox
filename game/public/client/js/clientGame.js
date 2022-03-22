@@ -1,7 +1,7 @@
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
-import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
+import { getArrayPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
@@ -64,12 +64,11 @@ class ClientGame {
         // mesh helper object
         this.meshGen = new MeshGenerator()
         this.chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
-
         this.chunkWorker.onmessage = (event) => {
             if (this.scene) {
                 if (event.data === "doneLoadingChunks") {
-                    // this.terminate()
-                    console.log('Job done')
+                    // this.terminate() // Do not terminate worker, we'll be using it for more chunk updates
+                    console.log('Chunk mesh work completed')
                 }
                 else if (event.data) {
                     const chunkName = `chunk_${event.data.chunkPosition.x}-${event.data.chunkPosition.y}-${event.data.chunkPosition.z}`
@@ -127,7 +126,7 @@ class ClientGame {
             else chunkWorker.postMessage({world: world.worldChunks, type: 'full' })
         }
         else {
-            // ToDo: Create a fall-back solution for browsers that don't support workers
+            // ToDo (maybe): Create a fall-back solution for browsers that don't support workers
         }
     }
 
@@ -150,8 +149,6 @@ class ClientGame {
             this.canvas.style.width = "100%"
             this.canvas.style.height = "100%"
         }
-
-        
 
         // Set window resize listener
         window.addEventListener( 'resize', onWindowResize )
@@ -180,9 +177,6 @@ class ClientGame {
 
         // Start generating chunk meshes
         this.genMeshesFromChunks(this.clientWorld, null)
-
-
-        
 
         ////////////////////////////////////////////////////
         // Player and Camera
@@ -269,12 +263,14 @@ class ClientGame {
                 worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
             )
             if (isWithinExsitingChunk) {
-                // Early update on client
+                // Early chunk update on client
                 const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
                 const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
                 let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
                 updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
-                // this.updateChunks(worldPos)
+
+                // Early mesh update on client (if networked)
+                if (this.isNetworked) this.updateChunks(worldPos)
                         
                 // Send event to brain to update the chunk
                 this.clientComs.updateSingleBlock(worldPos, id)
@@ -290,8 +286,6 @@ class ClientGame {
         // Start generating chunk meshes
         const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z })
         this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
-        // this.chunkWorker.postMessage({ world: this.clientWorld, chunkLocation: location.chunk, type: 'chunk-only' })
-        // this.genMeshesFromChunks(this.clientWorld, location.chunk)
 
         // Update neighboring chunks if needed
         const xIsAtChunkFarEdge = (location.block.x === cSize-1)

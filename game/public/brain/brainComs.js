@@ -102,16 +102,6 @@ class BrainComs {
         // Tell connected players to update the chunks containing the updated blocks
     }
 
-    ////////////////////////////////////////////////////
-    // Client messages (requests from clients / server)
-    // ToDo: move these to `Incoming messages` above
-    ////////////////////////////////////////////////////
-
-    // This will happen when the brain / server 
-    clientUpdateSingleBlock(playerId, location, id) {
-        //...
-    }
-
     // Other stuff that needs to be communcated to the clients
 
 }

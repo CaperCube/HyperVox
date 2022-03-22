@@ -57,7 +57,6 @@ let debugLines
 // Scene init
 ////////////////////////////////////////////////////
 
-// TODO: Clean this function up
 const createScene = () => {
     // Create new scene
     const scene = new BABYLON.Scene(engine)
@@ -75,7 +74,6 @@ const createScene = () => {
     //light.intensity = 1
 
     // Create block material
-    // TODO: set this as the scene's default scene so it can be referenced that way
     mat = new BABYLON.StandardMaterial('mat')
     texture = new BABYLON.Texture(imageSRC.Tiles, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
     mat.diffuseTexture = texture

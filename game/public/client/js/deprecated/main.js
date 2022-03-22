@@ -51,7 +51,6 @@ let light
 // Scene init
 ////////////////////////////////////////////////////
 
-// TODO: Clean this function up
 const createScene = () => {
     // Create new scene
     const scene = new BABYLON.Scene(engine)
