@@ -1,5 +1,5 @@
-import { tileScale, defaultWorldSize } from './clientConstants.js'
-import Game from '../../brain/game.js'
+import { tileScale, defaultWorldSize, fogDistance } from './clientConstants.js'
+import BrainGame from '../../brain/brainGame.js'
 import MeshGenerator from './mesh/meshGen.js'
 import ClientPlayer from './entities/player.js'
 
@@ -23,7 +23,7 @@ import ClientPlayer from './entities/player.js'
 ////////////////////////////////////////////////////
 
 // Game vars
-const game = new Game()
+const game = new BrainGame()
 
 // Generate world data
 game.createNewWorld()
@@ -37,7 +37,6 @@ const canvas = $('#main-canvas')
 let engine
 let renderScale = 1
 let frame = 0
-const fogDist = 1000
 
 // Material for most blocks
 let mat, mat2, texture
@@ -52,7 +51,6 @@ let light
 // Scene init
 ////////////////////////////////////////////////////
 
-// TODO: Clean this function up
 const createScene = () => {
     // Create new scene
     const scene = new BABYLON.Scene(engine)
@@ -154,7 +152,7 @@ const createScene = () => {
 
     // Fog
     scene.fogDensity = 0.02
-    scene.fogStart = 8//fogDist/2
+    scene.fogStart = 8//fogDistance/2
     scene.fogEnd = 128
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP//BABYLON.Scene.FOGMODE_LINEAR
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
@@ -171,7 +169,7 @@ const createScene = () => {
     //var camera = new BABYLON.ArcRotateCamera('camera1', Math.PI/4, Math.PI/4, 40, centerTarget, scene)
     var camera = new BABYLON.UniversalCamera('playerCamera', centerTarget, scene)
     camera.minZ = tileScale/10
-    camera.maxZ = fogDist
+    camera.maxZ = fogDistance
 
     camera.attachControl(canvas, true)
     camera.inputs.attached.keyboard.detachControl()

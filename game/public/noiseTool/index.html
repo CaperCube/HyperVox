@@ -22,7 +22,7 @@
     <script defer src="../client/js/dist/perlin-noise-3d.min.js"></script>
     <!-- <script defer src="../brain/gen/world/noise.js"></script> -->
     <!-- ///////////////////// Tool //////////////////////// -->
-    <script defer src="./js/main.js"></script>
+    <script defer src="./js/main.js" type="module"></script>
 </head>
 <body>
     <!--
@@ -37,7 +37,7 @@
     ////////////////////////////////////////////////////////
     -->
     <div class="toolbar">
-        <button onclick="DOMNoiseFnc()">Generate</button><br>
+        <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
         <input id="DOM_seed" type="text" value="helloworld"> Use seed? <input id="DOM_useSeed" type="checkbox" checked="true"><br>
         <input id="DOM_zSlider" type="range" min="0" max="64" step="1" value="0" oninput="updateZ(this)"> <span id="DOM_zindex">Z Index: 0</span><br>
         <!-- Use tolerance? <input id="DOM_useTolerance" type="checkbox" checked="true" onchange="updateTolerance(this)"> -->

@@ -70,3 +70,8 @@ function Sound(src, loop = false, volume = 1) {
         }
     });
 }
+
+export {
+    imageSRC,
+    Sounds
+}

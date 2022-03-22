@@ -3,10 +3,18 @@
 // i.e. rendering, sizing, graphics, framerate, etc...
 /////////////////////////////////////////////////////////
 
+// Consider including chunk scale in here as well
 const tileScale = 1
-const defaultWorldSize = 3
+const defaultChunkSize = 8
+const defaultWorldSize = 20
+
+const fogDistance = 1000
+const renderScale = 1
 
 export {
     tileScale,
-    defaultWorldSize
+    defaultChunkSize,
+    defaultWorldSize,
+    fogDistance,
+    renderScale
 }

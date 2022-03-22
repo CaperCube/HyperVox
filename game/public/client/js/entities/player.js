@@ -1,4 +1,5 @@
 import { tileScale } from '../clientConstants.js'
+import { getArrayPos } from '../../../common/positionUtils.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -60,14 +61,11 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
            (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
 }
 
-// ToDo: Clean-p a bunch of these object references from CleintPlayer
-// We don't want the player to have access to all this garbage
-
-// Player object
+// ClientPlayer object
 class ClientPlayer {
 
     // Init player
-    constructor(controls, avatar, debugLines, world, meshGen, thisScene) {
+    constructor(controls, avatar, clientGame) {
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -106,11 +104,12 @@ class ClientPlayer {
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
 
-        this.meshGen = meshGen
-        this.scene = thisScene
-        this.world = world
-        this.chunkSize = world.getChunkSize() || 16
-        this.worldSize = world.getWorldSize() || 1
+        this.clientGame = clientGame
+        this.meshGen = clientGame.meshGen
+        this.scene = clientGame.scene
+        this.world = clientGame.clientWorld
+        this.chunkSize = this.world.getChunkSize() || 16
+        this.worldSize = this.world.getWorldSize() || 1
         // let greenMesh, blueMesh, redMesh
 
         this.registerControls(this.controls)
@@ -128,19 +127,29 @@ class ClientPlayer {
         // redMesh.material = scene.transparentMaterial
         // blueMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 253, scene)
         // blueMesh.material = scene.transparentMaterial
+
+        this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
 
     // Register controls with actions
     registerControls = (c) => {
+        // Movement
         assignFunctionToInput(c.upAxis1, ()=>{this.moveForward=true}, ()=>{this.moveForward=false})
         assignFunctionToInput(c.downAxis1, ()=>{this.moveBackward=true}, ()=>{this.moveBackward=false})
         assignFunctionToInput(c.leftAxis1, ()=>{this.moveLeft=true}, ()=>{this.moveLeft=false})
         assignFunctionToInput(c.rightAxis1, ()=>{this.moveRight=true}, ()=>{this.moveRight=false})
+        // Rotation
+        assignFunctionToInput(c.upAxis2, ()=>{if (this.avatar.rotation.x > -Math.PI/2) this.avatar.rotation.x -= Math.PI/4}, ()=>{})
+        assignFunctionToInput(c.downAxis2, ()=>{if (this.avatar.rotation.x < Math.PI/2) this.avatar.rotation.x += Math.PI/4}, ()=>{})
+        assignFunctionToInput(c.leftAxis2, ()=>{this.avatar.rotation.y -= Math.PI/4}, ()=>{})
+        assignFunctionToInput(c.rightAxis2, ()=>{this.avatar.rotation.y += Math.PI/4}, ()=>{})
+        // Run, Jump
         assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = 0.2; this.usedJumps++}}, ()=>{this.moveUp=false})
         assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
+        // Build, Use, Shoot
         assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
         assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
-        assignFunctionToInput(c.respawn, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
+        assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
         assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 9) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
         assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 9; console.log(this.selectedBlock);}, ()=>{})
     }
@@ -267,7 +276,7 @@ class ClientPlayer {
             }
         }
         
-        if (!this.spectateMode) {
+        if (!this.spectateMode && this.world) {
             // Check X
             for (let cy = -2; cy < 2; cy++) {
             for (let cx = -1; cx < 2; cx++) {
@@ -275,9 +284,9 @@ class ClientPlayer {
 
                 // Check X
                 let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
-                let arrayPos = this.getArrayPos(blockPos)
-                let worldPos = arrayPos.world
-                let chunkPos = arrayPos.chunk
+                let arrayPos = getArrayPos(blockPos, this.chunkSize)
+                let worldPos = arrayPos.chunk
+                let chunkPos = arrayPos.block
 
                 let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 let skipMid = (cy >= 0)
@@ -352,10 +361,11 @@ class ClientPlayer {
                 y: Math.floor( this.avatar.position.y + (avForward.y * i) ) + 0.5,
                 z: Math.floor( this.avatar.position.z + (avForward.z * i) ) + 0.5
             }
-            // ToDo: refine this to allow for better selection accuracy
-            // const testWorldPos = this.getArrayPos(testPos, chunkSize)
-            // const testID = world.worldChunks[testWorldPos.world.y]?.[testWorldPos.world.x]?.[testWorldPos.world.z]?.[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]
-            // if (testID === 0) { // ToDo: change to `if (testID !==null || !unselectable.includes(testID))`
+            // ToDo: Use Raycaster instead
+            
+            // const testWorldPos = getArrayPos(testPos, this.chunkSize)
+            // const testID = world.worldChunks[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]?.[testWorldPos.block.y]?.[testWorldPos.block.x]?.[testWorldPos.block.z]
+            // if (testID === 0) { // Change to `if (testID !==null || !unselectable.includes(testID))`
             //     if (isObstructed) {
             //         this.selectCursor = testPos
             //         break
@@ -369,62 +379,15 @@ class ClientPlayer {
         // ...
 
         // Debug lines
-        if (this.debug) debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
-    }
-
-    // Get player pos in chunk/block coordinates
-    getArrayPos = (pos) => {
-        return {
-            world: {x: Math.floor(pos.x / this.chunkSize), y: Math.floor(pos.y / this.chunkSize), z: Math.floor(pos.z / this.chunkSize) },
-            chunk: {x: Math.floor(pos.x % this.chunkSize), y: Math.floor(pos.y % this.chunkSize), z: Math.floor(pos.z % this.chunkSize) }
-        }
+        if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
     placeBlock = () => {
-        // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
-        const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
-        )
-        if (isWithinExsitingChunk) {
-            // Update chunk
-            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
-            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = this.selectedBlock
-
-            // Send event to brain to update the chunk
-            //...
-
-            // Update mesh (this will happen once the brain sends back an event)
-            this.meshGen.createBlockWithUV({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.selectedBlock, this.scene)
-            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, false)
-        }
+        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.selectedBlock)
     }
 
     removeBlock = () => {
-        // Get world position
-        const newBlockWorldPos = this.getArrayPos(this.selectCursor)
-        const isWithinExsitingChunk = (
-            newBlockWorldPos.world.z < this.worldSize && newBlockWorldPos.world.z >= 0 &&
-            newBlockWorldPos.world.x < this.worldSize && newBlockWorldPos.world.x >= 0 &&
-            newBlockWorldPos.world.y < this.worldSize && newBlockWorldPos.world.y >= 0
-        )
-        if (isWithinExsitingChunk) {
-            // Update chunk
-            const worldOffset = {x: newBlockWorldPos.world.x, y: newBlockWorldPos.world.y, z: newBlockWorldPos.world.z}
-            const changePostion = {x: newBlockWorldPos.chunk.x, y: newBlockWorldPos.chunk.y, z: newBlockWorldPos.chunk.z}
-            let updatedChunk = this.world.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-            updatedChunk[changePostion.y][changePostion.x][changePostion.z] = 0
-
-            // Send event to brain to update the chunk
-            //...
-
-            // Update mesh (this will happen once the brain sends back an event)
-            // meshGen.updateChunkMesh(worldChunkMeshes, updatedChunk, changePostion, worldOffset, true)
-        }
+        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, 0)
     }
 
     bounceY = () => {

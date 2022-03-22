@@ -207,26 +207,34 @@ var Controls = {
         downAxis1: [Buttons.s],
         leftAxis1: [Buttons.a],
         rightAxis1: [Buttons.d],
+        upAxis2: [Buttons.z],
+        downAxis2: [Buttons.x],
+        leftAxis2: [Buttons.c],
+        rightAxis2: [Buttons.v],
         run: [Buttons.shift],
         jump: [Buttons.space],
         fire1: [Buttons.lmb],
         fire2: [Buttons.rmb],
         invUp: [Buttons.equals],
         invDown: [Buttons.minus],
-        respawn: [Buttons.r]
+        noclip: [Buttons.r]
     },
     Player2: {
         upAxis1: [Buttons.up],
         downAxis1: [Buttons.down],
         leftAxis1: [Buttons.left],
         rightAxis1: [Buttons.right],
+        upAxis2: [Buttons.i],
+        downAxis2: [Buttons.k],
+        leftAxis2: [Buttons.j],
+        rightAxis2: [Buttons.l],
         run: [Buttons.o],
         jump: [Buttons.p],
-        fire1: [Buttons.e],
-        fire2: [Buttons.q],
-        invUp: [Buttons.equals],
-        invDown: [Buttons.minus],
-        respawn: [Buttons.l]
+        fire1: [Buttons.bracketLeft],
+        fire2: [Buttons.bracketRight],
+        invUp: [Buttons.slash],
+        invDown: [Buttons.period],
+        noclip: [Buttons.u]
     }
 }
 

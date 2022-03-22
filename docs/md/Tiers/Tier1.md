@@ -14,9 +14,9 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] Basic spectating movement
     - [X] Move player with velocity (jumping too)
     - [X] Basic collision with blocks
-- [ ] Basic place / break blocks
+- [X] Basic place / break blocks
     - [X] Raycasting for selection block placement / blocks to destroy
-    - [ ] Updating chunks (send to brain to update the chunk)
+    - [X] Updating chunks (send to brain to update the chunk)
         - [X] Fill in some basic brain behavior to allow the creation of a world & game from the client
         - [X] Move mesh gen logic to client
         - [ ] Follow this procedure:
@@ -24,14 +24,16 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
             - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
             - Add new faces to this area
             - Merge faces into chunkMesh
+        **Note:** The above procedure has been changed for simplicity's sake to the following:
+        - [X] Follow this procedure:
+            - Check which chunk in `clientGame.clientWorld` has changed
+            - Start a web-worker to re-generate this chunk mesh (and any effected neighboring chunk meshes)
+            - Delete the old chunk mesh(es)
     - [X] Create crosshair
 - [ ] Basic game menu
     - [ ] `New Game`
     - [ ] Placeholder `Settings`
     - [ ] Simple loading screen (for preloading assets & world gen)
 - [ ] Clean & Orginize code
-    - [ ] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
-    - [ ] Change objects to Class structure
-        - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
-            - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
-            - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
+    - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
+    - [X] Change objects to Class structure
