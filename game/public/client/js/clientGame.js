@@ -68,7 +68,7 @@ class ClientGame {
             if (this.scene) {
                 if (event.data === "doneLoadingChunks") {
                     // this.terminate() // Do not terminate worker, we'll be using it for more chunk updates
-                    console.log('Chunk mesh work completed')
+                    // console.log('Chunk mesh work completed')
                 }
                 else if (event.data) {
                     const chunkName = `chunk_${event.data.chunkPosition.x}-${event.data.chunkPosition.y}-${event.data.chunkPosition.z}`
@@ -263,17 +263,21 @@ class ClientGame {
                 worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
             )
             if (isWithinExsitingChunk) {
-                // Early chunk update on client
                 const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
                 const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
                 let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-                updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
 
-                // Early mesh update on client (if networked)
-                if (this.isNetworked) this.updateChunks(worldPos)
-                        
-                // Send event to brain to update the chunk
-                this.clientComs.updateSingleBlock(worldPos, id)
+                // Check if this change is actually different from world data
+                if (updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] !== id) {
+                    // Early chunk update on client
+                    updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
+
+                    // Early mesh update on client (if networked)
+                    if (this.isNetworked) this.updateChunks(worldPos)
+                            
+                    // Send event to brain to update the chunk
+                    this.clientComs.updateSingleBlock(worldPos, id)
+                }
             }
         }
     }

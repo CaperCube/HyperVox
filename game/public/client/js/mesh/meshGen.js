@@ -163,12 +163,15 @@ class MeshGenerator {
     // Returns ChunkGroup{}
     getChunkGroup(world, chunkLocation = { x: 0, y: 0, z: 0 }) {
         const wSize = world[0].length
-        const xMin = (chunkLocation.x-1) < 0 ? wSize-1 : chunkLocation.x-1
-        const xMax = (chunkLocation.x+1) >= wSize ? 0 : chunkLocation.x+1
-        const yMin = (chunkLocation.y-1) < 0 ? wSize-1 : chunkLocation.y-1
-        const yMax = (chunkLocation.y+1) >= wSize ? 0 : chunkLocation.y+1
-        const zMin = (chunkLocation.z-1) < 0 ? wSize-1 : chunkLocation.z-1
-        const zMax = (chunkLocation.z+1) >= wSize ? 0 : chunkLocation.z+1
+
+        const xMin = ((chunkLocation.x-1) < 0)          ? null : chunkLocation.x-1
+        const xMax = ((chunkLocation.x+1) > wSize-1)    ? null : chunkLocation.x+1
+
+        const yMin = ((chunkLocation.y-1) < 0)          ? null : chunkLocation.y-1
+        const yMax = ((chunkLocation.y+1) > wSize-1)    ? null : chunkLocation.y+1
+
+        const zMin = ((chunkLocation.z-1) < 0)          ? null : chunkLocation.z-1
+        const zMax = ((chunkLocation.z+1) > wSize-1)    ? null : chunkLocation.z+1
     
         return {
             chunkLocation: chunkLocation,
@@ -178,7 +181,7 @@ class MeshGenerator {
             leftChunk: world[chunkLocation.y]?.[xMin]?.[chunkLocation.z],
             rightChunk: world[chunkLocation.y]?.[xMax]?.[chunkLocation.z],
             backChunk: world[chunkLocation.y]?.[chunkLocation.x]?.[zMin],
-            forwardChunk: world[chunkLocation.y]?.[chunkLocation.x]?.[zMax]
+            frontChunk: world[chunkLocation.y]?.[chunkLocation.x]?.[zMax]
         }
     }
     
@@ -212,17 +215,17 @@ class MeshGenerator {
             if (!blockHere || transparentTiles.includes(blockHere))
                 meshArray.push( this.createQuadWithUVs(globalPos, 'left', blockID, scene) )
 
-            // Back
-            blockHere = chunk[blockLocation.y]?.[blockLocation.x]?.[blockLocation.z-1]
-            if ((blockLocation.z-1) < 0) blockHere = chunkGroup.backChunk?.[blockLocation.y]?.[blockLocation.x]?.[chunkSize-1]
-            if (!blockHere || transparentTiles.includes(blockHere))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'back', blockID, scene) )
-
             // Front
             blockHere = chunk[blockLocation.y]?.[blockLocation.x]?.[blockLocation.z+1]
             if ((blockLocation.z+1) >= chunkSize) blockHere = chunkGroup.frontChunk?.[blockLocation.y]?.[blockLocation.x]?.[0]
             if (!blockHere || transparentTiles.includes(blockHere))
                 meshArray.push( this.createQuadWithUVs(globalPos, 'front', blockID, scene) )
+
+            // Back
+            blockHere = chunk[blockLocation.y]?.[blockLocation.x]?.[blockLocation.z-1]
+            if ((blockLocation.z-1) < 0) blockHere = chunkGroup.backChunk?.[blockLocation.y]?.[blockLocation.x]?.[chunkSize-1]
+            if (!blockHere || transparentTiles.includes(blockHere))
+                meshArray.push( this.createQuadWithUVs(globalPos, 'back', blockID, scene) )
 
             // Top
             blockHere = chunk[blockLocation.y+1]?.[blockLocation.x]?.[blockLocation.z]
