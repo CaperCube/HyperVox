@@ -31,6 +31,7 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
             - Delete the old chunk mesh(es)
     - [X] Create crosshair
 - [ ] Basic game menu
+    - [ ] Add seperate canvas for menus that disables / enables
     - [ ] `New Game`
     - [ ] Placeholder `Settings`
     - [ ] Simple loading screen (for preloading assets & world gen)

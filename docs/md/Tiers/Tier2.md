@@ -44,3 +44,5 @@ Tier shaping needed...
     - [ ] Networking for sending / receiving messages
     - [X] Work on generic messages for extendability?
 - [ ] Clean & Orginize code
+    - [ ] Replace var & function comments with code-hint comments
+        - look at `positionUtils.js` for examples
