@@ -19,11 +19,11 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] Updating chunks (send to brain to update the chunk)
         - [X] Fill in some basic brain behavior to allow the creation of a world & game from the client
         - [X] Move mesh gen logic to client
-        - [ ] Follow this procedure:
-            - Check difference between `chunk` and `updatedChunk`
-            - Remove faces from existing chunkMesh in the location of the change (if location already had a block)
-            - Add new faces to this area
-            - Merge faces into chunkMesh
+        - [X] ~~Follow this procedure:~~
+            - ~~Check difference between `chunk` and `updatedChunk`~~
+            - ~~Remove faces from existing chunkMesh in the location of the change (if location already had a block)~~
+            - ~~Add new faces to this area~~
+            - ~~Merge faces into chunkMesh~~
         **Note:** The above procedure has been changed for simplicity's sake to the following:
         - [X] Follow this procedure:
             - Check which chunk in `clientGame.clientWorld` has changed
@@ -34,6 +34,6 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [ ] `New Game`
     - [ ] Placeholder `Settings`
     - [ ] Simple loading screen (for preloading assets & world gen)
-- [ ] Clean & Orginize code
+- [X] Clean & Orginize code
     - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
     - [X] Change objects to Class structure
