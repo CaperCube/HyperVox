@@ -6,6 +6,7 @@ import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
 import World from '../../brain/gen/world/world.js'
+import MenuSystem from './menuSystem.js'
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -97,6 +98,22 @@ class ClientGame {
                     customMesh.material = this.scene.defaultMaterial
                 }
             }
+        }
+
+        ///////////////////////////////////////////////////////
+        // Menu vars
+        ///////////////////////////////////////////////////////
+        this.menu = new MenuSystem()
+        this.menu.render()
+
+        Buttons.tab.onPress = () => {
+            
+            // Unlock cursor (without pressing escape)
+            document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
+            document.exitPointerLock()
+
+            // Show menu
+            this.menu.show()
         }
     }
 
