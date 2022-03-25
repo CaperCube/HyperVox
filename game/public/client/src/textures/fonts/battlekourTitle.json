@@ -1,11 +1,13 @@
 {
     "fontName": "BattlekourTitle",
     "fontFamily": "Battlekour",
-    "fontSize": 16,
-    "fontWeight": "bold",
     "imgName": "BattlekourTitle.png",
+    "fontSize": 16,
+    "baseline": 0,
+    "spaceSize": 8,
+    "fontWeight": "bold",
     "charData": {
-        "unsupported": { "index": 0, "width": 16, "tracking": 0 },
-        "A": { "index": 1, "width": 10, "tracking": 0 }
+        "unsupported": { "width": 16, "shift": 0, "tracking": 0 },
+        "A": { "width": 10, "shift": 0, "tracking": 0 }
     }
 }
