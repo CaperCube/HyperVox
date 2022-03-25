@@ -1,0 +1,11 @@
+{
+    "fontName": "BattlekourTitle",
+    "fontFamily": "Battlekour",
+    "fontSize": 16,
+    "fontWeight": "bold",
+    "imgName": "BattlekourTitle.png",
+    "charData": {
+        "unsupported": { "index": 0, "width": 16, "tracking": 0 },
+        "A": { "index": 1, "width": 10, "tracking": 0 }
+    }
+}
