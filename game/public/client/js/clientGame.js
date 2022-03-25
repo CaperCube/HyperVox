@@ -104,7 +104,6 @@ class ClientGame {
         // Menu vars
         ///////////////////////////////////////////////////////
         this.menu = new MenuSystem()
-        this.menu.render()
 
         Buttons.tab.onPress = () => {
             

@@ -6,7 +6,7 @@
 // Consider including chunk scale in here as well
 const tileScale = 1
 const defaultChunkSize = 8
-const defaultWorldSize = 20
+const defaultWorldSize = 4
 
 const fogDistance = 1000
 const renderScale = 1
