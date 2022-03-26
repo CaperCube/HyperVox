@@ -9,10 +9,11 @@ const menuConstants = {
 class MenuSystem {
     constructor() {
         // Canvas vars
+        this.resRatio = 4
         this.canvas = $("#menu-canvas")
         this.ctx = this.canvas.getContext("2d")
-        this.cWidth = this.canvas.width = 400
-        this.cHeight = this.canvas.height = 320
+        this.cWidth = this.canvas.width = window.innerWidth / this.resRatio
+        this.cHeight = this.canvas.height = window.innerHeight / this.resRatio
         
         this.canvas.style.width = '100%'
         this.canvas.style.height = '100%'
@@ -115,12 +116,11 @@ class MenuSystem {
 
                 // Add to next X position
                 const tracking = font.data.charData[`${charCode}`]?.tracking ? font.data.charData[`${charCode}`].tracking : 0
-                addedX += crop.sw + tracking
+                addedX += crop.sw + tracking + font.data.metrics.letterSpacing
             }
             else {
                 // Add space to next X position
-                console.log('space')
-                addedX += font.data.metrics.spaceSize || charSize
+                addedX += (font.data.metrics.spaceSize || charSize) + font.data.metrics.letterSpacing
             }
         }
     }
@@ -132,20 +132,24 @@ class MenuSystem {
         // this.ctx.fillRect(10,10,20,20)
 
         if (this.font.isLoaded) {
-            this.drawText(`!"#$%&'(`, {x: 0, y: 16}, this.font)
-            this.drawText(`)*+,-./0`, {x: 0, y: 32}, this.font)
-            this.drawText(`12345678`, {x: 0, y: 48}, this.font)
-            this.drawText(`9:;<=>?@`, {x: 0, y: 64}, this.font)
+            this.drawText(`play PLAY FART fart`, {x: 0, y: 16}, this.font)
+            this.drawText(`OPTIONS options`, {x: 0, y: 34}, this.font)
+            this.drawText(`BATTLEKOUR ;)`, {x: 0, y: 64}, this.font)
+            this.drawText(`:) (123*4)=[_] {} -_- ~~||=><=`, {x: 0, y: 96}, this.font)
+            // this.drawText(`!"#$%&'(`, {x: 0, y: 16}, this.font)
+            // this.drawText(`)*+,-./0`, {x: 0, y: 32}, this.font)
+            // this.drawText(`12345678`, {x: 0, y: 48}, this.font)
+            // this.drawText(`9:;<=>?@`, {x: 0, y: 64}, this.font)
 
-            this.drawText(`ABCDEFGH`, {x: 0, y: 80}, this.font)
-            this.drawText(`IJKLMNOP`, {x: 0, y: 96}, this.font)
-            this.drawText(`QRSTUVWX`, {x: 0, y: 112}, this.font)
-            this.drawText(`YZ[\\]^_\``, {x: 0, y: 128}, this.font)
+            // this.drawText(`ABCDEFGH`, {x: 0, y: 80}, this.font)
+            // this.drawText(`IJKLMNOP`, {x: 0, y: 96}, this.font)
+            // this.drawText(`QRSTUVWX`, {x: 0, y: 112}, this.font)
+            // this.drawText(`YZ[\\]^_\``, {x: 0, y: 128}, this.font)
 
-            this.drawText(`abcdefgh`, {x: 0, y: 144}, this.font)
-            this.drawText(`ijklmnop`, {x: 0, y: 160}, this.font)
-            this.drawText(`qrstuvwx`, {x: 0, y: 176}, this.font)
-            this.drawText(`yz{|}~${String.fromCharCode(128)}`, {x: 0, y: 192}, this.font)
+            // this.drawText(`abcdefgh`, {x: 0, y: 144}, this.font)
+            // this.drawText(`ijklmnop`, {x: 0, y: 160}, this.font)
+            // this.drawText(`qrstuvwx`, {x: 0, y: 176}, this.font)
+            // this.drawText(`yz{|}~${String.fromCharCode(128)}`, {x: 0, y: 192}, this.font)
         }
     }
 }

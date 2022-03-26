@@ -18,27 +18,30 @@ const battlekourTitleFontData = {
         "34": { "width": 7, "shift": 0, "tracking": 0 }, // "
         "37": { "width": 16, "shift": 0, "tracking": 0 }, // %
         "38": { "width": 12, "shift": 0, "tracking": 0 }, // &
-        "39": { "width": 4, "shift": 0, "tracking": 0 }, // '
+        "39": { "width": 4, "shift": -1, "tracking": -1 }, // '
         "40": { "width": 6, "shift": 0, "tracking": 0 }, // (
         "41": { "width": 6, "shift": 0, "tracking": 0 }, // )
         "42": { "width": 6, "shift": 0, "tracking": 0 }, // *
         "43": { "width": 8, "shift": 0, "tracking": 0 }, // +
-        "44": { "width": 5, "shift": 0, "tracking": 0 }, // ,
+        "44": { "width": 5, "shift": -1, "tracking": -1 }, // ,
         "45": { "width": 8, "shift": 0, "tracking": 0 }, // -
         "46": { "width": 4, "shift": 0, "tracking": 0 }, // .
-        "47": { "width": 9, "shift": 0, "tracking": 0 }, // /
-        "58": { "width": 4, "shift": -1, "tracking": -1 }, // :
+        "47": { "width": 8, "shift": 0, "tracking": 0 }, // /
+
+        "49": { "width": 10, "shift": 0, "tracking": -1 }, // 1
+
+        "58": { "width": 4, "shift": 0, "tracking": 0 }, // :
         "59": { "width": 5, "shift": -1, "tracking": -1 }, // ;
         "60": { "width": 12, "shift": 0, "tracking": 0 }, // <
         "61": { "width": 8, "shift": 0, "tracking": 0 }, // =
         "62": { "width": 12, "shift": 0, "tracking": 0 }, // >
 
         "91": { "width": 6,  "shift": 0, "tracking": 0 }, // [
-        "92": { "width": 9,  "shift": 0, "tracking": 0 }, // \
+        "92": { "width": 8,  "shift": 0, "tracking": 0 }, // \
         "93": { "width": 6,  "shift": 0, "tracking": 0 }, // ]
         "94": { "width": 12,  "shift": 0, "tracking": 0 }, // ^
-        "95": { "width": 16,  "shift": 0, "tracking": 0 }, // _
-        "96": { "width": 4,  "shift": 0, "tracking": 0 }, // `
+        "95": { "width": 14,  "shift": 0, "tracking": 0 }, // _
+        "96": { "width": 4,  "shift": -1, "tracking": -1 }, // `
 
         "102": { "shift": 0, "tracking": -1 }, // f
         "105": { "width": 4, "shift": 0, "tracking": 0 }, // i
@@ -47,7 +50,7 @@ const battlekourTitleFontData = {
         "108": { "width": 4, "shift": 0, "tracking": 0 }, // l
 
         "123": { "width": 8,  "shift": 0, "tracking": 0 }, // {
-        "124": { "width": 3,  "shift": 0, "tracking": 0 }, // |
+        "124": { "width": 3,  "shift": 1, "tracking": 2 }, // |
         "125": { "width": 8,  "shift": 0, "tracking": 0 }, // }
         "126": { "width": 12,  "shift": 0, "tracking": 0 }, // ~
     }
