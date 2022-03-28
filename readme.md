@@ -32,7 +32,7 @@ Here's some beginner / intermediate level instructions to get this bot up and ru
 8. Edit this file and write `PORT = ` followed by your desired server port (`3000` works fine).
 9. Type `npm run start` in the terminal, and hit enter to start the web server.
 10. To run to the game, open a browser and type `http://localhost:3000/` in the address bar and hit enter.
-11. To run to the noise tool, open a browser and type `http://localhost:3000/noiseTool/` in the address bar and hit enter.
+11. To run to the noise tool, open a browser and type `http://localhost:3000/tools/noiseTool/` in the address bar and hit enter.
 12. Close VSCode or click in the terminal and press `Ctrl + c` to stop the web server.
 
 ## Doc links
@@ -58,19 +58,9 @@ Contact me about contributing to this project. I do hope to work with more peopl
 # Temporary Notes
 - Root dir entry point should just be in charge of serving the `client` to connected users
 - The `server` entry point should be in charge of allowing connections and managing a network game. See [Connecting to a specific socket](https://stackoverflow.com/questions/52138337/socket-io-makes-multiple-connections-when-the-page-is-refreshed-node-js)
-- Singleplayer and multiplayer games should both "connect" to a GameManager
-    - Singleplayer clients talk directly to the GameManager
-    - Multiplayer clients talk to server which talks to the GameManager
-    - Using this method, servers should not need many changes if any to support new features in multiplayer
 
 - Generate world data and send to player when the reach their world limit
 - If no chunk data exists, fill area with a visual world border / "loading chunk" zone
-
-## when removing a block
-- Modify the chunk data
-- Remove the selected bloock faces of the chnk mesh
-- Create new faces based on surrounding blocks
-- Merge new faces with chunk mesh (async function ()?)
 
 ## Other
 - Weapons have different ammounts of recoil

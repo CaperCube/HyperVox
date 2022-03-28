@@ -1,0 +1,45 @@
+<!--                                                              
+////////////////////////////////////////////////////////
+////                     Head HTML                  ////
+////////////////////////////////////////////////////////
+-->
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Noise Tool</title>
+    <meta name="author" content="CaperCube">
+    <link rel='icon' type='image/png' href='../../client/src/textures/box.png'>
+    <link rel="stylesheet" href="./main.css">
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                     Scripts                    ////
+    ////////////////////////////////////////////////////////
+    -->
+    <!-- /////////////////// Utilities ///////////////////// -->
+    <script defer src="../../client/js/commonUtils.js"></script>
+    <!-- ////////////////// Generators ///////////////////// -->
+    <script defer src="../../client/js/dist/perlin-noise-3d.min.js"></script>
+    <!-- <script defer src="../brain/gen/world/noise.js"></script> -->
+    <!-- ///////////////////// Tool //////////////////////// -->
+    <script defer src="./js/main.js" type="module"></script>
+</head>
+<body>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                    Canvas                      ////
+    ////////////////////////////////////////////////////////
+    -->
+    <canvas id="main-canvas"></canvas><br>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                     Tools                      ////
+    ////////////////////////////////////////////////////////
+    -->
+    <div class="toolbar">
+        <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
+        <input id="DOM_seed" type="text" value="helloworld"> Use seed? <input id="DOM_useSeed" type="checkbox" checked="true"><br>
+        <input id="DOM_zSlider" type="range" min="0" max="64" step="1" value="0" oninput="updateZ(this)"> <span id="DOM_zindex">Z Index: 0</span><br>
+        <!-- Use tolerance? <input id="DOM_useTolerance" type="checkbox" checked="true" onchange="updateTolerance(this)"> -->
+    </div>
+</body>
