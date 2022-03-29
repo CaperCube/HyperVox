@@ -1,4 +1,4 @@
-import battlekourTitleFontData from '../src/textures/fonts/battlekourTitle.js'
+import { imageSRC, fontJSON } from "./resources.js"
 
 // Constants
 const menuConstants = {
@@ -7,10 +7,10 @@ const menuConstants = {
 }
 
 class MenuSystem {
-    constructor() {
+    constructor(canvas) {
         // Canvas vars
         this.resRatio = 4
-        this.canvas = $("#menu-canvas")
+        this.canvas = canvas
         this.ctx = this.canvas.getContext("2d")
         this.cWidth = this.canvas.width = window.innerWidth / this.resRatio
         this.cHeight = this.canvas.height = window.innerHeight / this.resRatio
@@ -27,17 +27,21 @@ class MenuSystem {
 
         // Click listener
         this.canvas.addEventListener('mousedown', (event) => {
-            this.hide()
+            // this.hide()
+            // this.loadImage(imageSRC.UI, (img)=>{console.log(img)})
+            
         })
 
+        this.fonts = []
+
         // ToDo: remove this
-        this.font = {img: null, data: {}}
-        this.loadImage('./client/src/textures/fonts/BattlekourTitle.png', ()=>{
-            // load json
-            this.font.data = battlekourTitleFontData
-            // console.log(this.font)
-            this.font.isLoaded = true
-        })
+        // this.font = {img: null, data: {}}
+        // this.loadImage('./client/src/textures/fonts/BattlekourTitle.png', (img)=>{
+        //     // load json
+        //     this.font.img = img
+        //     this.font.data = bkFont
+        //     this.font.isLoaded = true
+        // })
     }
 
     /////////////////////////////////////////////////////////
@@ -72,12 +76,27 @@ class MenuSystem {
 
     // Used to load images into the scene
     loadImage(src, callback) {
-        this.font.img = new Image()
-        this.font.img.src = src
-        this.font.img.onload = function() {
+        const img = new Image()
+        img.src = src
+        img.onload = () => {
             // Callback here
-            callback()
+            callback(img)
         }
+    }
+
+    // Loads font based on .json files
+    loadFonts(path, callback = ()=>{}) {
+        const font = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
+        this.loadImage(`/client/src/textures/fonts/${font.data.metaData.imgName}`, (img)=>{
+            // load json
+            font.img = img
+            font.isLoaded = true
+
+            console.log('font loaded', font)
+
+            this.fonts.push(font)
+            callback(font)
+        })
     }
 
     /////////////////////////////////////////////////////////
@@ -112,7 +131,7 @@ class MenuSystem {
             
             if (charCode !== 32) {
                 // Draw character
-                this.ctx.drawImage(this.font.img, crop.sx, crop.sy, crop.sw, crop.sh, xPos, yPos, crop.sw, crop.sh)
+                this.ctx.drawImage(font.img, crop.sx, crop.sy, crop.sw, crop.sh, xPos, yPos, crop.sw, crop.sh)
 
                 // Add to next X position
                 const tracking = font.data.charData[`${charCode}`]?.tracking ? font.data.charData[`${charCode}`].tracking : 0
@@ -131,11 +150,11 @@ class MenuSystem {
         // this.ctx.fillStyle = '#00ff00'
         // this.ctx.fillRect(10,10,20,20)
 
-        if (this.font.isLoaded) {
-            this.drawText(`play PLAY FART fart`, {x: 0, y: 16}, this.font)
-            this.drawText(`OPTIONS options`, {x: 0, y: 34}, this.font)
-            this.drawText(`BATTLEKOUR ;)`, {x: 0, y: 64}, this.font)
-            this.drawText(`:) (123*4)=[_] {} -_- ~~||=><=`, {x: 0, y: 96}, this.font)
+        if (this.fonts[0]?.isLoaded) {
+            this.drawText(`play PLAY FART fart`, {x: 0, y: 16}, this.fonts[0])
+            this.drawText(`OPTIONS options`, {x: 0, y: 34}, this.fonts[0])
+            this.drawText(`BATTLEKOUR ;)`, {x: 0, y: 64}, this.fonts[0])
+            this.drawText(`:) (123*4)=[_] {} -_- ~~||=><=`, {x: 0, y: 96}, this.fonts[0])
             // this.drawText(`!"#$%&'(`, {x: 0, y: 16}, this.font)
             // this.drawText(`)*+,-./0`, {x: 0, y: 32}, this.font)
             // this.drawText(`12345678`, {x: 0, y: 48}, this.font)

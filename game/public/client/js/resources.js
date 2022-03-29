@@ -1,18 +1,28 @@
+import bkFont from '/client/src/textures/fonts/battlekourTitle.json' assert { type: "json" }
+
 ///////////////////////////////////////
 // Constants
 ///////////////////////////////////////
-const TEXTURE_PATH = './client/src/textures/'
-const SOUND_PATH = './client/src/sounds/'
+const TEXTURE_PATH = '/client/src/textures/'
+const SOUND_PATH = '/client/src/sounds/'
 
 ///////////////////////////////////////
 // Images
 ///////////////////////////////////////
 const imageSRC = {
+    UI: `${TEXTURE_PATH}ui_parts.png`,
     Stars: `${TEXTURE_PATH}skybox/stars.png`,
     Skybox1: `${TEXTURE_PATH}skybox/skybox1/edited/`,
     Skybox2: `${TEXTURE_PATH}skybox/skybox2/edited/`,
     Atlas: `${TEXTURE_PATH}atlas.png`,
     Tiles: `${TEXTURE_PATH}textures.png`
+}
+
+///////////////////////////////////////
+// Fonts
+///////////////////////////////////////
+const fontJSON = {
+    battlekourTitle: bkFont
 }
 
 ///////////////////////////////////////
@@ -73,5 +83,6 @@ function Sound(src, loop = false, volume = 1) {
 
 export {
     imageSRC,
+    fontJSON,
     Sounds
 }

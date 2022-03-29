@@ -1,11 +1,12 @@
-import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"
+import { imageSRC } from "/client/js/resources.js"
+import ChunkGenerator from "/brain/gen/world/chunkGen.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
 const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
 const textureSheet = new Image(512,512)
-textureSheet.src = '../../client/src/textures/textures.png'
+textureSheet.src = imageSRC.Tiles
 
 // Noise vars
 const generator = new ChunkGenerator()

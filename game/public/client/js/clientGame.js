@@ -103,7 +103,8 @@ class ClientGame {
         ///////////////////////////////////////////////////////
         // Menu vars
         ///////////////////////////////////////////////////////
-        this.menu = new MenuSystem()
+        this.menu = new MenuSystem($("#menu-canvas"))
+        this.menu.loadFonts(`./client/src/textures/fonts/`)
 
         Buttons.tab.onPress = () => {
             
@@ -114,6 +115,10 @@ class ClientGame {
             // Show menu
             this.menu.show()
         }
+        this.menu.canvas.addEventListener('mousedown', (event) => {
+            this.menu.hide()
+        })
+
     }
 
     ///////////////////////////////////////////////////////

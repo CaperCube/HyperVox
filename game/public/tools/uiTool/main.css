@@ -12,6 +12,12 @@ body {
 	image-rendering: crisp-edges;
 }
 
+#viewport {
+	width: 50%;
+	height: 50%;
+	background-color: #000;
+}
+
 .toolbar {
 	margin: 10px 0px;
 }
