@@ -33,7 +33,7 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
 - [ ] Basic game menu
     - [X] Add seperate canvas for menus that disables / enables
     - [ ] `New Game`
-    - [ ] Placeholder `Settings`
+    - [X] Placeholder `Settings`
     - [ ] Simple loading screen (for preloading assets & world gen)
 - [X] Clean & Orginize code
     - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html

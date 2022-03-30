@@ -18,30 +18,4 @@ let pattern = [[]]
 // DOM functions
 ////////////////////////////////////////////////////////
 //...
-
-////////////////////////////////////////////////////////
-// Classes
-////////////////////////////////////////////////////////
-
-class Animation {
-    constructor() {
-        this.name = "element"
-        this.state = "idle"
-    }
-}
-
-// ToDo: move this class to "./client/"
-class UIElement {
-    constructor() {
-        this.frame = 0
-        this.state = 'idle' // 'none' or null will not animate
-        this.animations = {
-            idle: {}
-        }
-    }
-
-    bakeAnimations() {
-        // render animations and store frames as single images (this reduces the number of draw calls)
-        // Store images in `this.animations[this.state].bakedFrames`
-    }
-}
+$('#DOM_reset').onclick = () => { menu.show() }

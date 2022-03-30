@@ -108,17 +108,15 @@ class ClientGame {
 
         Buttons.tab.onPress = (e) => {
             e.preventDefault()
-            
+
             // Unlock cursor (without pressing escape)
             document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
             document.exitPointerLock()
 
             // Show menu
+            this.menu.selectedScene = this.menu.pauseMenu
             this.menu.toggleVisibility()
         }
-        // this.menu.canvas.addEventListener('mousedown', (event) => {
-        //     this.menu.hide()
-        // })
 
     }
 
