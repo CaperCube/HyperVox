@@ -106,18 +106,19 @@ class ClientGame {
         this.menu = new MenuSystem($("#menu-canvas"))
         this.menu.loadFonts(`./client/src/textures/fonts/`)
 
-        Buttons.tab.onPress = () => {
+        Buttons.tab.onPress = (e) => {
+            e.preventDefault()
             
             // Unlock cursor (without pressing escape)
             document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
             document.exitPointerLock()
 
             // Show menu
-            this.menu.show()
+            this.menu.toggleVisibility()
         }
-        this.menu.canvas.addEventListener('mousedown', (event) => {
-            this.menu.hide()
-        })
+        // this.menu.canvas.addEventListener('mousedown', (event) => {
+        //     this.menu.hide()
+        // })
 
     }
 

@@ -9,11 +9,13 @@ const menuConstants = {
 class MenuSystem {
     constructor(canvas) {
         // Canvas vars
-        this.resRatio = 4
+        this.resRatio = 2
         this.canvas = canvas
         this.ctx = this.canvas.getContext("2d")
-        this.cWidth = this.canvas.width = window.innerWidth / this.resRatio
-        this.cHeight = this.canvas.height = window.innerHeight / this.resRatio
+        this.cWidth = this.canvas.width = this.canvas.parentElement.clientWidth / this.resRatio
+        this.cHeight = this.canvas.height = this.canvas.parentElement.clientHeight / this.resRatio
+        //this.cWidth = this.canvas.width = window.innerWidth / this.resRatio
+        //this.cHeight = this.canvas.height = window.innerHeight / this.resRatio
         
         this.canvas.style.width = '100%'
         this.canvas.style.height = '100%'
@@ -25,23 +27,34 @@ class MenuSystem {
 
         // Resize listener
 
-        // Click listener
+        // Event Listeners
         this.canvas.addEventListener('mousedown', (event) => {
             // this.hide()
             // this.loadImage(imageSRC.UI, (img)=>{console.log(img)})
             
         })
 
+        window.addEventListener('resize', (event) => {
+            this.resizeCanvas()
+            this.render()
+        })
+
+        // Font vars
         this.fonts = []
 
-        // ToDo: remove this
-        // this.font = {img: null, data: {}}
-        // this.loadImage('./client/src/textures/fonts/BattlekourTitle.png', (img)=>{
-        //     // load json
-        //     this.font.img = img
-        //     this.font.data = bkFont
-        //     this.font.isLoaded = true
-        // })
+        // UI vars
+        this.uiTiles
+        this.loadImage(imageSRC.UI, (img)=>{this.uiTiles = img})
+
+        // 2D array to represent the tiles in the menu
+        // ToDo: replace this with MenuScene()'s, MenuElement()'s, animations, and states
+        this.menuScene = [
+            [13],
+            [12,1,2,2,3],
+            [13],
+            [12,5,6,7,20],
+            [13],
+        ]
     }
 
     /////////////////////////////////////////////////////////
@@ -51,6 +64,9 @@ class MenuSystem {
     // This should happen on window resize
     resizeCanvas() {
         //...
+        this.render()
+        this.cWidth = this.canvas.width = this.canvas.parentElement.clientWidth / this.resRatio
+        this.cHeight = this.canvas.height = this.canvas.parentElement.clientHeight / this.resRatio
     }
 
     /////////////////////////////////////////////////////////
@@ -68,6 +84,35 @@ class MenuSystem {
     hide() {
         this._visible = false
         this.canvas.style.display = menuConstants.hidden
+    }
+
+    toggleVisibility() {
+        if (this._visible) this.hide()
+        else this.show()
+    }
+
+    ////////////////////////////////////////////////////////
+    // Drawing
+    ////////////////////////////////////////////////////////
+
+    drawTileHere(x, y, tileSize, id) {
+        // Calculate ID offset
+        const rows = 16
+        const columns = 16
+        const c = (id-1) % columns
+        const r = Math.floor((id-1) / columns)
+        // Draw
+        if (this.uiTiles) this.ctx.drawImage(this.uiTiles, c*tileSize, r*tileSize, tileSize, tileSize, x*tileSize, y*tileSize, tileSize, tileSize)
+    }
+
+    animate() {
+        // Draw all tiles in current frame / state
+            // this.render()
+                // this.drawScene(this.activeScene)
+                    // this.drawFrame(menuElement)
+
+        // Progress frame for actively animating objects (i.e. 'idle' state elements or 'hover' state elements)
+            // menuElement.frame++
     }
 
     /////////////////////////////////////////////////////////
@@ -150,11 +195,22 @@ class MenuSystem {
         // this.ctx.fillStyle = '#00ff00'
         // this.ctx.fillRect(10,10,20,20)
 
+        // Temp draw tiles
+        // ToDo: replace this
+        for (let y = 0; y < this.menuScene.length; y++) {
+        for (let x = 0; x < this.menuScene[y].length; x++) {
+            const thisTile = this.menuScene[y][x]
+            if (thisTile > 0) {
+                this.drawTileHere(x, y, 32, thisTile)
+            }
+        }}
+
+        // Draw text
         if (this.fonts[0]?.isLoaded) {
-            this.drawText(`play PLAY FART fart`, {x: 0, y: 16}, this.fonts[0])
-            this.drawText(`OPTIONS options`, {x: 0, y: 34}, this.fonts[0])
-            this.drawText(`BATTLEKOUR ;)`, {x: 0, y: 64}, this.fonts[0])
-            this.drawText(`:) (123*4)=[_] {} -_- ~~||=><=`, {x: 0, y: 96}, this.fonts[0])
+            this.drawText(`Menu`, {x: 64, y: 56}, this.fonts[0])
+            // this.drawText(`OPTIONS options`, {x: 0, y: 34}, this.fonts[0])
+            // this.drawText(`BATTLEKOUR ;)`, {x: 0, y: 64}, this.fonts[0])
+            // this.drawText(`:) (123*4)=[_] {} -_- ~~||=><=`, {x: 0, y: 96}, this.fonts[0])
             // this.drawText(`!"#$%&'(`, {x: 0, y: 16}, this.font)
             // this.drawText(`)*+,-./0`, {x: 0, y: 32}, this.font)
             // this.drawText(`12345678`, {x: 0, y: 48}, this.font)

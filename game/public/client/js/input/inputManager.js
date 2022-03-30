@@ -105,7 +105,7 @@ function KeyDown(e) {
                 if (thisBtn[1].code == e.keyCode)
                 {
                     thisBtn[1].pressed = true;
-                    if (thisBtn[1].hasOwnProperty("onPress")) thisBtn[1].onPress();
+                    if (thisBtn[1].hasOwnProperty("onPress")) thisBtn[1].onPress(e);
                 }
             }
         }
@@ -124,7 +124,7 @@ function KeyUp(e) {
             if (thisBtn[1].code == e.keyCode)
             {
                 thisBtn[1].pressed = false;
-                if (thisBtn[1].hasOwnProperty("onRelease")) thisBtn[1].onRelease();
+                if (thisBtn[1].hasOwnProperty("onRelease")) thisBtn[1].onRelease(e);
             }
         }
     }

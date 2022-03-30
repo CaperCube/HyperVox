@@ -4,8 +4,8 @@ body {
 }
 
 #main-canvas {
-	width: 512px;
-	height: 512px;
+	width: 640px;
+	height: 448px;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
@@ -13,9 +13,14 @@ body {
 }
 
 #viewport {
-	width: 50%;
-	height: 50%;
-	background-color: #000;
+	width: 640px;
+	height: 448px;
+	background-image: url('/client/src/textures/bg_grid_2.png');
+	background-size: 64px;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-crisp-edges;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
 }
 
 .toolbar {

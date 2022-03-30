@@ -11,9 +11,6 @@ const textureSheet = new Image(512,512)
 textureSheet.src = '../../../client/src/textures/ui_parts.png'
 
 // Menu
-
-let resolution = 32
-let pixelSize = menu.canvas.width/resolution
 let pattern = [[]]
 
 
@@ -21,24 +18,6 @@ let pattern = [[]]
 // DOM functions
 ////////////////////////////////////////////////////////
 //...
-
-////////////////////////////////////////////////////////
-// Drawing
-////////////////////////////////////////////////////////
-
-function drawTileHere(x, y, size, id) {
-    // Calculate ID offset
-    const rows = 16
-    const columns = 16
-    let c = (id-1) % columns
-    let r = Math.floor((id-1) / columns)
-    // Draw
-    ctx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
-}
-
-function animate() {
-    // Draw all tiles
-}
 
 ////////////////////////////////////////////////////////
 // Classes
@@ -55,7 +34,7 @@ class Animation {
 class UIElement {
     constructor() {
         this.frame = 0
-        this.state = 'idle'
+        this.state = 'idle' // 'none' or null will not animate
         this.animations = {
             idle: {}
         }
