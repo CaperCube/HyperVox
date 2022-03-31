@@ -52,7 +52,7 @@ class BrainComs {
             // This will happen when the client joins the world
             createNewWorld: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Create new world (brain)', 'background: #142; color: #ced' )
-                this.brainGame.createNewWorld()
+                this.brainGame.createNewWorld(data.size)
             },
 
             updateSingleBlock: ( data, playerId ) => {

@@ -19,5 +19,12 @@ const canvas = $('#main-canvas')
 const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
 
 // Start game scene
-// clientGame.startNewGameScene()
-clientGame.clientComs.createNewWorld()
+// clientGame.clientComs.createNewWorld()
+const createWorldWithSize = (size) => {
+    clientGame.menu.hide()
+    if ($('#loading-basic')) $('#loading-basic').style.display = 'inline-block' // ToDo: replace this with a more robust loading indicator
+    setTimeout(() => { clientGame.clientComs.createNewWorld(size) }, 100)
+}
+clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-4].pressButton = () => { createWorldWithSize(5) }
+clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-3].pressButton = () => { createWorldWithSize(10) }
+clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-2].pressButton = () => { createWorldWithSize(20) }

@@ -30,11 +30,11 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
             - Start a web-worker to re-generate this chunk mesh (and any effected neighboring chunk meshes)
             - Delete the old chunk mesh(es)
     - [X] Create crosshair
-- [ ] Basic game menu
+- [X] Basic game menu
     - [X] Add seperate canvas for menus that disables / enables
-    - [ ] `New Game`
+    - [X] `New Game`
     - [X] Placeholder `Settings`
-    - [ ] Simple loading screen (for preloading assets & world gen)
+    - [X] Simple loading screen (for preloading assets & world gen)
 - [X] Clean & Orginize code
     - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
     - [X] Change objects to Class structure

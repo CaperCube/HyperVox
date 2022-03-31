@@ -42,9 +42,9 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    createNewWorld = () => {
+    createNewWorld = (size) => {
         // Create new world object
-        this.world = new World({worldSize: defaultWorldSize, chunkSize: defaultChunkSize})
+        this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 
         // Generate the world's chunk data
         const genWorld = this.generator.generateWorld({

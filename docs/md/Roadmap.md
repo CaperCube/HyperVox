@@ -9,7 +9,7 @@ This is the master list of tasks we've decided on for the project. If this file 
 - [X] version 0.0.1
     - [X] Upload to Github
 - [ ] version 0.0.2 (No game yet, just core features)
-    - [ ] [Tier 1](./Tiers/Tier1.md)
+    - [X] [Tier 1](./Tiers/Tier1.md)
         - [X] Extra features
             - [X] Basic world gen
             - [X] Basic Noise Tool

@@ -152,6 +152,14 @@ class ClientGame {
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
+        // Reset game data
+        this.engine.stopRenderLoop()
+        this.scene = null
+        this.mainCamera = null
+        this.mainCrosshair = null
+        this.localPlayer = null
+        if ($('#loading-basic')) $('#loading-basic').style.display = 'none' // ToDo: replace this with a more robust loading indicator
+
         ////////////////////////////////////////////////////
         // Misc. Event Listeners
         ////////////////////////////////////////////////////

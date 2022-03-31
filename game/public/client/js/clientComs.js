@@ -7,6 +7,8 @@
 // through here first to get to the client
 ////////////////////////////////////////////////////
 
+import { defaultWorldSize } from "/client/js/clientConstants.js"
+
 class ClientComs {
     constructor(props = {
         isNetworked: false,
@@ -87,9 +89,12 @@ class ClientComs {
         // We don't need a network message version for this since it's an offline only command
     }
 
-    createNewWorld() {
+    createNewWorld(size = defaultWorldSize) {
         console.log('%c Requesting new world generation... (client)', 'background: #124; color: #cde')
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['createNewWorld']()
+        const data = { size: size }
+        if (!this.isNetworked && this.brainComs) {
+            this.brainComs.clientMessages['createNewWorld']( data )
+        }
 
         // Network message
         else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld' } )

@@ -3,7 +3,7 @@ body {
     padding: 0px;
 }
 
-#main-canvas, #menu-canvas {
+#main-canvas, #menu-canvas, #background, #loading-basic {
 	display: inline-block;
 	position: fixed;
 	top: 0px;
@@ -14,4 +14,19 @@ body {
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
+}
+
+#background {
+	background-image: url('/client/src/textures/bg_grid_2.png');
+	background-size: 64px;
+}
+
+#loading-basic {
+	display: inline-block;
+	top: calc(50% - 64px);
+	left: calc(50% - 64px);
+	width: 128px;
+	height: 128px;
+	background-image: url('/client/src/textures/loading_basic.gif');
+	background-size: 128px;
 }

@@ -104,7 +104,7 @@ class MenuSystem {
         this.canvas.style.width = '100%'
         this.canvas.style.height = '100%'
 
-        this.canvas.style.display = menuConstants.hidden
+        this.canvas.style.display = menuConstants.shown
 
         // Render vars
         this._visible = false
@@ -139,8 +139,8 @@ class MenuSystem {
         // Main menu
         const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[13],[12],[13],[14]]})
         const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Main Menu'})
-        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[5,6,7]], text: 'Play'})
-        playButton.pressButton = () => { this.hide() }
+        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[5,6,6,6,6,7]], text: 'New Offline Game'})
+        playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
         this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, optionsButton])
@@ -148,20 +148,32 @@ class MenuSystem {
         // Options menu
         const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
         const optionsTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Options'})
-        const worldSizeInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[1,2,2,2,3]], text: 'World Size:  4'})
-        const stinkyInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[1,2,2,2,3]], text: 'Stench:  10'})
+        const worldSizeInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[1,2,2,2,3]], text: 'Placeholder'})
+        const stinkyInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[1,2,2,2,3]], text: 'Placeholder'})
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         this.optionsMenu = new UIScene([bars2, optionsTitle, worldSizeInput, stinkyInput, optionsBackButton])
 
+        // Play menu
+        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
+        const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'World Size'})
+        const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,7]], text: 'Small'})
+        const playMedButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,7]], text: 'Medium'})
+        const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Large'})
+        const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
+        playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
+        this.playMenu = new UIScene([bars3, playMenuTitle, playSmallButton, playMedButton, playLargeButton, playBackButton])
+
         // Pause menu
-        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[13],[13],[12],[14]]})
+        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
         const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Pause'})
-        const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,6,7]], text: 'Main Menu'})
-        pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
-        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
+        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,6,6,7]], text: 'Back to Game'})
         pausePlayButton.pressButton = () => { this.hide() }
-        this.pauseMenu = new UIScene([bars3, pauseTitle, pauseMainMenuButton, pausePlayButton])
+        const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,6,7]], text: 'Save World'})
+        pauseSaveButton.pressButton = () => { alert('Sorry, This is not yet implemented') }
+        const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,6,7]], text: 'Main Menu'})
+        pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
+        this.pauseMenu = new UIScene([bars4, pauseTitle, pauseMainMenuButton, pauseSaveButton, pausePlayButton])
 
         // Selected menu
         this.selectedScene = this.mainMenu
@@ -241,6 +253,9 @@ class MenuSystem {
         img.onload = () => {
             // Callback here
             callback(img)
+            // Rerender the canvas after performing callback
+            this.render()
+            if ($('#loading-basic')) $('#loading-basic').style.display = 'none' // ToDo: replace this with a more robust loading indicator
         }
     }
 

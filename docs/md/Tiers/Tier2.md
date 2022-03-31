@@ -46,3 +46,4 @@ Tier shaping needed...
 - [ ] Clean & Orginize code
     - [ ] Replace var & function comments with code-hint comments
         - look at `positionUtils.js` for examples
+    - [ ] Start writing some more solid documentation
