@@ -44,6 +44,7 @@ Tier shaping needed...
     - [ ] Networking for sending / receiving messages
     - [X] Work on generic messages for extendability?
 - [ ] Clean & Orginize code
+    - [ ] Try moving Babylon.js to only being a module import instead of an html script tag (getting ready for Babylon.js 5.0 in November and its [WebGPU support](https://doc.babylonjs.com/advanced_topics/webGPU))
     - [ ] Replace var & function comments with code-hint comments
         - look at `positionUtils.js` for examples
     - [ ] Start writing some more solid documentation
