@@ -41,7 +41,39 @@ const tempSaveWorld = (world) => {
     document.body.removeChild(element)
 }
 
+function browseForWorldFile() {
+    // <input type="file" id="myfile" name="myfile"></input>
+    let fileBrowser = document.createElement('input')
+    fileBrowser.setAttribute( 'type', 'file' )
+    fileBrowser.style.display = 'none'
+
+    // Once file is selected...
+    function onChange(event) {
+        const reader = new FileReader()
+        reader.onload = onReaderLoad
+        reader.readAsText(event.target.files[0])
+    }
+
+    // Read the file...
+    function onReaderLoad(event){
+        // console.log(event.target.result)
+        const obj = JSON.parse(event.target.result)
+        console.log(obj)
+
+        // Send client message to brain to create a new world from json
+        clientGame.clientComs.loadWorld(obj)
+        clientGame.menu.hide()
+    }
+ 
+    fileBrowser.addEventListener('change', onChange)
+
+    document.body.appendChild(fileBrowser)
+
+    fileBrowser.click()
+}
+
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-4].pressButton = () => { createWorldWithSize(5) }
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-3].pressButton = () => { createWorldWithSize(10) }
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-2].pressButton = () => { createWorldWithSize(16) }
+clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-5].pressButton = () => { browseForWorldFile() }
 clientGame.menu.pauseMenu.elements[3].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }

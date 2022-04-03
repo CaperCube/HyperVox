@@ -125,6 +125,7 @@ class ClientGame {
     ///////////////////////////////////////////////////////
     //...
 
+    // ToDo: move this to methon in the World() class
     deepCopyWorld( world ) {
         const clone = JSON.parse(JSON.stringify(world))
         this.clientWorld = new World({

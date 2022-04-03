@@ -47,12 +47,24 @@ class BrainGame {
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 
         // Generate the world's chunk data
+        // ToDo: Move world gen code here to World() class as a method
         const genWorld = this.generator.generateWorld({
             seed: this.world.getWorldSeed(),
             chunkSize: this.world.getChunkSize(),
             worldSize: this.world.getWorldSize()
         })
         this.world.worldChunks = genWorld
+
+        // Send world to connected users
+        this.brainComs.sendFullWorld( this.world )
+    }
+
+    loadWorld = (jsonWorld) => {
+        // Create new world object
+        this.world = new World()
+
+        // Load JSON data
+        this.world.loadWorldFromJSON(jsonWorld)
 
         // Send world to connected users
         this.brainComs.sendFullWorld( this.world )

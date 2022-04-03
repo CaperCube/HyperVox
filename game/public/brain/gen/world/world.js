@@ -1,7 +1,7 @@
 //import { defaultChunkSize, defaultWorldSize } from '../../../client/js/clientConstants.js'
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
-    constructor({worldSeed, tileScale, chunkSize, worldSize}) {
+    constructor({worldSeed, tileScale, chunkSize, worldSize} = {}) {
         this.worldChunks = [[[]]]
         this._wSeed = worldSeed || `${Math.random()}`
         this.getWorldSeed = () => { return this._wSeed }
@@ -32,6 +32,16 @@ class World {
          * @returns json string
          */
         this.saveWorld = () => { return 'This is supposed to return the world in json format' }
+    }
+
+    loadWorldFromJSON(jsonObj) {
+        // worldSave v0.1
+        this.worldChunks = jsonObj.worldChunks
+        this._wSeed = jsonObj._wSeed
+        this._tileScale = jsonObj._tileScale
+        this._chunkSize = jsonObj._chunkSize
+        this._worldSize = jsonObj._worldSize
+
     }
 }
 

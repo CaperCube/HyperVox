@@ -55,6 +55,12 @@ class BrainComs {
                 this.brainGame.createNewWorld(data.size)
             },
 
+            loadWorld: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Load world (brain)', 'background: #142; color: #ced' )
+                this.brainGame.loadWorld(data.world)
+                
+            },
+
             updateSingleBlock: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Update single block (brain)', 'background: #142; color: #ced', data )
                 // Tell brain to validate & update this block

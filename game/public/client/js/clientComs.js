@@ -97,7 +97,18 @@ class ClientComs {
         }
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld' } )
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
+    }
+
+    loadWorld(world) {
+        console.log('%c Requesting world load... (client)', 'background: #124; color: #cde')
+        const data = { world: world }
+        if (!this.isNetworked && this.brainComs) {
+            this.brainComs.clientMessages['loadWorld']( data )
+        }
+
+        // Network message
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'loadWorld', args: data } )
     }
 
     updateSingleBlock(location, id) {

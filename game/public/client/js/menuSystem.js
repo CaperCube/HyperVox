@@ -157,12 +157,13 @@ class MenuSystem {
         // Play menu
         const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
         const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'World Size'})
+        const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[5,6,6,7]], text: 'Load World'})
         const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,7]], text: 'Small'})
         const playMedButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,7]], text: 'Medium'})
         const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Large'})
         const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
         playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
-        this.playMenu = new UIScene([bars3, playMenuTitle, playSmallButton, playMedButton, playLargeButton, playBackButton])
+        this.playMenu = new UIScene([bars3, playMenuTitle, playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
         // Pause menu
         const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
