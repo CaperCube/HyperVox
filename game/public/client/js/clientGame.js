@@ -212,7 +212,8 @@ class ClientGame {
         ////////////////////////////////////////////////////
 
         // Create new camera in scene
-        const worldMax = defaultWorldSize * defaultChunkSize * tileScale
+        //const worldMax = defaultWorldSize * defaultChunkSize * tileScale
+        const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
         const centerTarget = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2) //new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
         this.mainCamera = new BABYLON.UniversalCamera('playerCamera', centerTarget, this.scene)
         this.mainCamera.minZ = tileScale/10
