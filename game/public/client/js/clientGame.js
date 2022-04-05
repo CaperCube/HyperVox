@@ -243,7 +243,7 @@ class ClientGame {
         let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
         utilLight.groundColor = new BABYLON.Color3(1, 1, 1)
 
-        this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 250, utilLayer.utilityLayerScene)
+        this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', 250, utilLayer.utilityLayerScene)
         this.mainCrosshair.material = this.scene.defaultMaterial
         this.mainCrosshair.setParent(this.mainCamera)
         this.mainCrosshair.position = new BABYLON.Vector3(0, 0, 4)

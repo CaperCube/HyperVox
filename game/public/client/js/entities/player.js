@@ -150,8 +150,8 @@ class ClientPlayer {
         assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
         assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
         assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
-        assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 9) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
-        assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 9; console.log(this.selectedBlock);}, ()=>{})
+        assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 10) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
+        assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 10; console.log(this.selectedBlock);}, ()=>{})
     }
 
     // Update player movement
