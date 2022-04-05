@@ -27,6 +27,7 @@
     "babylonjs": "^4.2.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
-    "perlin-noise-3d": "^0.5.4"
+    "perlin-noise-3d": "^0.5.4",
+    "socket.io": "^4.4.1"
   }
 }
