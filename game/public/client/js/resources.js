@@ -1,10 +1,10 @@
-import bkFont from '/client/src/textures/fonts/battlekourTitle.json' assert { type: "json" }
+import bkFont from '../src/textures/fonts/battlekourTitle.json' assert { type: "json" }
 
 ///////////////////////////////////////
 // Constants
 ///////////////////////////////////////
-const TEXTURE_PATH = '/client/src/textures/'
-const SOUND_PATH = '/client/src/sounds/'
+const TEXTURE_PATH = './client/src/textures/'//'/client/src/textures/'
+const SOUND_PATH = './client/src/sounds/'
 
 ///////////////////////////////////////
 // Images

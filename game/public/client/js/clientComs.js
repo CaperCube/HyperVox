@@ -7,7 +7,7 @@
 // through here first to get to the client
 ////////////////////////////////////////////////////
 
-import { defaultWorldSize } from "/client/js/clientConstants.js"
+import { defaultWorldSize } from "./clientConstants.js"
 
 class ClientComs {
     constructor(props = {

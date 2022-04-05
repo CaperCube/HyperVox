@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "A multiplayer action sandbox parkour game",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "doc": "docs"
   },

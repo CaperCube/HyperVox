@@ -4,7 +4,8 @@
 // multiplayer server for the game.
 ////////////////////////////////////////
 
-import BrainGame from "../public/brain/brainGame"
+import BrainGame from "../public/brain/brainGame.js"
+// import { Socket } from "socket.io"
 const gameport  = 3001
 
 // Here we will use socket.io
@@ -23,15 +24,15 @@ const gameport  = 3001
 // })
 
 class GameServer {
-    constructor() {
-        this.socket = require("socket.io")(gameport)
-        this.brain = new BrainGame({ isNetworked: true, network: this.socket})
+    constructor(io) {
+        this.socket = io//new Socket(gameport)//require("socket.io")(gameport)
+        this.brain = {}//new BrainGame({ isNetworked: true, network: this.socket})
 
         // Incoming client messages
-        this.socket.on( 'genericClientMessage', ( data ) => {
-            const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
-            this.brain.brainComs.clientMessages[data.type]( data.args, playerId )
-        })
+        // this.socket.on( 'genericClientMessage', ( data ) => {
+        //     const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+        //     this.brain.brainComs.clientMessages[data.type]( data.args, playerId )
+        // })
 
         console.log('Created a new game server')
     }

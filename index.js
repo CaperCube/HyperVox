@@ -17,13 +17,23 @@
 ////////////////////////////////////////
 // Packages ('import' requires node v13.2.0+ and `"type": "module"` to be in "package.json")
 ////////////////////////////////////////
-// import GameServer from './game/server/gameServer.js'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
-const express = require('express')
+import GameServer from './game/server/gameServer.js'
+import { Server } from 'socket.io'
+import express from 'express'
+import { createServer } from 'http'
 const app = express()
-const serv = require('http').Server(app)
+const serv = createServer(app)
+// const express = require('express')
+// const app = express()
+// const serv = require('http').Server(app)
 const PORT = process.env.PORT || 3000
-//const io = require('socket.io')(serv,{})
+
+// const io = require('socket.io')(serv,{});
+const io = new Server(serv,{})//new Socket(3001)
 
 ////////////////////////////////////////
 // Server setup
@@ -34,8 +44,16 @@ app.use(express.static(__dirname + '/game/public'))
 ////////////////////////////////////////
 // Multiplayer server setup (Move this eventaully?)
 ////////////////////////////////////////
+let SOCKET_LIST = {}
+io.sockets.on('connection', (socket) => {
+    socket.ID = Math.random()
+    SOCKET_LIST[socket.ID] = socket
+    console.log(`Welcome, ${socket.ID}`)
 
-// const gameServer = new GameServer(io)
+    socket.emit(`welcomePacket`, {fart: "lol poopie"})
+})
+
+const gameServer = new GameServer({})
 
 // listen for requests
 serv.listen(PORT, () => {

@@ -263,7 +263,7 @@ class MenuSystem {
     // Loads font based on .json files
     loadFonts(path, callback = ()=>{}) {
         const font = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
-        this.loadImage(`/client/src/textures/fonts/${font.data.metaData.imgName}`, (img)=>{
+        this.loadImage(`./client/src/textures/fonts/${font.data.metaData.imgName}`, (img)=>{
             // load json
             font.img = img
             font.isLoaded = true
