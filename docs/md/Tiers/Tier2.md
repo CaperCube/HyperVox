@@ -8,6 +8,7 @@ Tier shaping needed...
     - [ ] Pre generate world chunk meshes before game start
     - [X] Live load chunk meshes
     - [X] Save / Load worlds (probably as a .json)
+        - [ ] Move these functions inside the "World()" class
     - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
         - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
         - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
