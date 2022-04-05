@@ -1,4 +1,4 @@
-import { tileScale } from '../clientConstants.js'
+import { debug, tileScale } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
 
 /* ToDo still:
@@ -133,25 +133,30 @@ class ClientPlayer {
 
     // Register controls with actions
     registerControls = (c) => {
-        // Movement
-        assignFunctionToInput(c.upAxis1, ()=>{this.moveForward=true}, ()=>{this.moveForward=false})
-        assignFunctionToInput(c.downAxis1, ()=>{this.moveBackward=true}, ()=>{this.moveBackward=false})
-        assignFunctionToInput(c.leftAxis1, ()=>{this.moveLeft=true}, ()=>{this.moveLeft=false})
-        assignFunctionToInput(c.rightAxis1, ()=>{this.moveRight=true}, ()=>{this.moveRight=false})
-        // Rotation
-        assignFunctionToInput(c.upAxis2, ()=>{if (this.avatar.rotation.x > -Math.PI/2) this.avatar.rotation.x -= Math.PI/4}, ()=>{})
-        assignFunctionToInput(c.downAxis2, ()=>{if (this.avatar.rotation.x < Math.PI/2) this.avatar.rotation.x += Math.PI/4}, ()=>{})
-        assignFunctionToInput(c.leftAxis2, ()=>{this.avatar.rotation.y -= Math.PI/4}, ()=>{})
-        assignFunctionToInput(c.rightAxis2, ()=>{this.avatar.rotation.y += Math.PI/4}, ()=>{})
-        // Run, Jump
-        assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = 0.2; this.usedJumps++}}, ()=>{this.moveUp=false})
-        assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
-        // Build, Use, Shoot
-        assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
-        assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
-        assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
-        assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 10) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
-        assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 10; console.log(this.selectedBlock);}, ()=>{})
+        if (c) {
+            // Movement
+            assignFunctionToInput(c.upAxis1, ()=>{this.moveForward=true}, ()=>{this.moveForward=false})
+            assignFunctionToInput(c.downAxis1, ()=>{this.moveBackward=true}, ()=>{this.moveBackward=false})
+            assignFunctionToInput(c.leftAxis1, ()=>{this.moveLeft=true}, ()=>{this.moveLeft=false})
+            assignFunctionToInput(c.rightAxis1, ()=>{this.moveRight=true}, ()=>{this.moveRight=false})
+            // Rotation
+            assignFunctionToInput(c.upAxis2, ()=>{if (this.avatar.rotation.x > -Math.PI/2) this.avatar.rotation.x -= Math.PI/4}, ()=>{})
+            assignFunctionToInput(c.downAxis2, ()=>{if (this.avatar.rotation.x < Math.PI/2) this.avatar.rotation.x += Math.PI/4}, ()=>{})
+            assignFunctionToInput(c.leftAxis2, ()=>{this.avatar.rotation.y -= Math.PI/4}, ()=>{})
+            assignFunctionToInput(c.rightAxis2, ()=>{this.avatar.rotation.y += Math.PI/4}, ()=>{})
+            // Run, Jump
+            assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = 0.2; this.usedJumps++}}, ()=>{this.moveUp=false})
+            assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
+            // Build, Use, Shoot
+            assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
+            assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
+            assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
+            assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 10) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
+            assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 10; console.log(this.selectedBlock);}, ()=>{})
+        }
+        else {
+            console.log('No controlls to register')
+        }
     }
 
     // Update player movement

@@ -7,7 +7,7 @@ Tier shaping needed...
 - [ ] Better world gen (start putting this in './brain')
     - [ ] Pre generate world chunk meshes before game start
     - [X] Live load chunk meshes
-    - [ ] Save / Load worlds (probably as a .json)
+    - [X] Save / Load worlds (probably as a .json)
     - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
         - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
         - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
@@ -26,9 +26,11 @@ Tier shaping needed...
     - [ ] Controler input?
     - [ ] Attempt virtual controller for touch devices
 - [ ] Menu improvements
-    - [ ] Pause Menu in-game
-    - [ ] Animation suppoer
-    - [ ] Graphic improvements
+    - [X] Pause Menu in-game
+    - [ ] Animation support
+    - [ ] Text improvements
+        - [ ] Custom color
+        - [ ] Outline + color option
 - [ ] Improved player movement
     - [ ] Running
     - [ ] Better velocity curves
@@ -48,3 +50,5 @@ Tier shaping needed...
     - [ ] Replace var & function comments with code-hint comments
         - look at `positionUtils.js` for examples
     - [ ] Start writing some more solid documentation
+- [ ] Extra
+    - [ ] Dialogue system
