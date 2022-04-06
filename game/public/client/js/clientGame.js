@@ -14,6 +14,7 @@ class ClientGame {
         isNetworked: false,
         canvas: null
     }) {
+        this.isNetworked = props.isNetworked
         // The brain for the game, null if online
         // Also if offline, the brain needs a brainComs to talk to a client
         this._brain = props.isNetworked? null : new BrainGame({
