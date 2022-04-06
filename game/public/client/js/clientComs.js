@@ -47,10 +47,10 @@ class ClientComs {
 
                 // Store world
                 if (this.isNetworked) this.clientGame.clientWorld = data.world
-                else {
-                    // Deep copy world (if offline)
-                    this.clientGame.deepCopyWorld( data.world )
-                }
+                
+                // Deep copy world
+                // This has a dual purpose of providing a client copy of the world & converting a JSON world to a World() object
+                this.clientGame.deepCopyWorld( data.world )
                 
                 // Start game
                 this.clientGame.startNewGameScene()

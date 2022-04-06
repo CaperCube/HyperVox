@@ -44,6 +44,8 @@ app.use(express.static(__dirname + '/game/public'))
 ////////////////////////////////////////
 // Multiplayer server setup (Move this eventaully?)
 ////////////////////////////////////////
+const gameServer = new GameServer(io.sockets)
+
 let SOCKET_LIST = {}
 io.sockets.on('connection', (socket) => {
     socket.ID = Math.random()
@@ -51,9 +53,14 @@ io.sockets.on('connection', (socket) => {
     console.log(`Welcome, ${socket.ID}`)
 
     socket.emit(`welcomePacket`, {fart: "lol poopie"})
-})
 
-const gameServer = new GameServer({})
+
+    socket.on( 'genericClientMessage', ( data ) => {
+        console.log("recieved message")
+        const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+        gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
+    })
+})
 
 // listen for requests
 serv.listen(PORT, () => {

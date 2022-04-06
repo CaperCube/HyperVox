@@ -26,7 +26,7 @@ const gameport  = 3001
 class GameServer {
     constructor(io) {
         this.socket = io//new Socket(gameport)//require("socket.io")(gameport)
-        this.brain = {}//new BrainGame({ isNetworked: true, network: this.socket})
+        this.brain = new BrainGame({ isNetworked: true, network: this.socket})
 
         // Incoming client messages
         // this.socket.on( 'genericClientMessage', ( data ) => {

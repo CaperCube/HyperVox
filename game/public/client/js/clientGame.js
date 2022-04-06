@@ -49,7 +49,10 @@ class ClientGame {
         this.mainCrosshair
 
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
-        this.localPlayer// = new ClientPlayer()
+        this.localPlayer
+
+        // The other players on the network each should get a ClientPlayer that will be updated by the network
+        this.networkPlayers = [] //new ClientPlayer(null, null, this.scene)
 
         //this.debugLines, utilLayer, crosshair, skybox, stars, stars2
 
@@ -230,14 +233,6 @@ class ClientGame {
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this)
         this.localPlayer.position = centerTarget
 
-        const player2Mesh = BABYLON.Mesh.MergeMeshes([
-            this.meshGen.createBlockWithUV({x: 0, y: 0.125, z: 0}, 9, this.scene),
-            this.meshGen.createBlockWithUV({x: 0, y: 0.125 - 1, z: 0}, 6, this.scene)
-        ], true)
-        
-        let newPlayer = new ClientPlayer(Controls.Player2, player2Mesh, this)
-        newPlayer.position = {x: centerTarget.x+4, y: centerTarget.y, z: centerTarget.z}
-
         // Create crosshair
         const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
         let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
@@ -261,7 +256,6 @@ class ClientGame {
 
             // Update player (change this to a loop for local machine players if we do that)
             if (this.localPlayer) this.localPlayer.platformMovementUpdate(this.engine)
-            if (newPlayer) newPlayer.platformMovementUpdate(this.engine)
 
             // render scene
             this.scene.render()

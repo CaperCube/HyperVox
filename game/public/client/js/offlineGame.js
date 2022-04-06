@@ -1,5 +1,19 @@
 import ClientGame from "./clientGame.js"
 
+import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+let serverURL = ""//"http://71.195.32.253:3000"//"http://localhost:3000"
+let socket = io(serverURL)
+
+socket.on(`welcomePacket`, (data) => {
+    console.log(`Hey, you're cool!`)
+    console.log(data)
+})
+
+socket.on( 'genericClientMessage', ( data ) => {
+    const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+    clientGame.clientComs.brainMessages[data.type]( data.args, playerId )
+})
+
 /*
 When making a single player game:
 
@@ -16,7 +30,10 @@ const comLayer = new CommunicationLayer({ type: `online`, host: `ip`, client: cl
 const canvas = $('#main-canvas')
 
 // `isNetworked: false` automatically creates a `new BrainGame()` inside the ClientGame object
-const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
+// const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
+const clientGame = new ClientGame({ isNetworked: true, canvas: canvas })
+clientGame.clientComs.network = socket
+
 
 // Start game scene
 // clientGame.clientComs.createNewWorld()

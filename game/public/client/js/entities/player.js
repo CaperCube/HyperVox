@@ -65,11 +65,18 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 class ClientPlayer {
 
     // Init player
-    constructor(controls, avatar, clientGame) {
+    constructor(controls, avatar = null, clientGame) {
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
-        this.avatar = avatar
+        this.avatar = avatar? avatar : BABYLON.Mesh.MergeMeshes([
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'left', 227, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', 226, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'right', 225, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'back', 228, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'top', 210, clientGame.scene),
+            clientGame.meshGen.createBlockWithUV({x: 0, y: 0.125 - 1, z: 0}, 6, clientGame.scene)
+        ], true)
         //this.playerCamera = camera
         // Player controls
         this.controls = controls
@@ -110,7 +117,6 @@ class ClientPlayer {
         this.world = clientGame.clientWorld
         this.chunkSize = this.world.getChunkSize() || 16
         this.worldSize = this.world.getWorldSize() || 1
-        // let greenMesh, blueMesh, redMesh
 
         this.registerControls(this.controls)
 
@@ -121,12 +127,6 @@ class ClientPlayer {
 
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
-        // greenMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 254, scene)
-        // greenMesh.material = scene.transparentMaterial
-        // redMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, scene)
-        // redMesh.material = scene.transparentMaterial
-        // blueMesh = createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 253, scene)
-        // blueMesh.material = scene.transparentMaterial
 
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
@@ -298,18 +298,12 @@ class ClientPlayer {
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkXCol(blockHere)
-                    // redMesh.position.x = Math.floor(blockHere.x)+0.5
-                    // redMesh.position.y = Math.floor(blockHere.y)+0.5
-                    // redMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
 
                 // Check Z
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkZCol(blockHere)
-                    // greenMesh.position.x = Math.floor(blockHere.x)+0.5
-                    // greenMesh.position.y = Math.floor(blockHere.y)+0.5
-                    // greenMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
 
                 // Check Y
@@ -317,9 +311,6 @@ class ClientPlayer {
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
                     checkYCol(blockHere, (cy > 0))
-                    // blueMesh.position.x = Math.floor(blockHere.x)+0.5
-                    // blueMesh.position.y = Math.floor(blockHere.y)+0.5
-                    // blueMesh.position.z = Math.floor(blockHere.z)+0.5
                 }
             }}}
         }

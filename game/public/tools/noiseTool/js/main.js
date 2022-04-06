@@ -14,7 +14,7 @@ let resolution = 32
 let pixelSize = canvas.width/resolution
 let pattern = [[]]
 
-const genNoise = new perlinNoise3d()
+const genNoise = new perlinNoise3d() // ToDo: Remove this and use ChunkGenerator instead
 const noiseTolerance = 0.5
 let noiseScale = 0.09
 
