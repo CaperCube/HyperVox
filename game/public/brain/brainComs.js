@@ -68,7 +68,20 @@ class BrainComs {
             },
 
             movePlayer: ( data, playerId ) => {
+                // if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
+                //...
+                // console.log("update player pos: ", data.position)
+                // this.brainGame.updatePlayerPosition(data.position)
+                data.playerID = playerId
+                const recipients = "all"
+                this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: recipients, args: data } )
+                // this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
+                // updatePlayerPosition
+            },
+
+            askWhosConnected: ( data, playerId ) => {
                 if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
+                this.sayWhosConnected()
             }
             //...
         }
@@ -106,6 +119,19 @@ class BrainComs {
 
     updateMultipleBlocks(locations = [], ids = []) {
         // Tell connected players to update the chunks containing the updated blocks
+    }
+
+    sayWhosConnected() {
+        //ToDo: We do NOT want to send the entire socket, just the socketID
+        console.log('%c Sending player list to all players... (brain)', 'background: #124; color: #cde')
+        const data = { players: this.brainGame.players }
+        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['initOtherPlayers']( data )
+
+        // Network message
+        else if (this.network) {
+            const recipients = 'all'
+            this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
+        }
     }
 
     // Other stuff that needs to be communcated to the clients

@@ -66,6 +66,7 @@ class ClientPlayer {
 
     // Init player
     constructor(controls, avatar = null, clientGame) {
+        this.playerID = 0
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -330,7 +331,7 @@ class ClientPlayer {
         if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
 
         // Apply positions
-        this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
+        this.updatePosition()
 
         // Dampen
         if (this.spectateMode) this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y * this.groundFric, this.playerVelocity.z * this.groundFric)
@@ -426,6 +427,10 @@ class ClientPlayer {
             this.position.y,
             this.position.z + ((this.playerVelocity.z/frameRateMult) * deltaTime)
         )
+    }
+
+    updatePosition() {
+        this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
     }
 }
 

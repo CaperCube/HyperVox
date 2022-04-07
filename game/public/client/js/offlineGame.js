@@ -5,8 +5,14 @@ let serverURL = ""//"http://71.195.32.253:3000"//"http://localhost:3000"
 let socket = io(serverURL)
 
 socket.on(`welcomePacket`, (data) => {
-    console.log(`Hey, you're cool!`)
+    console.log(`Welcome new player!`)
     console.log(data)
+
+    clientGame.clientID = data.clientID
+
+    // if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
+    // clientGame.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+    // clientGame.clientComs.brainMessages["askWhosConnected"]( data.args, playerId )
 })
 
 socket.on( 'genericClientMessage', ( data ) => {

@@ -52,12 +52,14 @@ io.sockets.on('connection', (socket) => {
     SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)
 
-    socket.emit(`welcomePacket`, {fart: "lol poopie"})
-
+    socket.emit(`welcomePacket`, {clientID: socket.ID})
+    gameServer.brain.players.push(socket.ID)
+    // Tell everyone who's all connect
+    // gameServer.brain.brainComs.sayWhosConnected(SOCKET_LIST)
 
     socket.on( 'genericClientMessage', ( data ) => {
-        console.log("recieved message")
-        const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+        // console.log("recieved message")
+        const playerId = socket.ID//socket.connectionID // This does not support multiple players per client in networked games
         gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
     })
 })

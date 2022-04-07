@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////
 
 import { defaultWorldSize } from "./clientConstants.js"
+import ClientPlayer from "./entities/player.js"
 
 class ClientComs {
     constructor(props = {
@@ -55,6 +56,44 @@ class ClientComs {
                 // Start game
                 this.clientGame.startNewGameScene()
             },
+            initOtherPlayers: ( data, playerId ) => { 
+                if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
+
+                for (let p = 0; p < data.players.length; p++) {
+                // for (let p in data.players) {
+                    // If this is not my local player...
+                    if (p !== this.clientGame.localPlayer?.playerID) {
+                        // If this player doesn't already exist...
+                        // if (!this.clientGame.networkPlayers[p]) {
+                            // console.log("Hey, make a new player!", p)
+                            // Add new Player() to scene
+                            const newPlayer = new ClientPlayer(null, null, this.clientGame)
+                            newPlayer.playerID = data.players[p]
+                            // Push this player to array
+                            this.clientGame.networkPlayers[p] = newPlayer
+
+                            //console.log(p, this.clientGame.networkPlayers[p])
+                        // }
+                    }
+                }
+            },
+            movePlayer: ( data, playerId ) => {
+                // if (this.messageDebug) console.log( '%c Set player positions from brain (client)', 'background: #142; color: #ced' )
+
+                // If this is not my local player...
+                if (data.playerID !== this.clientGame.localPlayer?.playerID) {
+                    // Get player by ID
+                    const movingPlayer = this.clientGame.networkPlayers.filter(player => player.playerID === data.playerID)
+
+                    // console.log("Move me!",data.playerID)
+                    // if (this.clientGame.networkPlayers[data.playerID]) {
+                    if (movingPlayer[0]) {
+                        console.log(data.position)
+                        // this.clientGame.networkPlayers[data.playerID].position = data.position
+                        movingPlayer[0].position = data.position
+                    }
+                }
+            }
         }
     }
 
@@ -118,6 +157,15 @@ class ClientComs {
 
         // Network message
         else if (this.network) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
+    }
+
+    updateMyGamePosition(position) {
+        // console.log('%c Sending my position... (client)', 'background: #124; color: #cde')
+        const data = { position: position }
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['movePlayer']( data )
+
+        // Network message
+        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'movePlayer', args: data } )
     }
 
     // Other stuff that needs to be communcated to the brain / server

@@ -51,6 +51,7 @@ class ClientGame {
 
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
         this.localPlayer
+        this.clientID = 0 // ToDo: make this support local players as well
 
         // The other players on the network each should get a ClientPlayer that will be updated by the network
         this.networkPlayers = [] //new ClientPlayer(null, null, this.scene)
@@ -233,6 +234,11 @@ class ClientGame {
         // Create player
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this)
         this.localPlayer.position = centerTarget
+        this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
+
+        // Request other players
+        // ToDo: DON'T send a network message here, this could be a single player game!
+        this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
 
         // Create crosshair
         const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
@@ -252,11 +258,21 @@ class ClientGame {
             // Update frame
             this.frame++
 
+            // Tell the brain my position
+            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z })
+
             // Update materials
             if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
 
             // Update player (change this to a loop for local machine players if we do that)
             if (this.localPlayer) this.localPlayer.platformMovementUpdate(this.engine)
+
+            // Update network players
+            for (let p in this.networkPlayers) {
+                if (this.networkPlayers[p]) {
+                    this.networkPlayers[p].updatePosition()
+                }
+            }
 
             // render scene
             this.scene.render()
