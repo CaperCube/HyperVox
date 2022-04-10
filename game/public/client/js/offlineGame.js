@@ -1,24 +1,20 @@
 import ClientGame from "./clientGame.js"
 
-import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
-let serverURL = ""//"http://71.195.32.253:3000"//"http://localhost:3000"
-let socket = io(serverURL)
+// import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+// let serverURL = ""//"http://71.195.32.253:3000"//"http://localhost:3000"
+// let socket = io(serverURL)
 
-socket.on(`welcomePacket`, (data) => {
-    console.log(`Welcome new player!`)
-    console.log(data)
+// socket.on(`welcomePacket`, (data) => {
+//     console.log(`Welcome new player!`)
+//     console.log(data)
 
-    clientGame.clientID = data.clientID
+//     clientGame.clientID = data.clientID
+// })
 
-    // if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
-    // clientGame.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
-    // clientGame.clientComs.brainMessages["askWhosConnected"]( data.args, playerId )
-})
-
-socket.on( 'genericClientMessage', ( data ) => {
-    const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
-    clientGame.clientComs.brainMessages[data.type]( data.args, playerId )
-})
+// socket.on( 'genericClientMessage', ( data ) => {
+//     const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+//     clientGame.clientComs.brainMessages[data.type]( data.args, playerId )
+// })
 
 /*
 When making a single player game:
@@ -36,9 +32,9 @@ const comLayer = new CommunicationLayer({ type: `online`, host: `ip`, client: cl
 const canvas = $('#main-canvas')
 
 // `isNetworked: false` automatically creates a `new BrainGame()` inside the ClientGame object
-// const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
-const clientGame = new ClientGame({ isNetworked: true, canvas: canvas })
-clientGame.clientComs.network = socket
+const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
+// const clientGame = new ClientGame({ isNetworked: true, canvas: canvas })
+// clientGame.clientComs.network = socket
 
 
 // Start game scene
@@ -99,4 +95,7 @@ clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-4].pr
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-3].pressButton = () => { createWorldWithSize(10) }
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-2].pressButton = () => { createWorldWithSize(16) }
 clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-5].pressButton = () => { browseForWorldFile() }
-clientGame.menu.pauseMenu.elements[3].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
+clientGame.menu.pauseMenu.elements[3].pressButton = () => { clientGame.goOffline() }
+clientGame.menu.pauseMenu.elements[4].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
+
+clientGame.menu.mainMenu.elements[clientGame.menu.mainMenu.elements.length-2].pressButton = () => { clientGame.connectToNetworkGame() } // ToDo: Create a connection input field so we can connectToNetworkGame(userInputIP)

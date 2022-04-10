@@ -62,6 +62,10 @@ io.sockets.on('connection', (socket) => {
         const playerId = socket.ID//socket.connectionID // This does not support multiple players per client in networked games
         gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
     })
+
+    socket.on( 'disconnect', ( data ) => {
+        console.log(`Player disconnected`)  
+    })
 })
 
 // listen for requests

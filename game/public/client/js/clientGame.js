@@ -1,3 +1,4 @@
+import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
@@ -156,14 +157,19 @@ class ClientGame {
         }
     }
 
-    // Sets up the scene in which the game can be rendered and interacted
-    startNewGameScene() {
-        // Reset game data
+    removeScene() {
         this.engine.stopRenderLoop()
         this.scene = null
         this.mainCamera = null
         this.mainCrosshair = null
         this.localPlayer = null
+    }
+
+    // Sets up the scene in which the game can be rendered and interacted
+    startNewGameScene() {
+        // Reset game data
+        this.removeScene()
+        $('#main-canvas').style.display = 'inline-block'
         if ($('#loading-basic')) $('#loading-basic').style.display = 'none' // ToDo: replace this with a more robust loading indicator
 
         ////////////////////////////////////////////////////
@@ -237,8 +243,8 @@ class ClientGame {
         this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 
         // Request other players
-        // ToDo: DON'T send a network message here, this could be a single player game!
-        this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+        // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
+        if (this.isNetworked) this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
 
         // Create crosshair
         const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
@@ -285,9 +291,82 @@ class ClientGame {
         // Save first?
         // Remove brain from memory
         //delete this._brain
+        this._brain.brainComs = null
         this._brain = null
-        this.clientWorld = null
+        //this.clientWorld = null
     }
+
+    // Connect to a networked session
+    //...
+    connectToNetworkGame = (serverURL = "") => { //"http://localhost:3000"
+        // Remove brain, since we won't use it in a network game
+        this.removeBrain()
+
+        // Stop current scene
+        this.removeScene()
+        $('#main-canvas').style.display = 'none'
+
+        // Connect
+        let socket = io(serverURL)
+
+        // Setup incomming message listeners
+        socket.on(`welcomePacket`, (data) => {
+            console.log(`Welcome new player!`)
+            console.log(data)
+
+            this.clientID = data.clientID
+
+            // if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
+            // this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+            // this.clientComs.brainMessages["askWhosConnected"]( data.args, playerId )
+        })
+
+        socket.on( 'genericClientMessage', ( data ) => {
+            const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+            this.clientComs.brainMessages[data.type]( data.args, playerId )
+        })
+
+        // Reset client coms with networked settings
+        this.clientComs = new ClientComs({
+            isNetworked: true,
+            clientGame: this,
+            brainComs: null
+        })
+        this.clientComs.network = socket // ToDo: make this part of the ClientComs constructor
+    }
+
+    // Go offline / Disconnect
+    goOffline = () => {
+        if (this.clientComs.network) this.clientComs.network.disconnect()
+        this.clientComs.network = null
+
+        // Stop current scene
+        this.removeScene()
+        $('#main-canvas').style.display = 'none'
+
+        // Go back to main menu
+        this.menu.setScene(this.menu.mainMenu)
+
+
+        // Create brain
+        this._brain = new BrainGame({
+            isNetworked: false,
+            network: null
+        })
+
+        // Reset client coms
+        this.clientComs = new ClientComs({
+            isNetworked: false,
+            clientGame: this,
+            brainComs: this._brain?.brainComs
+        })
+        
+        // Connect the clientCom to brainCom
+        if (!this.isNetworked) this.clientComs.offlineConnect(this.clientComs)
+    }
+
+    // Create an offline session
+    //... (ToDo: Move clientGame init code here)
 
     // This is used for client-authored block updates
     updateSingleBlock(location, id) {

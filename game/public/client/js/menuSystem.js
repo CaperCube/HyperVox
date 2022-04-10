@@ -120,7 +120,10 @@ class MenuSystem {
             // Check for buttons pressed
             for (let i = 0; i < this.selectedScene.elements?.length; i++) {
                 const thisElem = this.selectedScene.elements[i]
-                if (checkMenuCollide(thisElem, mousePos, this.resScale)) thisElem.pressButton()
+                if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
+                    thisElem.pressButton()
+                    break // This makes sure that we don't keep have click function double triggering
+                }
             }
         })
 
@@ -137,13 +140,14 @@ class MenuSystem {
         this.loadImage(imageSRC.UI, (img)=>{this.uiTiles = img})
 
         // Main menu
-        const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[13],[12],[13],[14]]})
+        const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[13],[14]]})
         const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Main Menu'})
-        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[5,6,6,6,6,7]], text: 'New Offline Game'})
+        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[5,6,6,7]], text: 'Start Game'})
+        const joinButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[5,6,6,7]], text: 'Join Online'})        
         playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
-        this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, optionsButton])
+        this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, joinButton, optionsButton])
 
         // Options menu
         const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
@@ -155,7 +159,7 @@ class MenuSystem {
         this.optionsMenu = new UIScene([bars2, optionsTitle, worldSizeInput, stinkyInput, optionsBackButton])
 
         // Play menu
-        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
+        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[12],[12],[12],[12],[12],[14]]})
         const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'World Size'})
         const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[5,6,6,7]], text: 'Load World'})
         const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,7]], text: 'Small'})
@@ -166,15 +170,15 @@ class MenuSystem {
         this.playMenu = new UIScene([bars3, playMenuTitle, playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
         // Pause menu
-        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
+        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
         const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Pause'})
         const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,6,6,7]], text: 'Back to Game'})
         pausePlayButton.pressButton = () => { this.hide() }
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,6,7]], text: 'Save World'})
-        pauseSaveButton.pressButton = () => { alert('Sorry, This is not yet implemented') }
+        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [[5,6,6,7]], text: 'Leave Game'})
         const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,6,7]], text: 'Main Menu'})
         pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
-        this.pauseMenu = new UIScene([bars4, pauseTitle, pauseMainMenuButton, pauseSaveButton, pausePlayButton])
+        this.pauseMenu = new UIScene([bars4, pauseTitle, pauseMainMenuButton, leaveButton, pauseSaveButton, pausePlayButton])
 
         // Selected menu
         this.selectedScene = this.mainMenu

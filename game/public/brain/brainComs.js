@@ -68,15 +68,18 @@ class BrainComs {
             },
 
             movePlayer: ( data, playerId ) => {
+                // updatePlayerPosition
                 // if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
                 //...
                 // console.log("update player pos: ", data.position)
                 // this.brainGame.updatePlayerPosition(data.position)
                 data.playerID = playerId
-                const recipients = "all"
-                this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: recipients, args: data } )
-                // this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
-                // updatePlayerPosition
+
+                if (this.isNetworked) {
+                    const recipients = "all"
+                    this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: recipients, args: data } )
+                    // this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
+                }
             },
 
             askWhosConnected: ( data, playerId ) => {
