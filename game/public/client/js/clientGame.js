@@ -291,8 +291,10 @@ class ClientGame {
         // Save first?
         // Remove brain from memory
         //delete this._brain
-        this._brain.brainComs = null
-        this._brain = null
+        if (this._brain) {
+            this._brain.brainComs = null
+            this._brain = null
+        }
         //this.clientWorld = null
     }
 
@@ -307,7 +309,15 @@ class ClientGame {
         $('#main-canvas').style.display = 'none'
 
         // Connect
-        let socket = io(serverURL)
+        let socket = io.connect(serverURL, { reconnection: false })
+        socket.on('connect_error', (err) => {
+            console.log(err)
+            this.goOffline()
+        })
+        socket.on('connect_failed', (err) => {
+            handleErrors(err)
+            this.goOffline()
+        })
 
         // Setup incomming message listeners
         socket.on(`welcomePacket`, (data) => {
@@ -333,6 +343,9 @@ class ClientGame {
             brainComs: null
         })
         this.clientComs.network = socket // ToDo: make this part of the ClientComs constructor
+
+        // ToDo: Request from server to get and be placed in world after connecting
+        //this.clientComs.requestWorld()
     }
 
     // Go offline / Disconnect
