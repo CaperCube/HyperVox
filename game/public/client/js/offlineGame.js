@@ -91,11 +91,15 @@ function browseForWorldFile() {
     fileBrowser.click()
 }
 
-clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-4].pressButton = () => { createWorldWithSize(5) }
-clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-3].pressButton = () => { createWorldWithSize(10) }
-clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-2].pressButton = () => { createWorldWithSize(16) }
-clientGame.menu.playMenu.elements[clientGame.menu.playMenu.elements.length-5].pressButton = () => { browseForWorldFile() }
-clientGame.menu.pauseMenu.elements[3].pressButton = () => { clientGame.goOffline() }
-clientGame.menu.pauseMenu.elements[4].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
+// Main menu
+clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { clientGame.connectToNetworkGame() } // ToDo: Create a connection input field so we can connectToNetworkGame(userInputIP)
 
-clientGame.menu.mainMenu.elements[clientGame.menu.mainMenu.elements.length-2].pressButton = () => { clientGame.connectToNetworkGame() } // ToDo: Create a connection input field so we can connectToNetworkGame(userInputIP)
+// Play menu
+clientGame.menu.playMenu.selectableElements[0].pressButton = () => { browseForWorldFile() }
+clientGame.menu.playMenu.selectableElements[1].pressButton = () => { createWorldWithSize(5) }
+clientGame.menu.playMenu.selectableElements[2].pressButton = () => { createWorldWithSize(10) }
+clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorldWithSize(16) }
+
+// Pause menu
+clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
+clientGame.menu.pauseMenu.selectableElements[2].pressButton = () => { clientGame.goOffline() }

@@ -87,8 +87,9 @@ class UIElement {
 
 // ToDo: move this class to "./menu/UIScene.js"
 class UIScene {
-    constructor(elements = []) {
+    constructor(elements = [], selectableElements = []) {
         this.elements = elements
+        this.selectableElements = selectableElements
     }
 }
 
@@ -112,19 +113,42 @@ class MenuSystem {
         // Resize listener
 
         // Event Listeners
-        this.canvas.addEventListener('mousedown', (event) => {
-            // this.hide()
+        
+        // Mouse move
+        this.canvas.addEventListener('mousemove', (event) => {
+            // Get mouse pos
             const rect = canvas.getBoundingClientRect()
             const mousePos = { x: event.clientX - rect.left, y: event.clientY - rect.top }
 
-            // Check for buttons pressed
-            for (let i = 0; i < this.selectedScene.elements?.length; i++) {
-                const thisElem = this.selectedScene.elements[i]
+            this.elementIsSelected = false
+
+            // Check for mouse hover
+            for (let i = 0; i < this.selectedScene.selectableElements?.length; i++) {
+                const thisElem = this.selectedScene.selectableElements[i]
                 if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
-                    thisElem.pressButton()
-                    break // This makes sure that we don't keep have click function double triggering
+                    this.selectionIndex = i
+                    this.elementIsSelected = true
+                    // console.log(`${i} selected`)
+                    break // This makes sure that we only select one element if overlapping
                 }
             }
+        })
+
+        // Mouse down (choose selection)
+        this.canvas.addEventListener('mousedown', (event) => {
+            // const rect = canvas.getBoundingClientRect()
+            // const mousePos = { x: event.clientX - rect.left, y: event.clientY - rect.top }
+
+            // // Check for buttons pressed
+            // for (let i = 0; i < this.selectedScene.elements?.length; i++) {
+            //     const thisElem = this.selectedScene.elements[i]
+            //     if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
+            //         thisElem.pressButton()
+            //         break // This makes sure that we don't keep have click function double triggering
+            //     }
+            // }
+
+            if (this.elementIsSelected && this.selectedScene?.selectableElements[this.selectionIndex]) this.selectedScene.selectableElements[this.selectionIndex].pressButton()
         })
 
         window.addEventListener('resize', (event) => {
@@ -147,7 +171,8 @@ class MenuSystem {
         playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
-        this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, joinButton, optionsButton])
+        // this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, joinButton, optionsButton], [])
+        this.mainMenu = new UIScene([bars, mainMenuTitle], [playButton, joinButton, optionsButton])
 
         // Options menu
         const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
@@ -156,7 +181,8 @@ class MenuSystem {
         const stinkyInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[1,2,2,2,3]], text: 'Placeholder'})
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
-        this.optionsMenu = new UIScene([bars2, optionsTitle, worldSizeInput, stinkyInput, optionsBackButton])
+        
+        this.optionsMenu = new UIScene([bars2, optionsTitle, worldSizeInput, stinkyInput], [optionsBackButton])
 
         // Play menu
         const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[12],[12],[12],[12],[12],[14]]})
@@ -167,7 +193,8 @@ class MenuSystem {
         const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Large'})
         const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
         playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
-        this.playMenu = new UIScene([bars3, playMenuTitle, playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
+        
+        this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
         // Pause menu
         const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
@@ -178,10 +205,15 @@ class MenuSystem {
         const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [[5,6,6,7]], text: 'Leave Game'})
         const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,6,7]], text: 'Main Menu'})
         pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
-        this.pauseMenu = new UIScene([bars4, pauseTitle, pauseMainMenuButton, leaveButton, pauseSaveButton, pausePlayButton])
+        
+        this.pauseMenu = new UIScene([bars4, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton])
 
         // Selected menu
         this.selectedScene = this.mainMenu
+
+        // The menu item that is selected
+        this.selectionIndex = 0
+        this.elementIsSelected = false
     }
 
     /////////////////////////////////////////////////////////
@@ -202,13 +234,24 @@ class MenuSystem {
 
     // Used to show the menu canvas
     show() {
+        // Reset menu selections
+        this.selectionIndex = 0
+        this.elementIsSelected = false
+
+        // Set visibility
         this._visible = true
         this.canvas.style.display = menuConstants.shown
+
+        // Redraw
         this.render()
     }
 
     // Used to hide the menu canvas
     hide() {
+        // Reset menu selections
+        this.elementIsSelected = false
+
+        // Set visibility
         this._visible = false
         this.canvas.style.display = menuConstants.hidden
     }
@@ -219,8 +262,36 @@ class MenuSystem {
     }
 
     setScene(newScene) {
+        // Reset menu selections
+        this.selectionIndex = 0
+        this.elementIsSelected = false
+
+        // Set new menu scene
         this.selectedScene = newScene
         this.render()
+    }
+
+    /////////////////////////////////////////////////////////
+    // Selections
+    /////////////////////////////////////////////////////////
+
+    setSelection = (num) => {
+        if (num < 0) this.selectionIndex = 0
+        else if (num >= this.selectedScene.selectableElements.length) this.selectionIndex = (this.selectedScene.selectableElements.length - 1)
+        else this.selectionIndex = num
+        // ToDo: Redraw selected item's graphic or cursor
+        //...
+    }
+
+    selectNextItem = () => {
+        let num = (this.selectionIndex + 1) % this.selectedScene.selectableElements.length
+        this.setSelection(num)
+    }
+
+    selectPrevItem = () => {
+        let num = this.selectionIndex - 1
+        if (num < 0) num = this.selectedScene.selectableElements.length - 1
+        this.setSelection(num)
     }
 
     ////////////////////////////////////////////////////////
@@ -324,30 +395,38 @@ class MenuSystem {
         }
     }
 
+    drawElement = (thisElem) => {
+        // console.log(thisElem)
+        for (let y = 0; y < thisElem.tiles?.length; y++) {
+        for (let x = 0; x < thisElem.tiles[y]?.length; x++) {
+            const thisTile = thisElem.tiles[y][x]
+            const tilePos = {
+                x: Math.floor(thisElem.position.x),
+                y: Math.floor(thisElem.position.y)
+            }
+            this.drawTileHere(x, y, tilePos, menuConstants.tileSize, thisTile)
+        }}
+        if (thisElem.text && this.fonts[0]?.isLoaded) {
+            const textPos = {
+                x: Math.floor(thisElem.position.x + thisElem.textOffset.x),
+                y: Math.floor(thisElem.position.y + thisElem.textOffset.y)
+            }
+            this.drawText(thisElem.text, textPos, this.fonts[0])
+        }
+    }
+
     render() {
         // Clear the screen for redraw
         this.ctx.clearRect(0,0,this.cWidth,this.cHeight)
 
-        // Temp draw tiles
+        // draw elements
         for (let i = 0; i < this.selectedScene.elements?.length; i++) {
-            const thisElem = this.selectedScene.elements[i]
-            // console.log(thisElem)
-            for (let y = 0; y < thisElem.tiles?.length; y++) {
-            for (let x = 0; x < thisElem.tiles[y]?.length; x++) {
-                const thisTile = thisElem.tiles[y][x]
-                const tilePos = {
-                    x: Math.floor(thisElem.position.x),
-                    y: Math.floor(thisElem.position.y)
-                }
-                this.drawTileHere(x, y, tilePos, menuConstants.tileSize, thisTile)
-            }}
-            if (thisElem.text && this.fonts[0]?.isLoaded) {
-                const textPos = {
-                    x: Math.floor(thisElem.position.x + thisElem.textOffset.x),
-                    y: Math.floor(thisElem.position.y + thisElem.textOffset.y)
-                }
-                this.drawText(thisElem.text, textPos, this.fonts[0])
-            }
+            this.drawElement(this.selectedScene.elements[i])
+        }
+
+        // draw selectableElements
+        for (let i = 0; i < this.selectedScene.selectableElements?.length; i++) {
+            this.drawElement(this.selectedScene.selectableElements[i])
         }
     }
 }
