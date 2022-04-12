@@ -46,29 +46,47 @@ app.use(express.static(__dirname + '/game/public'))
 ////////////////////////////////////////
 const gameServer = new GameServer(io.sockets)
 
+// The list of all socket connections
 let SOCKET_LIST = {}
 io.sockets.on('connection', (socket) => {
+    // Create a client ID for this connection
     socket.ID = Math.random()
     SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)
 
+    // Tell the new client what their ID is
     socket.emit(`welcomePacket`, {clientID: socket.ID})
     gameServer.brain.players.push(socket.ID)
-    // Tell everyone who's all connect
-    // gameServer.brain.brainComs.sayWhosConnected(SOCKET_LIST)
 
+    // Send the world to this player, if the world exists
+    if (gameServer.brain.world) {
+        const data = { world: gameServer.brain.world } 
+        socket.emit( 'genericClientMessage', { type: 'loadSentWorld', args: data } )
+    }
+
+    // Handle all generic messages
     socket.on( 'genericClientMessage', ( data ) => {
         // console.log("recieved message")
-        const playerId = socket.ID//socket.connectionID // This does not support multiple players per client in networked games
+        const playerId = socket.ID // This does not support multiple players per client in networked games
         gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
     })
 
+    // Handle players disconnecting
     socket.on( 'disconnect', ( data ) => {
-        console.log(`Player disconnected`)  
+        console.log(`Player disconnected`)
+
+        // Remove from player list
+        console.log(gameServer.brain.players)
+        if (gameServer?.brain?.players?.includes(socket.ID)) gameServer.brain.players.splice(gameServer.brain.players.indexOf(socket.ID))
+        delete SOCKET_LIST[socket.ID]
+        console.log(gameServer.brain.players)
+
+        // Send message
+        io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", args: { players: gameServer.brain.players } } )
     })
 })
 
-// listen for requests
+// listen for socket requests
 serv.listen(PORT, () => {
     console.log(`Server listening for connections on port ${PORT}`)
 })

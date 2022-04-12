@@ -14,7 +14,8 @@ class ClientComs {
     constructor(props = {
         isNetworked: false,
         clientGame, // The object that will send and receive information
-        brainComs: null // null when online
+        brainComs: null, // null when online
+        network: null // null when offline
     }) {
         // The object that will be the source of sent information, and the receiver of information from the host
         this.clientGame = props.clientGame
@@ -27,13 +28,16 @@ class ClientComs {
         this.host = ''
 
         // If online, this is the means of communication
-        this.network// = this.isNetworked? new scoket(this.host) : null
+        this.network = props.network
 
         // If offline, this is the object we communicate to
         this.brainComs = this.isNetworked? null : props.brainComs
 
         // Debugging options
         this.messageDebug = true
+
+        // Connect to brainCom if offline
+        if (!this.isNetworked) this.offlineConnect(this)
 
         ////////////////////////////////////////////////////
         // Incoming messages from brain
@@ -59,6 +63,7 @@ class ClientComs {
             initOtherPlayers: ( data, playerId ) => { 
                 if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
 
+                // Add new players
                 for (let p = 0; p < data.players.length; p++) {
                 // for (let p in data.players) {
                     // If this is not my local player...
@@ -74,6 +79,17 @@ class ClientComs {
 
                             //console.log(p, this.clientGame.networkPlayers[p])
                         // }
+                    }
+                }
+
+                // Remove non-existent players
+                console.log(data.players)
+                for (let p = 0; p < this.clientGame.networkPlayers.length; p++) {
+                    let thisPlayer = this.clientGame.networkPlayers[p]
+                    // If this player doesn't exist...
+                    if (!data.players.includes(thisPlayer?.playerID)) {
+                        if (thisPlayer.avatar) thisPlayer.avatar.dispose()
+                        delete this.clientGame.networkPlayers[p]
                     }
                 }
             },

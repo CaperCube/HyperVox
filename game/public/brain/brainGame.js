@@ -71,16 +71,18 @@ class BrainGame {
     }
 
     updateSingleBlock = ( location, id ) => {
-        // Validate change
-        // ...
+        if (this.world) {
+            // Validate change
+            // ...
 
-        // Make change
-        this.world.worldChunks
-        [location.chunk.y][location.chunk.x][location.chunk.z]
-        [location.block.y][location.block.x][location.block.z] = id
+            // Make change
+            this.world.worldChunks
+            [location.chunk.y][location.chunk.x][location.chunk.z]
+            [location.block.y][location.block.x][location.block.z] = id
 
-        // Update players with change (if validated)
-        this.brainComs.updateSingleBlock( location, id )
+            // Update players with change (if validated)
+            this.brainComs.updateSingleBlock( location, id )
+        }
 
     }
     ///////////////////////////////////////////////////////

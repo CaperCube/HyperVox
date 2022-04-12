@@ -78,12 +78,11 @@ class BrainComs {
                 if (this.isNetworked) {
                     const recipients = "all"
                     this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: recipients, args: data } )
-                    // this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
                 }
             },
 
             askWhosConnected: ( data, playerId ) => {
-                if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
+                if (this.messageDebug) console.log( `%c Ask who's connected ${playerId} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
             }
             //...
@@ -125,7 +124,6 @@ class BrainComs {
     }
 
     sayWhosConnected() {
-        //ToDo: We do NOT want to send the entire socket, just the socketID
         console.log('%c Sending player list to all players... (brain)', 'background: #124; color: #cde')
         const data = { players: this.brainGame.players }
         if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['initOtherPlayers']( data )

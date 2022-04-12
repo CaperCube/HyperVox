@@ -15,7 +15,6 @@ class ClientGame {
         isNetworked: false,
         canvas: null
     }) {
-        this.isNetworked = props.isNetworked
         // The brain for the game, null if online
         // Also if offline, the brain needs a brainComs to talk to a client
         this._brain = props.isNetworked? null : new BrainGame({
@@ -29,9 +28,6 @@ class ClientGame {
             clientGame: this,
             brainComs: this._brain?.brainComs || null
         })
-
-        // Connect the clientCom to brainCom
-        if (!props.isNetworked) this.clientComs.offlineConnect(this.clientComs)
 
         // The client and brain should have their own copies of the world chunk data
         // This helps with:
@@ -55,9 +51,7 @@ class ClientGame {
         this.clientID = 0 // ToDo: make this support local players as well
 
         // The other players on the network each should get a ClientPlayer that will be updated by the network
-        this.networkPlayers = [] //new ClientPlayer(null, null, this.scene)
-
-        //this.debugLines, utilLayer, crosshair, skybox, stars, stars2
+        this.networkPlayers = []
 
         ///////////////////////////////////////////////////////
         // Engin vars
@@ -167,6 +161,9 @@ class ClientGame {
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
+        // Hide menu
+        this.menu.hide()
+
         // Reset game data
         this.removeScene()
         $('#main-canvas').style.display = 'inline-block'
@@ -244,7 +241,10 @@ class ClientGame {
 
         // Request other players
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
-        if (this.isNetworked) this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+        if (this.clientComs.isNetworked) {
+            console.log("asking who's here")
+            this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+        }
 
         // Create crosshair
         const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
@@ -325,10 +325,6 @@ class ClientGame {
             console.log(data)
 
             this.clientID = data.clientID
-
-            // if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
-            // this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
-            // this.clientComs.brainMessages["askWhosConnected"]( data.args, playerId )
         })
 
         socket.on( 'genericClientMessage', ( data ) => {
@@ -340,18 +336,15 @@ class ClientGame {
         this.clientComs = new ClientComs({
             isNetworked: true,
             clientGame: this,
-            brainComs: null
+            brainComs: null,
+            network: socket
         })
-        this.clientComs.network = socket // ToDo: make this part of the ClientComs constructor
-
-        // ToDo: Request from server to get and be placed in world after connecting
-        //this.clientComs.requestWorld()
     }
 
     // Go offline / Disconnect
     goOffline = () => {
         if (this.clientComs.network) this.clientComs.network.disconnect()
-        this.clientComs.network = null
+        this.clientComs.network = null // This might not strictly be necessary
 
         // Stop current scene
         this.removeScene()
@@ -371,15 +364,13 @@ class ClientGame {
         this.clientComs = new ClientComs({
             isNetworked: false,
             clientGame: this,
-            brainComs: this._brain?.brainComs
+            brainComs: this._brain?.brainComs,
+            network: null
         })
-        
-        // Connect the clientCom to brainCom
-        if (!this.isNetworked) this.clientComs.offlineConnect(this.clientComs)
     }
 
     // Create an offline session
-    //... (ToDo: Move clientGame init code here)
+    //... (ToDo: Move clientGame init code to a function and use here)
 
     // This is used for client-authored block updates
     updateSingleBlock(location, id) {
@@ -406,7 +397,7 @@ class ClientGame {
                     updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
 
                     // Early mesh update on client (if networked)
-                    if (this.isNetworked) this.updateChunks(worldPos)
+                    if (this.clientComs.isNetworked) this.updateChunks(worldPos)
                             
                     // Send event to brain to update the chunk
                     this.clientComs.updateSingleBlock(worldPos, id)
