@@ -157,6 +157,7 @@ class ClientGame {
         this.mainCamera = null
         this.mainCrosshair = null
         this.localPlayer = null
+        this.networkPlayers = []
     }
 
     // Sets up the scene in which the game can be rendered and interacted
@@ -301,44 +302,51 @@ class ClientGame {
     // Connect to a networked session
     //...
     connectToNetworkGame = (serverURL = "") => { //"http://localhost:3000"
-        // Remove brain, since we won't use it in a network game
-        this.removeBrain()
+        // Only join if not already connected to a game
+        if (!this.clientComs.network) {
+            // Remove brain, since we won't use it in a network game
+            this.removeBrain()
 
-        // Stop current scene
-        this.removeScene()
-        $('#main-canvas').style.display = 'none'
+            // Stop current scene
+            this.removeScene()
+            $('#main-canvas').style.display = 'none'
 
-        // Connect
-        let socket = io.connect(serverURL, { reconnection: false })
-        socket.on('connect_error', (err) => {
-            console.log(err)
-            this.goOffline()
-        })
-        socket.on('connect_failed', (err) => {
-            handleErrors(err)
-            this.goOffline()
-        })
+            // Connect
+            let socket = io.connect(serverURL, { reconnection: false })
+            socket.on('connect_error', (err) => {
+                console.log(err)
+                this.goOffline()
+            })
+            socket.on('connect_failed', (err) => {
+                handleErrors(err)
+                this.goOffline()
+            })
 
-        // Setup incomming message listeners
-        socket.on(`welcomePacket`, (data) => {
-            console.log(`Welcome new player!`)
-            console.log(data)
+            // Setup incomming message listeners
+            socket.on(`welcomePacket`, (data) => {
+                console.log(`Welcome new player!`)
+                console.log(data)
 
-            this.clientID = data.clientID
-        })
+                this.clientID = data.clientID
+            })
 
-        socket.on( 'genericClientMessage', ( data ) => {
-            const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
-            this.clientComs.brainMessages[data.type]( data.args, playerId )
-        })
+            socket.on( 'genericClientMessage', ( data ) => {
+                const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
+                this.clientComs.brainMessages[data.type]( data.args, playerId )
+            })
 
-        // Reset client coms with networked settings
-        this.clientComs = new ClientComs({
-            isNetworked: true,
-            clientGame: this,
-            brainComs: null,
-            network: socket
-        })
+            // Reset client coms with networked settings
+            this.clientComs = new ClientComs({
+                isNetworked: true,
+                clientGame: this,
+                brainComs: null,
+                network: socket
+            })
+        }
+        else {
+            // ToDo: Tell client that they need to diconnect from the current game to join an online game
+            console.log('You need to leave your current game before you can join')
+        }
     }
 
     // Go offline / Disconnect
