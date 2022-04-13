@@ -18,6 +18,8 @@ This is the master list of tasks we've decided on for the project. If this file 
         - [ ] Extra features
 - [ ] version 0.1.0 (Public game link when finished)
     - [ ] Tier 3 (Reasonbly play creative mode with friends)
+        - [ ] Improved collision code (no falling through world if the game lags)
+        - [ ] Only regen chunk portions instead of entire chunk
     - [ ] Tier 4 (Items & guns, can play pvp with friends)
     - [ ] Tier 5 (NPCs and zones (no building zones etc.))
 - [ ] version 0.2.0 (Singleplayer, coop, and progression features)

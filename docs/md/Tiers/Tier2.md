@@ -5,13 +5,9 @@ Tier shaping needed...
 
 # Tasks
 - [ ] Better world gen (start putting this in './brain')
-    - [ ] Pre generate world chunk meshes before game start
     - [X] Live load chunk meshes
     - [X] Save / Load worlds (probably as a .json)
         - [ ] Move these functions inside the "World()" class
-    - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
-        - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
-        - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
 - [ ] More work on Noise Tool
     - [ ] Allow users to customize noise patterns
     - [ ] Save patterns for use in new worlds
@@ -32,18 +28,25 @@ Tier shaping needed...
     - [ ] Text improvements
         - [ ] Custom color
         - [ ] Outline + color option
-- [ ] Improved player movement
-    - [ ] Running
-    - [ ] Better velocity curves
-    - [ ] bHopping?
-    - [ ] Slopes & sliding?
+- [ ] Improved Player
+    - [ ] Better raycaster for block selection
+    - [ ] Inventory system
+    - [ ] Health system (tracked by brain)
+    - [ ] Simple weapon
+    - [ ] Movement
+        - [ ] Running
+        - [ ] Better velocity curves
+        - [ ] bHopping?
+        - [ ] Slopes & sliding?
 - [ ] Basic networking
     - [X] Basic event system?
         - [X] Create communication layer to be used to send messages between the client(s) and brain
         - [X] Create the ability to trigger events in the Game object (i.e. add / remove / change block)
+    - [ ] Connect to custom URL
+        - [ ] Seperate network game server from client server
     - [ ] Send/Receive messages
         - [X] Give new players a playerID
-        - [ ] New Players / Leaving Players
+        - [X] New Players / Leaving Players
         - [X] Movement
         - [ ] Chat messages
         - [ ] Privileges
@@ -56,4 +59,25 @@ Tier shaping needed...
         - look at `positionUtils.js` for examples
     - [ ] Start writing some more solid documentation
 - [ ] Extra
-    - [ ] Dialogue system
+    - [ ] Lag compensation (There may be a better system than this, this just seemed simple)
+        - Clients should store the last received server time-stamp
+        - Server should send all entity updates on the same tick / time-stamp
+        - Server time-stamps should be stored in an object with message emit times as the stamp names (up to the max allowed ping time, e.g. only store ~ 100 stamps if max allowed ping is 100)
+        - Each stamp object (on the server) should contain the message data the server sent to clients
+        - When a client sends a request that relies on position, the message should include the client's last received entity time-stamp (for effected entities). If no valid time-stamp is sent, the server should use its newest stamp.
+        - The server should then validate by checking the position of the entity at that time-stamp
+    - [ ] Block objects (referenced by blockID)
+        Props:
+        - Block ID
+        - Block mesh (if non-cube)
+        - Collision shape
+        - Interaction function (open-close, move, etc.)
+        - Health
+        - Friction
+        - Bouncieness
+        - Possible Directions
+        - BasicType "Liquid" "Solid"
+        - LiquidViscosity (describes the gravity & speed modifier)
+    - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
+        - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
+        - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
