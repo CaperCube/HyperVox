@@ -64,12 +64,13 @@ class ClientComs {
                 if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
 
                 // Add new players
+                console.log(data.players)
                 for (let p = 0; p < data.players.length; p++) {
                 // for (let p in data.players) {
                     // If this is not my local player...
-                    if (p !== this.clientGame.localPlayer?.playerID) {
+                    if (data.players[p] !== this.clientGame.localPlayer?.playerID) {
                         // If this player doesn't already exist...
-                        // if (!this.clientGame.networkPlayers[p]) {
+                        if (!this.clientGame.networkPlayers[p]) {
                             // console.log("Hey, make a new player!", p)
                             // Add new Player() to scene
                             const newPlayer = new ClientPlayer(null, null, this.clientGame)
@@ -78,16 +79,15 @@ class ClientComs {
                             this.clientGame.networkPlayers[p] = newPlayer
 
                             //console.log(p, this.clientGame.networkPlayers[p])
-                        // }
+                        }
                     }
                 }
 
                 // Remove non-existent players
-                console.log(data.players)
                 for (let p = 0; p < this.clientGame.networkPlayers.length; p++) {
                     let thisPlayer = this.clientGame.networkPlayers[p]
                     // If this player doesn't exist...
-                    if (!data.players.includes(thisPlayer?.playerID)) {
+                    if (thisPlayer && !data.players.includes(thisPlayer?.playerID)) {
                         if (thisPlayer.avatar) thisPlayer.avatar.dispose()
                         delete this.clientGame.networkPlayers[p]
                     }
@@ -104,7 +104,7 @@ class ClientComs {
                     // console.log("Move me!",data.playerID)
                     // if (this.clientGame.networkPlayers[data.playerID]) {
                     if (movingPlayer[0]) {
-                        console.log(data.position)
+                        // console.log(data.position)
                         // this.clientGame.networkPlayers[data.playerID].position = data.position
                         movingPlayer[0].position = data.position
                     }

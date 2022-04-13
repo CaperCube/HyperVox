@@ -42,9 +42,9 @@ Tier shaping needed...
         - [X] Create communication layer to be used to send messages between the client(s) and brain
         - [X] Create the ability to trigger events in the Game object (i.e. add / remove / change block)
     - [ ] Send/Receive messages
-        - [ ] Give new players a playerID
+        - [X] Give new players a playerID
         - [ ] New Players / Leaving Players
-        - [ ] Movement
+        - [X] Movement
         - [ ] Chat messages
         - [ ] Privileges
         - [X] Chunk changes

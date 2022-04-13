@@ -76,10 +76,8 @@ io.sockets.on('connection', (socket) => {
         console.log(`Player disconnected`)
 
         // Remove from player list
-        console.log(gameServer.brain.players)
         if (gameServer?.brain?.players?.includes(socket.ID)) gameServer.brain.players.splice(gameServer.brain.players.indexOf(socket.ID))
         delete SOCKET_LIST[socket.ID]
-        console.log(gameServer.brain.players)
 
         // Send message
         io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", args: { players: gameServer.brain.players } } )
