@@ -33,7 +33,10 @@ const serv = createServer(app)
 const PORT = process.env.PORT || 3000
 
 // const io = require('socket.io')(serv,{});
-const io = new Server(serv,{})//new Socket(3001)
+const io = new Server(serv, {
+    // ToDo: try to leave this at default and adjust the networking logic to send large messages in small chunks
+    maxHttpBufferSize: 1e10
+})
 
 ////////////////////////////////////////
 // Server setup
@@ -66,7 +69,6 @@ io.sockets.on('connection', (socket) => {
 
     // Handle all generic messages
     socket.on( 'genericClientMessage', ( data ) => {
-        // console.log("recieved message")
         const playerId = socket.ID // This does not support multiple players per client in networked games
         gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
     })

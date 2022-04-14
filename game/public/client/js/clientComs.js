@@ -152,7 +152,7 @@ class ClientComs {
         }
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
     }
 
     loadWorld(world) {
@@ -163,7 +163,7 @@ class ClientComs {
         }
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'loadWorld', args: data } )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'loadWorld', args: data } )
     }
 
     updateSingleBlock(location, id) {
@@ -172,7 +172,7 @@ class ClientComs {
         if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['updateSingleBlock']( data )
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
     }
 
     updateMyGamePosition(position) {
@@ -181,7 +181,7 @@ class ClientComs {
         if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['movePlayer']( data )
 
         // Network message
-        else if (this.network) this.network.emit( 'genericClientMessage', { type: 'movePlayer', args: data } )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'movePlayer', args: data } )
     }
 
     // Other stuff that needs to be communcated to the brain / server

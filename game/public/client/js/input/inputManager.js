@@ -215,8 +215,8 @@ var Controls = {
         jump: [Buttons.space],
         fire1: [Buttons.lmb],
         fire2: [Buttons.rmb],
-        invUp: [Buttons.equals],
-        invDown: [Buttons.minus],
+        invUp: [Buttons.scrollUp],
+        invDown: [Buttons.scrollDown],
         noclip: [Buttons.r]
     },
     Player2: {
