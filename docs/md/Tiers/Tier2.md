@@ -24,11 +24,13 @@ Tier shaping needed...
     - [ ] Attempt virtual controller for touch devices
 - [ ] Menu improvements
     - [X] Pause Menu in-game
+    - [ ] Show connected players in menu (if online)
     - [ ] Animation support
     - [ ] Text improvements
         - [ ] Custom color
         - [ ] Outline + color option
 - [ ] Improved Player
+    - [ ] Changeable player name
     - [ ] Better raycaster for block selection
     - [ ] Inventory system
     - [ ] Health system (tracked by brain)

@@ -19,6 +19,24 @@ const defaultWorldSize = 10
 const fogDistance = 1000
 const renderScale = 1
 
+// Player vars
+// ToDo: Modify this to be a random name generator (e.g. [adv][adj][noun])
+const playerNames = [
+    "Player",
+    "Stinker",
+    "Wombat",
+    "Salamader Sam",
+    "Buster",
+    "Billy",
+    "King Crab",
+    "Crazy",
+    "Cracked",
+    "Gibby",
+    "Huh What?",
+    "Good Name",
+    "Bad Name"
+]
+
 export {
     debug,
     tileScale,

@@ -1,4 +1,4 @@
-import { debug, tileScale } from '../clientConstants.js'
+import { debug, tileScale, playerNames } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
 
 /* ToDo still:
@@ -37,7 +37,6 @@ boxIsColling(box){
 
 */
 
-
 // collision code
 function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) {
     var a = {
@@ -67,6 +66,7 @@ class ClientPlayer {
     // Init player
     constructor(controls, avatar = null, clientGame) {
         this.playerID = 0
+        this.playerName = playerNames[Math.floor(Math.random() * (playerNames.length - .001))] || 'Player' // ToDo: Generate a random name
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -152,8 +152,18 @@ class ClientPlayer {
             assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
             assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
             assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
-            assignFunctionToInput(c.invUp, ()=>{this.selectedBlock++; if (this.selectedBlock > 10) this.selectedBlock = 1; console.log(this.selectedBlock);}, ()=>{})
-            assignFunctionToInput(c.invDown, ()=>{this.selectedBlock--; if (this.selectedBlock < 1) this.selectedBlock = 10; console.log(this.selectedBlock);}, ()=>{})
+            assignFunctionToInput(c.invUp, ()=>{
+                this.selectedBlock++
+                if (this.selectedBlock > 10) this.selectedBlock = 1
+                this.clientGame.changeInvSlot(this.selectedBlock)
+                console.log(this.selectedBlock)
+            }, ()=>{})
+            assignFunctionToInput(c.invDown, ()=>{
+                this.selectedBlock--
+                if (this.selectedBlock < 1) this.selectedBlock = 10
+                this.clientGame.changeInvSlot(this.selectedBlock)
+                console.log(this.selectedBlock)
+            }, ()=>{})
         }
         else {
             console.log('No controlls to register')

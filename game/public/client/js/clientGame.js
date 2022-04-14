@@ -44,7 +44,9 @@ class ClientGame {
 
         // The main viewport camera
         this.mainCamera
+        this.utilLayer
         this.mainCrosshair
+        this.mainInv // ToDo: Replace this with a better UI system
 
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
         this.localPlayer
@@ -155,7 +157,9 @@ class ClientGame {
         this.engine.stopRenderLoop()
         this.scene = null
         this.mainCamera = null
+        this.utilLayer = null
         this.mainCrosshair = null
+        this.mainInv = null
         this.localPlayer = null
         this.networkPlayers = []
     }
@@ -248,14 +252,16 @@ class ClientGame {
         }
 
         // Create crosshair
-        const utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
-        let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), utilLayer.utilityLayerScene)
+        this.utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
+        let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), this.utilLayer.utilityLayerScene)
         utilLight.groundColor = new BABYLON.Color3(1, 1, 1)
 
-        this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', 250, utilLayer.utilityLayerScene)
+        this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', 250, this.utilLayer.utilityLayerScene)
         this.mainCrosshair.material = this.scene.defaultMaterial
         this.mainCrosshair.setParent(this.mainCamera)
-        this.mainCrosshair.position = new BABYLON.Vector3(0, 0, 4)
+        this.mainCrosshair.position = new BABYLON.Vector3(0, 0, 8)
+
+        this.changeInvSlot(1)
 
         ////////////////////////////////////////////////////
         // Render loop
@@ -284,6 +290,16 @@ class ClientGame {
             // render scene
             this.scene.render()
         }) // }, 1000/90 )
+    }
+
+    // ToDo: Replace this when `this.mainInv` gets replaced
+    changeInvSlot(idx) {
+        if (this.mainInv) this.mainInv.dispose()
+        this.mainInv = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', idx, this.utilLayer.utilityLayerScene)
+        this.mainInv.material = this.scene.defaultMaterial
+        this.mainInv.rotation = new BABYLON.Vector3(this.mainCamera.rotation.x, this.mainCamera.rotation.y, this.mainCamera.rotation.z) 
+        this.mainInv.setParent(this.mainCamera)
+        this.mainInv.position = new BABYLON.Vector3(0, -5.5, 8)
     }
 
     // This is used when switching to an online session
