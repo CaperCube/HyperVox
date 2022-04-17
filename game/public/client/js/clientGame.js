@@ -240,9 +240,10 @@ class ClientGame {
         this.mainCamera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
 
         // Create player
-        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this)
+        this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientID, this)
         this.localPlayer.position = centerTarget
-        this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
+        // console.log("creating player with ID: ", this.clientID)
+        // this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 
         // Request other players
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
@@ -315,7 +316,7 @@ class ClientGame {
         //this.clientWorld = null
     }
 
-    // Connect to a networked session
+    // Connect to a networked session (go Online)
     //...
     connectToNetworkGame = (serverURL = "") => { //"http://localhost:3000"
         // Only join if not already connected to a game

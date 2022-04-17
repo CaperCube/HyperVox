@@ -1,4 +1,4 @@
-import { debug, tileScale, playerNames } from '../clientConstants.js'
+import { debug, tileScale, getRandomName } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
 
 /* ToDo still:
@@ -64,9 +64,11 @@ function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {
 class ClientPlayer {
 
     // Init player
-    constructor(controls, avatar = null, clientGame) {
-        this.playerID = 0
-        this.playerName = playerNames[Math.floor(Math.random() * (playerNames.length - .001))] || 'Player' // ToDo: Generate a random name
+    constructor(controls, avatar = null, playerID = 0, clientGame) {
+        this.playerID = playerID
+        this.playerName = getRandomName() || 'Player' // ToDo: Generate a random name
+        console.log(this.playerName)
+
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
@@ -79,6 +81,7 @@ class ClientPlayer {
             clientGame.meshGen.createBlockWithUV({x: 0, y: 0.125 - 1, z: 0}, 6, clientGame.scene)
         ], true)
         //this.playerCamera = camera
+
         // Player controls
         this.controls = controls
         // controls: {
@@ -126,10 +129,55 @@ class ClientPlayer {
         this.selectCursor = {x: 0, y: 0, z: 0}
         this.selectedBlock = 1
 
+        // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
 
+        this.nameMesh = null
+
+        // If this player is not mine, create tje nametag
+        console.log("My player ID: ", this.playerID)
+        if (this.playerID !== this.clientGame.clientID) {
+            this.nameMesh = BABYLON.Mesh.CreatePlane("nameTag", 1, this.scene, false)
+            // this.nameMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+            // this.nameMesh.material = new BABYLON.StandardMaterial("nameTag_mat", this.scene)
+            this.nameMesh.material = this.scene.defaultMaterial
+
+            this.nameMesh.setParent(this.avatar)
+            this.nameMesh.position = new BABYLON.Vector3(0, 1.5, 0)
+
+            // this.nameMeshTexture = new BABYLON.DynamicTexture("nameTag_tex", 512, this.scene, true)
+            // this.nameMesh.material.diffuseTexture = this.nameMeshTexture
+            // this.nameMesh.material.diffuseTexture.hasAlpha = true
+            // this.nameMesh.useAlphaFromDiffuseTexture = true
+            // this.nameMesh.material.specularColor = new BABYLON.Color3(0, 0, 0)
+            // this.nameMesh.material.emissiveColor = new BABYLON.Color3(1, 1, 1)
+            // this.nameMesh.material.backFaceCulling = false // ToDo: make this true
+
+            this.setPlayerName(this.playerName)
+        }
+
+        // Debug lines
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
+    }
+
+    // Set player nametag
+    setPlayerName = (newName) => {
+        // Set name
+        this.playerName = newName
+
+        if (this.playerID !== this.clientGame.clientID) {
+            // Clear dynamic texture
+            //...
+
+            // Draw new dynamic texture from menu system
+            //...
+            //this.clientGame.menu.drawTextureText(this.playerName)
+
+            // Rescale mesh and texture
+            //...
+            this.nameMesh.scaling.x = 4
+        }
     }
 
     // Register controls with actions

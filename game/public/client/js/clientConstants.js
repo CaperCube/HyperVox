@@ -20,22 +20,49 @@ const fogDistance = 1000
 const renderScale = 1
 
 // Player vars
-// ToDo: Modify this to be a random name generator (e.g. [adv][adj][noun])
-const playerNames = [
-    "Player",
-    "Stinker",
-    "Wombat",
-    "Salamader Sam",
-    "Buster",
-    "Billy",
-    "King Crab",
-    "Crazy",
-    "Cracked",
-    "Gibby",
-    "Huh What?",
-    "Good Name",
-    "Bad Name"
-]
+const playerNames = {
+    adjective: [
+        "King",
+        "Crazed",
+        "Cracked",
+        "Good",
+        "Kind",
+        "Evil",
+        "Bad",
+        "Wrong",
+        "Hollow",
+        "Slimy"
+    ],
+    nouns: [
+        "Player",
+        "Stinker",
+        "Wombat",
+        "Salamader",
+        "Buster",
+        "Billy",
+        "Crab",
+        "Gibby",
+        "Name",
+        "Skater",
+        "Gamer",
+        "Knight"
+    ]
+}
+
+const getRandomName = () => {
+    var phrase = randomArray(playerNames.adjective) + " " + randomArray(playerNames.nouns)
+    return phrase
+}
+
+function randomIndex(ar) {
+    const min = 0
+    const max = Math.floor(ar.length - 1)
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function randomArray(arr) {
+    return arr[randomIndex(arr)]
+}
 
 export {
     debug,
@@ -43,5 +70,6 @@ export {
     defaultChunkSize,
     defaultWorldSize,
     fogDistance,
-    renderScale
+    renderScale,
+    getRandomName
 }
