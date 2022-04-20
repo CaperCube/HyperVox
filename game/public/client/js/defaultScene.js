@@ -1,4 +1,4 @@
-import './dist/babylon.max.js'
+import './dist/babylon.js'
 import { imageSRC } from './resources.js'
 
 // Material for most blocks

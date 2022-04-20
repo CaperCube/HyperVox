@@ -29,10 +29,10 @@ const fontJSON = {
 // Sounds
 ///////////////////////////////////////
 const soundSRC = [
-    `${SOUND_PATH}Main_Music.wav`, // Doesn't exist yet
-    `${SOUND_PATH}Step_Grass_01.wav`,
-    `${SOUND_PATH}Step_Grass_02.wav`,
-    `${SOUND_PATH}Step_Grass_03.wav`
+    // `${SOUND_PATH}Main_Music.wav`, // Doesn't exist yet
+    // `${SOUND_PATH}Step_Grass_01.wav`,
+    // `${SOUND_PATH}Step_Grass_02.wav`,
+    // `${SOUND_PATH}Step_Grass_03.wav`
 ]
 
 const SoundIdx = {
@@ -44,9 +44,9 @@ const SoundIdx = {
 
 const Sounds = {
     //MAIN_MUSIC: new Sound(soundSRC[SoundIdx.MUSIC_SOUND], true, 0.25),
-    WALK1_GRASS: new Sound(soundSRC[SoundIdx.WALK1_GRASS]),
-    WALK2_GRASS: new Sound(soundSRC[SoundIdx.WALK2_GRASS]),
-    WALK3_GRASS: new Sound(soundSRC[SoundIdx.WALK3_GRASS]),
+    // WALK1_GRASS: new Sound(soundSRC[SoundIdx.WALK1_GRASS]),
+    // WALK2_GRASS: new Sound(soundSRC[SoundIdx.WALK2_GRASS]),
+    // WALK3_GRASS: new Sound(soundSRC[SoundIdx.WALK3_GRASS]),
 }
 
 //document.onclick = () => {Sounds.MAIN_MUSIC.Play()};

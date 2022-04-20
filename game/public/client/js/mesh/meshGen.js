@@ -1,4 +1,4 @@
-import '../dist/babylon.max.js'
+import '../dist/babylon.js'
 import { tileScale } from '../clientConstants.js'
 
 class MeshGenerator {

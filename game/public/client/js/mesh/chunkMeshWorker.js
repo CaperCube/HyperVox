@@ -1,5 +1,5 @@
-// importScripts('../dist/babylon.max.js', './meshGen.js')
-import '../dist/babylon.max.js'
+// importScripts('../dist/babylon.js', './meshGen.js')
+import '../dist/babylon.js'
 import MeshGenerator from './meshGen.js'
 
 // Using NullEngine so we don't have to define a canvas or render anything
