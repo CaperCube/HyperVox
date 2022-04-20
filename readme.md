@@ -15,7 +15,7 @@ I don't have a demo link up yet, I'll set up a goal to reach before then soon.
 - Cross platform so friends don't need to be left out (Thanks to the web)
 
 ## Tech
-- Three.js (for rendering)
+- Babylon.js (for rendering)
 - Node.js (for server)
 - Socket.io (for multiplayer)
 
