@@ -84,23 +84,24 @@ class BrainGame {
             // Check block below
             // ToDo: replace this with more robust logic
             if (id > 0) {
-                let blockUnder = location.block.y-1
+                let underBlock = location.block.y-1
                 let underChunk = location.chunk.y
 
-                if (blockUnder < 0) { 
+                if (underBlock < 0) { 
                     underChunk--
-                    blockUnder = this.world.worldChunks[0].length-1
+                    underBlock = this.world.worldChunks[0][0][0].length-1
                 }
 
                 if (underChunk >= 0) {
                     let thisBlock = this.world.worldChunks
                     [underChunk][location.chunk.x][location.chunk.z]
-                    [blockUnder][location.block.x][location.block.z]
+                    [underBlock][location.block.x][location.block.z]
+                    console.log(underChunk, underBlock)
                     if (thisBlock === blockTypes.indexOf(getBlockByName('grass'))) {
                         const dirtID = blockTypes.indexOf(getBlockByName('dirt'))
                         const underLocation = {
                             chunk: { x: location.chunk.x, y: underChunk, z: location.chunk.z },
-                            block: { x: location.block.x, y: blockUnder, z: location.block.z }
+                            block: { x: location.block.x, y: underBlock, z: location.block.z }
                         }
                         thisBlock = dirtID
                         this.brainComs.updateSingleBlock( underLocation, dirtID )
