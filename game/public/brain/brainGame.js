@@ -2,6 +2,7 @@ import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
 import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
+import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
@@ -79,6 +80,33 @@ class BrainGame {
             this.world.worldChunks
             [location.chunk.y][location.chunk.x][location.chunk.z]
             [location.block.y][location.block.x][location.block.z] = id
+
+            // Check block below
+            // ToDo: replace this with more robust logic
+            if (id > 0) {
+                let blockUnder = location.block.y-1
+                let underChunk = location.chunk.y
+
+                if (blockUnder < 0) { 
+                    underChunk--
+                    blockUnder = this.world.worldChunks[0].length-1
+                }
+
+                if (underChunk >= 0) {
+                    let thisBlock = this.world.worldChunks
+                    [underChunk][location.chunk.x][location.chunk.z]
+                    [blockUnder][location.block.x][location.block.z]
+                    if (thisBlock === blockTypes.indexOf(getBlockByName('grass'))) {
+                        const dirtID = blockTypes.indexOf(getBlockByName('dirt'))
+                        const underLocation = {
+                            chunk: { x: location.chunk.x, y: underChunk, z: location.chunk.z },
+                            block: { x: location.block.x, y: blockUnder, z: location.block.z }
+                        }
+                        thisBlock = dirtID
+                        this.brainComs.updateSingleBlock( underLocation, dirtID )
+                    }
+                }
+            }
 
             // Update players with change (if validated)
             this.brainComs.updateSingleBlock( location, id )

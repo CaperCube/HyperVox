@@ -1,5 +1,6 @@
 import { debug, tileScale, getRandomName } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
+import { blockTypes } from '../../../common/blockSystem.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -201,16 +202,14 @@ class ClientPlayer {
             assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
             assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
-                this.selectedBlock++
-                if (this.selectedBlock > 10) this.selectedBlock = 1
+                this.selectedBlock--
+                if (this.selectedBlock < 1) this.selectedBlock = blockTypes.length-1
                 this.clientGame.changeInvSlot(this.selectedBlock)
-                console.log(this.selectedBlock)
             }, ()=>{})
             assignFunctionToInput(c.invDown, ()=>{
-                this.selectedBlock--
-                if (this.selectedBlock < 1) this.selectedBlock = 10
+                this.selectedBlock++
+                if (this.selectedBlock > blockTypes.length-1) this.selectedBlock = 1
                 this.clientGame.changeInvSlot(this.selectedBlock)
-                console.log(this.selectedBlock)
             }, ()=>{})
         }
         else {

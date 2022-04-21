@@ -1,5 +1,6 @@
 import '../dist/babylon.js'
 import { tileScale } from '../clientConstants.js'
+import { blockTypes, blockCats, getBlocksByCat } from '../../../common/blockSystem.js'
 
 class MeshGenerator {
     constructor() {
@@ -192,7 +193,7 @@ class MeshGenerator {
     // Create chunk block
     // Returns new Mesh[]
     createChunkBlock(chunkGroup, blockLocation, blockID, scene) {
-        const transparentTiles = [0,10,255,256]
+        // const transparentTiles = getBlocksByCat(blockCats.transparent)//[0,10,255,256]
         let meshArray = []
 
         // if this is not an air block, continue
@@ -202,43 +203,70 @@ class MeshGenerator {
             const chunkSize = chunk[0].length // Get chunk size from y length of first chunk
             const offset = { x: chunkGroup.chunkLocation.x*chunkSize, y: chunkGroup.chunkLocation.y*chunkSize, z: chunkGroup.chunkLocation.z*chunkSize }
             const globalPos = { x: (blockLocation.x+offset.x)*tileScale, y: (blockLocation.y+offset.y)*tileScale, z: (blockLocation.z+offset.z)*tileScale }
-            
+
+            // Get block type
+            const thisBlockType = blockTypes[blockID] // ToDo: use this: getBlockType(blockID)
+
             // Right
             let blockHere = chunk[blockLocation.y]?.[blockLocation.x+1]?.[blockLocation.z]
             if ((blockLocation.x+1) >= chunkSize) blockHere = chunkGroup.rightChunk?.[blockLocation.y]?.[0]?.[blockLocation.z]
+            let blockTypeHere = blockTypes[blockHere]
             // if (!blockHere || transparentTiles.includes(blockHere))
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'right', blockID, scene) )
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'right'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
 
             // Left
             blockHere = chunk[blockLocation.y]?.[blockLocation.x-1]?.[blockLocation.z]
             if ((blockLocation.x-1) < 0) blockHere = chunkGroup.leftChunk?.[blockLocation.y]?.[chunkSize-1]?.[blockLocation.z]
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'left', blockID, scene) )
+            blockTypeHere = blockTypes[blockHere]
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'left'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
 
             // Front
             blockHere = chunk[blockLocation.y]?.[blockLocation.x]?.[blockLocation.z+1]
             if ((blockLocation.z+1) >= chunkSize) blockHere = chunkGroup.frontChunk?.[blockLocation.y]?.[blockLocation.x]?.[0]
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'front', blockID, scene) )
+            blockTypeHere = blockTypes[blockHere]
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'front'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
 
             // Back
             blockHere = chunk[blockLocation.y]?.[blockLocation.x]?.[blockLocation.z-1]
             if ((blockLocation.z-1) < 0) blockHere = chunkGroup.backChunk?.[blockLocation.y]?.[blockLocation.x]?.[chunkSize-1]
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'back', blockID, scene) )
+            blockTypeHere = blockTypes[blockHere]
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'back'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
 
             // Top
             blockHere = chunk[blockLocation.y+1]?.[blockLocation.x]?.[blockLocation.z]
             if ((blockLocation.y+1) >= chunkSize) blockHere = chunkGroup.upChunk?.[0]?.[blockLocation.x]?.[blockLocation.z]
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'top', blockID, scene) )
+            blockTypeHere = blockTypes[blockHere]
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'top'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
 
             // Bottom
             blockHere = chunk[blockLocation.y-1]?.[blockLocation.x]?.[blockLocation.z]
             if ((blockLocation.y-1) < 0) blockHere = chunkGroup.downChunk?.[chunkSize-1]?.[blockLocation.x]?.[blockLocation.z]
-            if (!blockHere || (transparentTiles.includes(blockHere) && !transparentTiles.includes(blockID)))
-                meshArray.push( this.createQuadWithUVs(globalPos, 'bottom', blockID, scene) )
+            blockTypeHere = blockTypes[blockHere]
+            if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+                {const face = 'bottom'
+                const textureID = thisBlockType?.textures[face] || 1
+                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+            }
         }
 
         return (meshArray.length > 0)? meshArray : null

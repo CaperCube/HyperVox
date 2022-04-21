@@ -8,6 +8,7 @@ import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
 import World from '../../brain/gen/world/world.js'
 import MenuSystem from './menuSystem.js'
+import { blockTypes } from '../../common/blockSystem.js'
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -296,9 +297,10 @@ class ClientGame {
     // ToDo: Replace this when `this.mainInv` gets replaced
     changeInvSlot(idx) {
         if (this.mainInv) this.mainInv.dispose()
-        this.mainInv = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', idx, this.utilLayer.utilityLayerScene)
+        const textureID = blockTypes[idx]?.textures['front']
+        this.mainInv = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', textureID, this.utilLayer.utilityLayerScene)
         this.mainInv.material = this.scene.defaultMaterial
-        this.mainInv.rotation = new BABYLON.Vector3(this.mainCamera.rotation.x, this.mainCamera.rotation.y, this.mainCamera.rotation.z) 
+        this.mainInv.rotation = new BABYLON.Vector3(this.mainCamera.rotation.x, this.mainCamera.rotation.y, this.mainCamera.rotation.z)
         this.mainInv.setParent(this.mainCamera)
         this.mainInv.position = new BABYLON.Vector3(0, -5.5, 8)
     }
