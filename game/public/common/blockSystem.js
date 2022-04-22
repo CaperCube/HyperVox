@@ -37,8 +37,10 @@ function getBlockState(blockID) {}
 const blockCats = { 
     // Functional categories
     damaging: 'damaging',
+    fluid: 'fluid',
     noncollidable: 'noncollidable',
     unbreakable: 'unbreakable',
+    transparent: 'transparent',
     zone: 'zone', // i.e. building-zones, no-gun-zones etc.
     // Visual categories
     color: {
@@ -55,7 +57,6 @@ const blockCats = {
     },
     decorative: 'decorative',
     natural: 'natural',
-    transparent: 'transparent',
 }
 
 /*
@@ -226,13 +227,13 @@ const blockTypes = [
     // 0x0a00
     {
         name: 'water',
-        categories: [blockCats.natural, blockCats.transparent, blockCats.color.blue],
+        categories: [blockCats.natural, blockCats.transparent, blockCats.fluid, blockCats.color.blue],
         textures: { top: 18, bottom: 18, front: 18, back: 18, left: 18, right: 18 },
     },
     // 0x0b00
     {
         name: 'lava',
-        categories: [blockCats.natural, blockCats.damaging, blockCats.color.red],
+        categories: [blockCats.natural, blockCats.damaging, blockCats.fluid, blockCats.color.red],
         textures: { top: 34, bottom: 34, front: 34, back: 34, left: 34, right: 34 },
     },
     // 0x0c00
@@ -246,6 +247,18 @@ const blockTypes = [
         name: 'stone-clumpy',
         categories: [blockCats.color.grey],
         textures: { top: 22, bottom: 22, front: 22, back: 22, left: 22, right: 22 },
+    },
+    // 0x0e00
+    {
+        name: 'gears',
+        categories: [blockCats.color.grey],
+        textures: { top: 7, bottom: 7, front: 23, back: 23, left: 23, right: 23 },
+    },
+    // 0x0f00
+    {
+        name: 'grate',
+        categories: [blockCats.color.grey, blockCats.transparent],
+        textures: { top: 24, bottom: 24, front: 24, back: 24, left: 24, right: 24 },
     },
 ]
 
