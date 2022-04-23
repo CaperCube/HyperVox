@@ -217,6 +217,7 @@ var Controls = {
         fire2: [Buttons.rmb],
         invUp: [Buttons.scrollUp, Buttons.equals],
         invDown: [Buttons.scrollDown, Buttons.minus],
+        eyedrop: [Buttons.e],
         noclip: [Buttons.r]
     },
     Player2: {
@@ -234,6 +235,7 @@ var Controls = {
         fire2: [Buttons.bracketRight],
         invUp: [Buttons.slash],
         invDown: [Buttons.period],
+        eyedrop: [Buttons.y],
         noclip: [Buttons.u]
     }
 }

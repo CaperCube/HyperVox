@@ -68,7 +68,6 @@ Block Props:
 - Friction
 - Bouncieness
 - Possible Directions
-- BasicType "Solid" "Liquid"
 - LiquidViscosity
 */
 
@@ -235,6 +234,7 @@ const blockTypes = [
         name: 'lava',
         categories: [blockCats.natural, blockCats.damaging, blockCats.fluid, blockCats.color.red],
         textures: { top: 34, bottom: 34, front: 34, back: 34, left: 34, right: 34 },
+        damage: 10
     },
     // 0x0c00
     {

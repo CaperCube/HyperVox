@@ -98,7 +98,7 @@ class ClientGame {
                     vertexData.uvs = event.data.uv
 
                     vertexData.applyToMesh(customMesh)
-                    customMesh.material = this.scene.defaultMaterial
+                    customMesh.material = this.scene.defaultMaterial //this.scene.combinedMaterial
                 }
             }
         }

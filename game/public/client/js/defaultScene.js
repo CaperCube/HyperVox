@@ -32,6 +32,12 @@ const DefaultScene = (engine) => {
     scene.transparentMaterial = mat2
     mat2.zOffset = -1 // Gives this material depth prioraty
 
+    // This is an attempt to include blocks that have alpha
+    // const comboMaterial = new BABYLON.MultiMaterial("multiMat", scene)
+    // comboMaterial.subMaterials.push(mat)
+    // comboMaterial.subMaterials.push(mat2)
+    // scene.combinedMaterial = comboMaterial
+
     ////////////////////////////////////////////////////
     // Skybox
     ////////////////////////////////////////////////////

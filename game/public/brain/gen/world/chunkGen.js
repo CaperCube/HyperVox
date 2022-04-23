@@ -102,6 +102,11 @@ class ChunkGenerator {
     
         return blockID
     }
+
+    // For generating empty flat worlds
+    emptyPattern = ( x, y, z ) => {
+        return 0
+    }
 }
 
 export default ChunkGenerator
