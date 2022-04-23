@@ -211,6 +211,12 @@ class ClientPlayer {
                 if (this.selectedBlock > blockTypes.length-1) this.selectedBlock = 1
                 this.clientGame.changeInvSlot(this.selectedBlock)
             }, ()=>{})
+            assignFunctionToInput(c.eyedrop, ()=>{0
+                const thisBlockPos = getArrayPos({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || 8)
+                const cursorBlock = this.clientGame?.clientWorld?.worldChunks?.[thisBlockPos.chunk.y]?.[thisBlockPos.chunk.x]?.[thisBlockPos.chunk.z]?.[thisBlockPos.block.y]?.[thisBlockPos.block.x]?.[thisBlockPos.block.z] || 1
+                this.selectedBlock = cursorBlock
+                this.clientGame.changeInvSlot(this.selectedBlock)
+            }, ()=>{})
         }
         else {
             console.log('No controlls to register')
