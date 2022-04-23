@@ -7,10 +7,145 @@ function testButtonUp() {
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Gamepad inputs
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+// var gamepads = {};
+
+// // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+
+// function gamepadHandler(event, connecting) {
+//   var gamepad = event.gamepad;
+//   // Note:
+//   // gamepad === navigator.getGamepads()[gamepad.index]
+
+//   if (connecting) {
+//     gamepads[gamepad.index] = gamepad;
+//   } else {
+//     delete gamepads[gamepad.index];
+//   }
+// }
+
+// window.addEventListener("gamepadconnected", function(e) { gamepadHandler(e, true); }, false);
+// window.addEventListener("gamepaddisconnected", function(e) { gamepadHandler(e, false); }, false);
+
+// https://xtrp.io/blog/2020/12/15/how-to-use-the-html5-gamepad-api/
+const analogueTolerance = 0.05
+const GamepadButtons = {
+    lsUp: {name: "leftStickUp", code: 0, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    lsDown: {name: "leftStickDown", code: 0, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    lsLeft: {name: "leftStickLeft", code: 0, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    lsRight: {name: "leftStickRight", code: 0, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    a: {name: "a", code: 0, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    b: {name: "b", code: 1, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    x: {name: "x", code: 2, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+    y: {name: "y", code: 3, pressed: false, onPress: testButtonDown, onRelease: testButtonUp},
+}
+
+setInterval(() => {
+    const myGamepad = navigator.getGamepads()[0] // use the first gamepad
+
+    // console.log(`Left stick at (${myGamepad.axes[0]}, ${myGamepad.axes[1]})` );
+    // console.log(`Right stick at (${myGamepad.axes[2]}, ${myGamepad.axes[3]})` );
+    if (myGamepad) {
+        // this.selectedScene.elements[0].text = `X: ${Math.round(myGamepad.axes[0] * 100) / 100}`
+        // this.selectedScene.elements[1].text = `Y: ${Math.round(myGamepad.axes[1] * 100) / 100}`
+
+        // Left Stick
+        // Right
+        if (myGamepad.axes[0] > analogueTolerance) {
+            if (!GamepadButtons.lsRight.pressed) {
+                GamepadButtons.lsRight.pressed = true
+                GamepadButtons.lsRight.onPress()
+            }
+        } else if (GamepadButtons.lsRight.pressed) {
+            GamepadButtons.lsRight.pressed = false
+            GamepadButtons.lsRight.onRelease()
+        }
+
+        // Left
+        if (myGamepad.axes[0] < (-1 * analogueTolerance)) {
+            if (!GamepadButtons.lsLeft.pressed) {
+                GamepadButtons.lsLeft.pressed = true
+                GamepadButtons.lsLeft.onPress()
+            }
+        } else if (GamepadButtons.lsLeft.pressed) {
+            GamepadButtons.lsLeft.pressed = false
+            GamepadButtons.lsLeft.onRelease()
+        }
+
+        // Up
+        if (myGamepad.axes[1] < (-1 * analogueTolerance)) {
+            if (!GamepadButtons.lsUp.pressed) {
+                GamepadButtons.lsUp.pressed = true
+                GamepadButtons.lsUp.onPress()
+            }
+        } else if (GamepadButtons.lsUp.pressed) {
+            GamepadButtons.lsUp.pressed = false
+            GamepadButtons.lsUp.onRelease()
+        }
+
+        // Down
+        if (myGamepad.axes[1] > analogueTolerance) {
+            if (!GamepadButtons.lsDown.pressed) {
+                GamepadButtons.lsDown.pressed = true
+                GamepadButtons.lsDown.onPress()
+            }
+        } else if (GamepadButtons.lsDown.pressed) {
+            GamepadButtons.lsDown.pressed = false
+            GamepadButtons.lsDown.onRelease()
+        }
+
+        // myGamepad.axes[1]
+
+        // Right stick
+        // myGamepad.axes[2]
+        // myGamepad.axes[3]
+
+        // Buttons
+        // A or X
+        if (myGamepad.buttons[0].pressed && !GamepadButtons.a.pressed) {
+            GamepadButtons.a.pressed = true
+            GamepadButtons.a.onPress()
+        } else {
+            GamepadButtons.a.pressed = false
+            GamepadButtons.a.onRelease()
+        }
+
+        // B or O
+        if (myGamepad.buttons[1].pressed && !GamepadButtons.b.pressed) {
+            GamepadButtons.b.pressed = true
+            GamepadButtons.b.onPress()
+        } else {
+            GamepadButtons.b.pressed = false
+            GamepadButtons.b.onRelease()
+        }
+
+        // X or Square
+        if (myGamepad.buttons[2].pressed && !GamepadButtons.x.pressed) {
+            GamepadButtons.x.pressed = true
+            GamepadButtons.x.onPress()
+        } else {
+            GamepadButtons.x.pressed = false
+            GamepadButtons.x.onRelease()
+        }
+
+        // Y or Triangle
+        if (myGamepad.buttons[3].pressed && !GamepadButtons.y.pressed) {
+            GamepadButtons.y.pressed = true
+            GamepadButtons.y.onPress()
+        } else {
+            GamepadButtons.y.pressed = false
+            GamepadButtons.y.onRelease()
+        }
+    }
+}, 30) // print axes 10 times per second
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Keyboard inputs
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-var Buttons = {
+const Buttons = {
     // mouse buttons
     lmb: {name: "left mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // left mouse button
     rmb: {name: "right mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // right mouse button
@@ -203,18 +338,18 @@ function assignFunctionToInput(btnAr, downFunc, upFunc) {
 
 var Controls = {
     Player1: {
-        upAxis1: [Buttons.w],
-        downAxis1: [Buttons.s],
-        leftAxis1: [Buttons.a],
-        rightAxis1: [Buttons.d],
+        upAxis1: [Buttons.w, GamepadButtons.lsUp],
+        downAxis1: [Buttons.s, GamepadButtons.lsDown],
+        leftAxis1: [Buttons.a, GamepadButtons.lsLeft],
+        rightAxis1: [Buttons.d, GamepadButtons.lsRight],
         upAxis2: [Buttons.z],
         downAxis2: [Buttons.x],
         leftAxis2: [Buttons.c],
         rightAxis2: [Buttons.v],
-        run: [Buttons.shift],
-        jump: [Buttons.space],
-        fire1: [Buttons.lmb],
-        fire2: [Buttons.rmb],
+        run: [Buttons.shift, GamepadButtons.b],
+        jump: [Buttons.space, GamepadButtons.a],
+        fire1: [Buttons.lmb, GamepadButtons.x],
+        fire2: [Buttons.rmb, GamepadButtons.y],
         invUp: [Buttons.scrollUp, Buttons.equals],
         invDown: [Buttons.scrollDown, Buttons.minus],
         eyedrop: [Buttons.e],
