@@ -36,6 +36,7 @@ function getBlockState(blockID) {}
 // Blocks can have multiple categories
 const blockCats = { 
     // Functional categories
+    checkpoint: 'checkpoint',
     damaging: 'damaging',
     fluid: 'fluid',
     noncollidable: 'noncollidable',
@@ -267,6 +268,24 @@ const blockTypes = [
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
         textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         damage: 100
+    },
+    // ?
+    {
+        name: 'finish-line',
+        categories: [blockCats.color.black, blockCats.color.white],
+        textures: { top: 240, bottom: 240, front: 240, back: 240, left: 240, right: 240 },
+    },
+    // ?
+    {
+        name: 'respawn-point',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.checkpoint],
+        textures: { top: 239, bottom: 239, front: 239, back: 239, left: 239, right: 239 },
+    },
+    // ?
+    {
+        name: 'dialogue-box',
+        categories: [blockCats.color.grey, blockCats.color.green],
+        textures: { top: 238, bottom: 238, front: 238, back: 238, left: 238, right: 238 },
     },
 ]
 

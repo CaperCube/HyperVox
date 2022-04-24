@@ -31,6 +31,35 @@ function checkMenuCollide(element, mousePos, screenScale) {
     else return false
 }
 
+// Sprite constants
+const spriteParts = {
+    // Text Windows
+    titleWindowL: '1',
+    titleWindowM: '2',
+    titleWindowR: '3',
+    titleWindowClosed: '4',
+    // Text Buttons
+    TextButtonL: '5',
+    TextButtonM: '6',
+    TextButtonR: '7',
+    TextButtonRSel: '8',
+    TextButtonRHeart: '9',
+    TextButtonRAmmo: '10',
+    // TextButtonLOff: '11',
+    // TextButtonMOff: '12',
+    // TextButtonROff: '13',
+    // Bars
+    barVert: '17',
+    barHorz: '18',
+    barBendTR: '19',
+    barBendBR: '20',
+    barBendBL: '21',
+    barBendTL: '22',
+    barJointTRB: '23',
+    // Hands
+    //...
+}
+
 // Constants
 const menuConstants = {
     hidden: 'none',
@@ -163,47 +192,54 @@ class MenuSystem {
         this.uiTiles
         this.loadImage(imageSRC.UI, (img)=>{this.uiTiles = img})
 
+        const title = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowR]
+        const titleMid = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowR]
+        const titleLong = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowR]
+        const button = [spriteParts.TextButtonL, spriteParts.TextButtonM, spriteParts.TextButtonR]
+        const buttonMid = [spriteParts.TextButtonL, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonR]
+        const buttonLong = [spriteParts.TextButtonL, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonR]
+
         // Main menu
-        const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[13],[14]]})
-        const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Main Menu'})
-        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[5,6,6,7]], text: 'Start Game'})
-        const joinButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[5,6,6,7]], text: 'Join Online'})        
+        const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barBendTL]]})
+        const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Main Menu'})
+        const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [buttonMid], text: 'Start Game'})
+        const joinButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [buttonMid], text: 'Join Online'})        
         playButton.pressButton = () => { this.setScene(this.playMenu) }
-        const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Options'})
+        const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
         // this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, joinButton, optionsButton], [])
         this.mainMenu = new UIScene([bars, mainMenuTitle], [playButton, joinButton, optionsButton])
 
         // Options menu
-        const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[13],[12],[14]]})
-        const optionsTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Options'})
-        const worldSizeInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [[1,2,2,2,3]], text: 'Placeholder'})
-        const stinkyInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [[1,2,2,2,3]], text: 'Placeholder'})
-        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
+        const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
+        const optionsTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Options'})
+        const worldSizeInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [titleLong], text: 'Placeholder'})
+        const stinkyInput = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [titleLong], text: 'Placeholder'})
+        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
         this.optionsMenu = new UIScene([bars2, optionsTitle, worldSizeInput, stinkyInput], [optionsBackButton])
 
         // Play menu
-        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[12],[12],[12],[12],[12],[14]]})
-        const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'World Size'})
-        const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[5,6,6,7]], text: 'Load World'})
-        const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,7]], text: 'Small'})
-        const playMedButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,7]], text: 'Medium'})
-        const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [[5,6,7]], text: 'Large'})
-        const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,7]], text: 'Back'})
+        const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
+        const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'World Size'})
+        const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonMid], text: 'Load World'})
+        const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [button], text: 'Small'})
+        const playMedButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [button], text: 'Medium'})
+        const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Large'})
+        const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
         this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
         // Pause menu
-        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[13],[12],[13],[12],[12],[12],[12],[14]]})
-        const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [[1,2,2,3]], text: 'Pause'})
-        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [[5,6,6,6,7]], text: 'Back to Game'})
+        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
+        const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Pause'})
+        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [buttonLong], text: 'Back to Game'})
         pausePlayButton.pressButton = () => { this.hide() }
-        const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [[5,6,6,7]], text: 'Save World'})
-        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [[5,6,6,7]], text: 'Leave Game'})
-        const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [[5,6,6,7]], text: 'Main Menu'})
+        const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
+        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [buttonMid], text: 'Leave Game'})
+        const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Main Menu'})
         pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
         
         this.pauseMenu = new UIScene([bars4, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton])

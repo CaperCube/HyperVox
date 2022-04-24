@@ -100,13 +100,19 @@ class ClientPlayer {
         this.debug = false
 
         // Inv vars
-        this.respawnPoint = new BABYLON.Vector3(0,0,0)
         this.health = 100
         this.isInvincible = false
         this.invincibleTime = 500 // time in ms
         this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
         // this.inventory = new Inventory()
 
+        // Respawn vars
+        this.respawnPoint = new BABYLON.Vector3(0,0,0)
+        this.respawnMesh = clientGame.meshGen.createBlockWithUV(this.respawnPoint, 254, clientGame.scene)
+        this.respawnMesh.scaling = new BABYLON.Vector3(0.5,0.5,0.5)
+        BABYLON.Animation.CreateAndStartAnimation("spawnPointAnimation", this.respawnMesh, "rotation.y", 30, 120, 0, Math.PI, 1)
+
+        // Position vars
         this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
         this.avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
         this.cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
@@ -144,7 +150,7 @@ class ClientPlayer {
 
         this.nameMesh = null
 
-        // If this player is not mine, create tje nametag
+        // If this player is not mine, create the nametag
         console.log("My player ID: ", this.playerID)
         if (this.playerID !== this.clientGame.clientID) {
             this.nameMesh = BABYLON.Mesh.CreatePlane("nameTag", 1, this.scene, false)
@@ -188,6 +194,7 @@ class ClientPlayer {
             else {
                 // Player is dead, respawn
                 this.health = 100
+                this.playerVelocity = BABYLON.Vector3.Zero()
                 this.position = new BABYLON.Vector3(this.respawnPoint.x, this.respawnPoint.y, this.respawnPoint.z)
             }
             // ToDo: Update health readout
@@ -210,6 +217,19 @@ class ClientPlayer {
             // Rescale mesh and texture
             //...
             this.nameMesh.scaling.x = 4
+        }
+    }
+
+    setPlayerSpawn = (newPos = {x:0, y:0, z:0}) => {
+        // Set respawn location
+        this.respawnPoint = new BABYLON.Vector3(newPos.x, newPos.y, newPos.z)
+
+        // Move graphic
+        if (this.respawnMesh) this.respawnMesh.position = this.respawnPoint
+        else {
+            this.respawnMesh = this.clientGame.meshGen.createBlockWithUV(this.respawnPoint, 254, this.scene)
+            this.respawnMesh.scaling = new BABYLON.Vector3(0.5,0.5,0.5)
+            BABYLON.Animation.CreateAndStartAnimation("spawnPointAnimation", this.respawnMesh, "rotation.y", 30, 120, 0, Math.PI, 1)
         }
     }
 
@@ -351,6 +371,8 @@ class ClientPlayer {
                 
                 // Damage player if damaging block
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
+                // Set respawn point if respawn block
+                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
             }
         }
 
@@ -368,6 +390,8 @@ class ClientPlayer {
 
                 // Damage player if damaging block
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
+                // Set respawn point if respawn block
+                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
             }
         }
 
@@ -385,6 +409,8 @@ class ClientPlayer {
 
                 // Damage player if damaging block
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
+                // Set respawn point if respawn block
+                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
             }
         }
         
