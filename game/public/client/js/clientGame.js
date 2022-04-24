@@ -243,6 +243,7 @@ class ClientGame {
         // Create player
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientID, this)
         this.localPlayer.position = centerTarget
+        this.localPlayer.respawnPoint = centerTarget
         // console.log("creating player with ID: ", this.clientID)
         // this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 

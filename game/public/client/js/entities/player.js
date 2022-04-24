@@ -1,6 +1,6 @@
 import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
-import { blockTypes } from '../../../common/blockSystem.js'
+import { blockCats, blockTypes } from '../../../common/blockSystem.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -99,6 +99,14 @@ class ClientPlayer {
         // }
         this.debug = false
 
+        // Inv vars
+        this.respawnPoint = new BABYLON.Vector3(0,0,0)
+        this.health = 100
+        this.isInvincible = false
+        this.invincibleTime = 500 // time in ms
+        this.invinciblityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
+        // this.inventory = new Inventory()
+
         this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
         this.avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
         this.cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
@@ -160,6 +168,27 @@ class ClientPlayer {
 
         // Debug lines
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
+    }
+
+    takeDamage = (damage) => { // This is not networked at the moment
+        if (!this.isInvincible) {
+            this.isInvincible = true
+            this.health -= damage
+            if (this.health > 0) {
+                // Make the player invincible for a short interval
+                this.invinciblityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
+                // Bob player's view
+                this.avatarOffset.y += 0.15
+                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, this.invincibleTime/6 )
+            }
+            else {
+                // Player is dead, respawn
+                this.health = 100
+                this.isInvincible = false
+                this.position = new BABYLON.Vector3(this.respawnPoint.x, this.respawnPoint.y, this.respawnPoint.z)
+            }
+            // ToDo: Update health readout
+        }
     }
 
     // Set player nametag
@@ -302,7 +331,7 @@ class ClientPlayer {
             new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z)
         ]
 
-        const checkYCol = (block, bOnly) => {
+        const checkYCol = (block, bOnly, blockID) => {
 
             let bounceOnly = bOnly || false
             // Check Y
@@ -316,10 +345,13 @@ class ClientPlayer {
                     this.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
                     allowGrav = false
                 }
+                
+                // Damage player if damaging block
+                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
             }
         }
 
-        const checkXCol = (block) => {
+        const checkXCol = (block, blockID) => {
             // Check X
             let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.x += this.playerVelocity.x
@@ -330,10 +362,13 @@ class ClientPlayer {
                 this.bounceX()
                 //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
                 //allowMoveX = false
+
+                // Damage player if damaging block
+                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
             }
         }
 
-        const checkZCol = (block) => {
+        const checkZCol = (block, blockID) => {
             // Check Z
             let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
             playerPosCheck.z += this.playerVelocity.z
@@ -344,6 +379,9 @@ class ClientPlayer {
                 this.bounceZ()
                 //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
                 //allowMoveZ = false
+
+                // Damage player if damaging block
+                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
             }
         }
         
@@ -363,20 +401,20 @@ class ClientPlayer {
                 let skipMid = (cy >= 0)
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
-                    checkXCol(blockHere)
+                    checkXCol(blockHere, blockID)
                 }
 
                 // Check Z
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
-                    checkZCol(blockHere)
+                    checkZCol(blockHere, blockID)
                 }
 
                 // Check Y
                 skipMid = (cy < 0 || cy > 0)
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
-                    checkYCol(blockHere, (cy > 0))
+                    checkYCol(blockHere, (cy > 0), blockID)
                 }
             }}}
         }
