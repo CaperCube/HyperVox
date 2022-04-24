@@ -104,7 +104,7 @@ class ClientPlayer {
         this.health = 100
         this.isInvincible = false
         this.invincibleTime = 500 // time in ms
-        this.invinciblityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
+        this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
         // this.inventory = new Inventory()
 
         this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
@@ -172,19 +172,22 @@ class ClientPlayer {
 
     takeDamage = (damage) => { // This is not networked at the moment
         if (!this.isInvincible) {
-            this.isInvincible = true
+            // Apply damage
             this.health -= damage
+
+            // Make the player invincible for a short interval
+            this.isInvincible = true
+            this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
+
             if (this.health > 0) {
-                // Make the player invincible for a short interval
-                this.invinciblityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
                 // Bob player's view
+                // ToDo: make screen red or something
                 this.avatarOffset.y += 0.15
                 setTimeout( ()=>{this.avatarOffset.y -= 0.15}, this.invincibleTime/6 )
             }
             else {
                 // Player is dead, respawn
                 this.health = 100
-                this.isInvincible = false
                 this.position = new BABYLON.Vector3(this.respawnPoint.x, this.respawnPoint.y, this.respawnPoint.z)
             }
             // ToDo: Update health readout
