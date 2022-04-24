@@ -88,13 +88,15 @@ class ChunkGenerator {
         const baseNoise = getNoiseVal( x, y, z )
         const blockAbove = getNoiseVal( x, y+1, z )
         const blockBelow = getNoiseVal( x, y-1, z )
-        const blockMuchAbove = getNoiseVal( x, y+3, z )
+        const blockMuchAbove = getNoiseVal( x, y+2, z )
+        const blockAboveForStone = getNoiseVal( x, y+4, z )
     
         // Set blockID
         let blockID = 0
         if (baseNoise > this.noiseTolerance) {
             if (blockAbove <= this.noiseTolerance) blockID = 4
             else if (blockMuchAbove > this.noiseTolerance) blockID = 3
+            else if (blockAboveForStone > this.noiseTolerance) blockID = 27 // stone
             else blockID = 2
     
             if (blockBelow <= this.noiseTolerance) blockID = 3

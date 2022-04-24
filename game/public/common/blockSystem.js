@@ -72,6 +72,7 @@ Block Props:
 */
 
 // getBlockByName(name) = blockTypes.filter(block => block.name === name) 
+// ToDo: fix the hex-code values in the comments below
 const blockTypes = [
     // 0x0000
     {
