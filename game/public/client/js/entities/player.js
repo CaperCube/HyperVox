@@ -362,11 +362,15 @@ class ClientPlayer {
             playerPosCheck.y += this.playerVelocity.y
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
-                // Bounce
-                this.bounceY()
-                if (!bounceOnly) {
-                    this.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
-                    allowGrav = false
+
+                // Check if block is colidable
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                    // Bounce
+                    this.bounceY()
+                    if (!bounceOnly) {
+                        this.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
+                        allowGrav = false
+                    }
                 }
                 
                 // Damage player if damaging block
@@ -383,10 +387,13 @@ class ClientPlayer {
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
-                // Bounce
-                this.bounceX()
-                //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
-                //allowMoveX = false
+                // Check if block is colidable
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                    // Bounce
+                    this.bounceX()
+                    //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
+                    //allowMoveX = false
+                }
 
                 // Damage player if damaging block
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
@@ -402,10 +409,13 @@ class ClientPlayer {
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
-                // Bounce
-                this.bounceZ()
-                //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
-                //allowMoveZ = false
+                // Check if block is colidable
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                    // Bounce
+                    this.bounceZ()
+                    //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
+                    //allowMoveZ = false
+                }
 
                 // Damage player if damaging block
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
