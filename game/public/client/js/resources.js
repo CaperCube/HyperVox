@@ -3,12 +3,22 @@ import bkFont from '../src/textures/fonts/battlekourTitle.json' assert { type: "
 ///////////////////////////////////////
 // Constants
 ///////////////////////////////////////
-const TEXTURE_PATH = './client/src/textures/'//'/client/src/textures/'
+const STATIC_TEXTURE_PATH = '/client/src/textures/'
+const TEXTURE_PATH = './client/src/textures/'
 const SOUND_PATH = './client/src/sounds/'
 
 ///////////////////////////////////////
 // Images
 ///////////////////////////////////////
+const staticImageSRC = { // Static paths are needed when loading resources from somewhere other than './public/index.html'
+    UI: `${STATIC_TEXTURE_PATH}ui_parts.png`,
+    Stars: `${STATIC_TEXTURE_PATH}skybox/stars.png`,
+    Skybox1: `${STATIC_TEXTURE_PATH}skybox/skybox1/edited/`,
+    Skybox2: `${STATIC_TEXTURE_PATH}skybox/skybox2/edited/`,
+    Atlas: `${STATIC_TEXTURE_PATH}atlas.png`,
+    Tiles: `${STATIC_TEXTURE_PATH}textures.png`
+}
+
 const imageSRC = {
     UI: `${TEXTURE_PATH}ui_parts.png`,
     Stars: `${TEXTURE_PATH}skybox/stars.png`,
@@ -82,6 +92,7 @@ function Sound(src, loop = false, volume = 1) {
 }
 
 export {
+    staticImageSRC,
     imageSRC,
     fontJSON,
     Sounds

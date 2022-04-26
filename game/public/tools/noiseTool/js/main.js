@@ -1,47 +1,68 @@
-import { imageSRC } from "/client/js/resources.js"
-import ChunkGenerator from "/brain/gen/world/chunkGen.js"
+import { staticImageSRC } from "../../../client/js/resources.js"//"/client/js/resources.js"
+import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"//"/brain/gen/world/chunkGen.js"
+import { blockTypes } from "../../../common/blockSystem.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
 const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
 const textureSheet = new Image(512,512)
-textureSheet.src = imageSRC.Tiles
+textureSheet.onload = () => { 
+    $('#DOM_rndSeed').checked = false
+    DOMNoiseFnc()
+}
+textureSheet.src = staticImageSRC.Tiles
 
 // Noise vars
 const generator = new ChunkGenerator()
-let resolution = 32
-let pixelSize = canvas.width/resolution
-let pattern = [[]]
-
-const genNoise = new perlinNoise3d() // ToDo: Remove this and use ChunkGenerator instead
-const noiseTolerance = 0.5
-let noiseScale = 0.09
-
-
-// String to number (this is and should be the same as it is in the game)
-const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) }
+let chunkSize = 8
+let worldSize = 4
+let _resolution = (chunkSize * worldSize)
+let pixelSize = canvas.width/_resolution
+let world = [[[]]]
 
 ////////////////////////////////////////////////////////
 // DOM function
 ////////////////////////////////////////////////////////
 $("#DOM_generateBttn").onclick = DOMNoiseFnc
 $("#DOM_zSlider").oninput = () => { updateZ($("#DOM_zSlider")) }
+$("#DOM_genList").onchange = () => { DOMNoiseFnc() }
+populateDOMGenList()
+
+function populateDOMGenList() {
+    const dropList = $("#DOM_genList")
+    if (dropList) {
+        // Get array of generator patterns
+        const genOptions = Object.keys(generator.noisePatterns)
+
+        // Remove current options
+        if (genOptions.length > 0) {
+            dropList.innerHTML = ''
+        }
+
+        // Create an option for each pattern
+        for (let i = 0; i < genOptions.length; i++) {
+            const nameString = `${genOptions[i]}`
+            const newOption = document.createElement('option')
+            newOption.value = nameString
+            newOption.innerHTML = nameString
+
+            dropList.appendChild(newOption)
+        }
+    }
+}
 
 function DOMNoiseFnc() {
     // Get selected function
-    const selPattern = generator.basicPattern//customNoise //perlinNoise // This should be an optin in a dropdown list
+    const selPattern = $("#DOM_genList").value
     
     // Get seed based on choice
-    const random = !$('#DOM_useSeed').checked // This should be a toggle option
+    const random = $('#DOM_rndSeed').checked
     const seed = random ? `${Math.random()}` : $('#DOM_seed').value
+    $('#DOM_seed').value = seed
     
     // Generator settings
-    //noiseScale = $('#DOM_scale').value
-
-    // Set seed
-    genNoise.noiseSeed(stringToSeed(seed))
-    generator.noiseAlgorithm.noiseSeed(stringToSeed(seed))
+    //generator.noiseScale = $('#DOM_scale').value
 
     // Get z based on slider selection
     let steps = canvas.width / pixelSize
@@ -57,117 +78,54 @@ function updateZ(el) {
     $("#DOM_zindex").innerHTML = `Z Index: ${el.value}`
 
     // Redraw pattern with new z index
-    drawPattern(pattern, el.value)
+    drawWorld(world, el.value)
 }
 
 ////////////////////////////////////////////////////////
 // Pattern Gen and Drawing
 ////////////////////////////////////////////////////////
 
-function generateNoise(func, firstZ) {
-    // Set number of steps
-    let steps = canvas.width / pixelSize
-    pattern = [[[]]]
-
-    // Generate pattern
-    for (let y = 0; y < steps; y++) {
-    pattern[y] = []
-    for (let x = 0; x < steps; x++) {
-    pattern[y][x] = []
-    for (let z = 0; z < steps; z++) {
-        // Fill pixel here
-        let pos = { x: x, y: (resolution-y), z: z }
-        pattern[y][x][z] = func( pos.x, pos.y, pos.z )
-    }}}
+function generateNoise(pat, firstZ, seed) {
+    // Generate world
+    world = [[[]]]
+    world = generator.generateWorld({seed: seed, chunkSize: chunkSize, worldSize: worldSize, pattern: pat})
 
     // Draw pattern to canvas
-    drawPattern(pattern, firstZ)
+    drawWorld(world, firstZ)
 }
 
 function drawTileHere(x, y, size, id) {
+    // Get block from ID
+    const block = blockTypes[id] || blockTypes[0]
+    const textureID = block.textures.front || 0
     // Calculate ID offset
     const rows = 16
     const columns = 16
-    let c = (id-1) % columns
-    let r = Math.floor((id-1) / columns)
+    let c = (textureID-1) % columns
+    let r = Math.floor((textureID-1) / columns)
     // Draw
     ctx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
 }
 
-function drawPattern(p, z) {
-    // Loop through all pixels in pattern
-    for (let y = 0; y < p.length; y++) {
-    for (let x = 0; x < p[y].length; x++) {
+function drawWorld(w, z) {
+    // Get Z's world location
+    const cSize = w[0][0][0].length
+    const zChunk = Math.floor(z / cSize)
+    const zBlock = z % cSize
+
+    // Loop through all chunks in world
+    for (let cy = 0; cy < w.length; cy++) {
+    for (let cx = 0; cx < w[cy].length; cx++) {
+        const chunk = w[cy][cx][zChunk]
+    
+    // Loop through all blocks in chunk
+    for (let y = 0; y < chunk.length; y++) {
+    for (let x = 0; x < chunk[y].length; x++) {
         // Draw pixel
-        let val = p[y][x][z]
-        //if (toleranceMode) val = (val > noiseTolerance) ? 1 : 0
+        let val = chunk[y][x][zBlock]
+        //if (toleranceMode) val = (val > generator.noiseTolerance) ? 1 : 0
         ctx.fillStyle = `rgb( 0, 0, 0 )`
-        if (val === 0) ctx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
-        else drawTileHere(x, y, pixelSize, val)
-    }}
+        if (val === 0) ctx.fillRect( (x+(cx*cSize))*pixelSize, ((_resolution-y-1)-(cy*cSize))*pixelSize, pixelSize, pixelSize )
+        else drawTileHere((x+(cx*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
+    }}}}
 }
-
-////////////////////////////////////////////////////////
-// Noise patterns
-// ToDo: move noise generators from here to `chunkGen.js`
-////////////////////////////////////////////////////////
-const clamp = function(val, min, max) { return Math.min(Math.max(val, min), max) }
-
-// Basic
-function basicNoise( x, y, z ) {
-    let noise = Math.random()
-
-    // gen blockID
-    let blockID = 0
-    if (noise > noiseTolerance) {
-        blockID = 1 + Math.floor(Math.random() * 9)
-    }
-
-    return blockID
-}
-
-// Perlin
-function perlinNoise( x, y, z ) {
-    // Return noise
-    let noise = genNoise.get( x*noiseScale, y*noiseScale, z*noiseScale )
-
-    // gen blockID
-    let blockID = 0
-    if (noise > noiseTolerance) {
-        blockID = 1 + Math.floor(Math.random() * 9)
-    }
-    
-    return blockID
-}
-
-// Custom
-function customNoise( x, y, z ) {
-    // Return noise
-    function getNoiseVal( x, y, z ) {
-        x=x*noiseScale
-        y=y*noiseScale
-        z=z*noiseScale
-        let noise = genNoise.get( x, y, z )
-        noise += 1 / ((y+1)*2)
-        noise -= 0.25
-        return noise
-    }
-    
-    const baseNoise = getNoiseVal( x, y, z )
-    const blockAbove = getNoiseVal( x, y+1, z )
-    const blockBelow = getNoiseVal( x, y-1, z )
-    const blockMuchAbove = getNoiseVal( x, y+3, z )
-
-    // gen blockID
-    let blockID = 0
-    if (baseNoise > noiseTolerance) {
-        if (blockAbove <= noiseTolerance) blockID = 4
-        else if (blockMuchAbove > noiseTolerance) blockID = 3
-        else blockID = 2
-
-        if (blockBelow <= noiseTolerance) blockID = 3
-    }
-
-    return blockID
-}
-

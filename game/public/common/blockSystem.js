@@ -267,7 +267,8 @@ const blockTypes = [
         name: 'death',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
         textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
-        damage: 100
+        // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        damage: 1000
     },
     // 0x0021
     {

@@ -214,8 +214,8 @@ class MeshGenerator {
             // if (!blockHere || transparentTiles.includes(blockHere))
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'right'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
 
             // Left
@@ -224,8 +224,8 @@ class MeshGenerator {
             blockTypeHere = blockTypes[blockHere]
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'left'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
 
             // Front
@@ -234,8 +234,8 @@ class MeshGenerator {
             blockTypeHere = blockTypes[blockHere]
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'front'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
 
             // Back
@@ -244,8 +244,8 @@ class MeshGenerator {
             blockTypeHere = blockTypes[blockHere]
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'back'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
 
             // Top
@@ -254,8 +254,8 @@ class MeshGenerator {
             blockTypeHere = blockTypes[blockHere]
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'top'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
 
             // Bottom
@@ -264,8 +264,8 @@ class MeshGenerator {
             blockTypeHere = blockTypes[blockHere]
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'bottom'
-                const textureID = thisBlockType?.textures[face] || 1
-                meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                const textureID = thisBlockType?.textures[face] || 0
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
             }
         }
 
