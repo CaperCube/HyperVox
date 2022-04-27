@@ -113,6 +113,12 @@ function drawWorld(w, z) {
     const zChunk = Math.floor(z / cSize)
     const zBlock = z % cSize
 
+    // Draw background
+    ctx.fillStyle = `rgba( 0, 0, 0, 1 )`
+    ctx.fillRect( 0, 0, canvas.width, canvas.height )
+
+    const steps2D = 1
+
     // Loop through all chunks in world
     for (let cy = 0; cy < w.length; cy++) {
     for (let cx = 0; cx < w[cy].length; cx++) {
@@ -124,8 +130,20 @@ function drawWorld(w, z) {
         // Draw pixel
         let val = chunk[y][x][zBlock]
         //if (toleranceMode) val = (val > generator.noiseTolerance) ? 1 : 0
-        ctx.fillStyle = `rgb( 0, 0, 0 )`
-        if (val === 0) ctx.fillRect( (x+(cx*cSize))*pixelSize, ((_resolution-y-1)-(cy*cSize))*pixelSize, pixelSize, pixelSize )
+        if (val === 0) {
+            for (let n = 0; n < steps2D; n++) {
+                const nextZ = z+n+1
+                const nextZChunk = Math.floor(nextZ / cSize) % w.length
+                const nextZBlock = nextZ % cSize
+                const nextChunk = w[cy][cx][nextZChunk]
+                const nextZVal = nextChunk[y][x][nextZBlock]
+                if (nextZVal > 0) {
+                    drawTileHere((x+(cx*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, nextZVal)
+                    ctx.fillStyle = `rgba( 0, 0, 0, ${(1/(steps2D+1)) * (n+1)} )`
+                    ctx.fillRect( (x+(cx*cSize))*pixelSize, ((_resolution-y-1)-(cy*cSize))*pixelSize, pixelSize, pixelSize )
+                }
+            }
+        }
         else drawTileHere((x+(cx*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
     }}}}
 }

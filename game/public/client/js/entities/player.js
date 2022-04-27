@@ -99,12 +99,18 @@ class ClientPlayer {
         // }
         this.debug = false
 
-        // Inv vars
+        // Health vars
         this.health = 100
         this.isInvincible = false
         this.invincibleTime = 500 // time in ms
         this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
         // this.inventory = new Inventory()
+
+        // Gameplay vars
+        // ToDo: a lot of these should only be stored / tracked on the brain, not on the client
+        this.isRacing = false
+        this.raceStartTime = 0
+        this.raceEndTime = 0
 
         // Respawn vars
         this.respawnPoint = new BABYLON.Vector3(0,0,0)
@@ -174,6 +180,29 @@ class ClientPlayer {
 
         // Debug lines
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
+    }
+
+    //ToDo: move this logic to brain
+    startRace = () => {
+        if (!this.isRacing){
+            this.isRacing = true
+            this.raceStartTime = Date.now()
+        }
+    }
+
+    endRace = () => {
+        if (this.isRacing) {
+            this.isRacing = false
+            this.raceEndTime = Date.now()
+
+            const diffTotal = this.raceEndTime - this.raceStartTime
+            const diffMin = Math.round(diffTotal / 60000) // minutes
+            const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
+            const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
+            console.log(`%c Finished in: ${diffMin}:${diffSec}:${diffMs}`, 'background: #142; color: #ced')
+
+            //ToDo: Send chat message
+        }
     }
 
     takeDamage = (damage) => { // This is not networked at the moment
@@ -377,6 +406,10 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
             }
         }
 
@@ -399,6 +432,10 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
             }
         }
 
@@ -421,6 +458,10 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
+                // Start race if starting line block
+                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
             }
         }
         

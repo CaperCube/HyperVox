@@ -34,7 +34,7 @@ function getBlockDamage(blockID) {}
 function getBlockState(blockID) {}
 
 // Blocks can have multiple categories
-const blockCats = { 
+const blockCats = { // ToDo: possibly rename this to "blockTags"
     // Functional categories
     checkpoint: 'checkpoint',
     damaging: 'damaging',
@@ -43,6 +43,9 @@ const blockCats = {
     unbreakable: 'unbreakable',
     transparent: 'transparent',
     zone: 'zone', // i.e. building-zones, no-gun-zones etc.
+    // Racing categories
+    raceStart: 'raceStart',
+    raceEnd: 'raceEnd',
     // Visual categories
     color: {
         red: 'red',
@@ -274,13 +277,13 @@ const blockTypes = [
     // 0x0021
     {
         name: 'finish-line',
-        categories: [blockCats.color.black, blockCats.color.white],
+        categories: [blockCats.color.black, blockCats.color.white, blockCats.race, blockCats.raceEnd],
         textures: { top: 240, bottom: 240, front: 240, back: 240, left: 240, right: 240 },
     },
     // 0x0022
     {
         name: 'start-line',
-        categories: [blockCats.color.green],
+        categories: [blockCats.color.green, blockCats.race, blockCats.raceStart],
         textures: { top: 239, bottom: 239, front: 239, back: 239, left: 239, right: 239 },
     },
     // 0x0022
