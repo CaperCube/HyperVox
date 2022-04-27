@@ -1,6 +1,6 @@
 import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
-import { blockCats, blockTypes } from '../../../common/blockSystem.js'
+import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -73,14 +73,24 @@ class ClientPlayer {
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
-        this.avatar = avatar? avatar : BABYLON.Mesh.MergeMeshes([
-            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'left', 227, clientGame.scene),
-            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', 226, clientGame.scene),
-            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'right', 225, clientGame.scene),
-            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'back', 228, clientGame.scene),
-            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'top', 210, clientGame.scene),
-            clientGame.meshGen.createBlockWithUV({x: 0, y: 0.125 - 1, z: 0}, 6, clientGame.scene)
+        this.avatar = avatar? avatar : new BABYLON.TransformNode("root")
+        this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
+        this.head = avatar? null : BABYLON.Mesh.MergeMeshes([
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'left', getBlockByName('head').textures.left, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', getBlockByName('head').textures.front, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'right', getBlockByName('head').textures.right, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'back', getBlockByName('head').textures.back, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'top', getBlockByName('head').textures.top, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'bottom', getBlockByName('head').textures.bottom, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.51, y: -0.745, z: 0.125}, 'left', 244, clientGame.scene),
+            clientGame.meshGen.createQuadWithUVs({x: -0.49, y: -0.745, z: 0.125}, 'right', 243, clientGame.scene)
         ], true)
+        if (!avatar && this.avatar) {
+            this.avatar.position = new BABYLON.Vector3(0, -0.5, 0)
+            this.body.scaling.x = this.body.scaling.z = 0.5
+            this.body.parent = this.avatar //0.125 - 1 //0.625 //0.875
+            this.head.parent = this.avatar //-0.375
+        }
         //this.playerCamera = camera
 
         // Player controls

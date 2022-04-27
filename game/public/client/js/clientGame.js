@@ -275,7 +275,7 @@ class ClientGame {
             this.frame++
 
             // Tell the brain my position
-            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z })
+            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
 
             // Update materials
             if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4

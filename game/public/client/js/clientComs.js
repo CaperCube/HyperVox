@@ -107,6 +107,8 @@ class ClientComs {
                         // console.log(data.position)
                         // this.clientGame.networkPlayers[data.playerID].position = data.position
                         movingPlayer[0].position = data.position
+                        //if (movingPlayer[0].avatar) movingPlayer[0].avatar.rotation = data.rotation // change this to player.avatar.head.rotation = data.rotation
+                        if (movingPlayer[0].avatar) movingPlayer[0].head.rotation = data.rotation
                     }
                 }
             }
@@ -175,9 +177,9 @@ class ClientComs {
         else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
     }
 
-    updateMyGamePosition(position) {
+    updateMyGamePosition(position, rotation) {
         // console.log('%c Sending my position... (client)', 'background: #124; color: #cde')
-        const data = { position: position }
+        const data = { position: position, rotation: rotation }
         if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['movePlayer']( data )
 
         // Network message
