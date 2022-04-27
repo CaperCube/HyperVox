@@ -7,6 +7,8 @@
 // through here first to get to the brain
 ////////////////////////////////////////////////////
 
+import { gameModes } from "./brainGame.js"
+
 class BrainComs {
     constructor(props = {
         brainGame,
@@ -44,6 +46,7 @@ class BrainComs {
             },
             clientJoin: ( data, playerId ) => {
                 if (this.messageDebug) console.log( 'Client joined game (brain)', data )
+                // ToDo: check blacklist for this player & kick them
                 // Store the client's player(s)
                 // Send the world to the client
                 // Send message to client to spawn them in a location in the world
@@ -57,14 +60,27 @@ class BrainComs {
 
             loadWorld: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Load world (brain)', 'background: #142; color: #ced' )
+                // ToDo: Check if the player is an admin, if so, allow change
+                // if (playerId && this.brainGame.admins.includes(playerId)) this.brainGame.loadWorld(data.world)
                 this.brainGame.loadWorld(data.world)
                 
             },
 
             updateSingleBlock: ( data, playerId ) => {
-                if (this.messageDebug) console.log( '%c Update single block (brain)', 'background: #142; color: #ced', data )
-                // Tell brain to validate & update this block
-                this.brainGame.updateSingleBlock(data.location, data.id)
+                // ToDo: Check for server's game-mode AND player's game-mode (both should be stored on the server) (server's game-mode is the default)
+                if (this.brainGame.gameOptions.gameMode === gameModes.creative) {
+                    // Tell brain to validate & update this block
+                    if (this.messageDebug) console.log( '%c Update single block (brain)', 'background: #142; color: #ced', data )
+                    this.brainGame.updateSingleBlock( data.location, data.id )
+                }
+                else {
+                    // Send the server's actual block back to players
+                    if (this.messageDebug) console.log( 'Player is not allowed to place or destroy blocks' )
+                    const realBlock = this.brainGame.world.worldChunks
+                        [data.location.chunk.y][data.location.chunk.x][data.location.chunk.z]
+                        [data.location.block.y][data.location.block.x][data.location.block.z]
+                    this.updateSingleBlock( data.location, realBlock )
+                }
             },
 
             movePlayer: ( data, playerId ) => {

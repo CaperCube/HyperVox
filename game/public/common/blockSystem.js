@@ -267,6 +267,7 @@ const blockTypes = [
         name: 'death',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
         textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
+        // textures: { top: 252, bottom: 252, front: 252, back: 252, left: 252, right: 252 },
         // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         damage: 1000
     },
@@ -278,15 +279,27 @@ const blockTypes = [
     },
     // 0x0022
     {
+        name: 'start-line',
+        categories: [blockCats.color.green],
+        textures: { top: 239, bottom: 239, front: 239, back: 239, left: 239, right: 239 },
+    },
+    // 0x0022
+    {
         name: 'respawn-point',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.checkpoint],
-        textures: { top: 239, bottom: 239, front: 239, back: 239, left: 239, right: 239 },
+        textures: { top: 238, bottom: 238, front: 238, back: 238, left: 238, right: 238 },
     },
     // 0x0023
     {
         name: 'dialogue-box',
         categories: [blockCats.color.grey, blockCats.color.green],
-        textures: { top: 238, bottom: 238, front: 238, back: 238, left: 238, right: 238 },
+        textures: { top: 237, bottom: 237, front: 237, back: 237, left: 237, right: 237 },
+    },
+    // 0x0023
+    {
+        name: 'info-box',
+        categories: [blockCats.color.grey, blockCats.color.green],
+        textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
     },
     // 0x0024
     {

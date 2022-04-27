@@ -4,6 +4,13 @@ import BrainComs from "./brainComs.js"
 import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 
+const gameModes = {
+    creative: 'creative',
+    parkour: 'parkour',
+    deathMatch: 'deathmatch',
+    teamDeathMatch: 'teamDeathMatch',
+}
+
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
     constructor(props = {
@@ -13,10 +20,11 @@ class BrainGame {
         ///////////////////////////////////////////////////////
         // Game vars
         ///////////////////////////////////////////////////////
-        this.GameOptions = {
-            gameTickSpeed: 10000, // Time in ms between game ticks
-            gameUpdateSpeed: 1/30000, // Time in ms between entity updates
-            validatePlayerActions: false // Corrects player movement server-side
+        this.gameOptions = {
+            gameTickSpeed: 100, // Time in ms between game ticks
+            gameUpdateSpeed: 300, // Time in ms between entity updates
+            validatePlayerActions: false, // Corrects player movement server-side
+            gameMode: gameModes.creative // The brain's default game-mode
         }
         
         this.brainComs = new BrainComs({
@@ -28,6 +36,7 @@ class BrainGame {
         this.generator = new ChunkGenerator()
         this.world = null
         this.players = []
+        this.admins = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
     }
 
@@ -123,3 +132,4 @@ class BrainGame {
 }
 
 export default BrainGame
+export { gameModes }
