@@ -44,6 +44,7 @@ class BrainComs {
                 if (this.messageDebug) console.log('%c Connected to clientComs (brain)', 'background: #142; color: #ced')
                 this.clientCom = data.clientCom
             },
+
             clientJoin: ( data, playerId ) => {
                 if (this.messageDebug) console.log( 'Client joined game (brain)', data )
                 // ToDo: check blacklist for this player & kick them
@@ -100,6 +101,16 @@ class BrainComs {
             askWhosConnected: ( data, playerId ) => {
                 if (this.messageDebug) console.log( `%c Ask who's connected ${playerId} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
+            },
+
+            sendChatMessage: ( data, playerId ) => {
+                // ToDo: get player name from brain's player list and use that
+                // data.playerID = playerId
+
+                if (this.isNetworked) {
+                    const recipients = "all"
+                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
+                }
             }
             //...
         }

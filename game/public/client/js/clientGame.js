@@ -252,6 +252,7 @@ class ClientGame {
         if (this.clientComs.isNetworked) {
             console.log("asking who's here")
             this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+            this.clientComs.sendChatMessage(`I have joined!`, this.localPlayer.playerName, this.localPlayer.playerColor)
         }
 
         // Create crosshair
@@ -508,6 +509,27 @@ class ClientGame {
         this.updateChunks(location)
     }
 
+    // Display chat message
+    displayChatMessage(message, messageName, nameColor = "") {
+        console.log(messageName, message)
+
+        if (!nameColor) nameColor = `rgb(${150},${150},${150})`
+        const newMessage = document.createElement("p")
+        newMessage.innerHTML = `<b style="color: ${nameColor};">${messageName}:</b> ${message}` // ToDo: CHANGE THIS, THIS IS DANGEROUS! If users can inject RAW text directly into the html, a user could inject js code
+        $("#chat-window").appendChild(newMessage)
+
+        $("#chat-window").scrollTop = $("#chat-window").scrollHeight
+
+        // Fade out
+        setTimeout(()=>{
+            newMessage.style.opacity = 0;
+        },20000)
+
+        // Delete after fade out
+        setTimeout(()=>{
+            newMessage.remove()
+        },21000)
+    }
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////

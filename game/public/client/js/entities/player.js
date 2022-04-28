@@ -68,6 +68,7 @@ class ClientPlayer {
     constructor(controls, avatar = null, playerID = 0, clientGame) {
         this.playerID = playerID
         this.playerName = getRandomName() || 'Player' // ToDo: Generate a random name
+        this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
         console.log(this.playerName)
 
         // Player vars
@@ -209,9 +210,8 @@ class ClientPlayer {
             const diffMin = Math.round(diffTotal / 60000) // minutes
             const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
             const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
-            console.log(`%c Finished in: ${diffMin}:${diffSec}:${diffMs}`, 'background: #142; color: #ced')
 
-            //ToDo: Send chat message
+            this.clientGame.clientComs.sendChatMessage(`Finished in: ${diffMin}:${diffSec}:${diffMs}`, this.playerName, this.playerColor)
         }
     }
 

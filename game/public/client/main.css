@@ -30,3 +30,59 @@ body {
 	background-image: url('./src/textures/loading_basic.gif');
 	background-size: 128px;
 }
+
+#chat-window {
+	position: absolute;
+	display: inline-block;
+	bottom: 10px;
+	left: 10px;
+	width: 35%;
+	height: 20%;
+	max-height: 20%;
+
+	padding: 0px 10px 0px 10px;
+
+	overflow-y: scroll;
+	pointer-events: none;
+	user-select: none;
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+	
+	background-color: rgba(0,0,0,0.5);
+	font-family: sans-serif;
+	color: white;
+	font-smooth: never;
+	-webkit-font-smoothing : none;
+}
+
+#chat-window::-webkit-scrollbar {
+	display: none;
+}
+
+@keyframes message-arrive { 
+	0% {
+		left: -100px;
+		opacity: 0;
+	}
+	100% { 
+		left: 0px;
+		opacity: 1;
+	}
+}
+
+#chat-window > p {
+	position: relative;
+	margin: 10px 0px 5px;
+	left: 0px;
+	opacity: 1;
+	transition: 1s;
+
+	animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1.5);
+	animation-duration: 0.25s;
+	animation-name: message-arrive;
+	animation-iteration-count: 1;
+}
+
+#chat-window > p > b {
+	font-weight: bolder;
+}

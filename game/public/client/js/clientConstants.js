@@ -31,7 +31,11 @@ const playerNames = {
         "Bad",
         "Wrong",
         "Hollow",
-        "Slimy"
+        "Slimy",
+        "Blocky",
+        "Cubic",
+        "Soccer",
+        "Meh"
     ],
     nouns: [
         "Player",
@@ -43,9 +47,20 @@ const playerNames = {
         "Crab",
         "Gibby",
         "Name",
-        "Skater",
         "Gamer",
-        "Knight"
+        "Knight",
+        "Dog",
+        "Cat",
+        "Scope",
+        "Tap",
+        "Fart",
+        "Block",
+        "Android",
+        "Robot",
+        "Snake",
+        "NPC",
+        "Doctor",
+        "Sock"
     ]
 }
 

@@ -47,6 +47,7 @@ class ClientComs {
                 if (this.messageDebug) console.log( '%c Update single block (client)', 'background: #142; color: #ced' )
                 this.clientGame.updateBlock( data.location, data.id )
             },
+
             loadSentWorld: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Load world from brain (client)', 'background: #142; color: #ced' )
 
@@ -60,6 +61,7 @@ class ClientComs {
                 // Start game
                 this.clientGame.startNewGameScene()
             },
+
             initOtherPlayers: ( data, playerId ) => { 
                 if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
 
@@ -93,6 +95,7 @@ class ClientComs {
                     }
                 }
             },
+
             movePlayer: ( data, playerId ) => {
                 // if (this.messageDebug) console.log( '%c Set player positions from brain (client)', 'background: #142; color: #ced' )
 
@@ -111,7 +114,12 @@ class ClientComs {
                         if (movingPlayer[0].avatar) movingPlayer[0].head.rotation = data.rotation
                     }
                 }
-            }
+            },
+
+            receiveChatMessage: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Receive chat message from brain (client)', 'background: #142; color: #ced' )
+                this.clientGame.displayChatMessage(data.message, data.messageName, data.nameColor)
+            },
         }
     }
 
@@ -184,6 +192,14 @@ class ClientComs {
 
         // Network message
         else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'movePlayer', args: data } )
+    }
+
+    sendChatMessage(message, playerName, nameColor) {
+        const data = { message: message, messageName: playerName, nameColor: nameColor }
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['sendChatMessage']( data )
+
+        // Network message
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'sendChatMessage', args: data } )
     }
 
     // Other stuff that needs to be communcated to the brain / server
