@@ -12,7 +12,7 @@ const debug = {
 }
 
 // Consider including chunk scale in here as well
-const tileScale = 1
+const tileScale = 1 // Do not change this
 const defaultChunkSize = 8
 const defaultWorldSize = 10
 

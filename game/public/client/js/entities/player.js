@@ -135,8 +135,9 @@ class ClientPlayer {
         this.cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
 
         // Movement vars
-        this.spectateMode = true
-        this.moveSpeed = tileScale/40 //0.025
+        this.spectateMode = false
+        this.moveSpeed = 0.025 //tileScale/40
+        this.jumpStength = 0.2
         this.allowedJumps = 2
 
         // Private vars
@@ -211,7 +212,7 @@ class ClientPlayer {
             const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
             const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
 
-            this.clientGame.clientComs.sendChatMessage(`Finished in: ${diffMin}:${diffSec}:${diffMs}`, this.playerName, this.playerColor)
+            this.clientGame.clientComs.sendChatMessage(`<u>Finished in: ${diffMin}:${diffSec}:${diffMs}</u>`, this.playerName, this.playerColor)
         }
     }
 
@@ -286,7 +287,7 @@ class ClientPlayer {
             assignFunctionToInput(c.leftAxis2, ()=>{this.avatar.rotation.y -= Math.PI/4}, ()=>{})
             assignFunctionToInput(c.rightAxis2, ()=>{this.avatar.rotation.y += Math.PI/4}, ()=>{})
             // Run, Jump
-            assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = 0.2; this.usedJumps++}}, ()=>{this.moveUp=false})
+            assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = this.jumpStength; this.usedJumps++}}, ()=>{this.moveUp=false})
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
             assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})

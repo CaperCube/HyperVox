@@ -163,6 +163,9 @@ class ClientGame {
         this.mainInv = null
         this.localPlayer = null
         this.networkPlayers = []
+        $("#chat-window").style.display = 'none'
+        $("#chat-input").style.display = 'none'
+        $("#chat-input").onsubmit = (e) => { e.preventDefault() }
     }
 
     // Sets up the scene in which the game can be rendered and interacted
@@ -250,8 +253,19 @@ class ClientGame {
         // Request other players
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
         if (this.clientComs.isNetworked) {
-            console.log("asking who's here")
+            // Enable chat window
+            $("#chat-window").style.display = 'inline-block'
+            $("#chat-input").style.display = 'inline-block'
+            $("#chat-input").onsubmit = (e) => { 
+                e.preventDefault()
+                this.clientComs.sendChatMessage($("#chat-input-text").value, this.localPlayer.playerName, this.localPlayer.playerColor)
+                $("#chat-input-text").value = ''
+            }
+
+            // Ask who's here
             this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+
+            // Send chat that I've joined
             this.clientComs.sendChatMessage(`I have joined!`, this.localPlayer.playerName, this.localPlayer.playerColor)
         }
 
@@ -522,7 +536,7 @@ class ClientGame {
 
         // Fade out
         setTimeout(()=>{
-            newMessage.style.opacity = 0;
+            newMessage.style.opacity = 0
         },20000)
 
         // Delete after fade out
