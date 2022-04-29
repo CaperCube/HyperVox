@@ -76,7 +76,7 @@ class ClientComs {
                             // console.log("Hey, make a new player!", p)
                             // Add new Player() to scene
                             const newPlayer = new ClientPlayer(null, null, data.players[p], this.clientGame)
-                            newPlayer.setPlayerName(data.players[p])
+                            newPlayer.setPlayerName('Not my real name')
                             // Push this player to array
                             this.clientGame.networkPlayers[p] = newPlayer
 

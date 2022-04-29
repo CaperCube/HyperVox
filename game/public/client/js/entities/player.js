@@ -67,7 +67,8 @@ class ClientPlayer {
     // Init player
     constructor(controls, avatar = null, playerID = 0, clientGame) {
         this.playerID = playerID
-        this.playerName = getRandomName() || 'Player' // ToDo: Generate a random name
+        const randomName = getRandomName()
+        this.playerName = randomName || 'Player' // ToDo: Generate a random name
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
         console.log(this.playerName)
 
@@ -172,21 +173,26 @@ class ClientPlayer {
         console.log("My player ID: ", this.playerID)
         if (this.playerID !== this.clientGame.clientID) {
             this.nameMesh = BABYLON.Mesh.CreatePlane("nameTag", 1, this.scene, false)
-            // this.nameMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
-            // this.nameMesh.material = new BABYLON.StandardMaterial("nameTag_mat", this.scene)
-            this.nameMesh.material = this.scene.defaultMaterial
 
+            // Create material
+            this.nameMesh.material = new BABYLON.StandardMaterial('nameMat')
+            this.nameMesh.useAlphaFromDiffuseTexture = true
+            this.nameMesh.material.specularColor = new BABYLON.Color3(0, 0, 0)
+            this.nameMesh.material.useAlphaFromDiffuseTexture = true
+
+            // Bake rotation
+            this.nameMesh.rotation.z = Math.PI
+            this.nameMesh.rotation.y = Math.PI
+            this.nameMesh.bakeCurrentTransformIntoVertices()
+
+            // Parent mesh to player
             this.nameMesh.setParent(this.avatar)
             this.nameMesh.position = new BABYLON.Vector3(0, 1.5, 0)
 
-            // this.nameMeshTexture = new BABYLON.DynamicTexture("nameTag_tex", 512, this.scene, true)
-            // this.nameMesh.material.diffuseTexture = this.nameMeshTexture
-            // this.nameMesh.material.diffuseTexture.hasAlpha = true
-            // this.nameMesh.useAlphaFromDiffuseTexture = true
-            // this.nameMesh.material.specularColor = new BABYLON.Color3(0, 0, 0)
-            // this.nameMesh.material.emissiveColor = new BABYLON.Color3(1, 1, 1)
-            // this.nameMesh.material.backFaceCulling = false // ToDo: make this true
+            this.nameMesh.material.backFaceCulling = false
+            this.nameMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
 
+            // Set texture
             this.setPlayerName(this.playerName)
         }
 
@@ -211,6 +217,9 @@ class ClientPlayer {
             const diffMin = Math.round(diffTotal / 60000) // minutes
             const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
             const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
+
+            console.log(this.playerName)
+            console.log(this.playerName)
 
             this.clientGame.clientComs.sendChatMessage(`<u>Finished in: ${diffMin}:${diffSec}:${diffMs}</u>`, this.playerName, this.playerColor)
         }
@@ -247,16 +256,21 @@ class ClientPlayer {
         this.playerName = newName
 
         if (this.playerID !== this.clientGame.clientID) {
-            // Clear dynamic texture
-            //...
+            // Draw new texture from menu system bakeText()
+            if (this.clientGame.menu.fonts[0])
+                this.clientGame.menu.bakeText(newName, this.clientGame.menu.fonts[0], (img) => { 
 
-            // Draw new dynamic texture from menu system
-            //...
-            //this.clientGame.menu.drawTextureText(this.playerName)
+                    const nameTexture = new BABYLON.Texture(img.src, this.scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 
-            // Rescale mesh and texture
-            //...
-            this.nameMesh.scaling.x = 4
+                    this.nameMesh.material.diffuseTexture = nameTexture
+                    this.nameMesh.material.emissiveTexture = nameTexture
+
+                    this.nameMesh.material.diffuseTexture.hasAlpha = true
+
+                    // Rescale mesh and texture
+                    this.nameMesh.scaling.y = 0.5
+                    this.nameMesh.scaling.x = (img.width / img.height) / 2
+                })
         }
     }
 

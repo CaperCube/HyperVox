@@ -208,7 +208,7 @@ class MenuSystem {
         playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
-        
+
         this.mainMenu = new UIScene([bars, mainMenuTitle], [playButton, joinButton, optionsButton])
 
         // Options menu
@@ -331,30 +331,6 @@ class MenuSystem {
         this.setSelection(num)
     }
 
-    ////////////////////////////////////////////////////////
-    // Drawing
-    ////////////////////////////////////////////////////////
-
-    drawTileHere(x, y, offset, tileSize, id) {
-        // Calculate ID offset
-        const rows = 16
-        const columns = 16
-        const c = (id-1) % columns
-        const r = Math.floor((id-1) / columns)
-        // Draw
-        if (this.uiTiles) this.ctx.drawImage(this.uiTiles, c*tileSize, r*tileSize, tileSize, tileSize, (x*tileSize) + offset.x, (y*tileSize) + offset.y, tileSize, tileSize)
-    }
-
-    animate() {
-        // Draw all tiles in current frame / state
-            // this.render()
-                // this.drawScene(this.activeScene)
-                    // this.drawFrame(menuElement)
-
-        // Progress frame for actively animating objects (i.e. 'idle' state elements or 'hover' state elements)
-            // menuElement.frame++
-    }
-
     /////////////////////////////////////////////////////////
     // Loaders
     /////////////////////////////////////////////////////////
@@ -400,10 +376,67 @@ class MenuSystem {
     }
 
     /////////////////////////////////////////////////////////
+    // Baking
+    /////////////////////////////////////////////////////////
+
+    // Returns an image
+    bakeText = (string, font, callback) => {
+        // Measure text
+        const textSize = this.drawText( string, { x:0, y:0 }, font, null )
+
+        // Create temporary cnavas
+        const tempCanvas = document.createElement("canvas")
+        const tempCtx = tempCanvas.getContext("2d")
+        tempCanvas.width = textSize.x
+        tempCanvas.height = textSize.y
+
+        // Draw text to canvas
+        this.drawText( string, { x: 0, y: textSize.y }, font, tempCtx )
+
+        // Create image from canvas
+        const textImage = new Image( textSize.x, textSize.y )
+        textImage.onload = () => { 
+            
+            callback(textImage) }
+        textImage.src = tempCanvas.toDataURL()
+    }
+
+    // Returns an image
+    bakeTiles = (tiles) => {
+        //...
+    }
+
+    // Returns an image
+    bakeTilesAndText = (tiles, string) => {
+        //...
+    }
+
+    /////////////////////////////////////////////////////////
     // Drawing and Rendering
     /////////////////////////////////////////////////////////
 
-    drawText(string, position, font) {
+    drawTileHere(x, y, offset, tileSize, id) {
+        // Calculate ID offset
+        const rows = 16
+        const columns = 16
+        const c = (id-1) % columns
+        const r = Math.floor((id-1) / columns)
+        // Draw
+        if (this.uiTiles) this.ctx.drawImage(this.uiTiles, c*tileSize, r*tileSize, tileSize, tileSize, (x*tileSize) + offset.x, (y*tileSize) + offset.y, tileSize, tileSize)
+    }
+
+    animate() {
+        // Draw all tiles in current frame / state
+            // this.render()
+                // this.drawScene(this.activeScene)
+                    // this.drawFrame(menuElement)
+
+        // Progress frame for actively animating objects (i.e. 'idle' state elements or 'hover' state elements)
+            // menuElement.frame++
+    }
+
+    // Draws to given context (if available) and returns the size of the canvas in {x,y} pixels
+    drawText(string, position, font, myCtx) {
         // position = {x: x, y: y}
         // font = {img: img, data: fontJson}
         let addedX = 0
@@ -431,7 +464,7 @@ class MenuSystem {
             
             if (charCode !== 32) {
                 // Draw character
-                this.ctx.drawImage(font.img, crop.sx, crop.sy, crop.sw, crop.sh, xPos, yPos, crop.sw, crop.sh)
+                if (myCtx) myCtx.drawImage(font.img, crop.sx, crop.sy, crop.sw, crop.sh, xPos, yPos, crop.sw, crop.sh)
 
                 // Add to next X position
                 const tracking = font.data.charData[`${charCode}`]?.tracking ? font.data.charData[`${charCode}`].tracking : 0
@@ -442,6 +475,8 @@ class MenuSystem {
                 addedX += (font.data.metrics.spaceSize || charSize) + font.data.metrics.letterSpacing
             }
         }
+
+        return { x: addedX, y: font.data.metrics.fontSize }
     }
 
     drawElement = (thisElem) => {
@@ -460,7 +495,7 @@ class MenuSystem {
                 x: Math.floor(thisElem.position.x + thisElem.textOffset.x),
                 y: Math.floor(thisElem.position.y + thisElem.textOffset.y)
             }
-            this.drawText(thisElem.text, textPos, this.fonts[thisElem.fontIndex])
+            this.drawText(thisElem.text, textPos, this.fonts[thisElem.fontIndex], this.ctx)
         }
     }
 
