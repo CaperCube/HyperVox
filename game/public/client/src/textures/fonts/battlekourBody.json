@@ -1,0 +1,71 @@
+{
+    "metaData": {
+        "fontName": "BattlekourBody",
+        "fontFamily": "Battlekour",
+        "fontWeight": "regular",
+        "imgName": "BattlekourBody_temp.png"
+    },
+    "metrics": {
+        "fontSize": 8,
+        "baseline": 0,
+        "spaceSize": 4,
+        "letterSpacing": -1,
+        "defaultWidth": 6
+    },
+    "charData": {
+        "unsupported": { "width": 8, "shift": 0, "tracking": 0 },
+        "33": { "width": 3, "shift": 0, "tracking": 0 },
+        "34": { "width": 7, "shift": -1, "tracking": -1 },
+        "35": { "width": 7, "shift": 0, "tracking": 0 },
+        "36": { "width": 7, "shift": 0, "tracking": 0 },
+        "37": { "width": 7, "shift": 0, "tracking": 0 },
+        "38": { "width": 7, "shift": 0, "tracking": 0 },
+        "39": { "width": 4, "shift": -1, "tracking": -1 },
+        "40": { "width": 4, "shift": 0, "tracking": 0 },
+        "41": { "width": 4, "shift": 0, "tracking": 0 },
+        "42": { "width": 5, "shift": 0, "tracking": 0 },
+        "43": { "width": 5, "shift": 0, "tracking": 0 },
+        "44": { "width": 4, "shift": -1, "tracking": -1 },
+        "45": { "width": 5, "shift": 0, "tracking": 0 },
+        "46": { "width": 3, "shift": 0, "tracking": 0 },
+        "47": { "width": 5, "shift": 0, "tracking": 0 },
+
+        "49": { "width": 5, "shift": 0, "tracking": 0 },
+
+        "58": { "width": 3, "shift": 0, "tracking": 0 },
+        "59": { "width": 4, "shift": -1, "tracking": -1 },
+        "60": { "width": 8, "shift": 0, "tracking": 0 }, 
+        "61": { "width": 5, "shift": 0, "tracking": 0 }, 
+        "62": { "width": 8, "shift": 0, "tracking": 0 },
+
+        "73": { "width": 5, "shift": 0, "tracking": 0 },
+        "76": { "width": 5, "shift": 0, "tracking": 0 },
+        "77": { "width": 7, "shift": 0, "tracking": 0 },
+        "78": { "width": 7, "shift": 0, "tracking": 0 },
+        "84": { "width": 5, "shift": 0, "tracking": 0 },
+        "86": { "width": 7, "shift": 0, "tracking": 0 },
+        "87": { "width": 7, "shift": 0, "tracking": 0 },
+
+        "91": { "width": 4,  "shift": 0, "tracking": 0 },
+        "92": { "width": 5,  "shift": 0, "tracking": 0 },
+        "93": { "width": 4,  "shift": 0, "tracking": 0 },
+        "94": { "width": 5,  "shift": 0, "tracking": 0 },
+        "95": { "width": 7,  "shift": 0, "tracking": 0 },
+        "96": { "width": 4,  "shift": -1, "tracking": -1 },
+
+        "102": { "width": 5, "shift": 0, "tracking": -1 },
+        "105": { "width": 3, "shift": 0, "tracking": 0 },
+        "106": { "width": 4, "shift": -1, "tracking": -1 },
+        "107": { "width": 5, "shift": 0, "tracking": 0 },
+        "108": { "width": 3, "shift": 0, "tracking": 0 },
+        "109": { "width": 7, "shift": 0, "tracking": 0 },
+        "116": { "width": 4, "shift": 0, "tracking": 0 },
+        "118": { "width": 7, "shift": 0, "tracking": 0 },
+        "119": { "width": 7, "shift": 0, "tracking": 0 },
+
+        "123": { "width": 5,  "shift": 0, "tracking": 0 },
+        "124": { "width": 3,  "shift": 1, "tracking": 2 },
+        "125": { "width": 5,  "shift": 0, "tracking": 0 },
+        "126": { "width": 7,  "shift": 0, "tracking": 0 }
+    }
+}

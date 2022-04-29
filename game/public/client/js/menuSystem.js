@@ -91,10 +91,11 @@ class UIAnimation {
 
 // ToDo: move this class to "./menu/UIElement.js"
 class UIElement {
-    constructor({position = {x: 0, y: 0}, tiles = [[]], text = ''}) {
+    constructor({position = {x: 0, y: 0}, tiles = [[]], text = '', fontIndex = 0}) {
         this.position = position
         this.tiles = tiles
         this.text = text
+        this.fontIndex = fontIndex
         this.textOffset = { x: 19, y: 24 }
 
         //this.pressButton = () => { console.log(`clicked ${this.text}`) }
@@ -207,7 +208,7 @@ class MenuSystem {
         playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
-        // this.mainMenu = new UIScene([bars, mainMenuTitle, playButton, joinButton, optionsButton], [])
+        
         this.mainMenu = new UIScene([bars, mainMenuTitle], [playButton, joinButton, optionsButton])
 
         // Options menu
@@ -373,16 +374,28 @@ class MenuSystem {
 
     // Loads font based on .json files
     loadFonts(path, callback = ()=>{}) {
-        const font = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
-        this.loadImage(`./client/src/textures/fonts/${font.data.metaData.imgName}`, (img)=>{
+        const titleFont = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
+        const smallFont = {img: null, data: fontJSON.battlekourBody, isLoaded: false}
+        this.loadImage(`./client/src/textures/fonts/${titleFont.data.metaData.imgName}`, (img)=>{
             // load json
-            font.img = img
-            font.isLoaded = true
+            titleFont.img = img
+            titleFont.isLoaded = true
 
-            console.log('font loaded', font)
+            console.log('font loaded', titleFont)
 
-            this.fonts.push(font)
-            callback(font)
+            this.fonts.push(titleFont)
+            
+            // Small font
+            this.loadImage(`./client/src/textures/fonts/${smallFont.data.metaData.imgName}`, (img)=>{
+                // load json
+                smallFont.img = img
+                smallFont.isLoaded = true
+    
+                console.log('font loaded', smallFont)
+    
+                this.fonts.push(smallFont)
+                callback(smallFont)
+            })
         })
     }
 
@@ -400,7 +413,7 @@ class MenuSystem {
             const charCode = string.charCodeAt(i)
             let index = charCode - 33
             if (charCode < 32 || charCode > 126) index = 126
-            const charSize = 16
+            const charSize = font.data.metrics.fontSize || 16
             const columns = 32
 
             // Crop the image
@@ -442,12 +455,12 @@ class MenuSystem {
             }
             this.drawTileHere(x, y, tilePos, menuConstants.tileSize, thisTile)
         }}
-        if (thisElem.text && this.fonts[0]?.isLoaded) {
+        if (thisElem.text && this.fonts[thisElem.fontIndex]?.isLoaded) {
             const textPos = {
                 x: Math.floor(thisElem.position.x + thisElem.textOffset.x),
                 y: Math.floor(thisElem.position.y + thisElem.textOffset.y)
             }
-            this.drawText(thisElem.text, textPos, this.fonts[0])
+            this.drawText(thisElem.text, textPos, this.fonts[thisElem.fontIndex])
         }
     }
 

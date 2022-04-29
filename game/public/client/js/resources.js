@@ -1,4 +1,5 @@
 import bkFont from '../src/textures/fonts/battlekourTitle.json' assert { type: "json" }
+import bkBodyFont from '../src/textures/fonts/battlekourBody.json' assert { type: "json" }
 
 ///////////////////////////////////////
 // Constants
@@ -32,7 +33,8 @@ const imageSRC = {
 // Fonts
 ///////////////////////////////////////
 const fontJSON = {
-    battlekourTitle: bkFont
+    battlekourTitle: bkFont,
+    battlekourBody: bkBodyFont
 }
 
 ///////////////////////////////////////
