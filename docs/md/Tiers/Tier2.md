@@ -50,7 +50,7 @@ Tier shaping needed...
         - [X] Give new players a playerID
         - [X] New Players / Leaving Players
         - [X] Movement
-        - [ ] Chat messages
+        - [X] Chat messages
         - [ ] Privileges
         - [X] Chunk changes
     - [X] Networking for sending / receiving messages
