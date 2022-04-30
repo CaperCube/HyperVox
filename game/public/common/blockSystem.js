@@ -147,6 +147,7 @@ const blockTypes = [
         name: 'head',
         categories: [blockCats.decorative, blockCats.color.green],
         textures: { top: 210, bottom: 242, front: 226, back: 228, left: 227, right: 225 },
+        bounciness: 0.8,
     },
     // 0x000c
     {
@@ -231,14 +232,14 @@ const blockTypes = [
         name: 'water',
         categories: [blockCats.natural, blockCats.transparent, blockCats.fluid, blockCats.color.blue],
         textures: { top: 18, bottom: 18, front: 18, back: 18, left: 18, right: 18 },
-        viscosity: 1.5,
+        viscosity: 3,
     },
     // 0x001b
     {
         name: 'lava',
-        categories: [blockCats.natural, blockCats.damaging, blockCats.fluid, blockCats.color.red],
+        categories: [blockCats.natural, blockCats.transparent, blockCats.damaging, blockCats.fluid, blockCats.color.red],
         textures: { top: 34, bottom: 34, front: 34, back: 34, left: 34, right: 34 },
-        viscosity: 2,
+        viscosity: 6,
         damage: 10,
     },
     // 0x001c

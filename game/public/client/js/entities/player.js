@@ -138,13 +138,17 @@ class ClientPlayer {
         // Movement vars
         this.spectateMode = false
         this.moveSpeed = 0.025 //tileScale/40
+        this.flySpeed = 0.05
         this.jumpStength = 0.2
         this.allowedJumps = 2
+        this.isInFluid = false
+        this.fluidViscosity = 1
 
         // Private vars
         this.groundFric = 0.75
         this.gravity = -0.0125
-        this.bounce = 0.05
+        this.defaultBounce = 0.05
+        this.bounce = this.defaultBounce
         this.usedJumps = 0
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
@@ -377,9 +381,21 @@ class ClientPlayer {
         let movementVector = new BABYLON.Vector3( forwardMove.x + horzMove.x, vertMove.y, forwardMove.z + horzMove.z )
         
         // Apply velocity
-        this.playerVelocity.x += (movementVector.x * this.moveSpeed)
-        if (this.spectateMode) this.playerVelocity.y += (vertMove.y * this.moveSpeed)
-        this.playerVelocity.z += (movementVector.z * this.moveSpeed)
+        if (this.spectateMode) {
+            this.playerVelocity.x += (movementVector.x * this.flySpeed)
+            this.playerVelocity.y += (vertMove.y * this.flySpeed)
+            this.playerVelocity.z += (movementVector.z * this.flySpeed)
+        }
+        else {
+            if (this.isInFluid) {
+                this.playerVelocity.x += (movementVector.x * this.moveSpeed) / this.fluidViscosity
+                this.playerVelocity.z += (movementVector.z * this.moveSpeed) / this.fluidViscosity
+            }
+            else {
+                this.playerVelocity.x += (movementVector.x * this.moveSpeed)
+                this.playerVelocity.z += (movementVector.z * this.moveSpeed)
+            }
+        }
 
         // Apply movement
         const deltaTime = engine.getDeltaTime()
@@ -417,8 +433,11 @@ class ClientPlayer {
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
 
+                // Bouncy block
+                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
+
                 // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
                     // Bounce
                     this.bounceY()
                     if (!bounceOnly) {
@@ -435,6 +454,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Fluid
+                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
         }
 
@@ -445,8 +466,12 @@ class ClientPlayer {
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
+
+                // Bouncy block
+                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
+
                 // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
                     // Bounce
                     this.bounceX()
                     //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
@@ -461,6 +486,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Fluid
+                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
         }
 
@@ -471,8 +498,12 @@ class ClientPlayer {
             block.y += 0
 
             if (boxIsIntersecting(playerPosCheck, block)) {
+
+                // Bouncy block
+                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
+                
                 // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable)) {
+                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
                     // Bounce
                     this.bounceZ()
                     //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
@@ -487,22 +518,27 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Fluid
+                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
         }
         
         if (!this.spectateMode && this.world) {
+            this.isInFluid = false
             // Check X
             for (let cy = -2; cy < 2; cy++) {
             for (let cx = -1; cx < 2; cx++) {
             for (let cz = -1; cz < 2; cz++) {
 
-                // Check X
+                // Check this block
                 let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
                 let arrayPos = getArrayPos(blockPos, this.chunkSize)
                 let worldPos = arrayPos.chunk
                 let chunkPos = arrayPos.block
 
                 let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+
+                // Check X
                 let skipMid = (cy >= 0)
                 if (skipMid && blockID > 0) {
                     let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
@@ -526,6 +562,7 @@ class ClientPlayer {
 
         // World floor
         let frameGrav = ((this.gravity/frameRateMult) * deltaTime)
+        if (this.isInFluid) frameGrav = (((this.gravity / this.fluidViscosity)/frameRateMult) * deltaTime)
         if (((this.position.y)) <= 1) {
             this.bounceY()
             this.position.y = 1
@@ -543,7 +580,7 @@ class ClientPlayer {
 
         // Dampen
         if (this.spectateMode) this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y * this.groundFric, this.playerVelocity.z * this.groundFric)
-        else this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y, this.playerVelocity.z * this.groundFric)
+        this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y, this.playerVelocity.z * this.groundFric)
 
         // Position selector
         const avForward = this.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
@@ -552,7 +589,7 @@ class ClientPlayer {
             // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * this.blockReach) ) + 0.5,
             // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * this.blockReach) ) + 0.5
             x: Math.floor( this.avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
-            y: Math.floor( this.avatar.position.y  + (avForward.y * this.blockReach) ) + 0.5,
+            y: Math.floor( this.avatar.position.y + (avForward.y * this.blockReach) ) + 0.5,
             z: Math.floor( this.avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
         }
 
