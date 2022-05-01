@@ -1,4 +1,5 @@
-import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+// import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js" //ToDo: Download and include in "./dist/"
+import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
