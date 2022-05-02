@@ -53,6 +53,7 @@ class ClientGame {
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
         this.localPlayer
         this.clientID = 0 // ToDo: make this support local players as well
+        Buttons.isInputFocused = false
 
         // The other players on the network each should get a ClientPlayer that will be updated by the network
         this.networkPlayers = []
@@ -116,6 +117,7 @@ class ClientGame {
             // Unlock cursor (without pressing escape)
             document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
             document.exitPointerLock()
+            Buttons.isInputFocused = false
 
             // Show menu
             this.menu.selectedScene = this.menu.pauseMenu
@@ -213,6 +215,7 @@ class ClientGame {
         this.scene.onPointerDown = (evt) => { if (evt.button === 0) {
             this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock
             this.canvas.requestPointerLock()
+            Buttons.isInputFocused = true
 
             // To unlock (without pressing escape)
             // document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock

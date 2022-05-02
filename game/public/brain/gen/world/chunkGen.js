@@ -140,6 +140,7 @@ class ChunkGenerator {
                 }
 
                 if (y <= 2 && blockID === 0) blockID = blockTypes.indexOf(getBlockByName('water'))
+                if (y === 0) blockID = blockTypes.indexOf(getBlockByName('sand'))
             
                 return blockID
             },

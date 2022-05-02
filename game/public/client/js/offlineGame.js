@@ -103,3 +103,12 @@ clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorld
 // Pause menu
 clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
 clientGame.menu.pauseMenu.selectableElements[2].pressButton = () => { clientGame.goOffline() }
+
+clientGame.menu.pauseMenu.selectableElements[0].pressButton = () => {
+    clientGame.menu.hide()
+    setTimeout(()=>{
+        clientGame.canvas.requestPointerLock = clientGame.canvas.requestPointerLock || clientGame.canvas.mozRequestPointerLock
+        clientGame.canvas.requestPointerLock()
+        Buttons.isInputFocused = true
+    }, 100)
+}

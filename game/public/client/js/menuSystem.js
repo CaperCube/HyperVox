@@ -237,7 +237,7 @@ class MenuSystem {
         const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Pause'})
         const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [buttonLong], text: 'Back to Game'})
-        pausePlayButton.pressButton = () => { this.hide() }
+        // pausePlayButton.pressButton = () => { this.hide() }
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
         const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [buttonMid], text: 'Leave Game'})
         const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Main Menu'})

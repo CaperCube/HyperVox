@@ -146,6 +146,8 @@ setInterval(() => {
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 const Buttons = {
+    // if input
+    isInputFocused: false,
     // mouse buttons
     lmb: {name: "left mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // left mouse button
     rmb: {name: "right mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // right mouse button
@@ -239,80 +241,113 @@ function KeyDown(e) {
             if (thisBtn[1].hasOwnProperty("code")) {
                 if (thisBtn[1].code == e.keyCode)
                 {
-                    thisBtn[1].pressed = true;
-                    if (thisBtn[1].hasOwnProperty("onPress")) thisBtn[1].onPress(e);
+                    if (Buttons.isInputFocused) {
+                        thisBtn[1].pressed = true;
+                        if (thisBtn[1].hasOwnProperty("onPress")) thisBtn[1].onPress(e);
+                    }
+                    else if (thisBtn[1].pressed) {
+                        thisBtn[1].pressed = false;
+                        if (thisBtn[1].hasOwnProperty("onPress")) thisBtn[1].onRelease(e);
+                    }
                 }
             }
         }
     }
     // Prevent default actions for space
     if (e.keyCode === 32) {
-        e.preventDefault();
+        // e.preventDefault();
+    }
+    if (e.keyCode === 27) {
+        Buttons.isInputFocused = false
     }
 }
 
 function KeyUp(e) {
     // loop through all buttons, and set released key to false
-    for (var i = 0; i < Object.keys(Buttons).length; i++) {
-        var thisBtn = Object.entries(Buttons)[i];
-        if (thisBtn[1].hasOwnProperty("code")) {
-            if (thisBtn[1].code == e.keyCode)
-            {
-                thisBtn[1].pressed = false;
-                if (thisBtn[1].hasOwnProperty("onRelease")) thisBtn[1].onRelease(e);
+    if (Buttons.isInputFocused) {
+        for (var i = 0; i < Object.keys(Buttons).length; i++) {
+            var thisBtn = Object.entries(Buttons)[i];
+            if (thisBtn[1].hasOwnProperty("code")) {
+                if (thisBtn[1].code == e.keyCode)
+                {
+                    thisBtn[1].pressed = false;
+                    if (thisBtn[1].hasOwnProperty("onRelease")) thisBtn[1].onRelease(e);
+                }
             }
         }
     }
 }
 
 function MouseDown(e) {
-    if (e.button == 0) 
-    {
-        Buttons.lmb.pressed = true;
-        if (Buttons.lmb.hasOwnProperty("onPress")) Buttons.lmb.onPress();
+    if (Buttons.isInputFocused) {
+        if (e.button == 0) 
+        {
+            Buttons.lmb.pressed = true;
+            if (Buttons.lmb.hasOwnProperty("onPress")) Buttons.lmb.onPress();
+        }
+        else if (e.button == 1)
+        {
+            Buttons.mmb.pressed = true;
+            if (Buttons.mmb.hasOwnProperty("onPress")) Buttons.mmb.onPress();
+        }
+        else if (e.button == 2)
+        {
+            Buttons.rmb.pressed = true;
+            if (Buttons.rmb.hasOwnProperty("onPress")) Buttons.rmb.onPress();
+        }
     }
-    else if (e.button == 1)
-    {
-        Buttons.mmb.pressed = true;
-        if (Buttons.mmb.hasOwnProperty("onPress")) Buttons.mmb.onPress();
+    else {
+        if (e.button == 0 && Buttons.lmb.pressed) 
+        {
+            Buttons.lmb.pressed = false;
+            if (Buttons.lmb.hasOwnProperty("onPress")) Buttons.lmb.onRelease();
+        }
+        else if (e.button == 1 && Buttons.mmb.pressed)
+        {
+            Buttons.mmb.pressed = false;
+            if (Buttons.mmb.hasOwnProperty("onPress")) Buttons.mmb.onRelease();
+        }
+        else if (e.button == 2 && Buttons.rmb.pressed)
+        {
+            Buttons.rmb.pressed = false;
+            if (Buttons.rmb.hasOwnProperty("onPress")) Buttons.rmb.onRelease();
+        }
     }
-    else if (e.button == 2)
-    {
-        Buttons.rmb.pressed = true;
-        if (Buttons.rmb.hasOwnProperty("onPress")) Buttons.rmb.onPress();
-    }
-    
     //console.log("mouse button " + e.button + ": ");
 }
 
 function MouseUp(e) {
-    if (e.button == 0)
-    {
-        Buttons.lmb.pressed = false;
-        if (Buttons.lmb.hasOwnProperty("onRelease")) Buttons.lmb.onRelease();
-    }
-    else if (e.button == 1)
-    {
-        Buttons.mmb.pressed = false;
-        if (Buttons.mmb.hasOwnProperty("onRelease")) Buttons.mmb.onRelease();
-    }
-    else if (e.button == 2) 
-    {
-        Buttons.rmb.pressed = false;
-        if (Buttons.rmb.hasOwnProperty("onRelease")) Buttons.rmb.onRelease();
+    if (Buttons.isInputFocused) {
+        if (e.button == 0)
+        {
+            Buttons.lmb.pressed = false;
+            if (Buttons.lmb.hasOwnProperty("onRelease")) Buttons.lmb.onRelease();
+        }
+        else if (e.button == 1)
+        {
+            Buttons.mmb.pressed = false;
+            if (Buttons.mmb.hasOwnProperty("onRelease")) Buttons.mmb.onRelease();
+        }
+        else if (e.button == 2) 
+        {
+            Buttons.rmb.pressed = false;
+            if (Buttons.rmb.hasOwnProperty("onRelease")) Buttons.rmb.onRelease();
+        }
     }
 }
 
 function MouseScroll(e) {
-    if (e.deltaY > 0) {
-        if (Buttons.scrollUp.hasOwnProperty("onPress")) Buttons.scrollUp.onPress();
+    if (Buttons.isInputFocused) {
+        if (e.deltaY > 0) {
+            if (Buttons.scrollUp.hasOwnProperty("onPress")) Buttons.scrollUp.onPress();
+        }
+        else if (e.deltaY < 0) {
+            if (Buttons.scrollDown.hasOwnProperty("onPress")) Buttons.scrollDown.onPress();
+        }
+        // Release after triggered
+        if (Buttons.scrollUp.hasOwnProperty("onRelease")) Buttons.scrollUp.onRelease();
+        if (Buttons.scrollDown.hasOwnProperty("onRelease")) Buttons.scrollDown.onRelease();
     }
-    else if (e.deltaY < 0) {
-        if (Buttons.scrollDown.hasOwnProperty("onPress")) Buttons.scrollDown.onPress();
-    }
-    // Release after triggered
-    if (Buttons.scrollUp.hasOwnProperty("onRelease")) Buttons.scrollUp.onRelease();
-    if (Buttons.scrollDown.hasOwnProperty("onRelease")) Buttons.scrollDown.onRelease();
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -342,10 +377,10 @@ var Controls = {
         downAxis1: [Buttons.s, GamepadButtons.lsDown],
         leftAxis1: [Buttons.a, GamepadButtons.lsLeft],
         rightAxis1: [Buttons.d, GamepadButtons.lsRight],
-        upAxis2: [Buttons.z],
-        downAxis2: [Buttons.x],
-        leftAxis2: [Buttons.c],
-        rightAxis2: [Buttons.v],
+        upAxis2: [],
+        downAxis2: [],
+        leftAxis2: [],
+        rightAxis2: [],
         run: [Buttons.shift, GamepadButtons.b],
         jump: [Buttons.space, GamepadButtons.a],
         fire1: [Buttons.lmb, GamepadButtons.x],
