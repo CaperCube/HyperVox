@@ -69,6 +69,7 @@ class ClientGame {
 
         // mesh helper object
         this.meshGen = new MeshGenerator()
+        
         this.chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
         this.chunkWorker.onmessage = (event) => {
             if (this.scene) {
@@ -111,7 +112,7 @@ class ClientGame {
         this.menu = new MenuSystem($("#menu-canvas"))
         this.menu.loadFonts(`./client/src/textures/fonts/`)
 
-        Buttons.tab.onPress = (e) => {
+        Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
             e.preventDefault()
 
             // Unlock cursor (without pressing escape)
@@ -148,12 +149,20 @@ class ClientGame {
         let chunkWorker = this.chunkWorker
 
         // To start the thread work
-        if (window.Worker) {
+        if (window.Worker && this.chunkWorker) {
             if (chunkLocation) chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
             else chunkWorker.postMessage({world: world.worldChunks, type: 'full' })
         }
         else {
             // ToDo (maybe): Create a fall-back solution for browsers that don't support workers
+            // for (let y = 0; y < world?.length; y++) {
+            // for (let x = 0; x < world?.[y]?.length; x++) {
+            // for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
+            //     // Create a collection of only the effected chunks
+            //     const chunkGroup = this.meshGen.getChunkGroup( world, { x: x, y: y, z: z } )
+            //     // Generate chunk
+            //     this.meshGen.createChunkMesh( chunkGroup, this.clientWorld.worldChunks )
+            // }}}
         }
     }
 
