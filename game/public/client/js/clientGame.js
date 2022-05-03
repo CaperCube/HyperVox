@@ -40,6 +40,12 @@ class ClientGame {
         // The client's copy of the world, this will be used for colission, meshGen, and meshUpdates
         this.clientWorld
 
+        // The Client's settings object
+        this.settings = {
+            mouseSensitivity: 400, //higher is slower
+            fov: 1.35
+        }
+
         ///////////////////////////////////////////////////////
         // Player vars
         ///////////////////////////////////////////////////////
@@ -125,6 +131,10 @@ class ClientGame {
             this.menu.toggleVisibility()
         }
 
+        assignFunctionToInput([Buttons.bracketLeft], ()=>{ this.settings.mouseSensitivity += 100; this.updateSettings(); }, ()=>{});
+        assignFunctionToInput([Buttons.bracketRight], ()=>{ if (this.settings.mouseSensitivity < 100) this.settings.mouseSensitivity = 1; else this.settings.mouseSensitivity -= 100; this.updateSettings(); }, ()=>{});
+        assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings(); null});
+        assignFunctionToInput([Buttons.period], () => { this.settings.fov += .1; this.updateSettings(); null});
     }
 
     ///////////////////////////////////////////////////////
@@ -253,8 +263,8 @@ class ClientGame {
         this.mainCamera.inputs.attached.keyboard.detachControl()
         this.mainCamera.inertia = 0 // no mouse smoothing
         this.mainCamera.speed = 0 // Movement speed
-        this.mainCamera.fov = 1.35 // 1 is default
-        this.mainCamera.angularSensibility = 1000 // Mouse sensitivity (default: 2000, higher is slower)
+        this.mainCamera.fov = this.settings.fov // 1 is default
+        this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
 
         // Create player
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientID, this)
@@ -563,6 +573,14 @@ class ClientGame {
     
     // (Not Yet Implemented)
     networkUpdate = () => { /* Here is where scheduled network messages should send */ }
+
+
+    //TODO populate with objects that need to be updated when settings are updated
+    //TODO use a bool array of fields that were updated to eliminate unnecessary processing
+    updateSettings(){
+        this.mainCamera.fov = this.settings.fov // 1 is default
+        this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
+    }
 }
 
 export default ClientGame
