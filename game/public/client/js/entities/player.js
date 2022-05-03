@@ -560,10 +560,10 @@ class ClientPlayer {
             }}}
         }
 
-        // World floor
+        // World floor Y lower bounds
         let frameGrav = ((this.gravity/frameRateMult) * deltaTime)
         if (this.isInFluid) frameGrav = (((this.gravity / this.fluidViscosity)/frameRateMult) * deltaTime)
-        if (((this.position.y)) <= 1) {
+        if (((this.position.y)) < 1) {
             this.bounceY()
             this.position.y = 1
         }
@@ -572,6 +572,29 @@ class ClientPlayer {
             this.playerVelocity.y += frameGrav
         }
         this.keepMovingY(deltaTime, frameRateMult)
+
+        if (!this.spectateMode) {
+            // World X bounds
+            if (this.position.x < 0) {
+                this.bounceX()
+                this.position.x = 0
+            }
+            else if (this.position.x > (this.worldSize * this.chunkSize * tileScale)) {
+                this.bounceX()
+                this.position.x = (this.worldSize * this.chunkSize * tileScale)
+            }
+
+            // World Z bounds
+            if (this.position.z < 0) {
+                this.bounceZ()
+                this.position.z = 0
+            }
+            else if (this.position.z > (this.worldSize * this.chunkSize * tileScale)) {
+                this.bounceZ()
+                this.position.z = (this.worldSize * this.chunkSize * tileScale)
+            }
+        }
+
         if (allowMoveX) this.keepMovingX(deltaTime, frameRateMult)
         if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
 

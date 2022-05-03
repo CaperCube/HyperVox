@@ -147,7 +147,7 @@ const blockTypes = [
         name: 'head',
         categories: [blockCats.decorative, blockCats.color.green],
         textures: { top: 210, bottom: 242, front: 226, back: 228, left: 227, right: 225 },
-        bounciness: 0.8,
+        bounciness: 0.75,
     },
     // 0x000c
     {
@@ -287,29 +287,36 @@ const blockTypes = [
         categories: [blockCats.color.green, blockCats.race, blockCats.raceStart],
         textures: { top: 239, bottom: 239, front: 239, back: 239, left: 239, right: 239 },
     },
-    // 0x0022
+    // 0x0023
     {
         name: 'respawn-point',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.checkpoint],
         textures: { top: 238, bottom: 238, front: 238, back: 238, left: 238, right: 238 },
     },
-    // 0x0023
+    // 0x0024
     {
         name: 'dialogue-box',
         categories: [blockCats.color.grey, blockCats.color.green],
         textures: { top: 237, bottom: 237, front: 237, back: 237, left: 237, right: 237 },
     },
-    // 0x0023
+    // 0x0025
     {
         name: 'info-box',
         categories: [blockCats.color.grey, blockCats.color.green],
         textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
     },
-    // 0x0024
+    // 0x0026
     {
         name: 'respawn-zone',
         categories: [blockCats.checkpoint, blockCats.noncollidable, blockCats.transparent, blockCats.color.green],
         textures: { top: 254, bottom: 254, front: 254, back: 254, left: 254, right: 254 },
+    },
+    // 0x0027
+    {
+        name: 'bounce-box',
+        categories: [blockCats.color.grey, blockCats.color.green],
+        textures: { top: 235, bottom: 235, front: 235, back: 235, left: 235, right: 235 },
+        bounciness: 0.9
     },
 ]
 
