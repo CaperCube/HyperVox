@@ -237,7 +237,7 @@ const blockTypes = [
     // 0x001b
     {
         name: 'lava',
-        categories: [blockCats.natural, blockCats.transparent, blockCats.damaging, blockCats.fluid, blockCats.color.red],
+        categories: [blockCats.natural, blockCats.damaging, blockCats.fluid, blockCats.color.red],
         textures: { top: 34, bottom: 34, front: 34, back: 34, left: 34, right: 34 },
         viscosity: 6,
         damage: 10,
@@ -270,9 +270,9 @@ const blockTypes = [
     {
         name: 'death',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
-        // textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
+        textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         // textures: { top: 252, bottom: 252, front: 252, back: 252, left: 252, right: 252 },
-        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         damage: 1000
     },
     // 0x0021

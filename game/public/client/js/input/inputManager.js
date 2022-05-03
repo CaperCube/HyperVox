@@ -147,7 +147,7 @@ setInterval(() => {
 
 const Buttons = {
     // if input
-    isInputFocused: false,
+    isInputFocused: false, // ToDo: Adjust how this works so we can use "Buttons" in menus
     // mouse buttons
     lmb: {name: "left mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // left mouse button
     rmb: {name: "right mouse", type: "mouse", pressed: false, onPress: testButtonDown, onRelease: testButtonUp}, // right mouse button
