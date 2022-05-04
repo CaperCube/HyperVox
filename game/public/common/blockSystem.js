@@ -42,6 +42,7 @@ const blockCats = { // ToDo: possibly rename this to "blockTags"
     noncollidable: 'noncollidable',
     unbreakable: 'unbreakable',
     transparent: 'transparent',
+    teleporter: 'teleporter',
     zone: 'zone', // i.e. building-zones, no-gun-zones etc.
     // Racing categories
     raceStart: 'raceStart',
@@ -270,9 +271,9 @@ const blockTypes = [
     {
         name: 'death',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
-        textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
+        // textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         // textures: { top: 252, bottom: 252, front: 252, back: 252, left: 252, right: 252 },
-        // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         damage: 1000
     },
     // 0x0021
@@ -316,6 +317,13 @@ const blockTypes = [
         name: 'bounce-box',
         categories: [blockCats.color.grey, blockCats.color.green],
         textures: { top: 235, bottom: 235, front: 235, back: 235, left: 235, right: 235 },
+        bounciness: 0.9
+    },
+    // 0x0028
+    {
+        name: 'teleporter-box',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.teleporter],
+        textures: { top: 234, bottom: 234, front: 234, back: 234, left: 234, right: 234 },
         bounciness: 0.9
     },
 ]

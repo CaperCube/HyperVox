@@ -159,6 +159,9 @@ class ClientPlayer {
         this.world = clientGame.clientWorld
         this.chunkSize = this.world.getChunkSize() || 16
         this.worldSize = this.world.getWorldSize() || 1
+        
+        const worldMax = (this.worldSize * this.chunkSize * tileScale)
+        this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
 
         this.registerControls(this.controls)
 
@@ -247,11 +250,15 @@ class ClientPlayer {
             else {
                 // Player is dead, respawn
                 this.health = 100
-                this.playerVelocity = BABYLON.Vector3.Zero()
-                this.position = new BABYLON.Vector3(this.respawnPoint.x, this.respawnPoint.y, this.respawnPoint.z)
+                this.teleportPlayer(this.respawnPoint)
             }
             // ToDo: Update health readout
         }
+    }
+
+    teleportPlayer = (newPosition) => {
+        this.playerVelocity = BABYLON.Vector3.Zero()
+        this.position = new BABYLON.Vector3(newPosition.x, newPosition.y, newPosition.z)
     }
 
     // Set player nametag
@@ -450,6 +457,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Teleporter block
+                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
@@ -482,6 +491,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Teleporter block
+                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
@@ -514,6 +525,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
                 // Set respawn point if respawn block
                 if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
+                // Teleporter block
+                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
