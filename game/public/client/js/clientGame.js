@@ -2,7 +2,7 @@
 import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale } from './clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys } from './clientConstants.js'
 import { getArrayPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
@@ -41,9 +41,11 @@ class ClientGame {
         this.clientWorld
 
         // The Client's settings object
+        const settingsLoaded = JSON.parse(localStorage.getItem(lsKeys.clientSettings)) // Load settings if the exist
         this.settings = {
-            mouseSensitivity: 400, //higher is slower
-            fov: 1.35
+            mouseSensitivity: settingsLoaded?.mouseSensitivity || 400, //higher is slower
+            fov: settingsLoaded?.fov || 1.35,
+            // ToDo: put player controlls in here
         }
 
         ///////////////////////////////////////////////////////
@@ -577,9 +579,13 @@ class ClientGame {
 
     //TODO populate with objects that need to be updated when settings are updated
     //TODO use a bool array of fields that were updated to eliminate unnecessary processing
-    updateSettings(){
+    updateSettings() {
+        // Make updates
         this.mainCamera.fov = this.settings.fov // 1 is default
         this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
+
+        // After updating, save to local storage
+        localStorage.setItem(lsKeys.clientSettings, JSON.stringify(this.settings))
     }
 }
 

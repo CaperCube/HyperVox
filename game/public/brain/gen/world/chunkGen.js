@@ -191,7 +191,7 @@ class ChunkGenerator {
 
     // Generate world (This should be changed to return a full world chunk array, which will be stored in the currently open `World` object)
     // Returns new Mesh[]
-    generateWorld({seed, chunkSize, worldSize, pattern = 'ocean'}) {
+    generateWorld({seed, chunkSize, worldSize, pattern = 'basic'}) {
         // Set the seed from the world data
         const stringToSeed = (s) => { return s.split('').map(x=>x.charCodeAt(0)).reduce((a,b)=>a+b) } // Converts the seed from a string to a useable number
         const usedSeed = (!!seed) ? seed : `${Math.random()}`

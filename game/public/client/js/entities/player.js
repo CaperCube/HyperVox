@@ -169,6 +169,8 @@ class ClientPlayer {
         this.blockReach = 4
         this.selectCursor = {x: 0, y: 0, z: 0}
         this.selectedBlock = 1
+        this.placeInterval
+        this.removeInterval
 
         // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
@@ -315,8 +317,8 @@ class ClientPlayer {
             assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = this.jumpStength; this.usedJumps++}}, ()=>{this.moveUp=false})
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
-            assignFunctionToInput(c.fire1, ()=>{this.placeBlock()}, ()=>{})
-            assignFunctionToInput(c.fire2, ()=>{this.removeBlock()}, ()=>{})
+            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
+            assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.selectedBlock--

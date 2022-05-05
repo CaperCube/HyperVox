@@ -79,6 +79,11 @@ function randomArray(arr) {
     return arr[randomIndex(arr)]
 }
 
+// Local storage keys
+const lsKeys = { 
+    clientSettings: 'clientSettings',
+}
+
 export {
     debug,
     tileScale,
@@ -86,5 +91,6 @@ export {
     defaultWorldSize,
     fogDistance,
     renderScale,
+    lsKeys,
     getRandomName
 }
