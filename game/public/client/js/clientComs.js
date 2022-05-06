@@ -110,7 +110,7 @@ class ClientComs {
 
             receiveChatMessage: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Receive chat message from brain (client)', 'background: #142; color: #ced' )
-                this.clientGame.displayChatMessage(data.message, data.messageName, data.nameColor)
+                this.clientGame.displayChatMessage(data.message, data.messageName, data.nameColor, data.isServer)
             },
         }
     }

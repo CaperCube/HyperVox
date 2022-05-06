@@ -40,12 +40,12 @@ class BrainComs {
         this.clientMessages = {
 
             // This is used for offline / non-networked games and should only be needed once per session
-            offlineConnect: ( data, playerId ) => {
+            offlineConnect: ( data, playerID ) => {
                 if (this.messageDebug) console.log('%c Connected to clientComs (brain)', 'background: #142; color: #ced')
                 this.clientCom = data.clientCom
             },
 
-            clientJoin: ( data, playerId ) => {
+            clientJoin: ( data, playerID ) => {
                 if (this.messageDebug) console.log( 'Client joined game (brain)', data )
                 // ToDo: check blacklist for this player & kick them
                 // Store the client's player(s)
@@ -54,12 +54,12 @@ class BrainComs {
             },
 
             // This will happen when the client joins the world
-            createNewWorld: ( data, playerId ) => {
+            createNewWorld: ( data, playerID ) => {
                 if (this.messageDebug) console.log( '%c Create new world (brain)', 'background: #142; color: #ced' )
                 this.brainGame.createNewWorld(data.size)
             },
 
-            loadWorld: ( data, playerId ) => {
+            loadWorld: ( data, playerID ) => {
                 if (this.messageDebug) console.log( '%c Load world (brain)', 'background: #142; color: #ced' )
                 // ToDo: Check if the player is an admin, if so, allow change
                 // if (playerId && this.brainGame.admins.includes(playerId)) this.brainGame.loadWorld(data.world)
@@ -67,7 +67,7 @@ class BrainComs {
                 
             },
 
-            updateSingleBlock: ( data, playerId ) => {
+            updateSingleBlock: ( data, playerID ) => {
                 // ToDo: Check for server's game-mode AND player's game-mode (both should be stored on the server) (server's game-mode is the default)
                 if (this.brainGame.gameOptions.gameMode === gameModes.creative) {
                     // Tell brain to validate & update this block
@@ -84,18 +84,18 @@ class BrainComs {
                 }
             },
 
-            movePlayer: ( data, playerId ) => {
+            movePlayer: ( data, playerID ) => {
                 // updatePlayerPosition
                 // if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
                 //...
                 // console.log("update player pos: ", data.position)
                 // this.brainGame.updatePlayerPosition(data.position)
 
-                data.playerID = playerId
+                data.playerID = playerID
 
                 // Update the BrainPlayer's position
                 // ToDo: validate player movement when online
-                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerId )[0]
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer) {
                     myBrainPlayer.position = data.position
                     myBrainPlayer.rotation = data.rotation
@@ -111,14 +111,46 @@ class BrainComs {
                 }
             },
 
-            askWhosConnected: ( data, playerId ) => {
-                if (this.messageDebug) console.log( `%c Ask who's connected ${playerId} (brain)`, 'background: #142; color: #ced', data )
+            askWhosConnected: ( data, playerID ) => {
+                if (this.messageDebug) console.log( `%c Ask who's connected ${playerID} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
             },
 
-            sendChatMessage: ( data, playerId ) => {
-                // ToDo: get player name from brain's player list and use that
-                // data.playerID = playerId
+            sendChatMessage: ( data, playerID ) => {
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                if (myBrainPlayer) {
+                    data.messageName = myBrainPlayer.playerName
+
+                    // Check message for commands
+                    if (data.message.startsWith(this.brainGame.gameOptions.chatCommandDelimiter)) {
+                        // ToDo: move this logic elsewhere, but exicute it here
+                        if (myBrainPlayer.isAdmin) {
+                            // Delete the delimiter
+                            const argsText = data.message.slice(this.brainGame.gameOptions.chatCommandDelimiter.length).trim().split(" ")
+                            // Convert commands to lowercase (makes the commands case-insensitive) (this also removes the command from the arguments)
+                            const commandText = argsText.shift().toLowerCase()
+
+                            // ToDo: Actually do commands
+                            const serverData = {
+                                message: `Sadly, chat commands don't do anything yet :(`,
+                                messageName: 'Server',
+                                isServer: true
+                            }
+                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+
+                            console.log(`${myBrainPlayer.playerName} tried to exicute the ${commandText} command`)
+                        }
+                        else {
+                            const serverData = {
+                                message: `${myBrainPlayer.playerName} is not allowed to exicute commands.`,
+                                messageName: 'Server',
+                                isServer: true
+                            }
+                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                        }
+                    }
+                }
+                else data.messageName = ""
 
                 if (this.isNetworked) {
                     const recipients = "all"

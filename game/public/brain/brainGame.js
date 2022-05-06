@@ -45,6 +45,7 @@ class BrainGame {
         this.gameOptions = {
             gameTickSpeed: 100, // Time in ms between game ticks
             gameUpdateSpeed: 300, // Time in ms between entity updates
+            chatCommandDelimiter: '/', // The character the server will look for to exicute a chat command
             validatePlayerActions: false, // Corrects player movement server-side
             gameMode: gameModes.creative // The brain's default game-mode
         }

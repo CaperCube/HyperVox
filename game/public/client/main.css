@@ -120,3 +120,7 @@ body {
 #chat-window > p > b {
 	font-weight: bolder;
 }
+
+#chat-window > p.fromServer, #chat-window > p.fromServer > b {
+	color: rgba(150, 150, 150, 0.5)
+}

@@ -554,11 +554,12 @@ class ClientGame {
     }
 
     // Display chat message
-    displayChatMessage(message, messageName, nameColor = "") {
+    displayChatMessage(message, messageName, nameColor = `rgb(${150},${150},${150})`, isServer = false) {
         console.log(messageName, message)
 
-        if (!nameColor) nameColor = `rgb(${150},${150},${150})`
         const newMessage = document.createElement("p")
+        if (isServer) newMessage.classList.add("fromServer")
+
         newMessage.innerHTML = `<b style="color: ${nameColor};">${messageName}:</b> ${message}` // ToDo: CHANGE THIS, THIS IS DANGEROUS! If users can inject RAW text directly into the html, a user could inject js code
         $("#chat-window").appendChild(newMessage)
 
