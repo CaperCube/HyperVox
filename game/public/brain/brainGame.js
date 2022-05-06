@@ -1,7 +1,7 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
-import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, getRandomName } from '../client/js/clientConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 
 const gameModes = {
@@ -15,13 +15,14 @@ const gameModes = {
 class BrainPlayer {
     constructor(playerID) {
         this.playerID = playerID
-        this.playerName = 'Player' // ToDo: use 'getRandomPlayerName()'
+        this.playerName = getRandomName()//'Player' // ToDo: use 'getRandomPlayerName()'
 
         // Game vars
         this.isAdmin = false // ToDo: set as true if this is the first player in the lobby
         this.gameMode = gameModes.creative // this overrides 'gameOptions.gameMode'
 
         this.position = { x: 0, y: 0, z: 0 }
+        this.rotation = { x: 0, y: 0, z: 0 }
         this.health = 100
 
         // Vars for validation
@@ -143,6 +144,21 @@ class BrainGame {
             this.brainComs.updateSingleBlock( location, id )
         }
 
+    }
+
+    setAdmin = (playerID, newVal) => {
+        const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
+        if (myPlayer) {
+            myPlayer.isAdmin = true
+            myPlayer.playerName += ' (admin)'
+            console.log(myPlayer)
+            // ToDo: tell all clients to change this player's name
+        }
+        else {
+            console.log('This player does not exist')
+            // This player does not exist
+            // ToDo: send a chat message saying this player does not exist
+        }
     }
     ///////////////////////////////////////////////////////
     // Loops

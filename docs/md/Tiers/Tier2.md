@@ -63,18 +63,7 @@ Tier shaping needed...
 - [ ] Extra
     - [ ] Lag compensation (There may be a better system than this, this just seemed simple)
         [Lag Comp. Doc](../LagCompensation.md)
-    - [ ] Block objects (referenced by blockID)
-        Props:
-        - Block ID
-        - Block mesh (if non-cube)
-        - Collision shape
-        - Interaction function (open-close, move, etc.)
-        - Health
-        - Friction
-        - Bouncieness
-        - Possible Directions
-        - BasicType "Liquid" "Solid"
-        - LiquidViscosity (describes the gravity & speed modifier)
+    - [X] Block objects (referenced by blockID)
     - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
         - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
         - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)

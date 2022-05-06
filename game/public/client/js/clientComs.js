@@ -68,19 +68,15 @@ class ClientComs {
                 // Add new players
                 console.log(data.players)
                 for (let p = 0; p < data.players.length; p++) {
-                // for (let p in data.players) {
                     // If this is not my local player...
-                    if (data.players[p] !== this.clientGame.localPlayer?.playerID) {
+                    if (data.players[p]?.playerID !== this.clientGame.localPlayer?.playerID) {
                         // If this player doesn't already exist...
                         if (!this.clientGame.networkPlayers[p]) {
-                            // console.log("Hey, make a new player!", p)
-                            // Add new Player() to scene
-                            const newPlayer = new ClientPlayer(null, null, data.players[p], this.clientGame)
-                            newPlayer.setPlayerName('Not my real name')
+                            // Add new ClientPlayer() to scene
+                            const newPlayer = new ClientPlayer(null, null, data.players[p].playerID, this.clientGame)
+                            newPlayer.setPlayerName(data.players[p].playerName)
                             // Push this player to array
                             this.clientGame.networkPlayers[p] = newPlayer
-
-                            //console.log(p, this.clientGame.networkPlayers[p])
                         }
                     }
                 }
@@ -89,7 +85,8 @@ class ClientComs {
                 for (let p = 0; p < this.clientGame.networkPlayers.length; p++) {
                     let thisPlayer = this.clientGame.networkPlayers[p]
                     // If this player doesn't exist...
-                    if (thisPlayer && !data.players.includes(thisPlayer?.playerID)) {
+                    const iDMatchedPlayers = data.players.filter(dp => dp.playerID === thisPlayer?.playerID)
+                    if (thisPlayer && iDMatchedPlayers.length === 0) {
                         if (thisPlayer.avatar) thisPlayer.avatar.dispose()
                         delete this.clientGame.networkPlayers[p]
                     }
@@ -103,14 +100,9 @@ class ClientComs {
                 if (data.playerID !== this.clientGame.localPlayer?.playerID) {
                     // Get player by ID
                     const movingPlayer = this.clientGame.networkPlayers.filter(player => player.playerID === data.playerID)
-
-                    // console.log("Move me!",data.playerID)
-                    // if (this.clientGame.networkPlayers[data.playerID]) {
                     if (movingPlayer[0]) {
-                        // console.log(data.position)
-                        // this.clientGame.networkPlayers[data.playerID].position = data.position
                         movingPlayer[0].position = data.position
-                        //if (movingPlayer[0].avatar) movingPlayer[0].avatar.rotation = data.rotation // change this to player.avatar.head.rotation = data.rotation
+                        // ToDo: Update this when we start using the PlayerAvatar() class
                         if (movingPlayer[0].avatar) movingPlayer[0].head.rotation = data.rotation
                     }
                 }

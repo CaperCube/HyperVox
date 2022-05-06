@@ -2,7 +2,7 @@
 import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys } from './clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys, getRandomName } from './clientConstants.js'
 import { getArrayPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
@@ -61,6 +61,7 @@ class ClientGame {
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
         this.localPlayer
         this.clientID = 0 // ToDo: make this support local players as well
+        this.clientName = getRandomName()
         Buttons.isInputFocused = false
 
         // The other players on the network each should get a ClientPlayer that will be updated by the network
@@ -71,6 +72,7 @@ class ClientGame {
         ///////////////////////////////////////////////////////
 
         this.canvas = props.canvas
+        // new BABYLON.WebGPUEngine(this.canvas, false); await engine.initAsync(); // use Babylon 5's WebGPU support
         this.engine = new BABYLON.Engine(this.canvas, false)
         this.frame = 0
         this.scene
@@ -270,6 +272,7 @@ class ClientGame {
 
         // Create player
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientID, this)
+        this.localPlayer.setPlayerName(this.clientName)
         this.localPlayer.position = centerTarget
         this.localPlayer.setPlayerSpawn(centerTarget)
         // console.log("creating player with ID: ", this.clientID)
@@ -388,6 +391,8 @@ class ClientGame {
                 console.log(data)
 
                 this.clientID = data.clientID
+                this.clientName = data.playerName
+                console.log(data.playerName)
             })
 
             socket.on( 'genericClientMessage', ( data ) => {

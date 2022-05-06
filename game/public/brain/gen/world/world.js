@@ -2,6 +2,7 @@
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
     constructor({worldSeed, tileScale, chunkSize, worldSize} = {}) {
+        this._worldFormatVersion = 'v0.1'
         this.worldChunks = [[[]]]
         this._wSeed = worldSeed || `${Math.random()}`
         this.getWorldSeed = () => { return this._wSeed }
@@ -35,7 +36,7 @@ class World {
     }
 
     loadWorldFromJSON(jsonObj) {
-        // worldSave v0.1
+        // worldFormat v0.1
         this.worldChunks = jsonObj.worldChunks
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale

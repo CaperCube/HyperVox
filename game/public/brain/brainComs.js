@@ -90,7 +90,20 @@ class BrainComs {
                 //...
                 // console.log("update player pos: ", data.position)
                 // this.brainGame.updatePlayerPosition(data.position)
+
                 data.playerID = playerId
+
+                // Update the BrainPlayer's position
+                // ToDo: validate player movement when online
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerId )[0]
+                if (myBrainPlayer) {
+                    myBrainPlayer.position = data.position
+                    myBrainPlayer.rotation = data.rotation
+
+                    // Update data packet
+                    data.position = myBrainPlayer.position
+                    data.rotation = myBrainPlayer.rotation
+                }
 
                 if (this.isNetworked) {
                     const recipients = "all"

@@ -58,9 +58,15 @@ io.sockets.on('connection', (socket) => {
     SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)
 
+    // Create new player
+    // gameServer.brain.players.push(socket.ID)
+    const myServerPlayer = new BrainPlayer(socket.ID)
+    const isFirstPlayer = (gameServer.brain.players.length === 0)
+    gameServer.brain.players.push(myServerPlayer)
+    if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
+
     // Tell the new client what their ID is
-    socket.emit(`welcomePacket`, {clientID: socket.ID})
-    gameServer.brain.players.push(socket.ID)
+    socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
 
     // Send the world to this player, if the world exists
     if (gameServer.brain.world) {
@@ -79,7 +85,13 @@ io.sockets.on('connection', (socket) => {
         console.log(`Player ${socket.ID} disconnected`)
 
         // Remove from player list
-        if (gameServer?.brain?.players?.includes(socket.ID)) gameServer.brain.players.splice(gameServer.brain.players.indexOf(socket.ID))
+        //if (gameServer?.brain?.players?.includes(socket.ID)) gameServer.brain.players.splice(gameServer.brain.players.indexOf(socket.ID))
+        const iDMatchedPlayers = gameServer?.brain?.players?.filter(p => p.playerID === socket.ID)
+        if (iDMatchedPlayers?.length > 0) {
+            const playerWasAdmin = iDMatchedPlayers[0].isAdmin
+            gameServer.brain.players.splice(gameServer.brain.players.indexOf(iDMatchedPlayers[0]))
+            if (playerWasAdmin && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
+        }
         //delete SOCKET_LIST[socket.ID]
 
         // Send message

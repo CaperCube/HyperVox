@@ -67,10 +67,8 @@ class ClientPlayer {
     // Init player
     constructor(controls, avatar = null, playerID = 0, clientGame) {
         this.playerID = playerID
-        const randomName = getRandomName()
-        this.playerName = randomName || 'Player' // ToDo: Generate a random name
+        this.playerName = 'Player'
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
-        console.log(this.playerName)
 
         // Player vars
         this.playerHeight = tileScale * 1.75
