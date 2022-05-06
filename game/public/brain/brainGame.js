@@ -11,6 +11,27 @@ const gameModes = {
     teamDeathMatch: 'teamDeathMatch',
 }
 
+// ToDo: Move this player class to a seperate file
+class BrainPlayer {
+    constructor(playerID) {
+        this.playerID = playerID
+        this.playerName = 'Player' // ToDo: use 'getRandomPlayerName()'
+
+        // Game vars
+        this.isAdmin = false // ToDo: set as true if this is the first player in the lobby
+        this.gameMode = gameModes.creative // this overrides 'gameOptions.gameMode'
+
+        this.position = { x: 0, y: 0, z: 0 }
+        this.health = 100
+
+        // Vars for validation
+        // (Not used yet. See 'docs/LagCompensation.md')
+        this.positionHistory = {
+            //'stamp-1230'
+        }
+    }
+}
+
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
     constructor(props = {
@@ -132,4 +153,4 @@ class BrainGame {
 }
 
 export default BrainGame
-export { gameModes }
+export { gameModes, BrainPlayer }

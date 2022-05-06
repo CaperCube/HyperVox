@@ -21,6 +21,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+import { BrainPlayer } from './game/public/brain/brainGame.js'
 import GameServer from './game/server/gameServer.js'
 import { Server } from 'socket.io'
 import express from 'express'
@@ -69,8 +70,8 @@ io.sockets.on('connection', (socket) => {
 
     // Handle all generic messages
     socket.on( 'genericClientMessage', ( data ) => {
-        const playerId = socket.ID // This does not support multiple players per client in networked games
-        gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerId )
+        const playerID = socket.ID // This does not support multiple players per client in networked games
+        gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerID )
     })
 
     // Handle players disconnecting
