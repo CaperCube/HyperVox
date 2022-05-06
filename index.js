@@ -85,14 +85,16 @@ io.sockets.on('connection', (socket) => {
         console.log(`Player ${socket.ID} disconnected`)
 
         // Remove from player list
-        //if (gameServer?.brain?.players?.includes(socket.ID)) gameServer.brain.players.splice(gameServer.brain.players.indexOf(socket.ID))
         const iDMatchedPlayers = gameServer?.brain?.players?.filter(p => p.playerID === socket.ID)
         if (iDMatchedPlayers?.length > 0) {
-            const playerWasAdmin = iDMatchedPlayers[0].isAdmin
-            gameServer.brain.players.splice(gameServer.brain.players.indexOf(iDMatchedPlayers[0]))
-            if (playerWasAdmin && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
+            // Remove player
+            gameServer.brain.players.splice(gameServer.brain.players.indexOf(iDMatchedPlayers[0]), 1)
         }
         //delete SOCKET_LIST[socket.ID]
+
+        // If no admin exists, assign a new one
+        const listOfAdmins = gameServer?.brain?.players?.filter(p => p.isAdmin)
+        if (listOfAdmins.length === 0 && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
 
         // Send message
         io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", args: { players: gameServer.brain.players } } )
