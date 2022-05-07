@@ -21,12 +21,13 @@ class BrainPlayer {
         this.isAdmin = false // ToDo: set as true if this is the first player in the lobby
         this.gameMode = gameModes.creative // this overrides 'gameOptions.gameMode'
 
+        this.respawmPoint = { x: 0, y: 0, z: 0 } // not yet implemented
         this.position = { x: 0, y: 0, z: 0 }
         this.rotation = { x: 0, y: 0, z: 0 }
-        this.health = 100
+        this.health = 100 // not yet implemented
 
         // Vars for validation
-        // (Not used yet. See 'docs/LagCompensation.md')
+        // (Not implemented yet. See 'docs/LagCompensation.md')
         this.positionHistory = {
             //'stamp-1230'
         }
@@ -59,7 +60,7 @@ class BrainGame {
         this.generator = new ChunkGenerator()
         this.world = null
         this.players = []
-        this.admins = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
+        this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
     }
 
@@ -151,8 +152,7 @@ class BrainGame {
         const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
         if (myPlayer) {
             myPlayer.isAdmin = true
-            myPlayer.playerName += ' (admin)'
-            console.log(myPlayer)
+            // myPlayer.playerName += ' (admin)'
             // ToDo: tell all clients to change this player's name
         }
         else {

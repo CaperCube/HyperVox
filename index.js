@@ -61,6 +61,9 @@ io.sockets.on('connection', (socket) => {
     // Create new player
     // gameServer.brain.players.push(socket.ID)
     const myServerPlayer = new BrainPlayer(socket.ID)
+    myServerPlayer.gameMode = gameServer.brain.gameOptions.gameMode
+
+    // Add player to brain
     const isFirstPlayer = (gameServer.brain.players.length === 0)
     gameServer.brain.players.push(myServerPlayer)
     if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
