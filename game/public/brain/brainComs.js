@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////
 
 import { gameModes } from "./brainGame.js"
+import { checkForCommand, commandOptions } from "./chatCommands.js"
 
 class BrainComs {
     constructor(props = {
@@ -121,138 +122,28 @@ class BrainComs {
             },
 
             sendChatMessage: ( data, playerID ) => {
+                // Check for chat commands
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer) {
+                    // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
-
                     // Check message for commands
-                    // ToDo: move this logic elsewhere, but exicute it here (also refactor it to be cleaner)
-                    if (data.message.startsWith(this.brainGame.gameOptions.chatCommandDelimiter)) {
-                        // Delete the delimiter
-                        const argsText = data.message.slice(this.brainGame.gameOptions.chatCommandDelimiter.length).trim().split(" ")
-                        // Convert commands to lowercase (makes the commands case-insensitive) (this also removes the command from the arguments)
-                        const commandText = argsText.shift().toLowerCase()
-                        console.log(`${myBrainPlayer.playerName} tried to exicute the ${commandText} command`)
-
-                        // Any player allowed commands
-                        if (commandText === 'listadmins') {
-                            const adminList = this.brainGame.players.filter( p => p.isAdmin)
-                            let adminsString = ''
-                            for (let i = 0; i < adminList.length; i++) {
-                                adminsString += `${adminList[i].playerName}`
-                                if (i === adminList.length-2) adminsString += ', and '
-                                else if (i < adminList.length-2) adminsString += ', '
-                            }
-                            // Send message
-                            const serverData = { message: `The current admins are: ${adminsString}`, messageName: 'Server', isServer: true }
-                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                        }
-                        // Admin only commands
-                        else if (myBrainPlayer?.isAdmin) {
-                            if (commandText === 'gamemode' && argsText.length > 0) {
-                                if (Object.keys(gameModes).includes(argsText[0])) {
-                                    // Set game mode
-                                    myBrainPlayer.gameMode = argsText[0]
-                                    // Send message
-                                    const serverData = { message: `${myBrainPlayer.playerName} has set their game mode to ${argsText}`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                                else {
-                                    // Send message
-                                    const serverData = { message: `That is not a valid game mode`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                            }
-                            else if (commandText === 'servergamemode' && argsText.length > 0) {
-                                if (Object.keys(gameModes).includes(argsText[0])) {
-                                    // Set game mode
-                                    this.brainGame.gameOptions.gameMode = argsText[0]
-                                    // Set all player's game modes to server game mode
-                                    for (let i = 0; i < this.brainGame.players.length; i++) this.brainGame.players[i].gameMode = argsText[0]
-                                    // Send message
-                                    const serverData = { message: `The server game mode has changed to ${argsText}`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                                else {
-                                    // Send message
-                                    const serverData = { message: `That is not a valid game mode`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                            }
-                            else if (commandText === 'admin' && argsText.length > 0) {
-                                let argString = ''
-                                for (let i = 0; i < argsText.length; i++) {
-                                    argString += `${argsText[i]}`
-                                    if (i < argsText.length-1) argString += ' '
-                                }
-                                // /servergamemode creative
-                                const playersMatchingName = this.brainGame.players.filter( p => p.playerName === argString )
-                                console.log(argString)
-                                if (playersMatchingName.length > 0) {
-                                    for (let i = 0; i < playersMatchingName.length; i++) {
-                                        // Set admin
-                                        playersMatchingName[i].isAdmin = true
-                                        // Send message
-                                        const serverData = { message: `${playersMatchingName[i].playerName} is now an admin`, messageName: 'Server', isServer: true }
-                                        this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                    }
-                                }
-                                else {
-                                    // Send message
-                                    const serverData = { message: `Player not found`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                            }
-                            else if (commandText === 'removeadmin' && argsText.length > 0) {
-                                let argString = ''
-                                for (let i = 0; i < argsText.length; i++) {
-                                    argString += `${argsText[i]}`
-                                    if (i < argsText.length-1) argString += ' '
-                                }
-                                const playersMatchingName = this.brainGame.players.filter( p => p.playerName === argString )
-                                if (playersMatchingName.length > 0) {
-                                    for (let i = 0; i < playersMatchingName.length; i++) {
-                                        // Set admin
-                                        playersMatchingName[i].isAdmin = false
-                                        // Send message
-                                        const serverData = { message: `${playersMatchingName[i].playerName} has is no longer an admin.`, messageName: 'Server', isServer: true }
-                                        this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                    }
-                                }
-                                else {
-                                    // Send message
-                                    const serverData = { message: `Player not found`, messageName: 'Server', isServer: true }
-                                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )                                    
-                                }
-                            }
-                            else {
-                                // Send message
-                                const serverData = {
-                                    message: `That is not a valid command`,
-                                    messageName: 'Server',
-                                    isServer: true
-                                }
-                                this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
-                            }
-                        }
-                        else {
-                            const serverData = {
-                                message: `${myBrainPlayer.playerName} is not allowed to exicute this command.`,
-                                messageName: 'Server',
-                                isServer: true
-                            }
-                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
-                        }
-                    }
+                    checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage) => {
+                        // Send message
+                        const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
+                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
+                        else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                    })
                 }
                 else data.messageName = ""
 
-                if (this.isNetworked) {
+                // Send chat message
+                if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( data ) }
+                else if (this.isNetworked) {
                     const recipients = "all"
                     this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
                 }
             }
-            //...
         }
     }
 
