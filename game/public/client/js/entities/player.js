@@ -351,31 +351,24 @@ class ClientPlayer {
         let inputVector = new BABYLON.Vector3(0,0,0)
 
         // Move controler
-        let isMoving = false
         if (this.moveForward) {
             inputVector.z = 1
-            isMoving = true
         }
         if (this.moveBackward) {
             inputVector.z = -1
-            isMoving = true
         }
         if (this.moveRight) {
             inputVector.x = 1
-            isMoving = true
         }
         if (this.moveLeft) {
             inputVector.x = -1
-            isMoving = true
         }
         if (this.spectateMode) {
             if (this.moveUp) {
                 inputVector.y = 1
-                isMoving = true
             }
             if (this.moveDown) {
                 inputVector.y = -1
-                isMoving = true
             }
         }
 
@@ -446,11 +439,15 @@ class ClientPlayer {
                 // Check if block is colidable
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
                     // Bounce
-                    this.bounceY()
                     if (!bounceOnly) {
-                        this.position.y = block.y + (block.h/2) + (playerBox.h/2)//+ this.moveSpeed
+                        this.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) + 0.001 //+ this.moveSpeed
                         allowGrav = false
                     }
+                    else {
+                        const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                        if (playerIsBelow) this.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
+                    }
+                    this.bounceY()
                 }
                 
                 // Damage player if damaging block
@@ -481,6 +478,12 @@ class ClientPlayer {
 
                 // Check if block is colidable
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
+                    const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                    if (!playerIsBelow) {
+                        const playerIsBehind = (this.position.x + (playerBox.d/2)) < block.x
+                        if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
+                        else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
+                    }
                     // Bounce
                     this.bounceX()
                     //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
@@ -515,6 +518,16 @@ class ClientPlayer {
                 
                 // Check if block is colidable
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
+                    const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                    if (!playerIsBelow) {    
+                        const playerIsLeft = (this.position.z + (playerBox.w/2)) < (block.z)
+                        if (playerIsLeft) this.position.z = ((block.z - (block.w/2)) + (playerBox.w/2)) - 0.001
+                        else this.position.z = ((block.z + (block.w)) + (playerBox.w/2)) + 0.001
+
+                        // const playerIsBehind = (this.position.x + (playerBox.d/2)) < (block.x)
+                        // if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
+                        // else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
+                    }
                     // Bounce
                     this.bounceZ()
                     //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
@@ -554,7 +567,7 @@ class ClientPlayer {
                 // Check X
                 let skipMid = (cy >= 0)
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
+                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
                     checkXCol(blockHere, blockID)
                 }
 
