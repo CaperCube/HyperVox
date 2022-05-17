@@ -315,6 +315,7 @@ class ClientPlayer {
             assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = this.jumpStength; this.usedJumps++}}, ()=>{this.moveUp=false})
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
+            // ToDo: change fire1 and fire2 to perform the action dictated by this.inventory.selectedItem.useItem(this, 1)
             assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
