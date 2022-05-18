@@ -9,6 +9,7 @@ import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
 import World from '../../brain/gen/world/world.js'
 import MenuSystem from './render2d/menu/menuSystem.js'
+import HUDSystem from "./render2d/hudSystem.js"
 import { blockTypes } from '../../common/blockSystem.js'
 import { imageSRC } from "./resources.js"
 
@@ -143,6 +144,16 @@ class ClientGame {
         assignFunctionToInput([Buttons.bracketRight], ()=>{ if (this.settings.mouseSensitivity < 100) this.settings.mouseSensitivity = 1; else this.settings.mouseSensitivity -= 100; this.updateSettings(); }, ()=>{});
         assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings(); null});
         assignFunctionToInput([Buttons.period], () => { this.settings.fov += .1; this.updateSettings(); null});
+
+        ///////////////////////////////////////////////////////
+        // HUD vars
+        ///////////////////////////////////////////////////////
+        this.hud = new HUDSystem($("#hud-canvas"))
+        this.hud.setupGraphics({
+            tileSheetPath: imageSRC.UI,
+            fontPath: `./client/src/textures/fonts/`
+        })
+        this.hud.hide()
     }
 
     ///////////////////////////////////////////////////////
@@ -202,6 +213,7 @@ class ClientGame {
     startNewGameScene() {
         // Hide menu
         this.menu.hide()
+        this.hud.show()
 
         // Reset game data
         this.removeScene()
@@ -429,6 +441,7 @@ class ClientGame {
 
         // Go back to main menu
         this.menu.setScene(this.menu.mainMenu)
+        this.hud.hide()
 
 
         // Create brain

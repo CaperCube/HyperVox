@@ -17,7 +17,7 @@ body {
     padding: 0px;
 }
 
-#main-canvas, #menu-canvas, #background, #loading-basic {
+#main-canvas, #hud-canvas, #menu-canvas, #background, #loading-basic {
 	display: inline-block;
 	position: fixed;
 	top: 0px;
@@ -28,6 +28,10 @@ body {
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
+}
+
+#hud-canvas {
+	pointer-events: none;
 }
 
 #background {
@@ -48,7 +52,7 @@ body {
 #chat-input {
 	position: absolute;
 	display: none;
-	bottom: 10px;
+	bottom: 100px;
 	left: 10px;
 	width: calc(35% + 20px);
 	height: 20px;
@@ -64,14 +68,14 @@ body {
 
 	border: none;
 	border-radius: 0px;
-	background-color: rgba(50,50,50,0.5);
+	background-color: rgba(0,0,0,0.5);
 	color: white;
 }
 
 #chat-window {
 	position: absolute;
 	display: none;
-	bottom: 40px;
+	bottom: 130px;
 	left: 10px;
 	width: 35%;
 	height: 20%;

@@ -4,8 +4,8 @@ body {
 }
 
 #main-canvas {
-	width: 640px;
-	height: 448px;
+	width: 832px;
+	height: 640px;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
@@ -13,8 +13,8 @@ body {
 }
 
 #viewport {
-	width: 640px;
-	height: 448px;
+	width: 832px;
+	height: 640px;
 	background-image: url('../../client/src/textures/bg_grid_2.png');
 	background-size: 64px;
 	image-rendering: -moz-crisp-edges;
