@@ -8,8 +8,9 @@ import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
 import World from '../../brain/gen/world/world.js'
-import MenuSystem from './menuSystem.js'
+import MenuSystem from './render2d/menu/menuSystem.js'
 import { blockTypes } from '../../common/blockSystem.js'
+import { imageSRC } from "./resources.js"
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -120,7 +121,10 @@ class ClientGame {
         // Menu vars
         ///////////////////////////////////////////////////////
         this.menu = new MenuSystem($("#menu-canvas"))
-        this.menu.loadFonts(`./client/src/textures/fonts/`)
+        this.menu.setupGraphics({
+            tileSheetPath: imageSRC.UI,
+            fontPath: `./client/src/textures/fonts/`
+        })
 
         Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
             e.preventDefault()

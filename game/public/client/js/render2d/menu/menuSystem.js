@@ -1,4 +1,6 @@
-import { imageSRC, fontJSON } from "./resources.js"
+import TileRenderer from "../tileRenderer.js"
+import UIScene from "./uIScene.js"
+import UIElement from "./uiElement.js"
 
 // Mouse collision
 function checkMenuCollide(element, mousePos, screenScale) {
@@ -65,85 +67,14 @@ const menuConstants = {
     hidden: 'none',
     shown: 'inline-block',
     tileSize: 32,
-    states: {
-        none: 'none',       // Not animating & not visible
-        still: 'still',     // Not animating (is this needed?)
-        animIn: 'in',       // Animating into visibility
-        animOut: 'out',     // Animating out of visibility
-        idle: 'idle',       // Looping idle
-        hover: 'hover',     // Cursor hover
-        down: 'down'        // Cursor being pressed
-    }
 }
 
-// ToDo: move this class to "./menu/UIAnimation.js"
-class UIAnimation {
-    constructor() {
-        this.name = "animation_1"
-        this.frames = [
-            {
-                position: {x: 0, y: 0}, // relative to UIElement's position
-                tiles: [[]]
-            }
-        ]
-    }
-}
-
-// ToDo: move this class to "./menu/UIElement.js"
-class UIElement {
-    constructor({position = {x: 0, y: 0}, tiles = [[]], text = '', fontIndex = 0}) {
-        this.position = position
-        this.tiles = tiles
-        this.text = text
-        this.fontIndex = fontIndex
-        this.textOffset = { x: 19, y: 24 }
-
-        //this.pressButton = () => { console.log(`clicked ${this.text}`) }
-        this.pressButton = () => { }
-
-        this.frame = 0
-        this.state = menuConstants.states.idle
-        this.animations = {
-            [menuConstants.states.idle]: {},
-            [menuConstants.states.hover]: {}
-        }
-    }
-
-    bakeAnimations() {
-        // render animations and store frames as single images (this reduces the number of draw calls)
-        // Store images in `this.animations[this.state].bakedFrames`
-    }
-}
-
-// ToDo: move this class to "./menu/UIScene.js"
-class UIScene {
-    constructor(elements = [], selectableElements = []) {
-        this.elements = elements
-        this.selectableElements = selectableElements
-    }
-}
-
-class MenuSystem {
+class MenuSystem extends TileRenderer {
     constructor(canvas) {
-        // Canvas vars
-        this.resScale = 2
-        this.canvas = canvas
-        this.ctx = this.canvas.getContext("2d")
-        this.cWidth = this.canvas.width = this.canvas.parentElement.clientWidth / this.resScale
-        this.cHeight = this.canvas.height = this.canvas.parentElement.clientHeight / this.resScale
-        
-        this.canvas.style.width = '100%'
-        this.canvas.style.height = '100%'
-
-        this.canvas.style.display = menuConstants.shown
-
-        // Render vars
-        this._visible = false
-
-        // Resize listener
+        // Do parent constructor
+        super(canvas)
 
         // Event Listeners
-        
         // Mouse move
         this.canvas.addEventListener('mousemove', (event) => {
             // Get mouse pos
@@ -181,18 +112,7 @@ class MenuSystem {
             if (this.elementIsSelected && this.selectedScene?.selectableElements[this.selectionIndex]) this.selectedScene.selectableElements[this.selectionIndex].pressButton()
         })
 
-        window.addEventListener('resize', (event) => {
-            this.resizeCanvas()
-            this.render()
-        })
-
-        // Font vars
-        this.fonts = []
-
         // UI vars
-        this.uiTiles
-        this.loadImage(imageSRC.UI, (img)=>{this.uiTiles = img})
-
         const title = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowR]
         const titleMid = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowR]
         const titleLong = [spriteParts.titleWindowL, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowM, spriteParts.titleWindowR]
@@ -245,58 +165,15 @@ class MenuSystem {
         
         this.pauseMenu = new UIScene([bars4, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton])
 
-        // Selected menu
+        // Selection vars
         this.selectedScene = this.mainMenu
-
-        // The menu item that is selected
         this.selectionIndex = 0
         this.elementIsSelected = false
     }
 
     /////////////////////////////////////////////////////////
-    // Listener Events
+    // Visibility
     /////////////////////////////////////////////////////////
-
-    // This should happen on window resize
-    resizeCanvas() {
-        //...
-        this.render()
-        this.cWidth = this.canvas.width = this.canvas.parentElement.clientWidth / this.resScale
-        this.cHeight = this.canvas.height = this.canvas.parentElement.clientHeight / this.resScale
-    }
-
-    /////////////////////////////////////////////////////////
-    // Methods
-    /////////////////////////////////////////////////////////
-
-    // Used to show the menu canvas
-    show() {
-        // Reset menu selections
-        this.selectionIndex = 0
-        this.elementIsSelected = false
-
-        // Set visibility
-        this._visible = true
-        this.canvas.style.display = menuConstants.shown
-
-        // Redraw
-        this.render()
-    }
-
-    // Used to hide the menu canvas
-    hide() {
-        // Reset menu selections
-        this.elementIsSelected = false
-
-        // Set visibility
-        this._visible = false
-        this.canvas.style.display = menuConstants.hidden
-    }
-
-    toggleVisibility() {
-        if (this._visible) this.hide()
-        else this.show()
-    }
 
     setScene(newScene) {
         // Reset menu selections
@@ -332,98 +209,8 @@ class MenuSystem {
     }
 
     /////////////////////////////////////////////////////////
-    // Loaders
-    /////////////////////////////////////////////////////////
-
-    // Used to load images into the scene
-    loadImage(src, callback) {
-        const img = new Image()
-        img.src = src
-        img.onload = () => {
-            // Callback here
-            callback(img)
-            // Rerender the canvas after performing callback
-            this.render()
-            if ($('#loading-basic')) $('#loading-basic').style.display = 'none' // ToDo: replace this with a more robust loading indicator
-        }
-    }
-
-    // Loads font based on .json files
-    loadFonts(path, callback = ()=>{}) {
-        const titleFont = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
-        const smallFont = {img: null, data: fontJSON.battlekourBody, isLoaded: false}
-        this.loadImage(`./client/src/textures/fonts/${titleFont.data.metaData.imgName}`, (img)=>{
-            // load json
-            titleFont.img = img
-            titleFont.isLoaded = true
-
-            console.log('font loaded', titleFont)
-
-            this.fonts.push(titleFont)
-            
-            // Small font
-            this.loadImage(`./client/src/textures/fonts/${smallFont.data.metaData.imgName}`, (img)=>{
-                // load json
-                smallFont.img = img
-                smallFont.isLoaded = true
-    
-                console.log('font loaded', smallFont)
-    
-                this.fonts.push(smallFont)
-                callback(smallFont)
-            })
-        })
-    }
-
-    /////////////////////////////////////////////////////////
-    // Baking
-    /////////////////////////////////////////////////////////
-
-    // Returns an image
-    bakeText = (string, font, callback) => {
-        // Measure text
-        const textSize = this.drawText( string, { x:0, y:0 }, font, null )
-
-        // Create temporary cnavas
-        const tempCanvas = document.createElement("canvas")
-        const tempCtx = tempCanvas.getContext("2d")
-        tempCanvas.width = textSize.x
-        tempCanvas.height = textSize.y
-
-        // Draw text to canvas
-        this.drawText( string, { x: 0, y: textSize.y }, font, tempCtx )
-
-        // Create image from canvas
-        const textImage = new Image( textSize.x, textSize.y )
-        textImage.onload = () => { 
-            
-            callback(textImage) }
-        textImage.src = tempCanvas.toDataURL()
-    }
-
-    // Returns an image
-    bakeTiles = (tiles) => {
-        //...
-    }
-
-    // Returns an image
-    bakeTilesAndText = (tiles, string) => {
-        //...
-    }
-
-    /////////////////////////////////////////////////////////
     // Drawing and Rendering
     /////////////////////////////////////////////////////////
-
-    drawTileHere(x, y, offset, tileSize, id) {
-        // Calculate ID offset
-        const rows = 16
-        const columns = 16
-        const c = (id-1) % columns
-        const r = Math.floor((id-1) / columns)
-        // Draw
-        if (this.uiTiles) this.ctx.drawImage(this.uiTiles, c*tileSize, r*tileSize, tileSize, tileSize, (x*tileSize) + offset.x, (y*tileSize) + offset.y, tileSize, tileSize)
-    }
 
     animate() {
         // Draw all tiles in current frame / state
@@ -435,52 +222,7 @@ class MenuSystem {
             // menuElement.frame++
     }
 
-    // Draws to given context (if available) and returns the size of the canvas in {x,y} pixels
-    drawText(string, position, font, myCtx) {
-        // position = {x: x, y: y}
-        // font = {img: img, data: fontJson}
-        let addedX = 0
-        for (let i = 0; i < string.length; i++) {
-
-            // Get character index
-            const charCode = string.charCodeAt(i)
-            let index = charCode - 33
-            if (charCode < 32 || charCode > 126) index = 126
-            const charSize = font.data.metrics.fontSize || 16
-            const columns = 32
-
-            // Crop the image
-            const crop = {
-                sx: (index % columns) * charSize,
-                sy: Math.floor(index / columns) * charSize,
-                sw: font.data.charData[`${charCode}`]?.width || font.data.metrics.defaultWidth || charSize,
-                sh: charSize
-            }
-
-            // Set position
-            const shift = font.data.charData[`${charCode}`]?.shift ? font.data.charData[`${charCode}`].shift : 0
-            const xPos = (addedX + position.x) + shift
-            const yPos = (position.y - crop.sh) + font.data.metrics.baseline
-            
-            if (charCode !== 32) {
-                // Draw character
-                if (myCtx) myCtx.drawImage(font.img, crop.sx, crop.sy, crop.sw, crop.sh, xPos, yPos, crop.sw, crop.sh)
-
-                // Add to next X position
-                const tracking = font.data.charData[`${charCode}`]?.tracking ? font.data.charData[`${charCode}`].tracking : 0
-                addedX += crop.sw + tracking + font.data.metrics.letterSpacing
-            }
-            else {
-                // Add space to next X position
-                addedX += (font.data.metrics.spaceSize || charSize) + font.data.metrics.letterSpacing
-            }
-        }
-
-        return { x: addedX, y: font.data.metrics.fontSize }
-    }
-
     drawElement = (thisElem) => {
-        // console.log(thisElem)
         for (let y = 0; y < thisElem.tiles?.length; y++) {
         for (let x = 0; x < thisElem.tiles[y]?.length; x++) {
             const thisTile = thisElem.tiles[y][x]
@@ -488,7 +230,7 @@ class MenuSystem {
                 x: Math.floor(thisElem.position.x),
                 y: Math.floor(thisElem.position.y)
             }
-            this.drawTileHere(x, y, tilePos, menuConstants.tileSize, thisTile)
+            this.drawTile(thisTile, {x: (x * menuConstants.tileSize) + tilePos.x, y: (y * menuConstants.tileSize) + tilePos.y}, menuConstants.tileSize )
         }}
         if (thisElem.text && this.fonts[thisElem.fontIndex]?.isLoaded) {
             const textPos = {
@@ -500,16 +242,16 @@ class MenuSystem {
     }
 
     render() {
-        // Clear the screen for redraw
-        this.ctx.clearRect(0,0,this.cWidth,this.cHeight)
+        // Do default
+        super.render()
 
         // draw elements
-        for (let i = 0; i < this.selectedScene.elements?.length; i++) {
+        for (let i = 0; i < this.selectedScene?.elements?.length; i++) {
             this.drawElement(this.selectedScene.elements[i])
         }
 
         // draw selectableElements
-        for (let i = 0; i < this.selectedScene.selectableElements?.length; i++) {
+        for (let i = 0; i < this.selectedScene?.selectableElements?.length; i++) {
             this.drawElement(this.selectedScene.selectableElements[i])
         }
     }
