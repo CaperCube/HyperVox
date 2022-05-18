@@ -28,7 +28,6 @@ class HUDSystem extends TileRenderer {
                 y: Math.floor(this.cHeight/2)
             }
         }
-
         
         const centerX = (screenBox.center.x - HUDConstants.tileSize/2)
         const centerY = (screenBox.center.y - HUDConstants.tileSize/2)
@@ -48,16 +47,6 @@ class HUDSystem extends TileRenderer {
 
         // Crosshair
         this.drawTile(250, { x: centerX, y: centerY }, HUDConstants.tileSize)
-
-        // Test render
-        // const tSize = 32
-        // for (let y = 0; y < this.cHeight; y += tSize) {
-        // for (let x = 0; x < this.cWidth; x += tSize) {
-        //     // Draw tiles
-        //     this.drawTile(250, { x: x, y: y }, tSize)
-        // }}
-        // this.drawText('Test string', {x: tSize, y: tSize})
-        // this.drawText('Smaller test text', {x: tSize, y: tSize*1.5}, this.fonts?.[1])
     }
 }
 
