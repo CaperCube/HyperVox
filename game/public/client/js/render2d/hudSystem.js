@@ -159,7 +159,7 @@ class HUDSystem extends TileRenderer {
         this.drawTile(10, { x: this.screenBox.right - (HUDConsts.tileSize*4), y: statY }, HUDConsts.tileSize)
         this.drawTile(6, { x: this.screenBox.right - (HUDConsts.tileSize*3), y: statY }, HUDConsts.tileSize)
         this.drawTile(11, { x: this.screenBox.right - (HUDConsts.tileSize*2), y: statY }, HUDConsts.tileSize)
-        this.drawText(`0/0`, {x: this.screenBox.right - (HUDConsts.tileSize*3)-1, y: statY + 24})
+        this.drawText(`--`, {x: this.screenBox.right - (HUDConsts.tileSize*3)-1, y: statY + 24})
         /////////////////////////////////////////////////////////////////
 
         /////////////////////////////////////////////////////////////////
