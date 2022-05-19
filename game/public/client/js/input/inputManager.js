@@ -385,8 +385,8 @@ var Controls = {
         jump: [Buttons.space, GamepadButtons.a],
         fire1: [Buttons.lmb, GamepadButtons.x],
         fire2: [Buttons.rmb, GamepadButtons.y],
-        invUp: [Buttons.scrollUp, Buttons.equals],
-        invDown: [Buttons.scrollDown, Buttons.minus],
+        invUp: [Buttons.scrollUp, Buttons.minus],
+        invDown: [Buttons.scrollDown, Buttons.equals],
         eyedrop: [Buttons.e],
         noclip: [Buttons.r]
     },

@@ -56,9 +56,6 @@ class ClientGame {
 
         // The main viewport camera
         this.mainCamera
-        this.utilLayer
-        this.mainCrosshair
-        this.mainInv // ToDo: Replace this with a better UI system
 
         // The client's main player (this may need to be adjusted to more easily allow for multiple local players)
         this.localPlayer
@@ -151,6 +148,7 @@ class ClientGame {
         this.hud = new HUDSystem($("#hud-canvas"))
         this.hud.setupGraphics({
             tileSheetPath: imageSRC.UI,
+            blockSheetPath: imageSRC.Tiles,
             fontPath: `./client/src/textures/fonts/`
         })
         this.hud.hide()
@@ -199,9 +197,6 @@ class ClientGame {
         this.engine.stopRenderLoop()
         this.scene = null
         this.mainCamera = null
-        this.utilLayer = null
-        this.mainCrosshair = null
-        this.mainInv = null
         this.localPlayer = null
         this.networkPlayers = []
         $("#chat-window").style.display = 'none'
@@ -313,16 +308,7 @@ class ClientGame {
             this.clientComs.sendChatMessage(`I have joined!`, this.localPlayer.playerName, this.localPlayer.playerColor)
         }
 
-        // Create crosshair
-        this.utilLayer = new BABYLON.UtilityLayerRenderer(this.scene)
-        let utilLight = new BABYLON.HemisphericLight('utilLight', new BABYLON.Vector3(1, 1, 0), this.utilLayer.utilityLayerScene)
-        utilLight.groundColor = new BABYLON.Color3(1, 1, 1)
-
-        this.mainCrosshair = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', 250, this.utilLayer.utilityLayerScene)
-        this.mainCrosshair.material = this.scene.defaultMaterial
-        this.mainCrosshair.setParent(this.mainCamera)
-        this.mainCrosshair.position = new BABYLON.Vector3(0, 0, 8)
-
+        // Init inv selection
         this.changeInvSlot(1)
 
         ////////////////////////////////////////////////////
@@ -354,15 +340,17 @@ class ClientGame {
         }) // }, 1000/90 )
     }
 
-    // ToDo: Replace this when `this.mainInv` gets replaced
     changeInvSlot(idx) {
-        if (this.mainInv) this.mainInv.dispose()
-        const textureID = blockTypes[idx]?.textures['front']
-        this.mainInv = this.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'back', textureID, this.utilLayer.utilityLayerScene)
-        this.mainInv.material = this.scene.defaultMaterial
-        this.mainInv.rotation = new BABYLON.Vector3(this.mainCamera.rotation.x, this.mainCamera.rotation.y, this.mainCamera.rotation.z)
-        this.mainInv.setParent(this.mainCamera)
-        this.mainInv.position = new BABYLON.Vector3(0, -5.5, 8)
+        if (this.hud) {
+            const lower = ((idx-1) > 0)? (idx-1) : blockTypes.length-1
+            const higer = (idx % blockTypes.length) + 1
+            this.hud.invSlotIndexes = [
+                blockTypes[lower]?.textures['front'],
+                blockTypes[idx]?.textures['front'],
+                blockTypes[higer]?.textures['front']
+            ]
+            this.hud.render()
+        }
     }
 
     // This is used when switching to an online session

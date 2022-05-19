@@ -53,7 +53,7 @@ body {
 	position: absolute;
 	display: none;
 	bottom: 100px;
-	left: 10px;
+	left: 32px;
 	width: calc(35% + 20px);
 	height: 20px;
 }
@@ -76,7 +76,7 @@ body {
 	position: absolute;
 	display: none;
 	bottom: 130px;
-	left: 10px;
+	left: 32px;
 	width: 35%;
 	height: 20%;
 	max-height: 20%;

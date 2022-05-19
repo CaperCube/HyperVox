@@ -185,14 +185,14 @@ class TileRenderer {
     // Drawing and Rendering
     /////////////////////////////////////////////////////////
 
-    drawTile(id = 1, position = {x: 0, y: 0}, tileSize = 32, myCtx = this.ctx) {
+    drawTile(id = 1, position = {x: 0, y: 0}, tileSize = 32, myCtx = this.ctx, tileSet = this.tileSet) {
         // Calculate ID offset
         const rows = 16
         const columns = 16
         const c = (id-1) % columns
         const r = Math.floor((id-1) / columns)
         // Draw
-        if (this.tileSet) myCtx.drawImage(this.tileSet, c*tileSize, r*tileSize, tileSize, tileSize, position.x, position.y, tileSize, tileSize)
+        if (tileSet) myCtx.drawImage(tileSet, c*tileSize, r*tileSize, tileSize, tileSize, position.x, position.y, tileSize, tileSize)
     }
 
     // Draws to given context (if available) and returns the size of the canvas in {x,y} pixels

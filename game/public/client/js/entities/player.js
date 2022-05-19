@@ -237,6 +237,9 @@ class ClientPlayer {
             // Apply damage
             this.health -= damage
 
+            // Turn on the damage indicator
+            this.clientGame.hud.enableDamageMarker(this.health)
+
             // Make the player invincible for a short interval
             this.isInvincible = true
             this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
@@ -250,6 +253,7 @@ class ClientPlayer {
             else {
                 // Player is dead, respawn
                 this.health = 100
+                this.clientGame.hud.enableDamageMarker(this.health)
                 this.teleportPlayer(this.respawnPoint)
             }
             // ToDo: Update health readout

@@ -15,6 +15,7 @@ const uiSystems = {
 for (const [key, value] of Object.entries(uiSystems)) {
     uiSystems[key].setupGraphics({
         tileSheetPath: `../../../client/src/textures/ui_parts.png`,
+        blockSheetPath: `../../../client/src/textures/textures.png`,
         fontPath: `../../../client/src/textures/fonts/`
     })
     uiSystems[key].hide()
