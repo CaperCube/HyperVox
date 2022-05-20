@@ -1,0 +1,6 @@
+
+class UISlider {
+    constructor() {
+        
+    }
+}

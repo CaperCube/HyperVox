@@ -144,6 +144,7 @@ class MenuSystem extends TileRenderer {
         this.lookSpeed = 2
         this.guiScale = 3
         this.fov = 1
+        this.range = [ 0, 5 ]
         const sliderIndicator = (val) => { //ToDo: make an actual slider element that hooks into a value
             switch (val) {
                 case 0:
@@ -160,7 +161,30 @@ class MenuSystem extends TileRenderer {
                     return `|----`
             }
         }
+        const sliderPos = (val, valRange, posRange) => {
+            // Clamp val to valRange (please laugh at my silly double turnary operator)
+            const useVal =
+                (val < valRange[0])?
+                valRange[0] :
+                (val > valRange[1])?
+                valRange[1] :
+                val
+            // Normalize values and get fraction
+            const normalMaxVal = Math.abs(valRange[1] - valRange[0])
+            const normalVal = Math.abs(useVal - valRange[0])
+            const frac = normalVal / normalMaxVal
+            // Get position
+            const dist = (posRange[1] - posRange[0])
+            const pos = posRange[0] + (dist * frac)
+            return Math.floor(pos)
+        }
+        const sliderPointer = new UIElement({position: {x: sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]), y: menuConstants.tileSize*1.5}, tiles: [[35]]})
         const lookSpeedReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*1.5}, tiles: [titleExLong], text: `Look Speed:  ${sliderIndicator(this.lookSpeed)}`})
+        const lookUpButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[5]]})
+        lookUpButton.pressButton = () => { this.lookSpeed--; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]); this.render(); }
+        const lookDownButton = new UIElement({position: {x: menuConstants.tileSize*6, y: (menuConstants.tileSize*1.5)}, tiles: [[11]]})
+        lookDownButton.pressButton = () => { this.lookSpeed++; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]); this.render();}
+
         const guiScaleReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [titleExLong], text: `GUI scale:     ${sliderIndicator(this.guiScale)}`})
         const fovReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [titleExLong], text: `Field of View: ${sliderIndicator(this.fov)}`})
         const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'Defaults'})
@@ -168,7 +192,7 @@ class MenuSystem extends TileRenderer {
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.optionsMenu = new UIScene([bars3, optionsTitle, lookSpeedReadout, guiScaleReadout, fovReadout], [defaultsButton, optionsBackButton])
+        this.optionsMenu = new UIScene([bars3, optionsTitle, lookSpeedReadout, sliderPointer, guiScaleReadout, fovReadout], [lookUpButton, lookDownButton, optionsBackButton])
 
         // Play menu
         // const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
