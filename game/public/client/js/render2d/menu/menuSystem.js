@@ -178,21 +178,21 @@ class MenuSystem extends TileRenderer {
             const pos = posRange[0] + (dist * frac)
             return Math.floor(pos)
         }
-        const sliderPointer = new UIElement({position: {x: sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]), y: menuConstants.tileSize*1.5}, tiles: [[35]]})
-        const lookSpeedReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*1.5}, tiles: [titleExLong], text: `Look Speed:  ${sliderIndicator(this.lookSpeed)}`})
-        const lookUpButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[5]]})
-        lookUpButton.pressButton = () => { this.lookSpeed--; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]); this.render(); }
-        const lookDownButton = new UIElement({position: {x: menuConstants.tileSize*6, y: (menuConstants.tileSize*1.5)}, tiles: [[11]]})
-        lookDownButton.pressButton = () => { this.lookSpeed++; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [menuConstants.tileSize*1.5, menuConstants.tileSize*5.5]); this.render();}
+        const sliderPointer = new UIElement({position: {x: sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]), y: menuConstants.tileSize*1.5}, tiles: [[42]]})
+        const lookSpeedReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*1.5}, tiles: [titleLong], text: `  Look Speed`})
+        const lookUpButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[39]]})
+        lookUpButton.pressButton = () => { this.lookSpeed--; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]); this.render(); }
+        const lookDownButton = new UIElement({position: {x: menuConstants.tileSize*5, y: (menuConstants.tileSize*1.5)}, tiles: [[41]]})
+        lookDownButton.pressButton = () => { this.lookSpeed++; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]); this.render();}
 
-        const guiScaleReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [titleExLong], text: `GUI scale:     ${sliderIndicator(this.guiScale)}`})
-        const fovReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [titleExLong], text: `Field of View: ${sliderIndicator(this.fov)}`})
+        const guiScaleReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [titleLong], text: `  GUI scale`})
+        const fovReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [titleLong], text: `  FoV`})
         const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'Defaults'})
         // Back
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.optionsMenu = new UIScene([bars3, optionsTitle, lookSpeedReadout, sliderPointer, guiScaleReadout, fovReadout], [lookUpButton, lookDownButton, optionsBackButton])
+        this.optionsMenu = new UIScene([bars3, optionsTitle, lookSpeedReadout, sliderPointer, guiScaleReadout, fovReadout], [lookUpButton, lookDownButton, defaultsButton, optionsBackButton])
 
         // Play menu
         // const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})

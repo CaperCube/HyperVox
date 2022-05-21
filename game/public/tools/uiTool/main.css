@@ -1,6 +1,7 @@
 body {
     margin: 0px;
     padding: 10px;
+	user-select: none;
 }
 
 #main-canvas {
@@ -25,4 +26,5 @@ body {
 
 .toolbar {
 	margin: 10px 0px;
+	user-select: auto;
 }

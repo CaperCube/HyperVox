@@ -483,12 +483,14 @@ class ClientPlayer {
 
                 // Check if block is colidable
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
-                    const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
-                    if (!playerIsBelow) {
-                        const playerIsBehind = (this.position.x + (playerBox.d/2)) < block.x
-                        if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
-                        else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
-                    }
+                    // Move player to contact
+                    // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                    // if (!playerIsBelow) {
+                    //     const playerIsBehind = (this.position.x + (playerBox.d/2)) < block.x
+                    //     if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
+                    //     else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
+                    // }
+
                     // Bounce
                     this.bounceX()
                     //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
@@ -523,16 +525,14 @@ class ClientPlayer {
                 
                 // Check if block is colidable
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
-                    const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
-                    if (!playerIsBelow) {    
-                        const playerIsLeft = (this.position.z + (playerBox.w/2)) < (block.z)
-                        if (playerIsLeft) this.position.z = ((block.z - (block.w/2)) + (playerBox.w/2)) - 0.001
-                        else this.position.z = ((block.z + (block.w)) + (playerBox.w/2)) + 0.001
+                    // Move player to contact
+                    // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                    // if (!playerIsBelow) {    
+                    //     const playerIsLeft = (this.position.z + (playerBox.w/2)) < (block.z)
+                    //     if (playerIsLeft) this.position.z = ((block.z - (block.w/2)) + (playerBox.w/2)) - 0.001
+                    //     else this.position.z = ((block.z + (block.w)) + (playerBox.w/2)) + 0.001
+                    // }
 
-                        // const playerIsBehind = (this.position.x + (playerBox.d/2)) < (block.x)
-                        // if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
-                        // else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
-                    }
                     // Bounce
                     this.bounceZ()
                     //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
