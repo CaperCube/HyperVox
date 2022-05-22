@@ -124,6 +124,19 @@ class ClientGame {
             fontPath: `./client/src/textures/fonts/`
         })
 
+        // Look Speed
+        this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ this.settings.mouseSensitivity = val; this.updateSettings(); }
+        // this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ console.log(val) }
+        // FoV
+        this.menu.optionsMenu.selectableElements[1].valueUpdateFunction = (val)=>{ this.settings.fov = val; this.updateSettings(); }
+        // GUI scale
+        // this.menu.optionsMenu.selectableElements[2].valueUpdateFunction = ()=>{ this.settings.mouseSensitivity += 100; this.updateSettings(); }
+        // Defaults
+        this.menu.optionsMenu.selectableElements[3].pressButton = ()=>{
+            this.menu.optionsMenu.selectableElements[0].update(400)
+            this.menu.optionsMenu.selectableElements[1].update(1.35)
+        }
+
         Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
             e.preventDefault()
 

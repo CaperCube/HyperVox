@@ -1,6 +1,8 @@
 import TileRenderer from "../tileRenderer.js"
 import UIScene from "./uIScene.js"
 import UIElement from "./uiElement.js"
+import UISlider from "./uiSlider.js"
+import { lsKeys } from "../../clientConstants.js"
 
 // Mouse collision
 function checkMenuCollide(element, mousePos, screenScale) {
@@ -74,6 +76,25 @@ class MenuSystem extends TileRenderer {
         // Do parent constructor
         super(canvas)
 
+        // Default slider
+        const SliderDefaults = {
+            tiles: [[2,2,2,2]],
+        
+            upButtonOffset: {x: menuConstants.tileSize*5, y: 0},
+            upTiles: [[41]],
+        
+            downButtonOffset: {x: 0, y: 0},
+            downTiles: [[39]],
+        
+            sliderOffset: {x: (-menuConstants.tileSize/2) + 2, y: 0},
+            sliderTiles: [[42]],
+        
+            valRange: [0,10],
+            posRange: [0, (menuConstants.tileSize*4)-4],
+        
+            renderfunction: ()=>{this.render()},
+        }
+
         // Event Listeners
         // Mouse move
         this.canvas.addEventListener('mousemove', (event) => {
@@ -86,30 +107,37 @@ class MenuSystem extends TileRenderer {
             // Check for mouse hover
             for (let i = 0; i < this.selectedScene.selectableElements?.length; i++) {
                 const thisElem = this.selectedScene.selectableElements[i]
-                if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
-                    this.selectionIndex = i
-                    this.elementIsSelected = true
-                    // console.log(`${i} selected`)
-                    break // This makes sure that we only select one element if overlapping
+                this.selectedElement = null
+                if (thisElem instanceof UISlider) {
+                    // check collision for each button
+                    if (thisElem.upButton && checkMenuCollide(thisElem.upButton, mousePos, this.resScale)) {
+                        this.selectionIndex = i
+                        this.elementIsSelected = true
+                        this.selectedElement = thisElem.upButton
+                        break // This makes sure that we only select one element if overlapping
+                    }
+                    else if (thisElem.downButton && checkMenuCollide(thisElem.downButton, mousePos, this.resScale)) {
+                        this.selectionIndex = i
+                        this.elementIsSelected = true
+                        this.selectedElement = thisElem.downButton
+                        break // This makes sure that we only select one element if overlapping
+                    }
+                }
+                else {
+                    if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
+                        this.selectionIndex = i
+                        this.elementIsSelected = true
+                        this.selectedElement = thisElem
+                        break // This makes sure that we only select one element if overlapping
+                    }
                 }
             }
         })
 
         // Mouse down (choose selection)
         this.canvas.addEventListener('mousedown', (event) => {
-            // const rect = canvas.getBoundingClientRect()
-            // const mousePos = { x: event.clientX - rect.left, y: event.clientY - rect.top }
-
-            // // Check for buttons pressed
-            // for (let i = 0; i < this.selectedScene.elements?.length; i++) {
-            //     const thisElem = this.selectedScene.elements[i]
-            //     if (checkMenuCollide(thisElem, mousePos, this.resScale)) {
-            //         thisElem.pressButton()
-            //         break // This makes sure that we don't keep have click function double triggering
-            //     }
-            // }
-
-            if (this.elementIsSelected && this.selectedScene?.selectableElements[this.selectionIndex]) this.selectedScene.selectableElements[this.selectionIndex].pressButton()
+            //if (this.elementIsSelected && this.selectedScene?.selectableElements[this.selectionIndex]) this.selectedScene.selectableElements[this.selectionIndex].pressButton()
+            if (this.selectedElement) this.selectedElement.pressButton()
         })
 
         // UI vars
@@ -141,58 +169,39 @@ class MenuSystem extends TileRenderer {
         // FOV
         // Controls
         // Defaults
-        this.lookSpeed = 2
-        this.guiScale = 3
-        this.fov = 1
-        this.range = [ 0, 5 ]
-        const sliderIndicator = (val) => { //ToDo: make an actual slider element that hooks into a value
-            switch (val) {
-                case 0:
-                    return `|----`
-                case 1:
-                    return `-|---`
-                case 2:
-                    return `--|--`
-                case 3:
-                    return `---|-`
-                case 4:
-                    return `----|`
-                default:
-                    return `|----`
-            }
-        }
-        const sliderPos = (val, valRange, posRange) => {
-            // Clamp val to valRange (please laugh at my silly double turnary operator)
-            const useVal =
-                (val < valRange[0])?
-                valRange[0] :
-                (val > valRange[1])?
-                valRange[1] :
-                val
-            // Normalize values and get fraction
-            const normalMaxVal = Math.abs(valRange[1] - valRange[0])
-            const normalVal = Math.abs(useVal - valRange[0])
-            const frac = normalVal / normalMaxVal
-            // Get position
-            const dist = (posRange[1] - posRange[0])
-            const pos = posRange[0] + (dist * frac)
-            return Math.floor(pos)
-        }
-        const sliderPointer = new UIElement({position: {x: sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]), y: menuConstants.tileSize*1.5}, tiles: [[42]]})
-        const lookSpeedReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*1.5}, tiles: [titleLong], text: `  Look Speed`})
-        const lookUpButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [[39]]})
-        lookUpButton.pressButton = () => { this.lookSpeed--; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]); this.render(); }
-        const lookDownButton = new UIElement({position: {x: menuConstants.tileSize*5, y: (menuConstants.tileSize*1.5)}, tiles: [[41]]})
-        lookDownButton.pressButton = () => { this.lookSpeed++; sliderPointer.position.x = sliderPos(this.lookSpeed, [0,10], [(menuConstants.tileSize*1.5)+2, (menuConstants.tileSize*4.5)-2]); this.render();}
+        const settingsLoaded = JSON.parse(localStorage.getItem(lsKeys.clientSettings)) // Load settings if the exist
+        const lookSlider = new UISlider({
+            ...SliderDefaults,
+            text: 'Look Speed',
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*1.5 },
+            increment: 100,
+            defaultValue: settingsLoaded?.mouseSensitivity || 400,
+            valRange: [100,1000],
+        })
 
-        const guiScaleReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [titleLong], text: `  GUI scale`})
-        const fovReadout = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [titleLong], text: `  FoV`})
+        const guiScaleSlider = new UISlider({
+            ...SliderDefaults,
+            text: 'GUI Scale',
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*3.5 },
+            increment: 1,
+            defaultValue: 2,
+            valRange: [1,4],
+        })
+
+        const fovSlider = new UISlider({
+            ...SliderDefaults,
+            text: 'FoV',
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*2.5 },
+            increment: 0.1,
+            defaultValue: settingsLoaded?.fov || 1.35,
+            valRange: [0.55,2.15],
+        })
         const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'Defaults'})
         // Back
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.optionsMenu = new UIScene([bars3, optionsTitle, lookSpeedReadout, sliderPointer, guiScaleReadout, fovReadout], [lookUpButton, lookDownButton, defaultsButton, optionsBackButton])
+        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, defaultsButton, optionsBackButton])
 
         // Play menu
         // const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
@@ -207,21 +216,30 @@ class MenuSystem extends TileRenderer {
         this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
         // Pause menu
-        const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
+        // const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Pause'})
-        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [buttonLong], text: 'Back to Game'})
-        // pausePlayButton.pressButton = () => { this.hide() }
+        const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonLong], text: 'Back to Game'})
+        const pauseOptionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [button], text: 'Options'})
+        pauseOptionsButton.pressButton = () => { this.setScene(this.pauseOptions) }
+        
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
         const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [buttonMid], text: 'Leave Game'})
         const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Main Menu'})
         pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.pauseMenu = new UIScene([bars4, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton])
+        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton, pauseOptionsButton])
+
+        // Pause Options
+        const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
+        pauseOptionsBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
+
+        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, defaultsButton, pauseOptionsBackButton])
 
         // Selection vars
         this.selectedScene = this.mainMenu
         this.selectionIndex = 0
         this.elementIsSelected = false
+        this.selectedElement = null // ToDo: we'll need to change how this works for non-mouse input
     }
 
     /////////////////////////////////////////////////////////
@@ -232,6 +250,7 @@ class MenuSystem extends TileRenderer {
         // Reset menu selections
         this.selectionIndex = 0
         this.elementIsSelected = false
+        this.selectedElement = null
 
         // Set new menu scene
         this.selectedScene = newScene
@@ -275,6 +294,18 @@ class MenuSystem extends TileRenderer {
             // menuElement.frame++
     }
 
+    draw = (thisElem) => {
+        if (thisElem instanceof UISlider) {
+            this.drawElement(thisElem)
+            if (thisElem.slider) this.drawElement(thisElem.slider)
+            if (thisElem.upButton) this.drawElement(thisElem.upButton)
+            if (thisElem.downButton) this.drawElement(thisElem.downButton)
+        }
+        else {
+            this.drawElement(thisElem)
+        }
+    }
+
     drawElement = (thisElem) => {
         for (let y = 0; y < thisElem.tiles?.length; y++) {
         for (let x = 0; x < thisElem.tiles[y]?.length; x++) {
@@ -300,12 +331,12 @@ class MenuSystem extends TileRenderer {
 
         // draw elements
         for (let i = 0; i < this.selectedScene?.elements?.length; i++) {
-            this.drawElement(this.selectedScene.elements[i])
+            this.draw(this.selectedScene.elements[i])
         }
 
         // draw selectableElements
         for (let i = 0; i < this.selectedScene?.selectableElements?.length; i++) {
-            this.drawElement(this.selectedScene.selectableElements[i])
+            this.draw(this.selectedScene.selectableElements[i])
         }
     }
 }

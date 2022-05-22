@@ -12,7 +12,12 @@ const elementConstants = {
 }
 
 class UIElement {
-    constructor({position = {x: 0, y: 0}, tiles = [[]], text = '', fontIndex = 0}) {
+    constructor({
+        position = {x: 0, y: 0},
+        tiles = [[]],
+        text = '',
+        fontIndex = 0
+    }) {
         this.position = position
         this.tiles = tiles
         this.text = text
