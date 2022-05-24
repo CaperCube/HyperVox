@@ -3,6 +3,7 @@ import UIScene from "./uIScene.js"
 import UIElement from "./uiElement.js"
 import UISlider from "./uiSlider.js"
 import { lsKeys } from "../../clientConstants.js"
+import { localStorageIsAllowed } from "../../../../common/localStorageUtils.js"
 
 // Mouse collision
 function checkMenuCollide(element, mousePos, screenScale) {
@@ -169,7 +170,7 @@ class MenuSystem extends TileRenderer {
         // FOV
         // Controls
         // Defaults
-        const settingsLoaded = JSON.parse(localStorage.getItem(lsKeys.clientSettings)) // Load settings if the exist
+        const settingsLoaded = (localStorageIsAllowed())? JSON.parse(localStorage.getItem(lsKeys.clientSettings)) : null // Load settings if the exist
         const lookSlider = new UISlider({
             ...SliderDefaults,
             text: 'Look Speed',

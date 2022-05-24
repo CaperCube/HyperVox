@@ -4,8 +4,8 @@ body {
 }
 
 #main-canvas {
-	width: 512px;
-	height: 512px;
+	width: 80vh;
+	height: 80vh;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;

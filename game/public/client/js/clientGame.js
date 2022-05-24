@@ -12,6 +12,7 @@ import MenuSystem from './render2d/menu/menuSystem.js'
 import HUDSystem from "./render2d/hudSystem.js"
 import { blockTypes } from '../../common/blockSystem.js'
 import { imageSRC } from "./resources.js"
+import { localStorageIsAllowed } from "../../common/localStorageUtils.js"
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -43,7 +44,7 @@ class ClientGame {
         this.clientWorld
 
         // The Client's settings object
-        const settingsLoaded = JSON.parse(localStorage.getItem(lsKeys.clientSettings)) // Load settings if the exist
+        const settingsLoaded = (localStorageIsAllowed())? JSON.parse(localStorage.getItem(lsKeys.clientSettings)) : null // Load settings if the exist
         this.settings = {
             mouseSensitivity: settingsLoaded?.mouseSensitivity || 400, //higher is slower
             fov: settingsLoaded?.fov || 1.35,

@@ -36,10 +36,12 @@
     ////////////////////////////////////////////////////////
     -->
     <div class="toolbar">
+        <button id="DOM_xaxis">X Axis</button> <button id="DOM_yaxis">Y Axis</button> <button id="DOM_zaxis">Z Axis</button><br>
+        <button id="DOM_loadWorld">Load World</button>
         <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
         Random Seed: <input id="DOM_rndSeed" type="checkbox" checked="false"><br>
         <input id="DOM_seed" type="text" value="helloworld"><br>
-        <input id="DOM_zSlider" type="range" min="0" max="64" step="1" value="0" oninput="updateZ(this)"> <span id="DOM_zindex">Z Index: 0</span><br>
+        <input id="DOM_depthslider" type="range" min="0" max="64" step="1" value="0" oninput="updateDepth(this)"> <span id="DOM_depth">Depth: 0</span><br>
         Gen Pattern: <select name="genList" id="DOM_genList">
             <option value="empty">empty</option>
         </select>

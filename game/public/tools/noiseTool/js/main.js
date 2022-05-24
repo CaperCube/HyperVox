@@ -16,18 +16,55 @@ textureSheet.src = staticImageSRC.Tiles
 // Noise vars
 const generator = new ChunkGenerator()
 let chunkSize = 8
-let worldSize = 4
+let worldSize = 8
 let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
-let world = [[[]]]
+let steps2D = 3
+let world = [[[]]] // ToDo: change to an actual world object
+
+// Editor vars
+let viewDirection = 2 // 0 = X, 1 = Y, 2 = Z
 
 ////////////////////////////////////////////////////////
 // DOM function
 ////////////////////////////////////////////////////////
 $("#DOM_generateBttn").onclick = DOMNoiseFnc
-$("#DOM_zSlider").oninput = () => { updateZ($("#DOM_zSlider")) }
+$("#DOM_xaxis").onclick = () => { updateViewDirection(0) }
+$("#DOM_Yaxis").onclick = () => { updateViewDirection(1) }
+$("#DOM_Zaxis").onclick = () => { updateViewDirection(2) }
+$("#DOM_depthslider").oninput = () => { updateDepth($("#DOM_depthslider")) }
 $("#DOM_genList").onchange = () => { DOMNoiseFnc() }
+$("#DOM_loadWorld").onclick = () => { browseForWorldFile() }
 populateDOMGenList()
+
+function updateViewDirection(newVal) {
+    // Set value
+    viewDirection = newVal
+
+    // Reset slider
+    //resetDepthSlider()
+
+    // Redraw world
+    drawWorld(world, $("#DOM_depthslider").value)
+
+}
+
+function updateWorld(newWorld) { // ToDo: create a World() object
+    chunkSize = newWorld._chunkSize || 8
+    worldSize = newWorld._worldSize || 8
+    canvas.width = canvas.height = chunkSize * worldSize * 8
+    _resolution = (chunkSize * worldSize)
+    pixelSize = canvas.width/_resolution
+    world = newWorld.worldChunks || [[[]]]
+}
+
+function resetDepthSlider() {
+    const slider = $("#DOM_depthslider")
+    const steps = canvas.width / pixelSize
+    $("#DOM_depth").innerHTML = `Depth: ${0}`
+    slider.value = 0
+    slider.max = (steps - 1)
+}
 
 function populateDOMGenList() {
     const dropList = $("#DOM_genList")
@@ -64,18 +101,18 @@ function DOMNoiseFnc() {
     // Generator settings
     //generator.noiseScale = $('#DOM_scale').value
 
-    // Get z based on slider selection
+    // Get depth based on slider selection
     let steps = canvas.width / pixelSize
-    $('#DOM_zSlider').max = (steps - 1)
-    const z = $('#DOM_zSlider').value
+    $('#DOM_depthslider').max = (steps - 1)
+    const depth = $('#DOM_depthslider').value
 
     // Generate pattern and draw
-    generateNoise(selPattern, z, seed)
+    generateNoise(selPattern, depth, seed)
 }
 
-function updateZ(el) {
+function updateDepth(el) {
     // Update label
-    $("#DOM_zindex").innerHTML = `Z Index: ${el.value}`
+    $("#DOM_depth").innerHTML = `Depth: ${el.value}`
 
     // Redraw pattern with new z index
     drawWorld(world, el.value)
@@ -85,19 +122,33 @@ function updateZ(el) {
 // Pattern Gen and Drawing
 ////////////////////////////////////////////////////////
 
-function generateNoise(pat, firstZ, seed) {
+function generateNoise(pat, depth, seed) {
     // Generate world
     world = [[[]]]
     world = generator.generateWorld({seed: seed, chunkSize: chunkSize, worldSize: worldSize, pattern: pat})
 
     // Draw pattern to canvas
-    drawWorld(world, firstZ)
+    drawWorld(world, depth)
 }
 
 function drawTileHere(x, y, size, id) {
     // Get block from ID
     const block = blockTypes[id] || blockTypes[0]
-    const textureID = block.textures.front || 0
+    let textureID = 0
+    switch (viewDirection) {
+        case 0:
+            textureID = block.textures.left || 0
+            break
+        case 1:
+            textureID = block.textures.top || 0
+            break
+        case 2:
+            textureID = block.textures.front || 0
+            break
+        default:
+            textureID = block.textures.front || 0
+            break
+    }
     // Calculate ID offset
     const rows = 16
     const columns = 16
@@ -107,17 +158,117 @@ function drawTileHere(x, y, size, id) {
     ctx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
 }
 
-function drawWorld(w, z) {
+function drawWorld(w, depth) {
+    // Select draw function based on "viewDirection"
+    switch (viewDirection) {
+        case 0:
+            drawXWorld(w, depth)
+            break
+        case 1:
+            drawYWorld(w, depth)
+            break
+        case 2:
+            drawZWorld(w, depth)
+            break
+        default:
+            drawZWorld(w, depth)
+            break
+    }
+}
+
+function drawXWorld(w, depth) {
     // Get Z's world location
     const cSize = w[0][0][0].length
-    const zChunk = Math.floor(z / cSize)
-    const zBlock = z % cSize
+    const xChunk = Math.floor(depth / cSize)
+    const xBlock = depth % cSize
 
     // Draw background
     ctx.fillStyle = `rgba( 0, 0, 0, 1 )`
     ctx.fillRect( 0, 0, canvas.width, canvas.height )
 
-    const steps2D = 1
+    // Loop through all chunks in world
+    for (let cy = 0; cy < w.length; cy++) {
+    for (let cz = 0; cz < w[cy][xChunk].length; cz++) {
+        const chunk = w[cy][xChunk][cz]
+    
+    // Loop through all blocks in chunk
+    for (let y = 0; y < chunk.length; y++) {
+    for (let z = 0; z < chunk[y][xBlock].length; z++) {
+        // Draw pixel
+        let val = chunk[y][xBlock][z]
+        // If no block here, draw next layer
+        if (val === 0) {
+            for (let n = steps2D; n >= 0; n--) {
+                const nextX = parseInt(depth,10) + parseInt(n,10) + parseInt(1,10)
+                let nextXChunk = Math.floor(nextX / cSize) % w.length
+                const nextXBlock = nextX % cSize
+                const nextChunk = w[cy][nextXChunk][cz]
+                const nextXVal = nextChunk[y][nextXBlock][z]
+                if (nextXVal > 0) {
+                    // drawTileHere((z+(cz*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, nextXVal)
+                    drawTileHere(((_resolution-z-1)-(cz*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, nextXVal)
+                    ctx.fillStyle = `rgba( 0, 0, 0, ${(1/(steps2D+1)) * (n+1)} )`
+                    // ctx.fillRect( (z+(cz*cSize))*pixelSize, ((_resolution-y-1)-(cy*cSize))*pixelSize, pixelSize, pixelSize )
+                    ctx.fillRect( ((_resolution-z-1)-(cz*cSize))*pixelSize, ((_resolution-y-1)-(cy*cSize))*pixelSize, pixelSize, pixelSize )
+                }
+            }
+        }
+        //else drawTileHere((z+(cz*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
+        else drawTileHere(((_resolution-z-1)-(cz*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
+    }}
+    }}
+}
+
+function drawYWorld(w, depth) {
+    // Get Z's world location
+    const cSize = w[0][0][0].length
+    const yChunk = Math.floor(depth / cSize)
+    const yBlock = depth % cSize
+
+    // Draw background
+    ctx.fillStyle = `rgba( 0, 0, 0, 1 )`
+    ctx.fillRect( 0, 0, canvas.width, canvas.height )
+
+    // Loop through all chunks in world
+    for (let cx = 0; cx < w[yChunk].length; cx++) {
+    for (let cz = 0; cz < w[yChunk][cx].length; cz++) {
+        const chunk = w[yChunk][cx][cz]
+    
+    // Loop through all blocks in chunk
+    for (let x = 0; x < chunk[yBlock].length; x++) {
+    for (let z = 0; z < chunk[yBlock][x].length; z++) {
+        // Draw pixel
+        let val = chunk[yBlock][x][z]
+        // If no block here, draw next layer
+        if (val === 0) {
+            for (let n = steps2D; n >= 0; n--) {
+                let nextY = parseInt(depth,10) - (parseInt(n,10) + parseInt(1,10))
+                if (nextY < 0) nextY = 0
+                const nextYChunk = Math.floor(nextY / cSize) % w.length
+                const nextYBlock = nextY % cSize
+                const nextChunk = w[nextYChunk][cx][cz]
+                const nextYVal = nextChunk[nextYBlock][x][z]
+                if (nextYVal > 0) {
+                    drawTileHere((x+(cx*cSize)), ((_resolution-z-1)-(cz*cSize)), pixelSize, nextYVal)
+                    ctx.fillStyle = `rgba( 0, 0, 0, ${(1/(steps2D+1)) * (n+1)} )`
+                    ctx.fillRect( (x+(cx*cSize))*pixelSize, ((_resolution-z-1)-(cz*cSize))*pixelSize, pixelSize, pixelSize )
+                }
+            }
+        }
+        else drawTileHere((x+(cx*cSize)), ((_resolution-z-1)-(cz*cSize)), pixelSize, val)
+    }}
+    }}
+}
+
+function drawZWorld(w, depth) {
+    // Get Z's world location
+    const cSize = w[0][0][0].length
+    const zChunk = Math.floor(depth / cSize)
+    const zBlock = depth % cSize
+
+    // Draw background
+    ctx.fillStyle = `rgba( 0, 0, 0, 1 )`
+    ctx.fillRect( 0, 0, canvas.width, canvas.height )
 
     // Loop through all chunks in world
     for (let cy = 0; cy < w.length; cy++) {
@@ -129,10 +280,10 @@ function drawWorld(w, z) {
     for (let x = 0; x < chunk[y].length; x++) {
         // Draw pixel
         let val = chunk[y][x][zBlock]
-        //if (toleranceMode) val = (val > generator.noiseTolerance) ? 1 : 0
+        // If no block here, draw next layer
         if (val === 0) {
-            for (let n = 0; n < steps2D; n++) {
-                const nextZ = z+n+1
+            for (let n = steps2D; n >= 0; n--) {
+                const nextZ = parseInt(depth,10) + parseInt(n,10) + parseInt(1,10)
                 const nextZChunk = Math.floor(nextZ / cSize) % w.length
                 const nextZBlock = nextZ % cSize
                 const nextChunk = w[cy][cx][nextZChunk]
@@ -145,5 +296,61 @@ function drawWorld(w, z) {
             }
         }
         else drawTileHere((x+(cx*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
-    }}}}
+    }}
+    }}
+}
+
+////////////////////////////////////////////////////////
+// Save / Load
+////////////////////////////////////////////////////////
+
+const saveWorld = (world) => {
+    world.saveVersion = '0.1'
+    let element = document.createElement('a')
+    element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( world ) ) )
+    element.setAttribute( 'download', 'level.json' )
+  
+    element.style.display = 'none'
+    document.body.appendChild(element)
+  
+    element.click()
+  
+    document.body.removeChild(element)
+}
+
+function browseForWorldFile() {
+    // <input type="file" id="myfile" name="myfile"></input>
+    let fileBrowser = document.createElement('input')
+    fileBrowser.setAttribute( 'type', 'file' )
+    fileBrowser.style.display = 'none'
+
+    // Once file is selected...
+    function onChange(event) {
+        const reader = new FileReader()
+        reader.onload = onReaderLoad
+        reader.readAsText(event.target.files[0])
+    }
+
+    // Read the file...
+    function onReaderLoad(event){
+        // console.log(event.target.result)
+        const obj = JSON.parse(event.target.result)
+        console.log(obj)
+
+        // Set world
+        updateWorld(obj)
+        $('#DOM_seed').value = obj._wSeed
+
+        // Update slider
+        resetDepthSlider()
+
+        // Redraw pattern with new z index
+        drawWorld(world, $("#DOM_depthslider").value)
+    }
+ 
+    fileBrowser.addEventListener('change', onChange)
+
+    document.body.appendChild(fileBrowser)
+
+    fileBrowser.click()
 }
