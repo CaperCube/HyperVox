@@ -1,6 +1,7 @@
 import { staticImageSRC } from "../../../client/js/resources.js"//"/client/js/resources.js"
 import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"//"/brain/gen/world/chunkGen.js"
 import { blockTypes } from "../../../common/blockSystem.js"
+import World from "../../../brain/gen/world/world.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
@@ -16,7 +17,7 @@ textureSheet.src = staticImageSRC.Tiles
 // Noise vars
 const generator = new ChunkGenerator()
 let chunkSize = 8
-let worldSize = 8
+let worldSize = 4
 let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
 let steps2D = 3
@@ -24,6 +25,11 @@ let world = [[[]]] // ToDo: change to an actual world object
 
 // Editor vars
 let viewDirection = 2 // 0 = X, 1 = Y, 2 = Z
+let selectedBlock = blockTypes[0]
+let editorTool = 'pencil'
+
+// mouse vars
+let pointerDown = false
 
 ////////////////////////////////////////////////////////
 // DOM function
@@ -34,8 +40,58 @@ $("#DOM_Yaxis").onclick = () => { updateViewDirection(1) }
 $("#DOM_Zaxis").onclick = () => { updateViewDirection(2) }
 $("#DOM_depthslider").oninput = () => { updateDepth($("#DOM_depthslider")) }
 $("#DOM_genList").onchange = () => { DOMNoiseFnc() }
+$("#DOM_blocklist").onchange = () => { selectedBlock = blockTypes.filter(b=>b.name === $("#DOM_blockList").value)[0]; console.log(selectedBlock) }
 $("#DOM_loadWorld").onclick = () => { browseForWorldFile() }
-populateDOMGenList()
+$("#DOM_saveWorld").onclick = () => { saveWorld(world) }
+populateDOMList($("#DOM_genList"), Object.keys(generator.noisePatterns))
+populateDOMBlockList($("#DOM_blockList"), blockTypes)
+
+function populateDOMList(dropList, itemArray) {
+    if (dropList) {
+        // Get array of generator patterns
+        const listOptions = itemArray
+
+        // Remove current options
+        if (listOptions.length > 0) {
+            dropList.innerHTML = ''
+        }
+
+        // Create an option for each pattern
+        for (let i = 0; i < listOptions.length; i++) {
+            const nameString = `${listOptions[i]}`
+            const newOption = document.createElement('option')
+            newOption.value = nameString
+            newOption.innerHTML = nameString
+
+            dropList.appendChild(newOption)
+        }
+    }
+}
+
+function populateDOMBlockList(dropList, itemArray) {
+    if (dropList) {
+        // Get array of generator patterns
+        const listOptions = itemArray
+
+        // Remove current options
+        if (listOptions.length > 0) {
+            dropList.innerHTML = ''
+        }
+
+        // Create an option for each pattern
+        for (let i = 0; i < listOptions.length; i++) {
+            const nameString = `${listOptions[i].name}`
+            const newOption = document.createElement('option')
+            newOption.value = nameString
+            newOption.innerHTML = nameString
+
+            dropList.appendChild(newOption)
+        }
+
+        dropList.value = listOptions[1].name
+        selectedBlock = blockTypes.filter(b=>b.name === $("#DOM_blockList").value)[0]
+    }
+}
 
 function updateViewDirection(newVal) {
     // Set value
@@ -66,29 +122,6 @@ function resetDepthSlider() {
     slider.max = (steps - 1)
 }
 
-function populateDOMGenList() {
-    const dropList = $("#DOM_genList")
-    if (dropList) {
-        // Get array of generator patterns
-        const genOptions = Object.keys(generator.noisePatterns)
-
-        // Remove current options
-        if (genOptions.length > 0) {
-            dropList.innerHTML = ''
-        }
-
-        // Create an option for each pattern
-        for (let i = 0; i < genOptions.length; i++) {
-            const nameString = `${genOptions[i]}`
-            const newOption = document.createElement('option')
-            newOption.value = nameString
-            newOption.innerHTML = nameString
-
-            dropList.appendChild(newOption)
-        }
-    }
-}
-
 function DOMNoiseFnc() {
     // Get selected function
     const selPattern = $("#DOM_genList").value
@@ -117,6 +150,112 @@ function updateDepth(el) {
     // Redraw pattern with new z index
     drawWorld(world, el.value)
 }
+
+////////////////////////////////////////////////////////
+// Events
+////////////////////////////////////////////////////////
+const getWorldPos = (pos) => {
+    const cellSize = canvas.clientWidth/_resolution
+    const x = Math.floor((pos.x - (pixelSize/2)) / cellSize)
+    const y = Math.floor((pos.y + (pixelSize/2)) / cellSize)
+
+    const chunk = { x: Math.floor(x/chunkSize), y: Math.floor(y/chunkSize) }
+    const block = { x: (x % chunkSize), y: (y % chunkSize) } 
+
+    return { chunk: chunk, block: block } 
+}
+
+canvas.addEventListener('pointerdown', (e) => { pointerDown = true })
+canvas.addEventListener('pointerup', (e) => { pointerDown = false })
+canvas.addEventListener('pointermove', (e) => {
+    // Get pointer offset
+    const eventDoc = (e.target && e.target.ownerDocument) || document
+    const doc = eventDoc.documentElement
+    const body = eventDoc.body
+
+    let pX = e.pageX +
+        (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+        (doc && doc.clientLeft || body && body.clientLeft || 0)
+    let pY = e.pageY +
+        (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+        (doc && doc.clientTop  || body && body.clientTop  || 0 )
+
+    // Get world pos
+    const wPos = getWorldPos({
+        x: (viewDirection === 0) ? canvas.clientWidth - pX : pX,
+        y: canvas.clientHeight - pY
+    })
+
+    // Get world layer
+    const depth = $("#DOM_depthslider").value
+
+    // Pencil tool
+    if (pointerDown && editorTool === 'pencil') {
+        
+        // Get world position
+        let chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
+        let block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
+        switch (viewDirection) {
+            case 0: // X
+                chunk = { x: Math.floor(depth / chunkSize), y: wPos.chunk.y, z: wPos.chunk.x }
+                block = { x: (depth % chunkSize), y: wPos.block.y, z: wPos.block.x }
+                break
+            case 1: // Y
+                chunk = { x: wPos.chunk.x, y: Math.floor(depth / chunkSize), z: wPos.chunk.y }
+                block = { x: wPos.block.x, y: (depth % chunkSize), z: wPos.block.y }
+                break
+            case 2: // Z
+                chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
+                block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
+                break
+            default:
+                chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
+                block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
+                break
+        }
+
+        // Update world
+        world[chunk.y][chunk.x][chunk.z][block.y][block.x][block.z] = blockTypes.indexOf(selectedBlock)
+
+        // Redraw world
+        drawWorld(world, depth)
+    }
+})
+
+// Key commands
+document.addEventListener('keydown', (e) => {
+    // console.log(e.key)
+    // Select block
+    if (e.key === 'e') {
+        selectedBlock = blockTypes[0]
+        $("#DOM_blockList").value = selectedBlock.name
+    }
+    else if (e.key === 'a') {
+        let index = blockTypes.indexOf(selectedBlock)
+        index--
+        if (index < 0) index = blockTypes.length-1
+        selectedBlock = blockTypes[index]
+        $("#DOM_blockList").value = selectedBlock.name
+    }
+    else if (e.key === 'd') {
+        let index = blockTypes.indexOf(selectedBlock)
+        selectedBlock = blockTypes[(index+1) % blockTypes.length]
+        $("#DOM_blockList").value = selectedBlock.name
+    }
+    // Select layer
+    else if (e.key === 'w') {
+        const slider = $("#DOM_depthslider")
+        $("#DOM_depthslider").value++
+        $("#DOM_depth").innerHTML = `Depth: ${slider.value}`
+        drawWorld(world, slider.value)
+    }
+    else if (e.key === 's') {
+        const slider = $("#DOM_depthslider")
+        $("#DOM_depthslider").value--
+        $("#DOM_depth").innerHTML = `Depth: ${slider.value}`
+        drawWorld(world, slider.value)
+    }
+})
 
 ////////////////////////////////////////////////////////
 // Pattern Gen and Drawing
@@ -304,10 +443,16 @@ function drawZWorld(w, depth) {
 // Save / Load
 ////////////////////////////////////////////////////////
 
-const saveWorld = (world) => {
-    world.saveVersion = '0.1'
+const saveWorld = (saveWorld) => {
+    let w = new World()
+    w.worldChunks = saveWorld
+    w._worldSize = worldSize
+    w._chunkSize = chunkSize
+    w._wSeed = $('#DOM_seed').value
+    w.saveVersion = '0.1'
+
     let element = document.createElement('a')
-    element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( world ) ) )
+    element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( w ) ) )
     element.setAttribute( 'download', 'level.json' )
   
     element.style.display = 'none'

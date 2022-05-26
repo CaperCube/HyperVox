@@ -36,8 +36,11 @@
     ////////////////////////////////////////////////////////
     -->
     <div class="toolbar">
-        <button id="DOM_xaxis">X Axis</button> <button id="DOM_yaxis">Y Axis</button> <button id="DOM_zaxis">Z Axis</button><br>
-        <button id="DOM_loadWorld">Load World</button>
+        <button id="DOM_xaxis">X Axis</button> <button id="DOM_yaxis">Y Axis</button> <button id="DOM_zaxis">Z Axis</button> Block:
+        <select name="blockList" id="DOM_blockList">
+            <option value="none">none</option>
+        </select><br>
+        <button id="DOM_loadWorld">Load World</button> <button id="DOM_saveWorld">Save World</button> 
         <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
         Random Seed: <input id="DOM_rndSeed" type="checkbox" checked="false"><br>
         <input id="DOM_seed" type="text" value="helloworld"><br>
