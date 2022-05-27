@@ -29,7 +29,10 @@
     ////                    Canvas                      ////
     ////////////////////////////////////////////////////////
     -->
-    <canvas id="main-canvas"></canvas><br>
+    <div class="canvas-holder">
+        <canvas id="main-canvas" oncontextmenu="return false"></canvas>
+        <canvas id="temp-canvas"></canvas>
+    </div><br>
     <!--
     ////////////////////////////////////////////////////////
     ////                     Tools                      ////
@@ -41,7 +44,7 @@
             <option value="none">none</option>
         </select><br>
         <button id="DOM_loadWorld">Load World</button> <button id="DOM_saveWorld">Save World</button> 
-        <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
+        World Size: <input id="DOM_wsizeslider" type="range" min="1" max="20" step="1" value="4"> <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
         Random Seed: <input id="DOM_rndSeed" type="checkbox" checked="false"><br>
         <input id="DOM_seed" type="text" value="helloworld"><br>
         <input id="DOM_depthslider" type="range" min="0" max="64" step="1" value="0" oninput="updateDepth(this)"> <span id="DOM_depth">Depth: 0</span><br>

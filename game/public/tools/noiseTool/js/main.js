@@ -7,6 +7,8 @@ import World from "../../../brain/gen/world/world.js"
 const canvas = $('#main-canvas')
 const ctx = canvas.getContext('2d')
 canvas.width = canvas.height = 512
+
+// Texture sheet vars
 const textureSheet = new Image(512,512)
 textureSheet.onload = () => { 
     $('#DOM_rndSeed').checked = false
@@ -14,22 +16,48 @@ textureSheet.onload = () => {
 }
 textureSheet.src = staticImageSRC.Tiles
 
+// Temp canvas vars
+const canvasTemp = $('#temp-canvas')
+const ctxTemp = canvasTemp.getContext('2d')
+canvasTemp.width = canvasTemp.height = canvas.width
+
 // Noise vars
 const generator = new ChunkGenerator()
 let chunkSize = 8
 let worldSize = 4
+let desiredPixelSize = 8
 let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
 let steps2D = 3
 let world = [[[]]] // ToDo: change to an actual world object
 
 // Editor vars
+let tempLayer = [[]]
+for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+
 let viewDirection = 2 // 0 = X, 1 = Y, 2 = Z
 let selectedBlock = blockTypes[0]
 let editorTool = 'pencil'
 
 // mouse vars
+const getWorldPos = (pos) => {
+    const cellSize = canvas.clientWidth/_resolution
+    const x = Math.floor((pos.x) / cellSize)
+    const y = Math.floor((pos.y) / cellSize)
+
+    let xChunk = Math.floor(x/chunkSize)
+    xChunk = (xChunk >= worldSize)? worldSize-1 : xChunk
+    let yChunk = Math.floor(y/chunkSize)
+    yChunk = (yChunk >= worldSize)? worldSize-1 : yChunk
+    const chunk = { x: xChunk, y: yChunk}
+    const block = { x: (x % chunkSize), y: (y % chunkSize) } 
+
+    return { chunk: chunk, block: block } 
+}
+let mouseGridPos = {x: 0, y: 0}
+let mouseWolrdPos = getWorldPos({ x: 0, y: 0 })
 let pointerDown = false
+let altHeld = false
 
 ////////////////////////////////////////////////////////
 // DOM function
@@ -108,10 +136,12 @@ function updateViewDirection(newVal) {
 function updateWorld(newWorld) { // ToDo: create a World() object
     chunkSize = newWorld._chunkSize || 8
     worldSize = newWorld._worldSize || 8
-    canvas.width = canvas.height = chunkSize * worldSize * 8
+    canvas.width = canvas.height = chunkSize * worldSize * desiredPixelSize
     _resolution = (chunkSize * worldSize)
     pixelSize = canvas.width/_resolution
     world = newWorld.worldChunks || [[[]]]
+
+    canvasTemp.width = canvasTemp.height = canvas.width
 }
 
 function resetDepthSlider() {
@@ -134,6 +164,14 @@ function DOMNoiseFnc() {
     // Generator settings
     //generator.noiseScale = $('#DOM_scale').value
 
+    // Get world size from slider
+    worldSize = $('#DOM_wsizeslider').value
+    canvas.width = canvas.height = chunkSize * worldSize * desiredPixelSize
+    _resolution = chunkSize * worldSize
+    pixelSize = canvas.width/_resolution
+
+    canvasTemp.width = canvasTemp.height = canvas.width
+
     // Get depth based on slider selection
     let steps = canvas.width / pixelSize
     $('#DOM_depthslider').max = (steps - 1)
@@ -154,19 +192,66 @@ function updateDepth(el) {
 ////////////////////////////////////////////////////////
 // Events
 ////////////////////////////////////////////////////////
-const getWorldPos = (pos) => {
-    const cellSize = canvas.clientWidth/_resolution
-    const x = Math.floor((pos.x - (pixelSize/2)) / cellSize)
-    const y = Math.floor((pos.y + (pixelSize/2)) / cellSize)
-
-    const chunk = { x: Math.floor(x/chunkSize), y: Math.floor(y/chunkSize) }
-    const block = { x: (x % chunkSize), y: (y % chunkSize) } 
-
-    return { chunk: chunk, block: block } 
+const getViewPos = (depth) => {
+    let viewPos = { chunk: { x:0, y:0, z:0 }, block: { x:0, y:0, z:0 } }
+    switch (viewDirection) {
+        case 0: // X
+            viewPos.chunk = { x: Math.floor(depth / chunkSize), y: mouseWolrdPos.chunk.y, z: mouseWolrdPos.chunk.x }
+            viewPos.block = { x: (depth % chunkSize), y: mouseWolrdPos.block.y, z: mouseWolrdPos.block.x }
+            break
+        case 1: // Y
+            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: Math.floor(depth / chunkSize), z: mouseWolrdPos.chunk.y }
+            viewPos.block = { x: mouseWolrdPos.block.x, y: (depth % chunkSize), z: mouseWolrdPos.block.y }
+            break
+        case 2: // Z
+            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: mouseWolrdPos.chunk.y, z: Math.floor(depth / chunkSize) }
+            viewPos.block = { x: mouseWolrdPos.block.x, y: mouseWolrdPos.block.y, z: (depth % chunkSize) }
+            break
+        default:
+            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: mouseWolrdPos.chunk.y, z: Math.floor(depth / chunkSize) }
+            viewPos.block = { x: mouseWolrdPos.block.x, y: mouseWolrdPos.block.y, z: (depth % chunkSize) }
+            break
+    }
+    return viewPos
 }
 
-canvas.addEventListener('pointerdown', (e) => { pointerDown = true })
-canvas.addEventListener('pointerup', (e) => { pointerDown = false })
+canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault()
+    pointerDown = true
+    switch (e.button) {
+        case 0:
+            editorTool = 'pencil'
+            break
+        case 2:
+            editorTool = 'eraser'
+            break
+    }
+
+    // Use Tool
+    switch (editorTool) {
+        case 'pencil':
+            drawPencil()
+            break
+        case 'eraser':
+            drawPencil(true)
+            break
+    }
+
+    // Draw edit preview
+    drawLayer(tempLayer, ctxTemp)
+})
+canvas.addEventListener('pointerup', (e) => {
+    e.preventDefault()
+    pointerDown = false
+
+    // Clear temp canvas
+    ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
+    for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+
+    // Redraw world
+    const depth = $("#DOM_depthslider").value
+    drawWorld(world, depth)
+})
 canvas.addEventListener('pointermove', (e) => {
     // Get pointer offset
     const eventDoc = (e.target && e.target.ownerDocument) || document
@@ -180,50 +265,70 @@ canvas.addEventListener('pointermove', (e) => {
         (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
         (doc && doc.clientTop  || body && body.clientTop  || 0 )
 
-    // Get world pos
-    const wPos = getWorldPos({
+    // Get mouse Grid postion
+    const cellSize = canvas.clientWidth/_resolution
+    mouseGridPos.x = Math.floor((pX) / cellSize)
+    mouseGridPos.y = Math.floor((pY) / cellSize)
+
+    // Get world position
+    mouseWolrdPos = getWorldPos({
         x: (viewDirection === 0) ? canvas.clientWidth - pX : pX,
         y: canvas.clientHeight - pY
     })
 
-    // Get world layer
-    const depth = $("#DOM_depthslider").value
-
-    // Pencil tool
-    if (pointerDown && editorTool === 'pencil') {
-        
-        // Get world position
-        let chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
-        let block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
-        switch (viewDirection) {
-            case 0: // X
-                chunk = { x: Math.floor(depth / chunkSize), y: wPos.chunk.y, z: wPos.chunk.x }
-                block = { x: (depth % chunkSize), y: wPos.block.y, z: wPos.block.x }
+    // Use tools
+    if (pointerDown) {
+        switch (editorTool) {
+            case 'pencil':
+                drawPencil()
                 break
-            case 1: // Y
-                chunk = { x: wPos.chunk.x, y: Math.floor(depth / chunkSize), z: wPos.chunk.y }
-                block = { x: wPos.block.x, y: (depth % chunkSize), z: wPos.block.y }
-                break
-            case 2: // Z
-                chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
-                block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
-                break
-            default:
-                chunk = { x: wPos.chunk.x, y: wPos.chunk.y, z: Math.floor(depth / chunkSize) }
-                block = { x: wPos.block.x, y: wPos.block.y, z: (depth % chunkSize) }
+            case 'eraser':
+                drawPencil(true)
                 break
         }
 
-        // Update world
-        world[chunk.y][chunk.x][chunk.z][block.y][block.x][block.z] = blockTypes.indexOf(selectedBlock)
-
-        // Redraw world
-        drawWorld(world, depth)
+        // Draw edit preview
+        drawLayer(tempLayer, ctxTemp)
+    }
+    else {
+        // Draw tool preview
+        drawToolPreview({x:mouseGridPos.x,y:mouseGridPos.y}, blockTypes.indexOf(selectedBlock), 0.5, ctxTemp)
+    }
+})
+document.addEventListener('wheel', (e) => {
+    // Change block
+    if (altHeld) {
+        if (e.deltaY > 0) {
+            let index = blockTypes.indexOf(selectedBlock)
+            index--
+            if (index < 0) index = blockTypes.length-1
+            selectedBlock = blockTypes[index]
+            $("#DOM_blockList").value = selectedBlock.name
+        }
+        else if (e.deltaY < 0){
+            let index = blockTypes.indexOf(selectedBlock)
+            selectedBlock = blockTypes[(index+1) % blockTypes.length]
+            $("#DOM_blockList").value = selectedBlock.name
+        }
+    }
+    // Change layer
+    else {
+        // Scroll down
+        if (e.deltaY > 0) {
+            $("#DOM_depthslider").value--
+        }
+        // Scroll up
+        else if (e.deltaY < 0) {
+            $("#DOM_depthslider").value++
+        }
+        const newE = new Event('input')
+        $("#DOM_depthslider").dispatchEvent(newE)
     }
 })
 
 // Key commands
 document.addEventListener('keydown', (e) => {
+    e.preventDefault()
     // console.log(e.key)
     // Select block
     if (e.key === 'e') {
@@ -242,6 +347,16 @@ document.addEventListener('keydown', (e) => {
         selectedBlock = blockTypes[(index+1) % blockTypes.length]
         $("#DOM_blockList").value = selectedBlock.name
     }
+    else if (e.key === 'q') {
+        // Get block at position
+        const depth = $("#DOM_depthslider").value
+        const viewPos = getViewPos(depth)
+        const blockVal = world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z]
+        // Change block
+        const newE = new Event('change')
+        $("#DOM_blocklist").value = blockTypes[blockVal].name
+        $("#DOM_blocklist").dispatchEvent(newE)
+    }
     // Select layer
     else if (e.key === 'w') {
         const slider = $("#DOM_depthslider")
@@ -255,7 +370,46 @@ document.addEventListener('keydown', (e) => {
         $("#DOM_depth").innerHTML = `Depth: ${slider.value}`
         drawWorld(world, slider.value)
     }
+    // Select view
+    else if (e.key === '1') updateViewDirection(0)
+    else if (e.key === '2') updateViewDirection(1)
+    else if (e.key === '3') updateViewDirection(2)
+    else if (e.key === 'Alt') altHeld = true
+
+    // Draw tool preview
+    drawToolPreview({x:mouseGridPos.x,y:mouseGridPos.y}, blockTypes.indexOf(selectedBlock), 0.5, ctxTemp)
 })
+document.addEventListener('keyup', (e) => {
+    altHeld = false
+})
+
+////////////////////////////////////////////////////////
+// Tool actions
+////////////////////////////////////////////////////////
+
+function drawToolPreview(position = {x:0,y:0}, tileIndex = 0, opacity = 1, context = ctxTemp) {
+    context.globalAlpha = opacity
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+    drawTileHere(position.x, position.y, pixelSize, tileIndex, context)
+
+    context.globalAlpha = 1
+}
+
+function drawPencil(erase = false) {
+    // Get world layer
+    const depth = $("#DOM_depthslider").value
+        
+    // Get world position
+    const viewPos = getViewPos(depth)
+
+    // Draw
+    world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = erase? 0 : blockTypes.indexOf(selectedBlock)
+    tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock)
+}
+
+function drawRect() {
+    //...
+}
 
 ////////////////////////////////////////////////////////
 // Pattern Gen and Drawing
@@ -270,7 +424,7 @@ function generateNoise(pat, depth, seed) {
     drawWorld(world, depth)
 }
 
-function drawTileHere(x, y, size, id) {
+function drawTileHere(x, y, size, id, myCtx = ctx) {
     // Get block from ID
     const block = blockTypes[id] || blockTypes[0]
     let textureID = 0
@@ -294,7 +448,7 @@ function drawTileHere(x, y, size, id) {
     let c = (textureID-1) % columns
     let r = Math.floor((textureID-1) / columns)
     // Draw
-    ctx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
+    if (myCtx) myCtx.drawImage(textureSheet, c*32, r*32, 32, 32, x*size, y*size, size, size)
 }
 
 function drawWorld(w, depth) {
@@ -437,6 +591,27 @@ function drawZWorld(w, depth) {
         else drawTileHere((x+(cx*cSize)), ((_resolution-y-1)-(cy*cSize)), pixelSize, val)
     }}
     }}
+}
+
+function drawLayer(layer, myCtx) {
+    // Draw tiles
+    for (let y = 0; y < layer.length; y++) {
+    for (let x = 0; x < layer[y].length; x++) {
+        // drawTileHere(x, y, size, id, ctx)
+        // drawTileHere(((x*pixelSize)), ((_resolution-y-1)-(y*pixelSize)), pixelSize, layer[y][x])
+        switch (editorTool) {
+            case 'eraser':
+                if (layer[y][x] === 'erase') {
+                    myCtx.fillStyle = `rgba( 0, 0, 0, 1 )`
+                    myCtx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
+                }
+                break
+            default:
+                if (layer[y][x]) drawTileHere(x, y, pixelSize, layer[y][x], myCtx)
+                break
+        }
+    }
+    }
 }
 
 ////////////////////////////////////////////////////////

@@ -1,15 +1,35 @@
 body {
     margin: 0px;
-    padding: 10px;
+    padding: 0px;
 }
 
-#main-canvas {
+.canvas-holder {
+	display: inline-block;
+	position: relative;
+	top: 0px;
+	left: 0px;
 	width: 80vh;
 	height: 80vh;
+}
+
+#main-canvas, #temp-canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
+	user-select: none;
+}
+
+#temp-canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	pointer-events: none;
 	user-select: none;
 }
 
