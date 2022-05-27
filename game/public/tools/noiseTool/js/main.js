@@ -37,7 +37,14 @@ for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x 
 
 let viewDirection = 2 // 0 = X, 1 = Y, 2 = Z
 let selectedBlock = blockTypes[0]
-let editorTool = 'pencil'
+const tools = {
+    pencil: 'pencil',
+    // eraser: 'eraser',
+    rect: 'rect',
+    filledRect: 'filledRect',
+}
+let editorTool = tools.pencil // The tool to use now
+let altAction = false // when using RMB with a tool
 
 // mouse vars
 const getWorldPos = (pos) => {
@@ -54,6 +61,7 @@ const getWorldPos = (pos) => {
 
     return { chunk: chunk, block: block } 
 }
+let mouseGridStart = {x: 0, y: 0}
 let mouseGridPos = {x: 0, y: 0}
 let mouseWolrdPos = getWorldPos({ x: 0, y: 0 })
 let pointerDown = false
@@ -192,68 +200,30 @@ function updateDepth(el) {
 ////////////////////////////////////////////////////////
 // Events
 ////////////////////////////////////////////////////////
-const getViewPos = (depth) => {
+const getViewPos = (depth, pos = mouseWolrdPos) => {
     let viewPos = { chunk: { x:0, y:0, z:0 }, block: { x:0, y:0, z:0 } }
     switch (viewDirection) {
         case 0: // X
-            viewPos.chunk = { x: Math.floor(depth / chunkSize), y: mouseWolrdPos.chunk.y, z: mouseWolrdPos.chunk.x }
-            viewPos.block = { x: (depth % chunkSize), y: mouseWolrdPos.block.y, z: mouseWolrdPos.block.x }
+            viewPos.chunk = { x: Math.floor(depth / chunkSize), y: pos.chunk.y, z: pos.chunk.x }
+            viewPos.block = { x: (depth % chunkSize), y: pos.block.y, z: pos.block.x }
             break
         case 1: // Y
-            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: Math.floor(depth / chunkSize), z: mouseWolrdPos.chunk.y }
-            viewPos.block = { x: mouseWolrdPos.block.x, y: (depth % chunkSize), z: mouseWolrdPos.block.y }
+            viewPos.chunk = { x: pos.chunk.x, y: Math.floor(depth / chunkSize), z: pos.chunk.y }
+            viewPos.block = { x: pos.block.x, y: (depth % chunkSize), z: pos.block.y }
             break
         case 2: // Z
-            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: mouseWolrdPos.chunk.y, z: Math.floor(depth / chunkSize) }
-            viewPos.block = { x: mouseWolrdPos.block.x, y: mouseWolrdPos.block.y, z: (depth % chunkSize) }
+            viewPos.chunk = { x: pos.chunk.x, y: pos.chunk.y, z: Math.floor(depth / chunkSize) }
+            viewPos.block = { x: pos.block.x, y: pos.block.y, z: (depth % chunkSize) }
             break
         default:
-            viewPos.chunk = { x: mouseWolrdPos.chunk.x, y: mouseWolrdPos.chunk.y, z: Math.floor(depth / chunkSize) }
-            viewPos.block = { x: mouseWolrdPos.block.x, y: mouseWolrdPos.block.y, z: (depth % chunkSize) }
+            viewPos.chunk = { x: pos.chunk.x, y: pos.chunk.y, z: Math.floor(depth / chunkSize) }
+            viewPos.block = { x: pos.block.x, y: pos.block.y, z: (depth % chunkSize) }
             break
     }
     return viewPos
 }
 
-canvas.addEventListener('pointerdown', (e) => {
-    e.preventDefault()
-    pointerDown = true
-    switch (e.button) {
-        case 0:
-            editorTool = 'pencil'
-            break
-        case 2:
-            editorTool = 'eraser'
-            break
-    }
-
-    // Use Tool
-    switch (editorTool) {
-        case 'pencil':
-            drawPencil()
-            break
-        case 'eraser':
-            drawPencil(true)
-            break
-    }
-
-    // Draw edit preview
-    drawLayer(tempLayer, ctxTemp)
-})
-canvas.addEventListener('pointerup', (e) => {
-    e.preventDefault()
-    pointerDown = false
-
-    // Clear temp canvas
-    ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
-    for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
-
-    // Redraw world
-    const depth = $("#DOM_depthslider").value
-    drawWorld(world, depth)
-})
-canvas.addEventListener('pointermove', (e) => {
-    // Get pointer offset
+function getPointerOffset(e) {
     const eventDoc = (e.target && e.target.ownerDocument) || document
     const doc = eventDoc.documentElement
     const body = eventDoc.body
@@ -265,36 +235,88 @@ canvas.addEventListener('pointermove', (e) => {
         (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
         (doc && doc.clientTop  || body && body.clientTop  || 0 )
 
+    return {x: pX, y: pY}
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault()
+    pointerDown = true
+
+    // Set mouse start
+    const offset = getPointerOffset(e)
+    const cellSize = canvas.clientWidth/_resolution
+    mouseGridStart.x = Math.floor((offset.x) / cellSize)
+    mouseGridStart.y = Math.floor((offset.y) / cellSize)
+
+    // Set tool
+    switch (e.button) {
+        case 0: // LMB
+            drawPencil()
+            break
+        case 2: // RMB
+            altAction = true
+            drawPencil(altAction)
+            break
+    }
+
+    // Draw edit preview
+    drawLayer(tempLayer, ctxTemp)
+})
+
+const pointerOuts = ['pointerup', 'pointerout', 'pointercancel']
+pointerOuts.forEach( (event) => {
+    canvas.addEventListener(event, (e) => {
+        e.preventDefault()
+        pointerDown = altAction = false
+
+        // Fill from temp layer
+        if (editorTool === tools.rect || editorTool === tools.filledRect) fillFromTempLayer()
+
+        // Clear temp canvas
+        ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
+        for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+
+        // Redraw world
+        const depth = $("#DOM_depthslider").value
+        drawWorld(world, depth)
+    })
+})
+
+canvas.addEventListener('pointermove', (e) => {
+    // Get pointer offset
+    const offset = getPointerOffset(e)
+
     // Get mouse Grid postion
     const cellSize = canvas.clientWidth/_resolution
-    mouseGridPos.x = Math.floor((pX) / cellSize)
-    mouseGridPos.y = Math.floor((pY) / cellSize)
+    mouseGridPos.x = Math.floor((offset.x) / cellSize)
+    mouseGridPos.y = Math.floor((offset.y) / cellSize)
 
     // Get world position
     mouseWolrdPos = getWorldPos({
-        x: (viewDirection === 0) ? canvas.clientWidth - pX : pX,
-        y: canvas.clientHeight - pY
+        x: (viewDirection === 0) ? canvas.clientWidth - offset.x : offset.x,
+        y: canvas.clientHeight - offset.y
     })
 
     // Use tools
     if (pointerDown) {
         switch (editorTool) {
-            case 'pencil':
-                drawPencil()
+            case tools.pencil:
+                drawPencil(altAction)
                 break
-            case 'eraser':
-                drawPencil(true)
+            case tools.rect:
+                drawRect(altAction)
+                break
+            case tools.filledRect:
+                drawFilledRect(altAction)
                 break
         }
-
-        // Draw edit preview
-        drawLayer(tempLayer, ctxTemp)
     }
     else {
         // Draw tool preview
         drawToolPreview({x:mouseGridPos.x,y:mouseGridPos.y}, blockTypes.indexOf(selectedBlock), 0.5, ctxTemp)
     }
 })
+
 document.addEventListener('wheel', (e) => {
     // Change block
     if (altHeld) {
@@ -328,26 +350,25 @@ document.addEventListener('wheel', (e) => {
 
 // Key commands
 document.addEventListener('keydown', (e) => {
-    e.preventDefault()
     // console.log(e.key)
     // Select block
-    if (e.key === 'e') {
+    if (e.key === 'e') { // set to air block
         selectedBlock = blockTypes[0]
         $("#DOM_blockList").value = selectedBlock.name
     }
-    else if (e.key === 'a') {
+    else if (e.key === 'a') { // Cycle down
         let index = blockTypes.indexOf(selectedBlock)
         index--
         if (index < 0) index = blockTypes.length-1
         selectedBlock = blockTypes[index]
         $("#DOM_blockList").value = selectedBlock.name
     }
-    else if (e.key === 'd') {
+    else if (e.key === 'd') { // Cycle down
         let index = blockTypes.indexOf(selectedBlock)
         selectedBlock = blockTypes[(index+1) % blockTypes.length]
         $("#DOM_blockList").value = selectedBlock.name
     }
-    else if (e.key === 'q') {
+    else if (e.key === 'q') { // Eyedrop
         // Get block at position
         const depth = $("#DOM_depthslider").value
         const viewPos = getViewPos(depth)
@@ -358,13 +379,13 @@ document.addEventListener('keydown', (e) => {
         $("#DOM_blocklist").dispatchEvent(newE)
     }
     // Select layer
-    else if (e.key === 'w') {
+    else if (e.key === 'w') { // Layer up
         const slider = $("#DOM_depthslider")
         $("#DOM_depthslider").value++
         $("#DOM_depth").innerHTML = `Depth: ${slider.value}`
         drawWorld(world, slider.value)
     }
-    else if (e.key === 's') {
+    else if (e.key === 's') { // Layer down
         const slider = $("#DOM_depthslider")
         $("#DOM_depthslider").value--
         $("#DOM_depth").innerHTML = `Depth: ${slider.value}`
@@ -374,11 +395,19 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === '1') updateViewDirection(0)
     else if (e.key === '2') updateViewDirection(1)
     else if (e.key === '3') updateViewDirection(2)
-    else if (e.key === 'Alt') altHeld = true
+    // Tools
+    else if (e.key === 'r') editorTool = tools.rect
+    else if (e.key === 'f') editorTool = tools.filledRect
+    else if (e.key === 'b') editorTool = tools.pencil
+    else if (e.key === 'Alt') {
+        e.preventDefault()
+        altHeld = true
+    }
 
     // Draw tool preview
     drawToolPreview({x:mouseGridPos.x,y:mouseGridPos.y}, blockTypes.indexOf(selectedBlock), 0.5, ctxTemp)
 })
+
 document.addEventListener('keyup', (e) => {
     altHeld = false
 })
@@ -386,7 +415,6 @@ document.addEventListener('keyup', (e) => {
 ////////////////////////////////////////////////////////
 // Tool actions
 ////////////////////////////////////////////////////////
-
 function drawToolPreview(position = {x:0,y:0}, tileIndex = 0, opacity = 1, context = ctxTemp) {
     context.globalAlpha = opacity
     context.clearRect(0, 0, context.canvas.width, context.canvas.height)
@@ -398,17 +426,87 @@ function drawToolPreview(position = {x:0,y:0}, tileIndex = 0, opacity = 1, conte
 function drawPencil(erase = false) {
     // Get world layer
     const depth = $("#DOM_depthslider").value
-        
     // Get world position
     const viewPos = getViewPos(depth)
 
     // Draw
     world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = erase? 0 : blockTypes.indexOf(selectedBlock)
-    tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock)
+    tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+
+    // Draw edit preview
+    drawLayer(tempLayer, ctxTemp)
 }
 
-function drawRect() {
-    //...
+function drawRect(erase = false) {
+    // clear
+    ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
+    for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+
+    // Draw
+    const deltaX = mouseGridPos.x - mouseGridStart.x
+    const deltaY = mouseGridPos.y - mouseGridStart.y
+    //TL
+    for (let w = 0; w < Math.abs(deltaX)+1; w++) {
+        const rectX = mouseGridStart.x + Math.floor( (w / Math.abs(deltaX)) * deltaX )
+        //TL
+        tempLayer[mouseGridStart.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+        //BR
+        tempLayer[mouseGridPos.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+    }
+    for (let h = 0; h < Math.abs(deltaY)+1; h++) {
+        const rectY = mouseGridStart.y + Math.floor( (h / Math.abs(deltaY)) * deltaY )
+        if (tempLayer[rectY]) {
+            //TL
+            tempLayer[rectY][mouseGridStart.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+            //BR
+            tempLayer[rectY][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+        }
+    }
+
+    // Draw edit preview
+    drawLayer(tempLayer, ctxTemp)
+}
+
+function drawFilledRect(erase = false) {
+    // clear
+    ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
+    for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+
+    // Draw
+    const deltaX = mouseGridPos.x - mouseGridStart.x
+    const deltaY = mouseGridPos.y - mouseGridStart.y
+    //TL
+    for (let w = 0; w < Math.abs(deltaX)+1; w++) {
+    const rectX = mouseGridStart.x + Math.floor( (w / Math.abs(deltaX)) * deltaX )
+    for (let h = 0; h < Math.abs(deltaY)+1; h++) {
+        const rectY = mouseGridStart.y + Math.floor( (h / Math.abs(deltaY)) * deltaY )
+        if (tempLayer[rectY]) {
+            // tempLayer[mouseGridStart.y][mouseGridStart.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+            tempLayer[rectY][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+        }
+    }
+    }
+
+    // Draw edit preview
+    drawLayer(tempLayer, ctxTemp)
+}
+
+function fillFromTempLayer() {
+    for (let y = 0; y < tempLayer.length; y++) {
+    for (let x = 0; x < tempLayer[y].length; x++) {
+        if (tempLayer[y][x]) {
+            // Get world position
+            const cellSize = canvas.clientWidth/_resolution
+            const yPos = canvas.clientWidth - ((y+1)*cellSize)
+            const xPos = (viewDirection !== 0) ? x*cellSize : canvas.clientWidth - ((x+1)*cellSize)
+            const worldPos = getWorldPos({ x: xPos, y: yPos })
+            const depth = $("#DOM_depthslider").value
+            const viewPos = getViewPos(depth, worldPos)
+
+            // Place block
+            world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
+        }
+    }}
 }
 
 ////////////////////////////////////////////////////////
@@ -597,17 +695,15 @@ function drawLayer(layer, myCtx) {
     // Draw tiles
     for (let y = 0; y < layer.length; y++) {
     for (let x = 0; x < layer[y].length; x++) {
-        // drawTileHere(x, y, size, id, ctx)
-        // drawTileHere(((x*pixelSize)), ((_resolution-y-1)-(y*pixelSize)), pixelSize, layer[y][x])
         switch (editorTool) {
-            case 'eraser':
+            default:
                 if (layer[y][x] === 'erase') {
                     myCtx.fillStyle = `rgba( 0, 0, 0, 1 )`
                     myCtx.fillRect( x*pixelSize, y*pixelSize, pixelSize, pixelSize )
                 }
-                break
-            default:
-                if (layer[y][x]) drawTileHere(x, y, pixelSize, layer[y][x], myCtx)
+                else if (layer[y][x] > 0) {
+                    drawTileHere(x, y, pixelSize, layer[y][x], myCtx)
+                }
                 break
         }
     }
