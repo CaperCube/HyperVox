@@ -42,10 +42,10 @@
         <button id="DOM_xaxis">X Axis</button> <button id="DOM_yaxis">Y Axis</button> <button id="DOM_zaxis">Z Axis</button> Block:
         <select name="blockList" id="DOM_blockList">
             <option value="none">none</option>
-        </select><br>
+        </select> Draw Depth: <input id="DOM_drawdepthtick" type="checkbox" onload="this.checked = false"><br>
         <button id="DOM_loadWorld">Load World</button> <button id="DOM_saveWorld">Save World</button> 
         World Size: <input id="DOM_wsizeslider" type="range" min="1" max="20" step="1" value="4"> <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">Generate</button><br>
-        Random Seed: <input id="DOM_rndSeed" type="checkbox" checked="false"><br>
+        Random Seed: <input id="DOM_rndSeed" type="checkbox" onload="this.checked = false"><br>
         <input id="DOM_seed" type="text" value="helloworld"><br>
         <input id="DOM_depthslider" type="range" min="0" max="64" step="1" value="0" oninput="updateDepth(this)"> <span id="DOM_depth">Depth: 0</span><br>
         Gen Pattern: <select name="genList" id="DOM_genList">

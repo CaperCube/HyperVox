@@ -47,10 +47,15 @@ let editorTool = tools.pencil // The tool to use now
 let altAction = false // when using RMB with a tool
 
 // mouse vars
-const getWorldPos = (pos) => {
-    const cellSize = canvas.clientWidth/_resolution
-    const x = Math.floor((pos.x) / cellSize)
-    const y = Math.floor((pos.y) / cellSize)
+const getWorldPos = (pos, normalize = true) => {
+    let x = pos.x
+    let y = pos.y
+
+    if (normalize) {
+        const cellSize = canvas.clientWidth/_resolution
+        x = Math.floor((pos.x) / cellSize)
+        y = Math.floor((pos.y) / cellSize)
+    }
 
     let xChunk = Math.floor(x/chunkSize)
     xChunk = (xChunk >= worldSize)? worldSize-1 : xChunk
@@ -200,9 +205,9 @@ function updateDepth(el) {
 ////////////////////////////////////////////////////////
 // Events
 ////////////////////////////////////////////////////////
-const getViewPos = (depth, pos = mouseWolrdPos) => {
+const getViewPos = (depth, pos = mouseWolrdPos, viewD = viewDirection) => {
     let viewPos = { chunk: { x:0, y:0, z:0 }, block: { x:0, y:0, z:0 } }
-    switch (viewDirection) {
+    switch (viewD) {
         case 0: // X
             viewPos.chunk = { x: Math.floor(depth / chunkSize), y: pos.chunk.y, z: pos.chunk.x }
             viewPos.block = { x: (depth % chunkSize), y: pos.block.y, z: pos.block.x }
@@ -263,7 +268,7 @@ canvas.addEventListener('pointerdown', (e) => {
     drawLayer(tempLayer, ctxTemp)
 })
 
-const pointerOuts = ['pointerup', 'pointerout', 'pointercancel']
+const pointerOuts = ['pointerup', 'pointercancel']
 pointerOuts.forEach( (event) => {
     canvas.addEventListener(event, (e) => {
         e.preventDefault()
@@ -501,10 +506,55 @@ function fillFromTempLayer() {
             const xPos = (viewDirection !== 0) ? x*cellSize : canvas.clientWidth - ((x+1)*cellSize)
             const worldPos = getWorldPos({ x: xPos, y: yPos })
             const depth = $("#DOM_depthslider").value
-            const viewPos = getViewPos(depth, worldPos)
+            let viewPos = getViewPos(depth, worldPos)
+
+            // 3D rect
+            if ($('#DOM_drawdepthtick').checked) {
+                for (let d = 0; d < _resolution; d++) {
+                    switch (viewDirection) {
+                        case 0: // X
+                            let newX = (depth + (viewPos.chunk.x * viewPos.block.x) + d)
+                            newX = (newX > _resolution)? _resolution : newX
+                            const worldX = getWorldPos({ x: newX, y: 0 }, false)
+                            // Create
+                            world
+                                [viewPos.chunk.y][worldX.chunk.x][viewPos.chunk.z]
+                                [viewPos.block.y][worldX.block.x][viewPos.block.z] =
+                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
+                            break
+                        case 1: // Y
+                            let newY = (depth + (viewPos.chunk.y * viewPos.block.y) + d)
+                            newY = (newY > _resolution)? _resolution : newY
+                            const worldY = getWorldPos({ x: newY, y: 0 }, false)
+                            // Create
+                            world
+                                [worldY.chunk.x][viewPos.chunk.x][viewPos.chunk.z]
+                                [worldY.block.x][viewPos.block.x][viewPos.block.z] =
+                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
+                            break
+                        case 2: // Z
+                            let newZ = (depth + (viewPos.chunk.z * viewPos.block.z) + d)
+                            newZ = (newZ > _resolution)? _resolution : newZ
+                            const worldZ = getWorldPos({ x: newZ, y: 0 }, false)
+                            // Create
+                            world
+                                [viewPos.chunk.y][viewPos.chunk.x][worldZ.chunk.x]
+                                [viewPos.block.y][viewPos.block.x][worldZ.block.x] =
+                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
+                            break
+                    }
+                }
+            }
+            // 2D rect
+            else {
+                viewPos = getViewPos(depth, worldPos)
+            }
 
             // Place block
-            world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
+            world
+                [viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z]
+                [viewPos.block.y][viewPos.block.x][viewPos.block.z] =
+                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
         }
     }}
 }
