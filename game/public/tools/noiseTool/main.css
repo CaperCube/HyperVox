@@ -1,15 +1,36 @@
+:root {
+	--color-1: rgb(38, 38, 42);
+	--color-2: rgb(63, 60, 66);
+	--color-3: rgb(103, 99, 109);
+	--color-4: rgb(149, 142, 155);
+	--color-5: rgb(187, 182, 194);
+
+	--size-canvas: 80vh;
+	--size-border: 4px;
+	--size-border-double: 8px;
+}
+
 body {
     margin: 0px;
     padding: 0px;
+
+	background-color: var(--color-1);
+	color: var(--color-5);
+	font-family: sans-serif;
+
+	overflow: hidden;
 }
 
 .canvas-holder {
-	display: inline-block;
-	position: relative;
+	display: block;
+	position: absolute;
 	top: 0px;
 	left: 0px;
-	width: 80vh;
-	height: 80vh;
+	width: var(--size-canvas);
+	height: var(--size-canvas);
+
+	border-bottom: var(--size-border) solid var(--color-1);
+	border-right: var(--size-border) solid var(--color-1);
 }
 
 #main-canvas, #temp-canvas {
@@ -34,5 +55,48 @@ body {
 }
 
 .toolbar {
-	margin: 10px 0px;
+	position: absolute;
+	top: calc(var(--size-canvas) + var(--size-border));
+	left: 0px;
+
+	width: calc(var(--size-canvas) + var(--size-border));
+	height: calc(100% - var(--size-canvas) - var(--size-border));
+	background-color: var(--color-2);
+}
+
+.toolbar.right {
+	top: 0px;
+	left: calc(var(--size-canvas) + var(--size-border));
+
+	width: calc(100% - var(--size-canvas) - var(--size-border));
+	height: 100%
+}
+
+.section {
+	display: inline-block;
+	width: 100%;
+	background-color: var(--color-1);	
+}
+
+.section h2 {
+	padding: 5px;
+	margin: 0 0 10px;
+	font-size: medium;
+	background-color: var(--color-2);
+
+	cursor: pointer;
+	user-select: none;
+}
+
+.foldable {
+	display: inline-block;
+	padding: 10px 10px 15px 10px;
+	width: 100%;
+
+	overflow: auto;
+}
+
+.foldable.folded {
+	display: none;
+	padding: 0px;
 }

@@ -11,7 +11,6 @@ canvas.width = canvas.height = 512
 // Texture sheet vars
 const textureSheet = new Image(512,512)
 textureSheet.onload = () => { 
-    $('#DOM_rndSeed').checked = false
     DOMNoiseFnc()
 }
 textureSheet.src = staticImageSRC.Tiles
@@ -80,10 +79,13 @@ $("#DOM_xaxis").onclick = () => { updateViewDirection(0) }
 $("#DOM_Yaxis").onclick = () => { updateViewDirection(1) }
 $("#DOM_Zaxis").onclick = () => { updateViewDirection(2) }
 $("#DOM_depthslider").oninput = () => { updateDepth($("#DOM_depthslider")) }
-$("#DOM_genList").onchange = () => { DOMNoiseFnc() }
+// $("#DOM_genList").onchange = () => { DOMNoiseFnc() }
 $("#DOM_blocklist").onchange = () => { selectedBlock = blockTypes.filter(b=>b.name === $("#DOM_blockList").value)[0]; console.log(selectedBlock) }
 $("#DOM_loadWorld").onclick = () => { browseForWorldFile() }
 $("#DOM_saveWorld").onclick = () => { saveWorld(world) }
+$("#DOM_pencilbtn").onclick = () => { editorTool = tools.pencil }
+$("#DOM_rectbtn").onclick = () => { editorTool = tools.rect }
+$("#DOM_filledrectbtn").onclick = () => { editorTool = tools.filledRect }
 populateDOMList($("#DOM_genList"), Object.keys(generator.noisePatterns))
 populateDOMBlockList($("#DOM_blockList"), blockTypes)
 
@@ -138,12 +140,8 @@ function updateViewDirection(newVal) {
     // Set value
     viewDirection = newVal
 
-    // Reset slider
-    //resetDepthSlider()
-
     // Redraw world
     drawWorld(world, $("#DOM_depthslider").value)
-
 }
 
 function updateWorld(newWorld) { // ToDo: create a World() object
@@ -155,6 +153,12 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     world = newWorld.worldChunks || [[[]]]
 
     canvasTemp.width = canvasTemp.height = canvas.width
+
+    // Update DOM
+    $('#DOM_seed').value = obj._wSeed
+
+    // Update slider
+    resetDepthSlider()
 }
 
 function resetDepthSlider() {
@@ -163,6 +167,10 @@ function resetDepthSlider() {
     $("#DOM_depth").innerHTML = `Depth: ${0}`
     slider.value = 0
     slider.max = (steps - 1)
+
+    // Reset draw depth
+    $('#DOM_drawdepthslider').max = _resolution
+    $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value
 }
 
 function DOMNoiseFnc() {
@@ -192,6 +200,9 @@ function DOMNoiseFnc() {
 
     // Generate pattern and draw
     generateNoise(selPattern, depth, seed)
+
+    // Update slider
+    resetDepthSlider()
 }
 
 function updateDepth(el) {
@@ -256,11 +267,11 @@ canvas.addEventListener('pointerdown', (e) => {
     // Set tool
     switch (e.button) {
         case 0: // LMB
-            drawPencil()
+            if (editorTool === tools.pencil) drawPencil()
             break
         case 2: // RMB
             altAction = true
-            drawPencil(altAction)
+            if (editorTool === tools.pencil) drawPencil(altAction)
             break
     }
 
@@ -357,11 +368,7 @@ document.addEventListener('wheel', (e) => {
 document.addEventListener('keydown', (e) => {
     // console.log(e.key)
     // Select block
-    if (e.key === 'e') { // set to air block
-        selectedBlock = blockTypes[0]
-        $("#DOM_blockList").value = selectedBlock.name
-    }
-    else if (e.key === 'a') { // Cycle down
+    if (e.key === 'a') { // Cycle down
         let index = blockTypes.indexOf(selectedBlock)
         index--
         if (index < 0) index = blockTypes.length-1
@@ -373,7 +380,7 @@ document.addEventListener('keydown', (e) => {
         selectedBlock = blockTypes[(index+1) % blockTypes.length]
         $("#DOM_blockList").value = selectedBlock.name
     }
-    else if (e.key === 'q') { // Eyedrop
+    else if (e.key === 'e') { // Eyedrop
         // Get block at position
         const depth = $("#DOM_depthslider").value
         const viewPos = getViewPos(depth)
@@ -404,6 +411,8 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === 'r') editorTool = tools.rect
     else if (e.key === 'f') editorTool = tools.filledRect
     else if (e.key === 'b') editorTool = tools.pencil
+    else if (e.key === '-') { $('#DOM_drawdepthslider').value--; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
+    else if (e.key === '=') { $('#DOM_drawdepthslider').value++; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
     else if (e.key === 'Alt') {
         e.preventDefault()
         altHeld = true
@@ -435,7 +444,8 @@ function drawPencil(erase = false) {
     const viewPos = getViewPos(depth)
 
     // Draw
-    world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = erase? 0 : blockTypes.indexOf(selectedBlock)
+    drawBlockWithDepth(depth, viewPos, erase? 0 : blockTypes.indexOf(selectedBlock))
+    // world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = erase? 0 : blockTypes.indexOf(selectedBlock)
     tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
 
     // Draw edit preview
@@ -509,54 +519,51 @@ function fillFromTempLayer() {
             let viewPos = getViewPos(depth, worldPos)
 
             // 3D rect
-            if ($('#DOM_drawdepthtick').checked) {
-                for (let d = 0; d < _resolution; d++) {
-                    switch (viewDirection) {
-                        case 0: // X
-                            let newX = (depth + (viewPos.chunk.x * viewPos.block.x) + d)
-                            newX = (newX > _resolution)? _resolution : newX
-                            const worldX = getWorldPos({ x: newX, y: 0 }, false)
-                            // Create
-                            world
-                                [viewPos.chunk.y][worldX.chunk.x][viewPos.chunk.z]
-                                [viewPos.block.y][worldX.block.x][viewPos.block.z] =
-                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
-                            break
-                        case 1: // Y
-                            let newY = (depth + (viewPos.chunk.y * viewPos.block.y) + d)
-                            newY = (newY > _resolution)? _resolution : newY
-                            const worldY = getWorldPos({ x: newY, y: 0 }, false)
-                            // Create
-                            world
-                                [worldY.chunk.x][viewPos.chunk.x][viewPos.chunk.z]
-                                [worldY.block.x][viewPos.block.x][viewPos.block.z] =
-                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
-                            break
-                        case 2: // Z
-                            let newZ = (depth + (viewPos.chunk.z * viewPos.block.z) + d)
-                            newZ = (newZ > _resolution)? _resolution : newZ
-                            const worldZ = getWorldPos({ x: newZ, y: 0 }, false)
-                            // Create
-                            world
-                                [viewPos.chunk.y][viewPos.chunk.x][worldZ.chunk.x]
-                                [viewPos.block.y][viewPos.block.x][worldZ.block.x] =
-                                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
-                            break
-                    }
-                }
-            }
-            // 2D rect
-            else {
-                viewPos = getViewPos(depth, worldPos)
-            }
+            drawBlockWithDepth(depth, viewPos, (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock))
 
-            // Place block
-            world
-                [viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z]
-                [viewPos.block.y][viewPos.block.x][viewPos.block.z] =
-                (tempLayer[y][x] === 'erase')? 0 : blockTypes.indexOf(selectedBlock)
         }
     }}
+}
+
+function drawBlockWithDepth(currentDepth, viewPos, blockIndex) {
+    const depthInt = parseInt(currentDepth, 10)
+    if ($("#DOM_drawdepthslider").value > 0) {
+        for (let d = 0; d < $("#DOM_drawdepthslider").value; d++) {
+            const dInt = parseInt(d, 10)
+            switch (viewDirection) {
+                case 0: // X
+                    // let newX = (currentDepth + (viewPos.chunk.x * viewPos.block.x) + d)
+                    let newX = (depthInt + dInt)
+                    newX = (newX > _resolution)? _resolution : newX
+                    const worldX = getWorldPos({ x: newX, y: 0 }, false)
+                    // Create
+                    world
+                        [viewPos.chunk.y][worldX.chunk.x][viewPos.chunk.z]
+                        [viewPos.block.y][worldX.block.x][viewPos.block.z] = blockIndex
+                    break
+                case 1: // Y
+                    // let newY = (currentDepth + (viewPos.chunk.y * viewPos.block.y) + d)
+                    let newY = (depthInt + dInt)
+                    newY = (newY > _resolution)? _resolution : newY
+                    const worldY = getWorldPos({ x: newY, y: 0 }, false)
+                    // Create
+                    world
+                        [worldY.chunk.x][viewPos.chunk.x][viewPos.chunk.z]
+                        [worldY.block.x][viewPos.block.x][viewPos.block.z] = blockIndex
+                    break
+                case 2: // Z
+                    // let newZ = (currentDepth + (viewPos.chunk.z * viewPos.block.z) + d)
+                    let newZ = (depthInt + dInt)
+                    newZ = (newZ > _resolution)? _resolution : newZ
+                    const worldZ = getWorldPos({ x: newZ, y: 0 }, false)
+                    // Create
+                    world
+                        [viewPos.chunk.y][viewPos.chunk.x][worldZ.chunk.x]
+                        [viewPos.block.y][viewPos.block.x][worldZ.block.x] = blockIndex
+                    break
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////
@@ -805,10 +812,6 @@ function browseForWorldFile() {
 
         // Set world
         updateWorld(obj)
-        $('#DOM_seed').value = obj._wSeed
-
-        // Update slider
-        resetDepthSlider()
 
         // Redraw pattern with new z index
         drawWorld(world, $("#DOM_depthslider").value)
