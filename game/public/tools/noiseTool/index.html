@@ -48,20 +48,21 @@
         <span class="section">
             <h2 onclick="toggleFold(this)">World</h2>
             <span class="foldable">
-                <button id="DOM_loadWorld">Load</button><br>
-                <button id="DOM_saveWorld">Save</button><br>
+                <button id="DOM_loadWorld" title="Load a world from a file">Load</button><br>
+                <button id="DOM_saveWorld" title="Save the current world to a file">Save</button><br>
                 <br>
                 Seed:<br>
                 <input id="DOM_seed" type="text" value="helloworld"><br>
                 Random: <input id="DOM_rndSeed" type="checkbox" onload="this.checked = false"><br>
                 <br>
                 Pattern:<br>
-                <select name="genList" id="DOM_genList">
+                <select name="genList" id="DOM_genList" title="The world generation pattern to use">
                     <option value="empty">empty</option>
                 </select><br>
-                World Size: <input id="DOM_wsizeslider" type="range" min="1" max="20" step="1" value="4"><br>
+                World Size:<br>
+                <input id="DOM_wsizeslider" type="range" min="1" max="20" step="1" value="4" title="The size of the new world in chunks^3"><br>
                 <br>
-                <button id="DOM_generateBttn" onclick="DOMNoiseFnc()">New World</button>
+                <button id="DOM_generateBttn" title="Generate a new world (deletes current world)" onclick="DOMNoiseFnc()">New World</button>
                 <!-- Use tolerance? <input id="DOM_useTolerance" type="checkbox" checked="true" onchange="updateTolerance(this)"> -->
             </span>
         </span>
@@ -69,14 +70,15 @@
             <h2 onclick="toggleFold(this)">Tools</h2>
             <span class="foldable">
                 Block:<br>
-                <select name="blockList" id="DOM_blockList">
+                <select name="blockList" id="DOM_blockList" title="The block the tool creates">
                     <option value="none">none</option>
                 </select><br>
                 <br>
                 Tool:<br>
-                <button id="DOM_pencilbtn">Pencil</button><br>
-                <button id="DOM_rectbtn">Rectangle</button><br>
-                <button id="DOM_filledrectbtn">Filled Rect</button><br>
+                <button id="DOM_pencilbtn" title="Pencil tool (e)" style="width: 40px">▪</button><br>
+                <button id="DOM_rectbtn" title="Rectangle tool (r)" style="width: 40px">🔲</button><br>
+                <button id="DOM_filledrectbtn" title="Filled Rectangle tool (f)" style="width: 40px">⬛</button><br>
+                <br>
                 Draw Depth: <span id="DOM_drawdepthvalue">0</span><br>
                 <input id="DOM_drawdepthslider" type="range" min="1" max="32" step="1" value="1" oninput="document.getElementById('DOM_drawdepthvalue').innerHTML = this.value;">
             </span>
@@ -102,7 +104,7 @@
         <span class="section">
             <h2 onclick="toggleFold(this)">View</h2>
             <span class="foldable">
-                <button id="DOM_xaxis">X Axis</button> <button id="DOM_yaxis">Y Axis</button> <button id="DOM_zaxis">Z Axis</button><br>
+                <button id="DOM_xaxis" title="Front view">X Axis</button> <button id="DOM_yaxis" title="Top view">Y Axis</button> <button id="DOM_zaxis" title="Side view">Z Axis</button><br>
                 <input id="DOM_depthslider" type="range" min="0" max="64" step="1" value="0" oninput="updateDepth(this)"> <span id="DOM_depth">Depth: 0</span><br>
             </span>
         </span>

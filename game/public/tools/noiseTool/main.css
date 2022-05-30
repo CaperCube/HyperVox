@@ -44,6 +44,8 @@ body {
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
 	user-select: none;
+
+	cursor: crosshair;
 }
 
 #temp-canvas {
