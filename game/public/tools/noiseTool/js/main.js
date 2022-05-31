@@ -40,7 +40,7 @@ const tools = {
     pencil: 'pencil',
     // eraser: 'eraser',
     rect: 'rect',
-    filledRect: 'filledRect',
+    filledRect: 'filledrect',
 }
 let editorTool = tools.pencil // The tool to use now
 let altAction = false // when using RMB with a tool
@@ -83,11 +83,15 @@ $("#DOM_depthslider").oninput = () => { updateDepth($("#DOM_depthslider")) }
 $("#DOM_blocklist").onchange = () => { selectedBlock = blockTypes.filter(b=>b.name === $("#DOM_blockList").value)[0]; console.log(selectedBlock) }
 $("#DOM_loadWorld").onclick = () => { browseForWorldFile() }
 $("#DOM_saveWorld").onclick = () => { saveWorld(world) }
-$("#DOM_pencilbtn").onclick = () => { editorTool = tools.pencil }
-$("#DOM_rectbtn").onclick = () => { editorTool = tools.rect }
-$("#DOM_filledrectbtn").onclick = () => { editorTool = tools.filledRect }
+$("#DOM_pencilbtn").onclick = () => { setEditorTool(tools.pencil) }
+$("#DOM_rectbtn").onclick = () => { setEditorTool(tools.rect) }
+$("#DOM_filledrectbtn").onclick = () => { setEditorTool(tools.filledRect) }
+
+// Defaults
 populateDOMList($("#DOM_genList"), Object.keys(generator.noisePatterns))
 populateDOMBlockList($("#DOM_blockList"), blockTypes)
+setEditorTool(tools.pencil)
+updateViewDirection(2)
 
 function populateDOMList(dropList, itemArray) {
     if (dropList) {
@@ -139,6 +143,27 @@ function populateDOMBlockList(dropList, itemArray) {
 function updateViewDirection(newVal) {
     // Set value
     viewDirection = newVal
+
+    // Remove all selected classes
+    const btnX = $(`#DOM_xaxis`)
+    const btnY = $(`#DOM_yaxis`)
+    const btnZ = $(`#DOM_zaxis`)
+    btnX?.classList?.remove('selected')
+    btnY?.classList?.remove('selected')
+    btnZ?.classList?.remove('selected')
+
+    // Add selected class
+    switch (newVal) {
+        case 0: 
+            btnX?.classList?.add('selected')
+            break
+        case 1:
+            btnY?.classList?.add('selected')
+            break
+        case 2:
+            btnZ?.classList?.add('selected')
+            break
+    }
 
     // Redraw world
     drawWorld(world, $("#DOM_depthslider").value)
@@ -211,6 +236,21 @@ function updateDepth(el) {
 
     // Redraw pattern with new z index
     drawWorld(world, el.value)
+}
+
+function setEditorTool(newTool) {
+    // Selecat tool
+    editorTool = newTool
+
+    // Remove all selected classes
+    for (const key in tools) {
+        const btn = $(`#DOM_${tools[key]}btn`)
+        btn?.classList?.remove('selected')
+    }
+
+    // Add selected class
+    const btn = $(`#DOM_${newTool}btn`)
+    btn?.classList?.add('selected')
 }
 
 ////////////////////////////////////////////////////////
@@ -408,9 +448,9 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === '2') updateViewDirection(1)
     else if (e.key === '3') updateViewDirection(2)
     // Tools
-    else if (e.key === 'r') editorTool = tools.rect
-    else if (e.key === 'f') editorTool = tools.filledRect
-    else if (e.key === 'b') editorTool = tools.pencil
+    else if (e.key === 'b') setEditorTool(tools.pencil)
+    else if (e.key === 'r') setEditorTool(tools.rect)
+    else if (e.key === 'f') setEditorTool(tools.filledRect)
     else if (e.key === '-') { $('#DOM_drawdepthslider').value--; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
     else if (e.key === '=') { $('#DOM_drawdepthslider').value++; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
     else if (e.key === 'Alt') {
@@ -608,19 +648,21 @@ function drawTileHere(x, y, size, id, myCtx = ctx) {
 
 function drawWorld(w, depth) {
     // Select draw function based on "viewDirection"
-    switch (viewDirection) {
-        case 0:
-            drawXWorld(w, depth)
-            break
-        case 1:
-            drawYWorld(w, depth)
-            break
-        case 2:
-            drawZWorld(w, depth)
-            break
-        default:
-            drawZWorld(w, depth)
-            break
+    if (w[0][0][0]) {
+        switch (viewDirection) {
+            case 0:
+                drawXWorld(w, depth)
+                break
+            case 1:
+                drawYWorld(w, depth)
+                break
+            case 2:
+                drawZWorld(w, depth)
+                break
+            default:
+                drawZWorld(w, depth)
+                break
+        }
     }
 }
 

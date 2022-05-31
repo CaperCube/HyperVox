@@ -4,6 +4,7 @@
 	--color-3: rgb(103, 99, 109);
 	--color-4: rgb(149, 142, 155);
 	--color-5: rgb(187, 182, 194);
+	--color-accent: rgb(112, 139, 255);
 
 	--size-canvas: 80vh;
 	--size-border: 4px;
@@ -101,4 +102,9 @@ body {
 .foldable.folded {
 	display: none;
 	padding: 0px;
+}
+
+button.selected {
+	background-color: var(--color-accent);
+	color: var(--color-5);
 }
