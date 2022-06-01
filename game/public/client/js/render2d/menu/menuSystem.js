@@ -1,5 +1,5 @@
 import TileRenderer from "../tileRenderer.js"
-import UIScene from "./uIScene.js"
+import UIScene from "./uiScene.js"
 import UIElement from "./uiElement.js"
 import UISlider from "./uiSlider.js"
 import { lsKeys } from "../../clientConstants.js"
