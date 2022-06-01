@@ -92,7 +92,22 @@ function browseForWorldFile() {
 }
 
 // Main menu
-clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { clientGame.connectToNetworkGame() } // ToDo: Create a connection input field so we can connectToNetworkGame(userInputIP)
+function connectToCustom() {
+    $("#focus-input-title").innerHTML = 'Server IP'
+    $("#focus-input-text").value = ''
+
+    // Turn on
+    $("#focus-input").style.display = 'inline-block'
+
+    // Assign submit function
+    $("#focus-input").onsubmit = (e) => { 
+        e.preventDefault()
+        clientGame.connectToNetworkGame($("#focus-input-text").value)
+        $("#focus-input-text").value = ''
+        $("#focus-input").style.display = 'none'
+    }
+}
+clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { connectToCustom() }
 
 // Play menu
 clientGame.menu.playMenu.selectableElements[0].pressButton = () => { browseForWorldFile() }

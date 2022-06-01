@@ -37,4 +37,11 @@
     <span id="loading-basic"></span>
     <span id="chat-window"></span>
     <form id="chat-input"><input id="chat-input-text" type="text"></input></form>
+    <form onclick="this.style.display='none'" id="focus-input">
+        <h1 id="focus-input-title">Null</h1>
+        <input onclick="event.stopPropagation();" id="focus-input-text" type="text" placeholder="Leave blank for default"></input><br>
+        <input type="submit" style="display: none" /> <!-- This allows the user to submit with "Enter" without moving the cancel button -->
+        <button onclick="event.preventDefault(); this.parentElement.style.display='none'">Cancel</button>
+        <button onclick="event.stopPropagation();" type="submit" form="focus-input" value="Submit">Submit</button>
+    </form>
 </body>

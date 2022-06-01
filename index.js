@@ -36,7 +36,19 @@ const PORT = process.env.PORT || 3000
 // const io = require('socket.io')(serv,{});
 const io = new Server(serv, {
     // ToDo: try to leave this at default and adjust the networking logic to send large messages in small chunks
-    maxHttpBufferSize: 1e10
+    maxHttpBufferSize: 1e10,
+    cors: {
+        origin: `*`,
+        methods: ["GET", "POST"],
+        transports: ['websockets', 'polling'],    
+        handelPreFlightRequest: (req, res) => {
+            res.writeHead(200, {
+                "Access-Control-Allow-Origin": `*`,
+                "Access-Control-Allow-Methods": "GET,POST",
+            })
+        }
+      },
+      allowEIO3: true,
 })
 
 ////////////////////////////////////////
