@@ -44,14 +44,14 @@ Tier shaping needed...
     - [X] Basic event system?
         - [X] Create communication layer to be used to send messages between the client(s) and brain
         - [X] Create the ability to trigger events in the Game object (i.e. add / remove / change block)
-    - [ ] Connect to custom URL
-        - [ ] Seperate network game server from client server
-    - [ ] Send/Receive messages
+    - [X] Connect to custom URL
+    - [ ] Seperate network game server from client server
+    - [X] Send/Receive messages
         - [X] Give new players a playerID
         - [X] New Players / Leaving Players
         - [X] Movement
         - [X] Chat messages
-        - [ ] Privileges
+        - [X] Privileges
         - [X] Chunk changes
     - [X] Networking for sending / receiving messages
     - [X] Work on generic messages for extendability?
