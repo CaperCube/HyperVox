@@ -6,20 +6,20 @@
 
 import { blockTypes } from "../../../../common/blockSystem.js";
 
-class ItemPickup {
+export class ItemPickup {
     constructor(model = null, item = new Item()) {
         this.model = model
         this.item = item
     }
 }
 
-class Item {
+export class Item {
     constructor({
         itemName = 'item',
         itemID = 0,
         itemType = 'block',
         stackSize = 1,
-        maxStackSize = 100,
+        maxStackSize = 100, // 0 = infinate
     }) {
         // Identifiers
         this.itemName = itemName
@@ -43,8 +43,9 @@ class Item {
         }
     }
 
-    getItemImage() {
-        // ToDo: this is placeholder atm
+    drawItemImage() {
+        // ToDo: Make this use HUD drawing functions
+        // This is placeholder atm
         switch (this.itemType) {
             case 'block':
                 return { 
@@ -60,7 +61,7 @@ class Item {
     }
 }
 
-class Inventory {
+export class Inventory {
     constructor() {
         this.invSize = 9 // The max length of "this.items" anything over should be ignored
         this.hotbarSize = 3 // The number of slots in the inventory used as hotbar slots (example: 3 = the first 3 indexes or "this.items" are hotbar slots)
@@ -86,3 +87,25 @@ const gun = Item({
     maxStackSize: 1,
 
 })
+
+export const createCreativeInventory =() => {
+    const cInv = new Inventory()
+    cInv.invSize = blockTypes.length - 1
+
+    // Fill inv
+    for (let i = 0; i < blockTypes.length; i++) {
+        const b = blockTypes[i]
+        const newItem = new Item({
+            itemName: b.name,
+            itemID: i,
+            itemType: 'block',
+            stackSize: 1,
+            maxStackSize: 0,
+        })
+
+        // Add item to inv
+        cInv.items.push()
+    }
+
+    return cInv
+}
