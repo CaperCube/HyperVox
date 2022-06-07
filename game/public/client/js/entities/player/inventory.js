@@ -104,7 +104,7 @@ export const createCreativeInventory =() => {
         })
 
         // Add item to inv
-        cInv.items.push()
+        cInv.items.push(newItem)
     }
 
     return cInv
