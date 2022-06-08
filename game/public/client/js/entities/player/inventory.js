@@ -80,17 +80,17 @@ export class Inventory {
     }
 }
 
-const gun = Item({
-    itemID: 0,
-    itemType: 'item',
-    stackSize: 1,
-    maxStackSize: 1,
+// const gun = new Item({
+//     itemID: 0,
+//     itemType: 'item',
+//     stackSize: 1,
+//     maxStackSize: 1,
 
-})
+// })
 
-export const createCreativeInventory =() => {
+export const makeCreativeInventory = () => {
     const cInv = new Inventory()
-    cInv.invSize = blockTypes.length - 1
+    cInv.invSize = blockTypes.length
 
     // Fill inv
     for (let i = 0; i < blockTypes.length; i++) {

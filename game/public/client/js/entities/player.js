@@ -1,7 +1,7 @@
 import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
 import { getArrayPos } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
-import { Inventory } from './player/inventory.js'
+import { makeCreativeInventory, Inventory } from './player/inventory.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -115,7 +115,8 @@ class ClientPlayer {
         this.isInvincible = false
         this.invincibleTime = 500 // time in ms
         this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
-        this.inventory = new Inventory()
+        this.inventory = makeCreativeInventory() //new Inventory()
+        console.log(this.inventory)
 
         // Gameplay vars
         // ToDo: a lot of these should only be stored / tracked on the brain, not on the client
