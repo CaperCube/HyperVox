@@ -70,6 +70,15 @@ class ClientGame {
         ///////////////////////////////////////////////////////
         // Engin vars
         ///////////////////////////////////////////////////////
+        this.xr = null
+        this.enableVROption = async () => {
+            // Get all chunk meshes
+            const cMeshes = this.scene.meshes.filter(x=>x.name.includes('chunk'))
+            // console.log(cMeshes)
+            this.xr = await this.scene.createDefaultXRExperienceAsync({
+                floorMeshes: cMeshes
+            })
+        }
 
         this.canvas = props.canvas
         // new BABYLON.WebGPUEngine(this.canvas, false); await engine.initAsync(); // use Babylon 5's WebGPU support
@@ -86,6 +95,9 @@ class ClientGame {
                 if (event.data === "doneLoadingChunks") {
                     // this.terminate() // Do not terminate worker, we'll be using it for more chunk updates
                     // console.log('Chunk mesh work completed')
+
+                    // VR mode
+                    this.enableVROption()
                 }
                 else if (event.data) {
                     const chunkName = `chunk_${event.data.chunkPosition.x}-${event.data.chunkPosition.y}-${event.data.chunkPosition.z}`
@@ -112,6 +124,15 @@ class ClientGame {
 
                     vertexData.applyToMesh(customMesh)
                     customMesh.material = this.scene.defaultMaterial //this.scene.combinedMaterial
+
+                    // Apply to XR scene if available
+                    if (this.xr?.floorMeshes) {
+                        const thisMesh = this.xr.floorMeshes.filter(x => x.name === chunkName)[0]
+                        if (thisMesh) {
+                            this.xr.floorMeshes.splice(this.xr.floorMeshes.indexOf(thisMesh))
+                            this.xr.floorMeshes.push(customMesh)
+                        }
+                    }
                 }
             }
         }
