@@ -70,7 +70,8 @@ class BrainComs {
             updateSingleBlock: ( data, playerID ) => {
                 let allowChange = false
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
-                if (myBrainPlayer?.gameMode === gameModes.creative) {
+                // Check if player is in creative mode (or if the brainGame is, if offline)
+                if ((this.isNetworked && myBrainPlayer?.gameMode === gameModes.creative) || (this.brainGame.gameOptions.gameMode === gameModes.creative)) {
                     allowChange = true
                 }
 

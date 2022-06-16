@@ -36,6 +36,8 @@ const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
 // const clientGame = new ClientGame({ isNetworked: true, canvas: canvas })
 // clientGame.clientComs.network = socket
 
+Buttons.m.onPress = () => { launchFullscreen() }
+Buttons.escape.onPress = () => { quitFullscreen() }
 
 // Start game scene
 // clientGame.clientComs.createNewWorld()
