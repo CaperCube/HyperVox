@@ -3,7 +3,7 @@ import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys, getRandomName } from './clientConstants.js'
-import { getArrayPos } from '../../common/positionUtils.js'
+import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
@@ -153,8 +153,9 @@ class ClientGame {
 
         assignFunctionToInput([Buttons.bracketLeft], ()=>{ this.settings.mouseSensitivity += 100; this.updateSettings(); }, ()=>{});
         assignFunctionToInput([Buttons.bracketRight], ()=>{ if (this.settings.mouseSensitivity < 100) this.settings.mouseSensitivity = 1; else this.settings.mouseSensitivity -= 100; this.updateSettings(); }, ()=>{});
-        assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings(); null});
-        assignFunctionToInput([Buttons.period], () => { this.settings.fov += .1; this.updateSettings(); null});
+        assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings()}, ()=>{});
+        assignFunctionToInput([Buttons.period], () => { this.settings.fov += .1; this.updateSettings()}, ()=>{});
+        assignFunctionToInput([Buttons.slash], () => {if (this.localPlayer && this.scene) { console.log(getArrayPos(this.localPlayer.position, this.clientWorld._chunkSize)) }}, ()=>{});
 
         ///////////////////////////////////////////////////////
         // HUD vars
@@ -183,6 +184,9 @@ class ClientGame {
             worldSize: clone._worldSize
         })
         this.clientWorld.worldChunks = clone.worldChunks
+        const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
+        const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, this.clientWorld._chunkSize)
+        this.clientWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
     }
 
     // Use a worker thread to load chunks
@@ -282,9 +286,9 @@ class ClientGame {
 
         // Create new camera in scene
         //const worldMax = defaultWorldSize * defaultChunkSize * tileScale
-        const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
-        const centerTarget = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2) //new BABYLON.Vector3(worldCenter, worldCenter, worldCenter)
-        this.mainCamera = new BABYLON.UniversalCamera('playerCamera', centerTarget, this.scene)
+        const worldSpawn = getGlobalPos(this.clientWorld.worldSpawn, this.clientWorld._chunkSize)
+        const worldSpawnPos = new BABYLON.Vector3(worldSpawn.x, worldSpawn.y, worldSpawn.z)
+        this.mainCamera = new BABYLON.UniversalCamera('playerCamera', worldSpawnPos, this.scene)
         this.mainCamera.minZ = tileScale/10
         this.mainCamera.maxZ = fogDistance
 
@@ -298,8 +302,9 @@ class ClientGame {
         // Create player
         this.localPlayer = new ClientPlayer(Controls.Player1, this.mainCamera, this.clientID, this)
         this.localPlayer.setPlayerName(this.clientName)
-        this.localPlayer.position = centerTarget
-        this.localPlayer.setPlayerSpawn(centerTarget)
+        // Spawn player and set default spawn
+        this.localPlayer.position = worldSpawnPos
+        this.localPlayer.setPlayerSpawn(worldSpawnPos)
         // console.log("creating player with ID: ", this.clientID)
         // this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 

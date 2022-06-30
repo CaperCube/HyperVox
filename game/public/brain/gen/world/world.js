@@ -1,3 +1,5 @@
+import { getArrayPos } from "../../../common/positionUtils.js"
+
 //import { defaultChunkSize, defaultWorldSize } from '../../../client/js/clientConstants.js'
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
@@ -5,6 +7,10 @@ class World {
         this._worldFormatVersion = 'v0.1'
         this.worldChunks = [[[]]]
         this._wSeed = worldSeed || `${Math.random()}`
+        
+        const worldMax = (worldSize || 3) * (chunkSize || 16) * (tileScale || 1)
+        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize)
+
         this.getWorldSeed = () => { return this._wSeed }
 
         this._tileScale = tileScale || 1
@@ -38,6 +44,7 @@ class World {
     loadWorldFromJSON(jsonObj) {
         // worldFormat v0.1
         this.worldChunks = jsonObj.worldChunks
+        this.worldSpawn = jsonObj.worldSpawn
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale
         this._chunkSize = jsonObj._chunkSize

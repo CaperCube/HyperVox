@@ -128,7 +128,7 @@ class BrainGame {
                     let thisBlock = this.world.worldChunks
                     [underChunk][location.chunk.x][location.chunk.z]
                     [underBlock][location.block.x][location.block.z]
-                    console.log(underChunk, underBlock)
+                    // console.log(underChunk, underBlock)
                     if (thisBlock === blockTypes.indexOf(getBlockByName('grass'))) {
                         const dirtID = blockTypes.indexOf(getBlockByName('dirt'))
                         const underLocation = {
