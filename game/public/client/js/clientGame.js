@@ -172,7 +172,74 @@ class ClientGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    //...
+    
+    // Export world as obj (ToDo: Move this to World() class)
+    exportWorldMesh() {
+        const world = this.clientWorld
+
+        // Array to hold meshes
+        let meshesToBeMerged = []
+        let lastMesh
+        let meshCount = 0
+
+        // Loop through all meshes in scene
+        for (let cy = 0; cy < world.worldChunks.length; cy++) {
+        for (let cx = 0; cx < world.worldChunks[cy]?.length; cx++) {
+        for (let cz = 0; cz < world.worldChunks[cy]?.[cx]?.length; cz++) {
+            const chunkName = `chunk_${cx}-${cy}-${cz}`
+            const existingChunkMesh = this.scene.getMeshByName(chunkName)
+            if (existingChunkMesh) {
+                // Add this to the mesh to be exported
+                // meshesToBeMerged.push(existingChunkMesh)
+                meshCount++
+                if (meshCount > 0) {
+                    lastMesh = BABYLON.Mesh.MergeMeshes([lastMesh, existingChunkMesh], true)
+                }
+            }
+        }}}
+
+        // Merge meshes
+        // const exportMesh = BABYLON.Mesh.MergeMeshes(meshesToBeMerged, false);
+        //BABYLON.Mesh.MergeMeshes(myChunkMeshes, true)
+
+        // Export mesh
+        // console.log(meshesToBeMerged.length, exportMesh)
+        console.log(lastMesh)
+        this.doSceneDownload('CoolMesh', lastMesh)
+        
+
+        // Removed merged mesh from scene
+        lastMesh.dispose()
+
+    }
+
+    doSceneDownload(filename, mesh) {
+        // if (objectUrl) {
+        //   window.URL.revokeObjectURL(objectUrl);
+        // }
+      
+        // var serializedMesh = BABYLON.SceneSerializer.SerializeMesh(mesh);
+        // var strMesh = JSON.stringify(serializedMesh);
+
+        const obj = OBJExport.OBJ(array_Meshes, true, 'material', true)
+      
+        if (filename.toLowerCase().lastIndexOf(".babylon") !== filename.length - 8 || filename.length < 9) {
+          filename += ".babylon";
+        }
+      
+        var blob = new Blob([strMesh], { type: "octet/stream" });
+      
+        // turn blob into an object URL; saved as a member, so can be cleaned out later
+        const objectUrl = (window.webkitURL || window.URL).createObjectURL(blob);
+      
+        var link = window.document.createElement("a");
+        link.href = objectUrl;
+        link.download = filename;
+        // var click = document.createEvent("MouseEvents");
+        // click.initEvent("click", true, false);
+        // link.dispatchEvent(click);
+        link.click();
+    }
 
     // ToDo: move this to methon in the World() class
     deepCopyWorld( world ) {
