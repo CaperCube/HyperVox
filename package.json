@@ -25,7 +25,7 @@
   "author": "CaperCube",
   "license": "ISC",
   "dependencies": {
-    "babylonjs": "^4.2.1",
+    "babylonjs": "^4.2.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "perlin-noise-3d": "^0.5.4",

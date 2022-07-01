@@ -150,7 +150,9 @@ class MenuSystem extends TileRenderer {
         const buttonMid = [spriteParts.TextButtonL, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonR]
         const buttonLong = [spriteParts.TextButtonL, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonM, spriteParts.TextButtonR]
 
+        /////////////////////////////////////////////////////////
         // Main menu
+        /////////////////////////////////////////////////////////
         const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barBendTL]]})
         const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Main Menu'})
         const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [buttonMid], text: 'Start Game'})
@@ -161,7 +163,9 @@ class MenuSystem extends TileRenderer {
 
         this.mainMenu = new UIScene([bars, mainMenuTitle], [playButton, joinButton, optionsButton])
 
+        /////////////////////////////////////////////////////////
         // Options menu
+        /////////////////////////////////////////////////////////
         // const bars2 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const optionsTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Options'})
@@ -204,7 +208,9 @@ class MenuSystem extends TileRenderer {
         
         this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, defaultsButton, optionsBackButton])
 
+        /////////////////////////////////////////////////////////
         // Play menu
+        /////////////////////////////////////////////////////////
         // const bars3 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const playMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'World Size'})
         const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonMid], text: 'Load World'})
@@ -216,7 +222,9 @@ class MenuSystem extends TileRenderer {
         
         this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
 
+        /////////////////////////////////////////////////////////
         // Pause menu
+        /////////////////////////////////////////////////////////
         // const bars4 = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barBendTL]]})
         const pauseTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Pause'})
         const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonLong], text: 'Back to Game'})
@@ -227,10 +235,14 @@ class MenuSystem extends TileRenderer {
         const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [buttonMid], text: 'Leave Game'})
         const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Main Menu'})
         pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
-        
-        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton, pauseOptionsButton])
 
+        const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
+        
+        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton, pauseOptionsButton, pauseExportButton])
+
+        /////////////////////////////////////////////////////////
         // Pause Options
+        /////////////////////////////////////////////////////////
         const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         pauseOptionsBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
 
