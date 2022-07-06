@@ -17,6 +17,8 @@
 ////////////////////////////////////////
 // Packages ('import' requires node v13.2.0+ and `"type": "module"` to be in "package.json")
 ////////////////////////////////////////
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
