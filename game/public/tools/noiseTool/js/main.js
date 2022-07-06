@@ -180,7 +180,7 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     canvasTemp.width = canvasTemp.height = canvas.width
 
     // Update DOM
-    $('#DOM_seed').value = obj._wSeed
+    $('#DOM_seed').value = newWorld._wSeed
 
     // Update slider
     resetDepthSlider()
