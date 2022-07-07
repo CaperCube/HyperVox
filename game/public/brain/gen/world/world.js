@@ -10,6 +10,7 @@ class World {
         
         const worldMax = (worldSize || 3) * (chunkSize || 16) * (tileScale || 1)
         this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize)
+        this.embeds = {}
 
         this.getWorldSeed = () => { return this._wSeed }
 
@@ -45,11 +46,11 @@ class World {
         // worldFormat v0.1
         this.worldChunks = jsonObj.worldChunks
         this.worldSpawn = jsonObj.worldSpawn
+        this.embeds = jsonObj.embeds
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale
         this._chunkSize = jsonObj._chunkSize
         this._worldSize = jsonObj._worldSize
-
     }
 }
 

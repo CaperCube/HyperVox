@@ -138,13 +138,20 @@ class ClientGame {
             this.menu.optionsMenu.selectableElements[1].update(1.35)
         }
 
-        Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
-            e.preventDefault()
-
+        this.unlockCursor = () => {
             // Unlock cursor (without pressing escape)
             document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
             document.exitPointerLock()
+            
             Buttons.isInputFocused = false
+            releaseAllButtons()
+        }
+
+        Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
+            e.preventDefault()
+
+            // Unlock cursor
+            this.unlockCursor()
 
             // Show menu
             this.menu.selectedScene = this.menu.pauseMenu
@@ -203,6 +210,8 @@ class ClientGame {
         const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
         const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, this.clientWorld._chunkSize)
         this.clientWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
+
+        this.clientWorld.embeds = clone.embeds
     }
 
     // Use a worker thread to load chunks
@@ -321,6 +330,7 @@ class ClientGame {
         // Spawn player and set default spawn
         this.localPlayer.position = worldSpawnPos
         this.localPlayer.setPlayerSpawn(worldSpawnPos)
+        this.localPlayer.worldDefualtSpawn = worldSpawnPos
         // console.log("creating player with ID: ", this.clientID)
         // this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 

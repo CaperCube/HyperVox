@@ -371,6 +371,15 @@ function assignFunctionToInput(btnAr, downFunc, upFunc) {
     }
 }
 
+function releaseAllButtons() {
+    for (var i = 0; i < Object.keys(Buttons).length; i++)
+    {
+        var thisBtn = Object.entries(Buttons)[i]
+        thisBtn[1].pressed = false
+        if (thisBtn[1].hasOwnProperty("onRelease")) thisBtn[1].onRelease()
+    }
+}
+
 var Controls = {
     Player1: {
         upAxis1: [Buttons.w, GamepadButtons.lsUp],

@@ -46,4 +46,8 @@
         <button onclick="event.preventDefault(); this.parentElement.style.display='none'">Cancel</button>
         <button onclick="event.stopPropagation();" type="submit" form="focus-input" value="Submit">Submit</button>
     </form>
+    <span id="embedded_content">
+        <button onclick="event.stopPropagation(); SetEmbed()" id="close-embed">Close</button>
+        <iframe id="embed_frame" src="" allowtransparency="true" title="Embedded Content"></iframe>
+    </span>
 </body>

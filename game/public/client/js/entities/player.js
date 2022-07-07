@@ -172,6 +172,8 @@ class ClientPlayer {
         this.placeInterval
         this.removeInterval
 
+        this.lastEmbedBlock = null
+
         // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
@@ -265,6 +267,30 @@ class ClientPlayer {
     teleportPlayer = (newPosition) => {
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.position = new BABYLON.Vector3(newPosition.x, newPosition.y, newPosition.z)
+    }
+
+    loadEmbed = (block, blockID) => {
+        const uniqueBlock = `${blockID}_${block.x}_${block.y}_${block.z}`
+        if (uniqueBlock !== this.lastEmbedBlock)
+        {
+            console.log(uniqueBlock)
+            // Get embed URL from world file based on blockID's index data
+            let embedUrl = ""
+            if (this.world.embeds[uniqueBlock] !== undefined) embedUrl = this.world.embeds[uniqueBlock]
+
+            if (embedUrl) {
+                // console.log(this.world.embeds)
+
+                // Set embed
+                SetEmbed(embedUrl)
+
+                // Unlock cursor
+                this.clientGame.unlockCursor()
+            }
+
+            // Remember this block so we don't get double triggering
+            this.lastEmbedBlock = uniqueBlock
+        }
     }
 
     // Set player nametag
@@ -467,6 +493,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Load embed on colide
+                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -509,6 +537,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Load embed on colide
+                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -551,6 +581,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Load embed on colide
+                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }

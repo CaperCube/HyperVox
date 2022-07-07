@@ -38,6 +38,7 @@ const blockCats = { // ToDo: possibly rename this to "blockTags"
     // Functional categories
     checkpoint: 'checkpoint',
     damaging: 'damaging',
+    embed: 'embed',
     fluid: 'fluid',
     noncollidable: 'noncollidable',
     unbreakable: 'unbreakable',
@@ -303,7 +304,7 @@ const blockTypes = [
     // 0x0025
     {
         name: 'info-box',
-        categories: [blockCats.color.grey, blockCats.color.green],
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.embed],
         textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
     },
     // 0x0026
