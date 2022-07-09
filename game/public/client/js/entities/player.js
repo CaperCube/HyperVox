@@ -293,6 +293,15 @@ class ClientPlayer {
         }
     }
 
+    interact = () => {
+        // Get block & blockID at this.cursor's location
+
+        console.log("Intereact")
+
+        // ToDo: Call item's interaction function
+            // Something like: blocks[BlockID].interact(BlockIDData, blockLocation)
+    }
+
     // Set player nametag
     setPlayerName = (newName) => {
         // Set name
@@ -348,6 +357,7 @@ class ClientPlayer {
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
             // ToDo: change fire1 and fire2 to perform the action dictated by this.inventory.selectedItem.useItem(this, 1)
+            assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
             assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})

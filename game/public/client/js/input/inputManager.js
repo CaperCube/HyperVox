@@ -396,7 +396,8 @@ var Controls = {
         fire2: [Buttons.rmb, GamepadButtons.y],
         invUp: [Buttons.scrollUp, Buttons.minus],
         invDown: [Buttons.scrollDown, Buttons.equals],
-        eyedrop: [Buttons.e],
+        interact: [Buttons.e],
+        eyedrop: [Buttons.q],
         noclip: [Buttons.r]
     },
     Player2: {
@@ -414,6 +415,7 @@ var Controls = {
         fire2: [Buttons.bracketRight],
         invUp: [Buttons.slash],
         invDown: [Buttons.period],
+        interact: [Buttons.h],
         eyedrop: [Buttons.y],
         noclip: [Buttons.u]
     }

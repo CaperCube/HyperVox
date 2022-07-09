@@ -53,6 +53,10 @@ body {
 Text fields
 */
 
+input {
+	font-weight: normal;
+}
+
 #chat-input {
 	position: absolute;
 	display: none;
@@ -106,6 +110,8 @@ Text fields
 
 	font-size: 48px;
 	color: white;
+
+	font-weight: normal;
 }
 
 #focus-input button {
@@ -150,6 +156,8 @@ Text fields
 	
 	background-color: rgba(0,0,0,0.5);
 	color: white;
+
+	font-weight: lighter;
 }
 
 #chat-window::-webkit-scrollbar {
