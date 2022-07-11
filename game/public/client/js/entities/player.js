@@ -336,7 +336,7 @@ class ClientPlayer {
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
             assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
-            assignFunctionToInput(c.noclip, ()=>{this.spectateMode = !this.spectateMode}, ()=>{})
+            assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()
             }, ()=>{})
@@ -344,14 +344,13 @@ class ClientPlayer {
                 this.inventory.selectNext()
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
-                const thisBlockPos = getArrayPos({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
+                const thisBlockPos = getArrayPos({x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
                 const cursorBlock = this.clientGame?.clientWorld?.worldChunks?.[thisBlockPos.chunk.y]?.[thisBlockPos.chunk.x]?.[thisBlockPos.chunk.z]?.[thisBlockPos.block.y]?.[thisBlockPos.block.x]?.[thisBlockPos.block.z] || null
                 if (cursorBlock) {
                     const matches = this.inventory.items.filter(item => {
                         if ( item.itemType === "block" &&
-                            item.itemID === cursorBlock ) {
+                            item.itemID === cursorBlock )
                             return true
-                        }
                         else return false
                     })
                     // Only eye-drop if block is found in inventory
@@ -696,11 +695,14 @@ class ClientPlayer {
     }
 
     placeBlock = () => {
-        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, this.inventory.items[this.inventory.selectedIndex].itemID)
+        const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        const selectedItem = this.inventory.items[this.inventory.selectedIndex]
+        this.clientGame.updateSingleBlock(changeLocation, selectedItem.itemID)
     }
 
     removeBlock = () => {
-        this.clientGame.updateSingleBlock({x: this.selectMesh.position.x, y: this.selectMesh.position.y, z: this.selectMesh.position.z}, 0)
+        const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        this.clientGame.updateSingleBlock(changeLocation, 0)
     }
 
     bounceY = () => {
