@@ -136,9 +136,6 @@ export const makeCreativeInventory = (hud = null) => {
         // }
     }
 
-    // Add item to inv
-    cInv.items.push(newItem)
-
     // Set length
     cInv.invSize = cInv.items.length
 
