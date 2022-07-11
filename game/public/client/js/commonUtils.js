@@ -8,7 +8,9 @@ function SetEmbed(url = null) {
     const element = $('#embedded_content')
     const iframe = $("#embed_frame")
     if (url) {
-        iframe.src = url
+        if (url.startsWith("<html>"))
+            iframe.setAttribute("srcdoc", url)
+        else iframe.src = url
         element.style.display = "inline-block"
     }
     else {
