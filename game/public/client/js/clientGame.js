@@ -587,6 +587,23 @@ class ClientGame {
         }
     }
 
+    // Load an embed link
+    loadEmbed = (block, blockID) => {
+        const uniqueBlock = `${blockID}_${block.x}_${block.y}_${block.z}`
+        console.log(uniqueBlock)
+        // Get embed URL from world file based on blockID's index data
+        let embedUrl = ""
+        if (this.clientWorld.embeds[uniqueBlock] !== undefined) embedUrl = this.clientWorld.embeds[uniqueBlock]
+
+        if (embedUrl) {
+            // Set embed
+            SetEmbed(embedUrl)
+
+            // Unlock cursor
+            this.unlockCursor()
+        }
+    }
+
     ///////////////////////////////////////////////////////
     // Messages from brain
     ///////////////////////////////////////////////////////

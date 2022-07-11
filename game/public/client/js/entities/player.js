@@ -1,5 +1,5 @@
 import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
-import { getArrayPos } from '../../../common/positionUtils.js'
+import { getArrayPos, getGlobalPos } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
 
@@ -172,8 +172,6 @@ class ClientPlayer {
         this.placeInterval
         this.removeInterval
 
-        this.lastEmbedBlock = null
-
         // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
@@ -269,37 +267,15 @@ class ClientPlayer {
         this.position = new BABYLON.Vector3(newPosition.x, newPosition.y, newPosition.z)
     }
 
-    loadEmbed = (block, blockID) => {
-        const uniqueBlock = `${blockID}_${block.x}_${block.y}_${block.z}`
-        if (uniqueBlock !== this.lastEmbedBlock)
-        {
-            console.log(uniqueBlock)
-            // Get embed URL from world file based on blockID's index data
-            let embedUrl = ""
-            if (this.world.embeds[uniqueBlock] !== undefined) embedUrl = this.world.embeds[uniqueBlock]
-
-            if (embedUrl) {
-                // console.log(this.world.embeds)
-
-                // Set embed
-                SetEmbed(embedUrl)
-
-                // Unlock cursor
-                this.clientGame.unlockCursor()
-            }
-
-            // Remember this block so we don't get double triggering
-            this.lastEmbedBlock = uniqueBlock
-        }
-    }
-
     interact = () => {
         // Get block & blockID at this.cursor's location
+        const cSize = this.world.getChunkSize()
+        const block = getArrayPos(this.selectCursor, cSize)
+        const blockLocation = getGlobalPos(block, cSize)
+        let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
-        console.log("Intereact")
-
-        // ToDo: Call item's interaction function
-            // Something like: blocks[BlockID].interact(BlockIDData, blockLocation)
+        // Call block's interaction function
+        if (typeof blockTypes[blockID].interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
     }
 
     // Set player nametag
@@ -503,8 +479,6 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Load embed on colide
-                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -547,8 +521,6 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Load embed on colide
-                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -591,8 +563,6 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Load embed on colide
-                if (blockTypes[blockID]?.categories.includes(blockCats.embed)) this.loadEmbed(block, blockID)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
