@@ -353,9 +353,6 @@ class ClientGame {
             this.clientComs.sendChatMessage(`I have joined!`, this.localPlayer.playerName, this.localPlayer.playerColor)
         }
 
-        // Init inv selection
-        this.changeInvSlot(1)
-
         ////////////////////////////////////////////////////
         // Render loop
         ////////////////////////////////////////////////////
@@ -383,19 +380,6 @@ class ClientGame {
             // render scene
             this.scene.render()
         }) // }, 1000/90 )
-    }
-
-    changeInvSlot(idx) {
-        if (this.hud) {
-            const lower = ((idx-1) > 0)? (idx-1) : blockTypes.length-1
-            const higer = (idx % blockTypes.length) + 1
-            this.hud.invSlotIndexes = [
-                blockTypes[lower]?.textures['front'],
-                blockTypes[idx]?.textures['front'],
-                blockTypes[higer]?.textures['front']
-            ]
-            this.hud.render()
-        }
     }
 
     // This is used when switching to an online session

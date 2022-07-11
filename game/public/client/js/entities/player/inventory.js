@@ -61,11 +61,13 @@ export class Item {
     }
 }
 
-export class Inventory {
-    constructor() {
+export class Inventory { // This specifically is a local player's hud-viewable inv
+    constructor(hud) {
+        this.hud = hud
         this.invSize = 9 // The max length of "this.items" anything over should be ignored
         this.hotbarSize = 3 // The number of slots in the inventory used as hotbar slots (example: 3 = the first 3 indexes or "this.items" are hotbar slots)
         this.items = [] // Array to store all items contained in this inventory
+        this.selectedIndex = 0 // The index of the item currently selected
     }
 
     addItem(newItem) {
@@ -78,6 +80,32 @@ export class Inventory {
             // If slot exists
                 // Add item
     }
+
+    setSelected(idx) {
+        this.selectedIndex = Math.abs(idx) % this.items.length
+        if (this.hud) {
+            const lower = ((this.selectedIndex-1) > -1)? (this.selectedIndex-1) : this.items.length-1
+            const higher = ((this.selectedIndex+1) % (this.items.length))
+            this.hud.invSlotIndexes = [
+                blockTypes[this.items[lower].itemID]?.textures['front'],
+                blockTypes[this.items[this.selectedIndex].itemID]?.textures['front'],
+                blockTypes[this.items[higher].itemID]?.textures['front']
+            ]
+            this.hud.render()
+        }
+    }
+
+    selectNext() {
+        let idx = this.selectedIndex + 1
+        if (idx > this.items.length-1) idx = 0
+        this.setSelected(idx)
+    }
+
+    selectPrev() {
+        let idx = this.selectedIndex - 1
+        if (idx < 0) idx = this.items.length-1
+        this.setSelected(idx)
+    }
 }
 
 // const gun = new Item({
@@ -88,24 +116,31 @@ export class Inventory {
 
 // })
 
-export const makeCreativeInventory = () => {
-    const cInv = new Inventory()
-    cInv.invSize = blockTypes.length
+export const makeCreativeInventory = (hud = null) => {
+    const cInv = new Inventory(hud)
 
     // Fill inv
-    for (let i = 0; i < blockTypes.length; i++) {
+    for (let i = 1; i < blockTypes.length; i++) {
         const b = blockTypes[i]
-        const newItem = new Item({
-            itemName: b.name,
-            itemID: i,
-            itemType: 'block',
-            stackSize: 1,
-            maxStackSize: 0,
-        })
+        // if (b.categories.includes('green')) {
+            const newItem = new Item({
+                itemName: b.name,
+                itemID: i,
+                itemType: 'block',
+                stackSize: 1,
+                maxStackSize: 0,
+            })
 
-        // Add item to inv
-        cInv.items.push(newItem)
+            // Add item to inv
+            cInv.items.push(newItem)
+        // }
     }
+
+    // Add item to inv
+    cInv.items.push(newItem)
+
+    // Set length
+    cInv.invSize = cInv.items.length
 
     return cInv
 }
