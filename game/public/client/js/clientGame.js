@@ -11,7 +11,7 @@ import World from '../../brain/gen/world/world.js'
 import MenuSystem from './render2d/menu/menuSystem.js'
 import HUDSystem from "./render2d/hudSystem.js"
 import { blockTypes } from '../../common/blockSystem.js'
-import { imageSRC } from "./resources.js"
+import { imageSRC, soundSRC, sounds } from "./resources.js"
 import { localStorageIsAllowed } from "../../common/localStorageUtils.js"
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
@@ -354,6 +354,14 @@ class ClientGame {
         }
 
         ////////////////////////////////////////////////////
+        // Init sounds
+        ////////////////////////////////////////////////////
+        
+        sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
+        sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
+        sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
+
+        ////////////////////////////////////////////////////
         // Render loop
         ////////////////////////////////////////////////////
 
@@ -508,6 +516,18 @@ class ClientGame {
                             
                     // Send event to brain to update the chunk
                     this.clientComs.updateSingleBlock(worldPos, id)
+
+                    // Play sound
+                    switch (id) {
+                        case 0:
+                            // Remove block
+                            if (sounds.BLOCK_BREAK_1) sounds.BLOCK_BREAK_1.play()
+                            break
+                        default:
+                            // Place block                        
+                            if (sounds.BLOCK_PLACE_1) sounds.BLOCK_PLACE_1.play()
+                            break
+                    }
                 }
             }
         }

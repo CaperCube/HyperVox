@@ -334,7 +334,7 @@ class ClientPlayer {
             // Build, Use, Shoot
             // ToDo: change fire1 and fire2 to perform the action dictated by this.inventory.selectedItem.useItem(this, 1)
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
-            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
+            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.useInvItem()},150); this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
@@ -694,14 +694,17 @@ class ClientPlayer {
         if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
-    placeBlock = () => {
-        const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
-        const selectedItem = this.inventory.items[this.inventory.selectedIndex]
-        this.clientGame.updateSingleBlock(changeLocation, selectedItem.itemID)
+    useInvItem = () => {
+        // Get cursor location
+        const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        // Use selected item
+        this.inventory.useItem(this.clientGame, cursorLocation, this.inventory.selectedIndex)
     }
 
     removeBlock = () => {
+        // Get cursor location
         const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        // Remove block
         this.clientGame.updateSingleBlock(changeLocation, 0)
     }
 

@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////
 
 import { blockTypes } from "../../../../common/blockSystem.js";
+import { sounds } from "../../resources.js"
 
 export class ItemPickup {
     constructor(model = null, item = new Item()) {
@@ -32,30 +33,34 @@ export class Item {
         this.requireItem = null // For ammo and similar
     }
 
-    useItem(player, amount) {
-        switch (this.itemType) {
-            case 'block':
-                // Place [amount] blocks
-                // this.stackSize -= amount
-                // if (this.stackSize <= 0) this.delete
-                break;
-            case 'item':
-        }
-    }
+    // useItem(player, amount) {
+    //     switch (this.itemType) {
+    //         case 'block':
+    //             // Place [amount] blocks
+    //             // this.stackSize -= amount
+    //             // if (this.stackSize <= 0) this.delete
+    //             break;
+    //         case 'item':
+    //     }
+    // }
 
-    drawItemImage() {
-        // ToDo: Make this use HUD drawing functions
+    getItemImage() {
         // This is placeholder atm
         switch (this.itemType) {
             case 'block':
                 return { 
                     material: null,
-                    index: blockTypes[this.itemID].textures.front
+                    index: blockTypes[this.itemID]?.textures['front']
                 }
             case 'item':
                 return { 
                     material: null,
-                    index: blockTypes[this.itemID].textures.front
+                    index: this.itemID // ToDo: Reference a different texture atlas
+                }
+            default:
+                return { 
+                    material: null,
+                    index: this.itemID // ToDo: Reference a different texture atlas
                 }
         }
     }
@@ -87,9 +92,9 @@ export class Inventory { // This specifically is a local player's hud-viewable i
             const lower = ((this.selectedIndex-1) > -1)? (this.selectedIndex-1) : this.items.length-1
             const higher = ((this.selectedIndex+1) % (this.items.length))
             this.hud.invSlotIndexes = [
-                blockTypes[this.items[lower].itemID]?.textures['front'],
-                blockTypes[this.items[this.selectedIndex].itemID]?.textures['front'],
-                blockTypes[this.items[higher].itemID]?.textures['front']
+                this.items[lower].getItemImage().index,
+                this.items[this.selectedIndex].getItemImage().index,
+                this.items[higher].getItemImage().index
             ]
             this.hud.render()
         }
@@ -106,18 +111,54 @@ export class Inventory { // This specifically is a local player's hud-viewable i
         if (idx < 0) idx = this.items.length-1
         this.setSelected(idx)
     }
+
+    useItem(clientGame, cursorLocation, idx) {
+        const useItem = this.items[idx]
+        if (useItem) { // Use this item if it exists
+            // Do different actions based on type
+            switch (useItem.itemType) {
+                case "block":
+                    // Place block
+                    clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
+                    break
+                case "item":
+                    // Use item
+                    // ToDo: Do some action here
+                    console.log("Use item")
+                    break
+                case "gun":
+                    // Use gun
+                    // ToDo: Use gun here
+                    console.log("Shoot")
+                    if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+                    break
+                default:
+                    // Something?
+                    console.log(`${useItem.itemName || "unknown item"} cannot be used`)
+                    break
+            }
+        }
+    }
 }
 
-// const gun = new Item({
-//     itemID: 0,
-//     itemType: 'item',
-//     stackSize: 1,
-//     maxStackSize: 1,
-
-// })
+//////////////////////////////////////
+// Create inventory
+//////////////////////////////////////
 
 export const makeCreativeInventory = (hud = null) => {
     const cInv = new Inventory(hud)
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Temp gun item    
+    const gun = new Item({
+        itemName: "gun",
+        itemID: 193, // maybe 191 or 193
+        itemType: 'gun',
+        stackSize: 1,
+        maxStackSize: 0,
+    })
+    cInv.items.push(gun)
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Fill inv
     for (let i = 1; i < blockTypes.length; i++) {

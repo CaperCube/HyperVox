@@ -10,3 +10,4 @@ node_modules/
 # Clutter
 dump/
 worlds/
+*.flp

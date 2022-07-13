@@ -40,21 +40,27 @@ const fontJSON = {
 ///////////////////////////////////////
 // Sounds
 ///////////////////////////////////////
-const soundSRC = [
+const soundSRC = {
     // `${SOUND_PATH}Main_Music.wav`, // Doesn't exist yet
     // `${SOUND_PATH}Step_Grass_01.wav`,
     // `${SOUND_PATH}Step_Grass_02.wav`,
     // `${SOUND_PATH}Step_Grass_03.wav`
-]
-
-const SoundIdx = {
-    MUSIC_MAIN: 0,
-    WALK1_GRASS: 1,
-    WALK2_GRASS: 2,
-    WALK3_GRASS: 3,
+    LASERGUN_SHOOT_1: `${SOUND_PATH}lasergun_shoot_1.mp3`,
+    BLOCK_PLACE_1: `${SOUND_PATH}block_place_1.mp3`,
+    BLOCK_BREAK_1: `${SOUND_PATH}block_break_1.mp3`,
 }
 
-const Sounds = {
+const SoundIdx = {
+    // MUSIC_MAIN: 0,
+    // WALK1_GRASS: 1,
+    // WALK2_GRASS: 2,
+    // WALK3_GRASS: 3,
+    LASERGUN_SHOOT_1: 0,
+    BLOCK_PLACE_1: 1,
+    BLOCK_BREAK_1: 2,
+}
+
+const sounds = {
     //MAIN_MUSIC: new Sound(soundSRC[SoundIdx.MUSIC_SOUND], true, 0.25),
     // WALK1_GRASS: new Sound(soundSRC[SoundIdx.WALK1_GRASS]),
     // WALK2_GRASS: new Sound(soundSRC[SoundIdx.WALK2_GRASS]),
@@ -97,5 +103,6 @@ export {
     staticImageSRC,
     imageSRC,
     fontJSON,
-    Sounds
+    soundSRC,
+    sounds
 }
