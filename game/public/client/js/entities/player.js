@@ -71,18 +71,40 @@ class ClientPlayer {
         this.playerName = 'Player'
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
 
+        // Private vars
+        this.groundFric = 0.75
+        this.gravity = -0.0125
+        this.defaultBounce = 0.05
+        this.bounce = this.defaultBounce
+        this.usedJumps = 0
+        this.playerVelocity = BABYLON.Vector3.Zero()
+        this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
+
+        this.clientGame = clientGame
+        this.meshGen = clientGame.meshGen
+        this.scene = clientGame.scene
+        this.world = clientGame.clientWorld
+        this.chunkSize = this.world.getChunkSize() || 16
+        this.worldSize = this.world.getWorldSize() || 1
+        
+        const worldMax = (this.worldSize * this.chunkSize * tileScale)
+        this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
+
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
         this.avatar = avatar? avatar : new BABYLON.TransformNode("root")
+        this.itemMesh = null
         this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
         this.head = avatar? null : BABYLON.Mesh.MergeMeshes([
+            // Head
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'left', getBlockByName('head').textures.left, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', getBlockByName('head').textures.front, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'right', getBlockByName('head').textures.right, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'back', getBlockByName('head').textures.back, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'top', getBlockByName('head').textures.top, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'bottom', getBlockByName('head').textures.bottom, clientGame.scene),
+            // Arms
             clientGame.meshGen.createQuadWithUVs({x: -0.51, y: -0.745, z: 0.125}, 'left', 244, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.49, y: -0.745, z: 0.125}, 'right', 243, clientGame.scene)
         ], true)
@@ -91,6 +113,10 @@ class ClientPlayer {
             this.body.scaling.x = this.body.scaling.z = 0.5
             this.body.parent = this.avatar //0.125 - 1 //0.625 //0.875
             this.head.parent = this.avatar //-0.375
+        }
+        else {
+            // Camera is present, so create a item mesh in front of it
+            this.createItemMesh(193)
         }
         //this.playerCamera = camera
 
@@ -145,25 +171,6 @@ class ClientPlayer {
         this.isInFluid = false
         this.fluidViscosity = 1
 
-        // Private vars
-        this.groundFric = 0.75
-        this.gravity = -0.0125
-        this.defaultBounce = 0.05
-        this.bounce = this.defaultBounce
-        this.usedJumps = 0
-        this.playerVelocity = BABYLON.Vector3.Zero()
-        this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
-
-        this.clientGame = clientGame
-        this.meshGen = clientGame.meshGen
-        this.scene = clientGame.scene
-        this.world = clientGame.clientWorld
-        this.chunkSize = this.world.getChunkSize() || 16
-        this.worldSize = this.world.getWorldSize() || 1
-        
-        const worldMax = (this.worldSize * this.chunkSize * tileScale)
-        this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
-
         this.registerControls(this.controls)
 
         // Selection vars
@@ -209,7 +216,14 @@ class ClientPlayer {
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
 
-    //ToDo: move this logic to brain
+    createItemMesh(texID) {
+        if (this.itemMesh) this.itemMesh.dispose()
+        this.itemMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0.75, y: -0.9, z: 0.5}, 'left', texID, this.clientGame.scene)
+        this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75
+        this.itemMesh.parent = this.avatar
+    }
+
+    //ToDo: move race logic to brain
     startRace = () => {
         if (!this.isRacing){
             this.isRacing = true
@@ -340,9 +354,11 @@ class ClientPlayer {
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
             }, ()=>{})
             assignFunctionToInput(c.invDown, ()=>{
                 this.inventory.selectNext()
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
                 const thisBlockPos = getArrayPos({x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
@@ -355,7 +371,10 @@ class ClientPlayer {
                         else return false
                     })
                     // Only eye-drop if block is found in inventory
-                    if (matches.length > 0) this.inventory.setSelected(this.inventory.items.indexOf(matches[0]))
+                    if (matches.length > 0) {
+                        this.inventory.setSelected(this.inventory.items.indexOf(matches[0]))
+                        this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                    }
                 }
             }, ()=>{})
         }
