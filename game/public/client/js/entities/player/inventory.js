@@ -129,8 +129,7 @@ export class Inventory { // This specifically is a local player's hud-viewable i
                 case "gun":
                     // Use gun
                     // ToDo: Use gun here
-                    console.log("Shoot")
-                    if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+                    shoot(useItem)
                     break
                 default:
                     // Something?
@@ -181,4 +180,20 @@ export const makeCreativeInventory = (hud = null) => {
     cInv.invSize = cInv.items.length
 
     return cInv
+}
+
+//////////////////////////////////////
+// Item functions
+//////////////////////////////////////
+
+function shoot(item) {
+    // ToDo: Check for ammo item in inventory
+    //...
+    
+    // If allowed, shoot
+    console.log("Shoot")
+    if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+
+    // ToDo: Send brain message
+    //...
 }

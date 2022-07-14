@@ -274,6 +274,7 @@ class ClientPlayer {
         const blockLocation = getGlobalPos(block, cSize)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
+        // ToDo: block interaction should be a client request sent to the brain
         // Call block's interaction function
         if (typeof blockTypes[blockID].interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
     }
