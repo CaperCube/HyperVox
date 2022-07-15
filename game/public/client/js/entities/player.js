@@ -145,6 +145,7 @@ class ClientPlayer {
         // Health vars
         this.health = 100
         this.isInvincible = false
+        this.canHeal = true
         this.invincibleTime = 500 // time in ms
         this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
         this.inventory = makeCreativeInventory(clientGame.hud) //new Inventory()
@@ -293,6 +294,20 @@ class ClientPlayer {
                 this.avatarOffset.y += 0.15
                 setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
             }
+        }
+    }
+
+    heal = ( amount = 1, iTime = 200 ) => {
+        if (this.canHeal && this.health < 100) {
+            // Apply health
+            this.health += amount
+
+            // Don't allow player to heal right away again
+            this.canHeal = false
+            this.healTimer = setTimeout( ()=>{this.canHeal = true}, iTime )
+
+            // Turn on the healing indicator
+            this.clientGame.hud.enableDamageMarker(this.health, true)
         }
     }
 
@@ -521,6 +536,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -563,6 +580,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -605,6 +624,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }

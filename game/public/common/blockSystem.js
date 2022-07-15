@@ -40,6 +40,7 @@ const blockCats = { // ToDo: possibly rename this to "blockTags"
     damaging: 'damaging',
     embed: 'embed',
     fluid: 'fluid',
+    healing: 'healing',
     noncollidable: 'noncollidable',
     unbreakable: 'unbreakable',
     transparent: 'transparent',
@@ -297,9 +298,11 @@ const blockTypes = [
     },
     // 0x0024
     {
-        name: 'dialogue-box',
-        categories: [blockCats.color.grey, blockCats.color.green],
+        name: 'health-box',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.healing],
         textures: { top: 237, bottom: 237, front: 237, back: 237, left: 237, right: 237 },
+        healAmount: 1,
+        healDelay: 200,
     },
     // 0x0025
     {
