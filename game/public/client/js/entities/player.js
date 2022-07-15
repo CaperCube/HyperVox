@@ -255,31 +255,44 @@ class ClientPlayer {
         }
     }
 
-    takeDamage = (damage) => { // This is not networked at the moment
+    takeDamage = (damage, iTime = this.invincibleTime, damageDealer = null) => { // This is not networked at the moment
         if (!this.isInvincible) {
             // Apply damage
             this.health -= damage
 
-            // Turn on the damage indicator
-            this.clientGame.hud.enableDamageMarker(this.health)
+            // Only do this for loocal player
+            if (this.playerID === this.clientGame.localPlayer.playerID) {
 
-            // Make the player invincible for a short interval
-            this.isInvincible = true
-            this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
+                // Update health readout
+                // Turn on the damage indicator
+                this.clientGame.hud.enableDamageMarker(this.health)
 
-            if (this.health > 0) {
-                // Bob player's view
-                // ToDo: make screen red or something
-                this.avatarOffset.y += 0.15
-                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, this.invincibleTime/6 )
+                // Make the player invincible for a short interval
+                this.isInvincible = true
+                this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, iTime )
+
+                if (this.health > 0) {
+                    // Bob player's view
+                    // ToDo: make screen red or something
+                    this.avatarOffset.y += 0.15
+                    setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
+                }
+                else {
+                    // Player is dead, respawn
+                    this.health = 100
+                    this.clientGame.hud.enableDamageMarker(this.health)
+                    this.teleportPlayer(this.respawnPoint)
+
+                    // ToDo: Do this on server
+                    // Send message to tell the server I died
+                    this.clientGame.clientComs.sendObituary(this.playerID, damageDealer)
+                }
             }
             else {
-                // Player is dead, respawn
-                this.health = 100
-                this.clientGame.hud.enableDamageMarker(this.health)
-                this.teleportPlayer(this.respawnPoint)
+                // If other player, just bob
+                this.avatarOffset.y += 0.15
+                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
             }
-            // ToDo: Update health readout
         }
     }
 

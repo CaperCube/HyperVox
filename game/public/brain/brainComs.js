@@ -157,24 +157,51 @@ class BrainComs {
 
                 if (allowShot) {
                     // Tell brain to validate & update this shot
-                    if (this.messageDebug) console.log( '%c Shoot validated (brain)', 'background: #142; color: #ced', data )
+                    // if (this.messageDebug) console.log( '%c Shot validated (brain)', 'background: #142; color: #ced', data )
 
                     // Validate hit
-                    const gunDamage = 10 // ToDo: change this based on "data.item"
+                    const gunDamage = 5 // ToDo: change this based on "data.item"
                     // ToDo: actually use "checkIfShotHitAnyone()"
-                    const hitPlayerID = data.hitPlayerID //this.brainGame.checkIfShotHitAnyone(data, playerID)
+                    const hitPlayerID = parseFloat(data.hitPlayerID) //this.brainGame.checkIfShotHitAnyone(data, playerID)                    
 
                     // Send message of successful shot
                     if (hitPlayerID) {
-                            // data = { hitPlayer: hitPlayerID, damage: gunDamage }
-                        data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
-                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( data ) }
-                        else if (this.isNetworked) {
-                            const recipients = "all"
-                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
+                        // Update player
+                        const hitPlayer = this.brainGame.players.filter(p => parseFloat(p.playerID) === hitPlayerID)[0]
+                        if (hitPlayer) {
+                            // hitPlayer.health -= gunDamage
+                            // if (hitPlayer.health <= 0) {
+                            //     // ToDo: Maybe move this to BrainPlayer class?
+                            //     // Respawn & reset hp
+                            //     // hitPlayer.position = JSON.parse(JSON.stringify(hitPlayer.respawmPoint)) // This clones the coordinates instead of pointing to them
+                            //     hitPlayer.health = 100
+                            // }
+
+                            // Send network message to update player
+                            data = { hitPlayerID: hitPlayerID, damage: gunDamage, attackerPlayerID: myBrainPlayer.playerID }//, newHelth: hitPlayer.health, newPosition: hitPlayer.position }
+                            // data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
+                            if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['updateDamagedPlayer']( data ) }
+                            else if (this.isNetworked) {
+                                const recipients = "all"
+                                this.network.emit( 'genericClientMessage', { type: 'updateDamagedPlayer', recipients: recipients, args: data } )
+                            }
                         }
                     }
                 }
+            },
+
+            // ToDo: this should be removed from here, because this should not be a client-authored event
+            applyObituary: ( data, playerID ) => {
+                //{ deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID }
+                const killerPlayer = this.brainGame.players.filter( p => p.playerID === data.killerPlayerID )[0]
+                const deadPlayer = this.brainGame.players.filter( p => p.playerID === data.deadPlayerID )[0]
+
+                // Send message
+                let serverData
+                    if (killerPlayer) serverData = { message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer.playerName}</b>`, messageName: 'Server', isServer: true }
+                    else serverData = { message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer.playerName}</b> died of natural causes`, messageName: 'Server', isServer: true }
+                if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
+                else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
             }
         }
     }

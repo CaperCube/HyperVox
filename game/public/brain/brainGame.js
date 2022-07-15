@@ -26,6 +26,8 @@ class BrainPlayer {
         this.rotation = { x: 0, y: 0, z: 0 }
         this.health = 100 // not yet implemented
 
+        this.points = 0
+
         // Vars for validation
         // (Not implemented yet. See 'docs/LagCompensation.md')
         this.positionHistory = {
