@@ -109,10 +109,16 @@ class ClientPlayer {
             clientGame.meshGen.createQuadWithUVs({x: -0.49, y: -0.745, z: 0.125}, 'right', 243, clientGame.scene)
         ], true)
         if (!avatar && this.avatar) {
+            // No camera is present
             this.avatar.position = new BABYLON.Vector3(0, -0.5, 0)
             this.body.scaling.x = this.body.scaling.z = 0.5
             this.body.parent = this.avatar //0.125 - 1 //0.625 //0.875
             this.head.parent = this.avatar //-0.375
+
+            // Set mesh names
+            // console.log(this.body)
+            this.body.name = `body_player-${this.playerID}`
+            this.head.name = `head_player-${this.playerID}`
         }
         else {
             // Camera is present, so create a item mesh in front of it
@@ -182,6 +188,7 @@ class ClientPlayer {
         // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
+        this.selectMesh.isPickable = false
 
         this.nameMesh = null
 
@@ -718,7 +725,7 @@ class ClientPlayer {
         // Get cursor location
         const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
         // Use selected item
-        this.inventory.useItem(this.clientGame, cursorLocation, this.inventory.selectedIndex)
+        this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
     }
 
     removeBlock = () => {

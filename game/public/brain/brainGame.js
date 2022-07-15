@@ -75,7 +75,7 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    createNewWorld = (size) => {
+    createNewWorld = ( size ) => {
         // Create new world object
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 
@@ -92,7 +92,7 @@ class BrainGame {
         this.brainComs.sendFullWorld( this.world )
     }
 
-    loadWorld = (jsonWorld) => {
+    loadWorld = ( jsonWorld ) => {
         // Create new world object
         this.world = new World()
 
@@ -147,7 +147,7 @@ class BrainGame {
 
     }
 
-    setAdmin = (playerID, newVal) => {
+    setAdmin = ( playerID, newVal ) => {
         const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
         if (myPlayer) {
             myPlayer.isAdmin = true
@@ -159,6 +159,18 @@ class BrainGame {
             // This player does not exist
             // ToDo: send a chat message saying this player does not exist
         }
+    }
+
+    // ToDo: this should check the player's position using a time stamp
+    checkIfShotHitAnyone = ( data, authorID ) => { 
+        // data = { origin: { location, rotation }, item }
+        // authorID = the ID of the player that shot the gun
+        
+        // Loop though this.players (ignore author)
+        // Check if player intersects with the ray (up to max length)
+            // Return this.players[i].playerID if hit & break loop
+            // Return null if no hit
+        return null
     }
     ///////////////////////////////////////////////////////
     // Loops

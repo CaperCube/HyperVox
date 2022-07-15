@@ -112,7 +112,7 @@ export class Inventory { // This specifically is a local player's hud-viewable i
         this.setSelected(idx)
     }
 
-    useItem(clientGame, cursorLocation, idx) {
+    useItem(clientGame, player, cursorLocation, idx) {
         const useItem = this.items[idx]
         if (useItem) { // Use this item if it exists
             // Do different actions based on type
@@ -129,7 +129,7 @@ export class Inventory { // This specifically is a local player's hud-viewable i
                 case "gun":
                     // Use gun
                     // ToDo: Use gun here
-                    shoot(useItem)
+                    shoot(clientGame, player, useItem)
                     break
                 default:
                     // Something?
@@ -186,14 +186,41 @@ export const makeCreativeInventory = (hud = null) => {
 // Item functions
 //////////////////////////////////////
 
-function shoot(item) {
+function shoot(clientGame, player, item) {
     // ToDo: Check for ammo item in inventory
     //...
     
     // If allowed, shoot
-    console.log("Shoot")
+    // console.log("Shoot")
     if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
 
-    // ToDo: Send brain message
-    //...
+    // Send brain message
+    const origin = {
+        location: { x: player.avatar.position.x, y: player.avatar.position.y, z: player.avatar.position.z},
+        rotation: { x: player.avatar.rotation.x, y: player.avatar.rotation.y, z: player.avatar.rotation.z }
+    }
+
+    // Check if player is hit (ToDo: Move this to server)
+    let hitPlayerID = null
+    const direction = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+    const ray = new BABYLON.Ray(player.avatar.position, direction, 100)
+    // const rayHelper = new BABYLON.RayHelper(ray)
+    // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
+    const pick = clientGame.scene.pickWithRay(ray, (mesh) => {
+        if (mesh.name.startsWith("chunk")) return true
+        for (let i = 0; i < clientGame.networkPlayers.length; i++) {
+            const p = clientGame.networkPlayers[i]
+            if (mesh === p?.head || mesh === p?.body) return true
+        }
+    }, false)
+    if (pick?.hit) {
+        const m = pick.pickedMesh
+        if (m.name.includes("player")) {
+            // Get ID from mesh name
+            const idIndex = m.name.indexOf("-")
+            hitPlayerID = m.name.substring(idIndex+1, m.name.length)
+        }
+    }
+
+    clientGame.clientComs.sendShootRequest(origin, item, hitPlayerID)
 }

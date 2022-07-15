@@ -194,6 +194,19 @@ class ClientComs {
         else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'sendChatMessage', args: data } )
     }
 
+    sendShootRequest(origin, itemUsed, hitPlayerID) {
+        // ToDo: Change this to support time-stamps (later we'll move this so the server checks the player's position at this time-stamp)
+        // Server needs to know: player, origin, itemUsed
+
+        console.log("Shoot com")
+
+        const data = { origin: origin, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['shootGun']( data )
+
+        // Network message
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'shootGun', args: data } )
+    }
+
     // Other stuff that needs to be communcated to the brain / server
     // Like:
     // moveself(newPosition, newSpeed)

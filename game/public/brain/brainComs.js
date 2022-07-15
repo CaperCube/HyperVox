@@ -144,6 +144,37 @@ class BrainComs {
                     const recipients = "all"
                     this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
                 }
+            },
+
+            // A player requested to fire a gun
+            shootGun: ( data, playerID ) => {
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                // Check if player is in deathMatch mode (or if the brainGame is, if offline)
+                let allowShot = false
+                if ((this.isNetworked && myBrainPlayer?.gameMode === gameModes.deathMatch) || (this.brainGame.gameOptions.gameMode === gameModes.deathMatch)) {
+                    allowShot = true
+                }
+
+                if (allowShot) {
+                    // Tell brain to validate & update this shot
+                    if (this.messageDebug) console.log( '%c Shoot validated (brain)', 'background: #142; color: #ced', data )
+
+                    // Validate hit
+                    const gunDamage = 10 // ToDo: change this based on "data.item"
+                    // ToDo: actually use "checkIfShotHitAnyone()"
+                    const hitPlayerID = data.hitPlayerID //this.brainGame.checkIfShotHitAnyone(data, playerID)
+
+                    // Send message of successful shot
+                    if (hitPlayerID) {
+                            // data = { hitPlayer: hitPlayerID, damage: gunDamage }
+                        data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
+                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( data ) }
+                        else if (this.isNetworked) {
+                            const recipients = "all"
+                            this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
+                        }
+                    }
+                }
             }
         }
     }

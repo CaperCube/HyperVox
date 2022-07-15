@@ -142,7 +142,7 @@ const chatCommands = {
         admin: true,
         description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode parkour)`,
         function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (Object.keys(gameModes).includes(args[0])) {
+            if (Object.values(gameModes).includes(args[0])) {
                 // Set game mode
                 brainGame.gameOptions.gameMode = args[0]
                 // Set all player's game modes to server game mode
