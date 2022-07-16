@@ -88,6 +88,22 @@ const chatCommands = {
             sendMessage(mes)
         }
     },
+    myPosition: {
+        commands: ["myposition", "mypos", "mpos"],
+        admin: false,
+        description: `Displays your position in the game's chat.`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Show position
+            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
+            if (player) {
+                let mes = `${player.playerName}: X: ${player.position.x} | Y: ${player.position.y} | Z: ${player.position.z}`
+                sendMessage(mes)
+            }
+            else {
+                sendMessage(`Can't find player.`)
+            }
+        }
+    },
 
     //
     // Server commands
