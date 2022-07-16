@@ -330,7 +330,13 @@ const blockTypes = [
         name: 'teleporter-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.teleporter],
         textures: { top: 234, bottom: 234, front: 234, back: 234, left: 234, right: 234 },
-        bounciness: 0.9
+        bounciness: 0.9,
+    },
+    // 0x0029
+    {
+        name: 'wallpaper',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.color.yellow],
+        textures: { top: 26, bottom: 27, front: 25, back: 25, left: 25, right: 25 },
     },
 ]
 

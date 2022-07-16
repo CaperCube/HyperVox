@@ -198,8 +198,8 @@ class BrainComs {
 
                 // Send message
                 let serverData
-                    if (killerPlayer) serverData = { message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer.playerName}</b>`, messageName: 'Server', isServer: true }
-                    else serverData = { message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer.playerName}</b> died of natural causes`, messageName: 'Server', isServer: true }
+                    if (killerPlayer) serverData = { message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b>`, messageName: 'Server', isServer: true }
+                    else serverData = { message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b> died of natural causes`, messageName: 'Server', isServer: true }
                 if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
                 else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
             }
