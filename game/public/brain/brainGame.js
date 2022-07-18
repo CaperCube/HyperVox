@@ -164,10 +164,17 @@ class BrainGame {
     }
 
     // ToDo: this should check the player's position using a time stamp
+    // Note: This function should only be used for "hitscan" guns, projectiles should move like entities
     checkIfShotHitAnyone = ( data, authorID ) => { 
         // data = { origin: { location, rotation }, item }
         // authorID = the ID of the player that shot the gun
         
+        // Check if player has ammo in inv
+        // Loop though all voxles intersected
+            // Check if this voxel is colidable & if point colides with the block's collider (if non-standard)
+            // Return hit player if hit
+            // Return false if loop ends with no hit
+
         // Loop though this.players (ignore author)
         // Check if player intersects with the ray (up to max length)
             // Return this.players[i].playerID if hit & break loop
