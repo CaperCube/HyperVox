@@ -9,19 +9,26 @@ This is the master list of tasks we've decided on for the project. If this file 
 - [X] version 0.0.1
     - [X] Upload to Github
 - [ ] version 0.0.2 (No game yet, just core features)
-    - [X] [Tier 1](./Tiers/Tier1.md)
-        - [X] Extra features
-            - [X] Basic world gen
-            - [X] Basic Noise Tool
-            - [X] World border
-    - [ ] [Tier 2](./Tiers/Tier2.md)
-        - [ ] Extra features
+    - [X] [Tier 1](./Tiers/Tier1.md) (Core engine work)
+    - [ ] [Tier 2](./Tiers/Tier2.md) (Creative mode with friends)
 - [ ] version 0.1.0 (Public game link when finished)
-    - [ ] Tier 3 (Reasonbly play creative mode with friends)
-        - [ ] Improved collision code (no falling through world if the game lags)
-        - [ ] Only regen chunk portions instead of entire chunk
-    - [ ] Tier 4 (Items & guns, can play pvp with friends)
+    - [ ] [Tier 3](./Tiers/Tier3.md) (More Tools)
+    - [ ] [Tier 4](./Tiers/Tier4.md) (Technical improvements)
     - [ ] Tier 5 (NPCs and zones (no building zones etc.))
+    - [ ] Server set-up
+        - [ ] Potential scaling strategy?
+        - [ ] More server options
+            - [ ] Max players
+            - [ ] AFK time-out
+            - [ ] Blacklist / Whitelist
+        - [ ] Appropriately license this repo
+        - [ ] Rent an actual public & private server for the game
+        - [ ] Setup a home page for the game with relevant links
+            - [ ] Repo
+            - [ ] Game (Newgrounds link)
+            - [ ] How to play
+            - [ ] How to host
+            - [ ] User submissions?
 - [ ] version 0.2.0 (Singleplayer, coop, and progression features)
     - [ ] Tier 6 (Tools to help in making items, structures, npcs?, etc.) (And to encourage modding)
         - [ ] Proceduraly generated game content (items, blocks, textures, npcs) (bonus goal)

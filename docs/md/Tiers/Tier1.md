@@ -35,6 +35,12 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] `New Game`
     - [X] Placeholder `Settings`
     - [X] Simple loading screen (for preloading assets & world gen)
-- [X] Clean & Orginize code
-    - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
-    - [X] Change objects to Class structure
+
+# Clean-up Tasks
+- [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
+- [X] Change objects to Class structure
+
+# Bonus Tasks
+- [X] Basic world gen
+- [X] Basic Noise Tool
+- [X] World border
