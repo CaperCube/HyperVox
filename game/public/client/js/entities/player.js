@@ -71,26 +71,58 @@ class ClientPlayer {
         this.playerName = 'Player'
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
 
+        // Private vars
+        this.groundFric = 0.75
+        this.gravity = -0.0125
+        this.defaultBounce = 0.05
+        this.bounce = this.defaultBounce
+        this.usedJumps = 0
+        this.playerVelocity = BABYLON.Vector3.Zero()
+        this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
+
+        this.clientGame = clientGame
+        this.meshGen = clientGame.meshGen
+        this.scene = clientGame.scene
+        this.world = clientGame.clientWorld
+        this.chunkSize = this.world.getChunkSize() || 16
+        this.worldSize = this.world.getWorldSize() || 1
+        
+        const worldMax = (this.worldSize * this.chunkSize * tileScale)
+        this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
+
         // Player vars
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
         this.avatar = avatar? avatar : new BABYLON.TransformNode("root")
+        this.itemMesh = null
         this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
         this.head = avatar? null : BABYLON.Mesh.MergeMeshes([
+            // Head
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'left', getBlockByName('head').textures.left, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', getBlockByName('head').textures.front, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'right', getBlockByName('head').textures.right, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'back', getBlockByName('head').textures.back, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'top', getBlockByName('head').textures.top, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'bottom', getBlockByName('head').textures.bottom, clientGame.scene),
+            // Arms
             clientGame.meshGen.createQuadWithUVs({x: -0.51, y: -0.745, z: 0.125}, 'left', 244, clientGame.scene),
             clientGame.meshGen.createQuadWithUVs({x: -0.49, y: -0.745, z: 0.125}, 'right', 243, clientGame.scene)
         ], true)
         if (!avatar && this.avatar) {
+            // No camera is present
             this.avatar.position = new BABYLON.Vector3(0, -0.5, 0)
             this.body.scaling.x = this.body.scaling.z = 0.5
             this.body.parent = this.avatar //0.125 - 1 //0.625 //0.875
             this.head.parent = this.avatar //-0.375
+
+            // Set mesh names
+            // console.log(this.body)
+            this.body.name = `body_player-${this.playerID}`
+            this.head.name = `head_player-${this.playerID}`
+        }
+        else {
+            // Camera is present, so create a item mesh in front of it
+            this.createItemMesh(193)
         }
         //this.playerCamera = camera
 
@@ -113,6 +145,7 @@ class ClientPlayer {
         // Health vars
         this.health = 100
         this.isInvincible = false
+        this.canHeal = true
         this.invincibleTime = 500 // time in ms
         this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
         this.inventory = makeCreativeInventory(clientGame.hud) //new Inventory()
@@ -145,25 +178,6 @@ class ClientPlayer {
         this.isInFluid = false
         this.fluidViscosity = 1
 
-        // Private vars
-        this.groundFric = 0.75
-        this.gravity = -0.0125
-        this.defaultBounce = 0.05
-        this.bounce = this.defaultBounce
-        this.usedJumps = 0
-        this.playerVelocity = BABYLON.Vector3.Zero()
-        this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
-
-        this.clientGame = clientGame
-        this.meshGen = clientGame.meshGen
-        this.scene = clientGame.scene
-        this.world = clientGame.clientWorld
-        this.chunkSize = this.world.getChunkSize() || 16
-        this.worldSize = this.world.getWorldSize() || 1
-        
-        const worldMax = (this.worldSize * this.chunkSize * tileScale)
-        this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
-
         this.registerControls(this.controls)
 
         // Selection vars
@@ -175,6 +189,7 @@ class ClientPlayer {
         // Name tag mesh
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
+        this.selectMesh.isPickable = false
 
         this.nameMesh = null
 
@@ -209,7 +224,14 @@ class ClientPlayer {
         this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
 
-    //ToDo: move this logic to brain
+    createItemMesh(texID) {
+        if (this.itemMesh) this.itemMesh.dispose()
+        this.itemMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0.75, y: -0.9, z: 0.5}, 'left', texID, this.clientGame.scene)
+        this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75
+        this.itemMesh.parent = this.avatar
+    }
+
+    //ToDo: move race logic to brain
     startRace = () => {
         if (!this.isRacing){
             this.isRacing = true
@@ -234,31 +256,58 @@ class ClientPlayer {
         }
     }
 
-    takeDamage = (damage) => { // This is not networked at the moment
+    takeDamage = (damage, iTime = this.invincibleTime, damageDealer = null) => { // This is not networked at the moment
         if (!this.isInvincible) {
             // Apply damage
             this.health -= damage
 
-            // Turn on the damage indicator
-            this.clientGame.hud.enableDamageMarker(this.health)
+            // Only do this for loocal player
+            if (this.playerID === this.clientGame.localPlayer.playerID) {
 
-            // Make the player invincible for a short interval
-            this.isInvincible = true
-            this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, this.invincibleTime )
+                // Update health readout
+                // Turn on the damage indicator
+                this.clientGame.hud.enableDamageMarker(this.health)
 
-            if (this.health > 0) {
-                // Bob player's view
-                // ToDo: make screen red or something
-                this.avatarOffset.y += 0.15
-                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, this.invincibleTime/6 )
+                // Make the player invincible for a short interval
+                this.isInvincible = true
+                this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, iTime )
+
+                if (this.health > 0) {
+                    // Bob player's view
+                    // ToDo: make screen red or something
+                    this.avatarOffset.y += 0.15
+                    setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
+                }
+                else {
+                    // Player is dead, respawn
+                    this.health = 100
+                    this.clientGame.hud.enableDamageMarker(this.health)
+                    this.teleportPlayer(this.respawnPoint)
+
+                    // ToDo: Do this on server
+                    // Send message to tell the server I died
+                    this.clientGame.clientComs.sendObituary(this.playerID, damageDealer)
+                }
             }
             else {
-                // Player is dead, respawn
-                this.health = 100
-                this.clientGame.hud.enableDamageMarker(this.health)
-                this.teleportPlayer(this.respawnPoint)
+                // If other player, just bob
+                this.avatarOffset.y += 0.15
+                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
             }
-            // ToDo: Update health readout
+        }
+    }
+
+    heal = ( amount = 1, iTime = 200 ) => {
+        if (this.canHeal && this.health < 100) {
+            // Apply health
+            this.health += amount
+
+            // Don't allow player to heal right away again
+            this.canHeal = false
+            this.healTimer = setTimeout( ()=>{this.canHeal = true}, iTime )
+
+            // Turn on the healing indicator
+            this.clientGame.hud.enableDamageMarker(this.health, true)
         }
     }
 
@@ -274,6 +323,7 @@ class ClientPlayer {
         const blockLocation = getGlobalPos(block, cSize)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
+        // ToDo: block interaction should be a client request sent to the brain
         // Call block's interaction function
         if (typeof blockTypes[blockID].interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
     }
@@ -334,14 +384,16 @@ class ClientPlayer {
             // Build, Use, Shoot
             // ToDo: change fire1 and fire2 to perform the action dictated by this.inventory.selectedItem.useItem(this, 1)
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
-            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.placeBlock()},150); this.placeBlock() }, ()=>{ clearInterval(this.placeInterval) })
+            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.useInvItem()},150); this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
             }, ()=>{})
             assignFunctionToInput(c.invDown, ()=>{
                 this.inventory.selectNext()
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
                 const thisBlockPos = getArrayPos({x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
@@ -354,7 +406,10 @@ class ClientPlayer {
                         else return false
                     })
                     // Only eye-drop if block is found in inventory
-                    if (matches.length > 0) this.inventory.setSelected(this.inventory.items.indexOf(matches[0]))
+                    if (matches.length > 0) {
+                        this.inventory.setSelected(this.inventory.items.indexOf(matches[0]))
+                        this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                    }
                 }
             }, ()=>{})
         }
@@ -481,6 +536,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -523,6 +580,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -565,6 +624,8 @@ class ClientPlayer {
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
                 // Start race if starting line block
                 if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
+                // Heal player
+                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
                 // Fluid
                 if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
             }
@@ -694,14 +755,17 @@ class ClientPlayer {
         if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
-    placeBlock = () => {
-        const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
-        const selectedItem = this.inventory.items[this.inventory.selectedIndex]
-        this.clientGame.updateSingleBlock(changeLocation, selectedItem.itemID)
+    useInvItem = () => {
+        // Get cursor location
+        const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        // Use selected item
+        this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
     }
 
     removeBlock = () => {
+        // Get cursor location
         const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        // Remove block
         this.clientGame.updateSingleBlock(changeLocation, 0)
     }
 

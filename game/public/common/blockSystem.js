@@ -40,6 +40,7 @@ const blockCats = { // ToDo: possibly rename this to "blockTags"
     damaging: 'damaging',
     embed: 'embed',
     fluid: 'fluid',
+    healing: 'healing',
     noncollidable: 'noncollidable',
     unbreakable: 'unbreakable',
     transparent: 'transparent',
@@ -272,9 +273,9 @@ const blockTypes = [
     {
         name: 'death',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
-        // textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
+        textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         // textures: { top: 252, bottom: 252, front: 252, back: 252, left: 252, right: 252 },
-        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         damage: 1000
     },
     // 0x0021
@@ -297,15 +298,18 @@ const blockTypes = [
     },
     // 0x0024
     {
-        name: 'dialogue-box',
-        categories: [blockCats.color.grey, blockCats.color.green],
+        name: 'health-box',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.healing],
         textures: { top: 237, bottom: 237, front: 237, back: 237, left: 237, right: 237 },
+        healAmount: 1,
+        healDelay: 200,
     },
     // 0x0025
     {
         name: 'info-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.embed],
         textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
+        // ToDo: BlockTypes should be expressable as json, change "interact" to a string (the string can then reference a function else-where)
         interact: (clientGame, blockLocation, blockID) => { clientGame.loadEmbed(blockLocation, blockID) }
     },
     // 0x0026
@@ -326,7 +330,13 @@ const blockTypes = [
         name: 'teleporter-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.teleporter],
         textures: { top: 234, bottom: 234, front: 234, back: 234, left: 234, right: 234 },
-        bounciness: 0.9
+        bounciness: 0.9,
+    },
+    // 0x0029
+    {
+        name: 'wallpaper',
+        categories: [blockCats.color.grey, blockCats.color.green, blockCats.color.yellow],
+        textures: { top: 26, bottom: 27, front: 25, back: 25, left: 25, right: 25 },
     },
 ]
 

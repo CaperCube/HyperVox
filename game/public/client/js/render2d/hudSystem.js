@@ -29,6 +29,7 @@ class HUDSystem extends TileRenderer {
         }
         
         this.showDamageMarker = false
+        this.showHealingMarker = false
         this.hpReadout = 100
 
         this.invSlotIndexes = [1, 0, 0]
@@ -65,14 +66,16 @@ class HUDSystem extends TileRenderer {
         this.render()
     }
 
-    enableDamageMarker(newValue = 100) {
+    enableDamageMarker(newValue = 100, heal = false) {
         this.hpReadout = newValue
-        this.showDamageMarker = true
+        if (heal) this.showHealingMarker = true
+        else this.showDamageMarker = true
         this.render()
 
         // Set a delay to turn off the marker
         setTimeout(()=>{
             this.showDamageMarker = false
+            this.showHealingMarker = false
             this.render()
         }, 150)
     }
@@ -160,6 +163,26 @@ class HUDSystem extends TileRenderer {
         this.drawTile(6, { x: this.screenBox.right - (HUDConsts.tileSize*3), y: statY }, HUDConsts.tileSize)
         this.drawTile(11, { x: this.screenBox.right - (HUDConsts.tileSize*2), y: statY }, HUDConsts.tileSize)
         this.drawText(`--`, {x: this.screenBox.right - (HUDConsts.tileSize*3)-1, y: statY + 24})
+        /////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////
+        // Heal Marker (ToDo: Make this graphic blue)
+        if (this.showHealingMarker) {
+            // Top
+            for (let x = 32; x < (this.screenBox.right - 32); x+=32) this.drawTile(90, { x: x, y: 0 }, HUDConsts.tileSize, this.ctx)
+            // Bottom
+            for (let x = 32; x < (this.screenBox.right - 32); x+=32) this.drawTile(95, { x: x, y: this.screenBox.bottom - HUDConsts.tileSize }, HUDConsts.tileSize, this.ctx)
+            // Left
+            for (let y = 32; y < (this.screenBox.bottom - 32); y+=32) this.drawTile(92, { x: 0, y: y }, HUDConsts.tileSize, this.ctx)
+            // Right
+            for (let y = 32; y < (this.screenBox.bottom - 32); y+=32) this.drawTile(93, { x: this.screenBox.right - HUDConsts.tileSize, y: y }, HUDConsts.tileSize, this.ctx)
+
+            // Damage Marker Corners
+            this.drawTile(89, { x: 0, y: 0 }, HUDConsts.tileSize)
+            this.drawTile(91, { x: this.screenBox.right - HUDConsts.tileSize, y: 0 }, HUDConsts.tileSize)
+            this.drawTile(94, { x: 0, y: this.screenBox.bottom - HUDConsts.tileSize }, HUDConsts.tileSize)
+            this.drawTile(96, { x: this.screenBox.right - HUDConsts.tileSize, y: this.screenBox.bottom - HUDConsts.tileSize }, HUDConsts.tileSize)
+        }
         /////////////////////////////////////////////////////////////////
 
         /////////////////////////////////////////////////////////////////

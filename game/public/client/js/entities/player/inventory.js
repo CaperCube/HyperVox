@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////
 
 import { blockTypes } from "../../../../common/blockSystem.js";
+import { sounds } from "../../resources.js"
 
 export class ItemPickup {
     constructor(model = null, item = new Item()) {
@@ -32,30 +33,34 @@ export class Item {
         this.requireItem = null // For ammo and similar
     }
 
-    useItem(player, amount) {
-        switch (this.itemType) {
-            case 'block':
-                // Place [amount] blocks
-                // this.stackSize -= amount
-                // if (this.stackSize <= 0) this.delete
-                break;
-            case 'item':
-        }
-    }
+    // useItem(player, amount) {
+    //     switch (this.itemType) {
+    //         case 'block':
+    //             // Place [amount] blocks
+    //             // this.stackSize -= amount
+    //             // if (this.stackSize <= 0) this.delete
+    //             break;
+    //         case 'item':
+    //     }
+    // }
 
-    drawItemImage() {
-        // ToDo: Make this use HUD drawing functions
+    getItemImage() {
         // This is placeholder atm
         switch (this.itemType) {
             case 'block':
                 return { 
                     material: null,
-                    index: blockTypes[this.itemID].textures.front
+                    index: blockTypes[this.itemID]?.textures['front']
                 }
             case 'item':
                 return { 
                     material: null,
-                    index: blockTypes[this.itemID].textures.front
+                    index: this.itemID // ToDo: Reference a different texture atlas
+                }
+            default:
+                return { 
+                    material: null,
+                    index: this.itemID // ToDo: Reference a different texture atlas
                 }
         }
     }
@@ -87,9 +92,9 @@ export class Inventory { // This specifically is a local player's hud-viewable i
             const lower = ((this.selectedIndex-1) > -1)? (this.selectedIndex-1) : this.items.length-1
             const higher = ((this.selectedIndex+1) % (this.items.length))
             this.hud.invSlotIndexes = [
-                blockTypes[this.items[lower].itemID]?.textures['front'],
-                blockTypes[this.items[this.selectedIndex].itemID]?.textures['front'],
-                blockTypes[this.items[higher].itemID]?.textures['front']
+                this.items[lower].getItemImage().index,
+                this.items[this.selectedIndex].getItemImage().index,
+                this.items[higher].getItemImage().index
             ]
             this.hud.render()
         }
@@ -106,18 +111,53 @@ export class Inventory { // This specifically is a local player's hud-viewable i
         if (idx < 0) idx = this.items.length-1
         this.setSelected(idx)
     }
+
+    useItem(clientGame, player, cursorLocation, idx) {
+        const useItem = this.items[idx]
+        if (useItem) { // Use this item if it exists
+            // Do different actions based on type
+            switch (useItem.itemType) {
+                case "block":
+                    // Place block
+                    clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
+                    break
+                case "item":
+                    // Use item
+                    // ToDo: Do some action here
+                    console.log("Use item")
+                    break
+                case "gun":
+                    // Use gun
+                    // ToDo: Use gun here
+                    shoot(clientGame, player, useItem)
+                    break
+                default:
+                    // Something?
+                    console.log(`${useItem.itemName || "unknown item"} cannot be used`)
+                    break
+            }
+        }
+    }
 }
 
-// const gun = new Item({
-//     itemID: 0,
-//     itemType: 'item',
-//     stackSize: 1,
-//     maxStackSize: 1,
-
-// })
+//////////////////////////////////////
+// Create inventory
+//////////////////////////////////////
 
 export const makeCreativeInventory = (hud = null) => {
     const cInv = new Inventory(hud)
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Temp gun item    
+    const gun = new Item({
+        itemName: "gun",
+        itemID: 193, // maybe 191 or 193
+        itemType: 'gun',
+        stackSize: 1,
+        maxStackSize: 0,
+    })
+    cInv.items.push(gun)
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Fill inv
     for (let i = 1; i < blockTypes.length; i++) {
@@ -140,4 +180,47 @@ export const makeCreativeInventory = (hud = null) => {
     cInv.invSize = cInv.items.length
 
     return cInv
+}
+
+//////////////////////////////////////
+// Item functions
+//////////////////////////////////////
+
+function shoot(clientGame, player, item) {
+    // ToDo: Check for ammo item in inventory
+    //...
+    
+    // If allowed, shoot
+    // console.log("Shoot")
+    if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+
+    // Send brain message
+    const origin = {
+        location: { x: player.avatar.position.x, y: player.avatar.position.y, z: player.avatar.position.z},
+        rotation: { x: player.avatar.rotation.x, y: player.avatar.rotation.y, z: player.avatar.rotation.z }
+    }
+
+    // Check if player is hit (ToDo: Move this to server)
+    let hitPlayerID = null
+    const direction = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+    const ray = new BABYLON.Ray(player.avatar.position, direction, 100)
+    // const rayHelper = new BABYLON.RayHelper(ray)
+    // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
+    const pick = clientGame.scene.pickWithRay(ray, (mesh) => {
+        if (mesh.name.startsWith("chunk")) return true
+        for (let i = 0; i < clientGame.networkPlayers.length; i++) {
+            const p = clientGame.networkPlayers[i]
+            if (mesh === p?.head || mesh === p?.body) return true
+        }
+    }, false)
+    if (pick?.hit) {
+        const m = pick.pickedMesh
+        if (m.name.includes("player")) {
+            // Get ID from mesh name
+            const idIndex = m.name.indexOf("-")
+            hitPlayerID = m.name.substring(idIndex+1, m.name.length)
+        }
+    }
+
+    clientGame.clientComs.sendShootRequest(origin, item, hitPlayerID)
 }

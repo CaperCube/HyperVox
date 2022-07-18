@@ -112,6 +112,22 @@ class ClientComs {
                 if (this.messageDebug) console.log( '%c Receive chat message from brain (client)', 'background: #142; color: #ced' )
                 this.clientGame.displayChatMessage(data.message, data.messageName, data.nameColor, data.isServer)
             },
+
+            updateDamagedPlayer: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Update damaged player from brain (client)', 'background: #142; color: #ced' )
+                // { hitPlayerID, damage, newHelth, newPosition }
+
+                // Get player by ID
+                let updatedPlayer = (data.hitPlayerID === this.clientGame.localPlayer?.playerID) ?
+                    this.clientGame.localPlayer :
+                    this.clientGame.networkPlayers.filter(player => player.playerID === data.hitPlayerID)[0]
+
+                // Do update
+                if (updatedPlayer) {
+                    // ToDo: This needs to be a server-side action, not client-side
+                    updatedPlayer.takeDamage(data.damage, 100, data.attackerPlayerID)
+                }
+            }
         }
     }
 
@@ -192,6 +208,24 @@ class ClientComs {
 
         // Network message
         else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'sendChatMessage', args: data } )
+    }
+
+    sendShootRequest(origin, itemUsed, hitPlayerID) {
+        // ToDo: Change this to support time-stamps (later we'll move this so the server checks the player's position at this time-stamp)
+        // Server needs to know: player, origin, itemUsed
+
+        const data = { origin: origin, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['shootGun']( data )
+
+        // Network message
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'shootGun', args: data } )
+    }
+
+    // ToDo: This should be removed because this is a server task
+    sendObituary(deadPlayerID, killerPlayerID) {
+        const data = { deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID, deadPlayerColor: '#ff0000', killerPlayerColor: '#00ff00'}
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['applyObituary']( data )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'applyObituary', args: data } )
     }
 
     // Other stuff that needs to be communcated to the brain / server

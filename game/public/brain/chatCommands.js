@@ -88,6 +88,22 @@ const chatCommands = {
             sendMessage(mes)
         }
     },
+    myPosition: {
+        commands: ["myposition", "mypos", "mpos"],
+        admin: false,
+        description: `Displays your position in the game's chat.`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Show position
+            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
+            if (player) {
+                let mes = `${player.playerName}: X: ${player.position.x} | Y: ${player.position.y} | Z: ${player.position.z}`
+                sendMessage(mes)
+            }
+            else {
+                sendMessage(`Can't find player.`)
+            }
+        }
+    },
 
     //
     // Server commands
@@ -142,7 +158,7 @@ const chatCommands = {
         admin: true,
         description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode parkour)`,
         function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (Object.keys(gameModes).includes(args[0])) {
+            if (Object.values(gameModes).includes(args[0])) {
                 // Set game mode
                 brainGame.gameOptions.gameMode = args[0]
                 // Set all player's game modes to server game mode

@@ -26,6 +26,8 @@ class BrainPlayer {
         this.rotation = { x: 0, y: 0, z: 0 }
         this.health = 100 // not yet implemented
 
+        this.points = 0
+
         // Vars for validation
         // (Not implemented yet. See 'docs/LagCompensation.md')
         this.positionHistory = {
@@ -75,7 +77,7 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    createNewWorld = (size) => {
+    createNewWorld = ( size ) => {
         // Create new world object
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 
@@ -92,7 +94,7 @@ class BrainGame {
         this.brainComs.sendFullWorld( this.world )
     }
 
-    loadWorld = (jsonWorld) => {
+    loadWorld = ( jsonWorld ) => {
         // Create new world object
         this.world = new World()
 
@@ -147,7 +149,7 @@ class BrainGame {
 
     }
 
-    setAdmin = (playerID, newVal) => {
+    setAdmin = ( playerID, newVal ) => {
         const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
         if (myPlayer) {
             myPlayer.isAdmin = true
@@ -159,6 +161,25 @@ class BrainGame {
             // This player does not exist
             // ToDo: send a chat message saying this player does not exist
         }
+    }
+
+    // ToDo: this should check the player's position using a time stamp
+    // Note: This function should only be used for "hitscan" guns, projectiles should move like entities
+    checkIfShotHitAnyone = ( data, authorID ) => { 
+        // data = { origin: { location, rotation }, item }
+        // authorID = the ID of the player that shot the gun
+        
+        // Check if player has ammo in inv
+        // Loop though all voxles intersected
+            // Check if this voxel is colidable & if point colides with the block's collider (if non-standard)
+            // Return hit player if hit
+            // Return false if loop ends with no hit
+
+        // Loop though this.players (ignore author)
+        // Check if player intersects with the ray (up to max length)
+            // Return this.players[i].playerID if hit & break loop
+            // Return null if no hit
+        return null
     }
     ///////////////////////////////////////////////////////
     // Loops
