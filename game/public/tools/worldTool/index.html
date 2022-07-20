@@ -7,9 +7,9 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Noise Tool</title>
+    <title>World Tool</title>
     <meta name="author" content="CaperCube">
-    <link rel='icon' type='image/png' href='../../client/src/textures/box.png'>
+    <link rel='icon' type='image/png' href='./src/worldtool_logo.png'>
     <link rel="stylesheet" href="./main.css">
     <!--
     ////////////////////////////////////////////////////////
@@ -41,12 +41,13 @@
     </div><br>
     <!--
     ////////////////////////////////////////////////////////
-    ////                     Tools                      ////
+    ////                   Tool Bar                     ////
     ////////////////////////////////////////////////////////
     -->
     <div class="toolbar right">
+        <!-- World Settings -->
         <span class="section">
-            <h2 onclick="toggleFold(this)">World</h2>
+            <h2 onclick="toggleFold(this)">World Settings</h2>
             <span class="foldable">
                 <button id="DOM_loadWorld" title="Load a world from a file">Load</button><br>
                 <button id="DOM_saveWorld" title="Save the current world to a file">Save</button><br>
@@ -66,6 +67,16 @@
                 <!-- Use tolerance? <input id="DOM_useTolerance" type="checkbox" checked="true" onchange="updateTolerance(this)"> -->
             </span>
         </span>
+        <!-- World Data -->
+        <span class="section" style="display: none;">
+            <h2 onclick="toggleFold(this)">World Data</h2>
+            <span class="foldable folded">
+                Game Mode:<br>
+                World Spawn:<br>
+                Embeds:<br>
+            </span>
+        </span>
+        <!-- Tools -->
         <span class="section">
             <h2 onclick="toggleFold(this)">Tools</h2>
             <span class="foldable">
@@ -83,6 +94,16 @@
                 <input id="DOM_drawdepthslider" type="range" min="1" max="32" step="1" value="1" oninput="document.getElementById('DOM_drawdepthvalue').innerHTML = this.value;">
             </span>
         </span>
+        <!-- Custom Pattern -->
+        <span class="section" style="display: none;">
+            <h2 onclick="toggleFold(this)">Custom Pattern</h2>
+            <span class="foldable folded">
+                Script:<br>
+                <input id="DOM_custompattern" type="text" value="let blockID = 0; if (y===0) blockID = blockTypes.indexOf(getBlockByName('steel-riveted')); return blockID"><br>
+                <button id="DOM_generateCustomBttn" title="Generate a new world using the custom pattern (deletes current world)" onclick="DOMNoiseFnc()">New Custom World</button>
+            </span>
+        </span>
+        <!-- Help -->
         <span class="section">
             <h2 onclick="toggleFold(this)">Help</h2>
             <span class="foldable folded">
@@ -100,6 +121,7 @@
             </span>
         </span>
     </div>
+    <!-- View -->
     <div class="toolbar">
         <span class="section">
             <h2 onclick="toggleFold(this)">View</h2>
