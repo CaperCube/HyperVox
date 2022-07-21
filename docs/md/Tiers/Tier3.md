@@ -4,6 +4,13 @@
 This tier should fix some useability issues and bugs, but more importantly it should add and enhance features that enable easier and more fun content creation.
 
 # Tasks
+- [ ] Spectator game mode
+    - [ ] Turns off HUD
+    - [ ] tunrs off block cursor visibility
+    - [ ] Cannot edit blocks
+    - [ ] flying only
+- [ ] Screenshot mode
+    - [ ] Easily take screenshots of worlds
 - [ ] World improvements
     - [ ] Show title (& link if present) when cursor hovering over interactable blocks
     - [ ] Change file extention to ".ccw" (Caper Core World)
