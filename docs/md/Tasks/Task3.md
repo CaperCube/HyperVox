@@ -1,9 +1,9 @@
-# Tier 3
+# Task 3
 
 ## Win conditions
-This tier should fix some useability issues and bugs, but more importantly it should add and enhance features that enable easier and more fun content creation.
+This task should fix some useability issues and bugs, but more importantly it should add and enhance features that enable easier and more fun content creation.
 
-# Tasks
+# Sub-Tasks
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility
@@ -47,8 +47,8 @@ This tier should fix some useability issues and bugs, but more importantly it sh
     - [ ] Lag compensation (There may be a better system than this, this just seemed simple)
         [Lag Comp. Doc](../LagCompensation.md)
 
-# Clean-up Tasks
+# Clean-up Sub-Tasks
 - [ ] Try moving Babylon.js to only being a module import instead of an html script tag (getting ready for Babylon.js 5.0 in November and its [WebGPU support](https://doc.babylonjs.com/advanced_topics/webGPU))
 
-# Bonus Tasks
+# Bonus Sub-Tasks
 - [ ] ...

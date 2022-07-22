@@ -1,9 +1,9 @@
-# Tier 1
+# Task 1
 
 ## Win conditions
-For this tier to be considered complete, it must demonstrate baisc rendering and creative capabilities.
+For this task to be considered complete, it must demonstrate baisc rendering and creative capabilities.
 
-# Tasks
+# Sub-Tasks
 - [X] Basic rendering
     - [X] render some cubes and lighting
     - [X] Switch to Babylon.js (they have colission detection)
@@ -36,11 +36,11 @@ For this tier to be considered complete, it must demonstrate baisc rendering and
     - [X] Placeholder `Settings`
     - [X] Simple loading screen (for preloading assets & world gen)
 
-# Clean-up Tasks
+# Clean-up Sub-Tasks
 - [X] Use `<script type="module">` and `import Thing from './location/thing.js'`, This will avoid script tag bloat in the html
 - [X] Change objects to Class structure
 
-# Bonus Tasks
+# Bonus Sub-Tasks
 - [X] Basic world gen
 - [X] Basic Noise Tool
 - [X] World border

@@ -351,6 +351,9 @@ class MenuSystem extends TileRenderer {
         for (let i = 0; i < this.selectedScene?.selectableElements?.length; i++) {
             this.draw(this.selectedScene.selectableElements[i])
         }
+
+        // draw version number
+        if (versionNumber && this.fonts?.[0]?.isLoaded) this.drawText(`ver. ${versionNumber}`, { x: 10, y: (Math.floor(this.cHeight) - 10)}, this.fonts[0], this.ctx)
     }
 }
 

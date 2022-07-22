@@ -1,9 +1,9 @@
-# Tier 2
+# Task 2
 
 ## Win conditions
 Reasonbly play creative mode with friends.
 
-# Tasks
+# Sub-Tasks
 - [ ] Better world gen (start putting this in './brain')
     - [X] Live load chunk meshes
     - [X] Save / Load worlds (probably as a .json)
@@ -36,7 +36,7 @@ Reasonbly play creative mode with friends.
     - [X] Networking for sending / receiving messages
     - [X] Work on generic messages for extendability
 
-# Clean-up Tasks
+# Clean-up Sub-Tasks
 - [ ] Replace var & function comments with code-hint comments
     - look at `positionUtils.js` for examples
 - [ ] Start writing some more solid documentation
@@ -47,7 +47,7 @@ Reasonbly play creative mode with friends.
             - How to host
             - how to use editors
 
-# Bonus Tasks
+# Bonus Sub-Tasks
 - [X] Block objects (referenced by blockID)
 - [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
     - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)

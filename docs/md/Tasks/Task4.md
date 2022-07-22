@@ -1,8 +1,8 @@
-# Tier 4
+# Task 4
 
 ## Win conditions
-Tier shaping needed...
-The below tasks may need to be spread across future tiers to prevent a progress hault:
+Task shaping needed...
+The below tasks may need to be spread across future task to prevent a progress hault:
 
 - Better movement (real direction-based movement, with b-hopping and stuff)
 - Improved collision code (no falling through world if the game lags)
@@ -11,7 +11,7 @@ The below tasks may need to be spread across future tiers to prevent a progress 
 - More efficient rendering / loading
     - Remove double-sided faces and generate meshes as real quads with UV coordinates
 
-# Tasks
+# Sub-Tasks
 - [ ] Better input system
     - [ ] All inupt devices should be configured to the `Controls` array
     - [X] Keyboard input
@@ -36,8 +36,8 @@ The below tasks may need to be spread across future tiers to prevent a progress 
         - [ ] Custom color
         - [ ] Outline + color option
 
-# Clean-up Tasks
+# Clean-up Sub-Tasks
 - [ ] ...
 
-# Bonus Tasks
+# Bonus Sub-Tasks
 - [ ] ...

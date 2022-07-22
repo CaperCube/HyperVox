@@ -18,13 +18,15 @@
     ////////////////////////////////////////////////////////
     // Use `<script type="module">` and `import / export` to cut down on script tags
     -->
-    <script defer src="./client/js/commonUtils.js"></script>
+    <!-- //////////////// Version Number /////////////////// -->
+    <script>const versionNumber = `0.02.20`;</script>
     <!-- /////////////////// Libraries ///////////////////// -->
-    <script type="module" defer src="./client/js/dist/babylon.js"></script>
-    <script type="module" defer src="./client/js/dist/babylon.glTF2Serializer.js"></script>
+    <script defer src="./client/js/commonUtils.js"></script>
+    <script defer type="module" src="./client/js/dist/babylon.js"></script>
+    <script defer type="module" src="./client/js/dist/babylon.glTF2Serializer.js"></script>
     <!-- ///////////////////// Game //////////////////////// -->
     <script defer src="./client/js/input/inputManager.js"></script>
-    <script type="module" defer src="./client/js/offlineGame.js"></script>
+    <script defer type="module" src="./client/js/offlineGame.js"></script>
 </head>
 <body>
     <!--
