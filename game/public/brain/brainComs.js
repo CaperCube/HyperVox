@@ -61,6 +61,8 @@ class BrainComs {
                 if (this.messageDebug) console.log( '%c Load world (brain)', 'background: #142; color: #ced' )
                 
                 // ToDo: check if the player is an admin, then load
+                // (non-admins ahould either leave the game if they try, or prevented from loading new worlds until they leave)
+                //
                 // const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 // if (myBrainPlayer?.isAdmin) this.brainGame.loadWorld(data.world)
                 this.brainGame.loadWorld(data.world)
@@ -111,19 +113,15 @@ class BrainComs {
                     data.rotation = myBrainPlayer.rotation
                 }
 
+                // Network the data
                 if (this.isNetworked) {
-                    const recipients = "all"
-                    this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: recipients, args: data } )
+                    this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: "all", args: data } )
                 }
             },
 
             askWhosConnected: ( data, playerID ) => {
                 if (this.messageDebug) console.log( `%c Ask who's connected ${playerID} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
-            },
-
-            clientChangeName: ( data, playerID ) => {
-                // ToDo: fill this in with the brainGame command to do this
             },
 
             sendChatMessage: ( data, playerID ) => {
@@ -148,10 +146,10 @@ class BrainComs {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
                     // Check message for commands
-                    checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage) => {
+                    checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage, isPrivate) => {
                         // Send message
                         const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
-                        this.genericToClient('receiveChatMessage', serverData)
+                        this.genericToClient('receiveChatMessage', serverData, isPrivate? [playerID] : 'all')
                         commandFound = true
                     })
                 }
@@ -231,8 +229,7 @@ class BrainComs {
     ////////////////////////////////////////////////////
 
     // Use this to send messages to clients, be it a online or offline game
-    // ToDo: Replace all message implementation with this
-    genericToClient( comType, data, recipients = "all" ) {
+    genericToClient( comType, data, recipients = 'all' ) {
         if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages[comType]( data ) }
         else if (this.isNetworked) {
             this.network.emit( 'genericClientMessage', { type: comType, recipients: recipients, args: data } )
@@ -245,11 +242,7 @@ class BrainComs {
         const data = { world: world }
 
         // Network message
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['loadSentWorld']( data )
-        else if (this.network) {
-            const recipients = [] // ToDo: only send this to newly connected players
-            this.network.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: recipients, args: data } )
-        }
+        this.genericToClient('loadSentWorld', data, 'all') // ToDo: only send this to newly connected players
     }
 
     // Tell connected players to update the chunk containing the updated block
@@ -258,11 +251,7 @@ class BrainComs {
         const data = { location: location, id: id }
 
         // Network message
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['updateSingleBlock']( data )
-        else if (this.network) {
-            const recipients = 'all'
-            this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', recipients: recipients, args: data } )
-        }
+        this.genericToClient('updateSingleBlock', data)
     }
 
     updateMultipleBlocks(locations = [], ids = []) {
@@ -274,11 +263,7 @@ class BrainComs {
         const data = { players: this.brainGame.players }
 
         // Network message
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['initOtherPlayers']( data )
-        else if (this.network) {
-            const recipients = 'all'
-            this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
-        }
+        this.genericToClient('initOtherPlayers', data)
     }
 
     changePlayerName( data ) {

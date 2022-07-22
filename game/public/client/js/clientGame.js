@@ -437,8 +437,11 @@ class ClientGame {
             })
 
             socket.on( 'genericClientMessage', ( data ) => {
-                const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
-                this.clientComs.brainMessages[data.type]( data.args, playerId )
+                // Only listen for messages if they're for me
+                if (!data.recipients || data.recipients === 'all' || data.recipients.includes(this.localPlayer?.playerID)) {
+                    const playerId = 0 //socket.connectionID // This does not support multiple players per client in networked games
+                    this.clientComs.brainMessages[data.type]( data.args, playerId )
+                }
             })
 
             // Reset client coms with networked settings

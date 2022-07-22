@@ -74,7 +74,7 @@ const chatCommands = {
             }
             // Send the message in parts
             for (var i = 0; i < mes.length; i++) {
-                sendMessage(mes[i])
+                sendMessage(mes[i], true)
             }
         }
     },
@@ -85,7 +85,7 @@ const chatCommands = {
         function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Show info about world
             let mes = `This command should probably display information stored in the world file, but I haven't done that yet. oops! '\\_("/)_/${'`'}<br>Type "${commandOptions.delimiter}help" to see the list of commands.`
-            sendMessage(mes)
+            sendMessage(mes, true)
         }
     },
 

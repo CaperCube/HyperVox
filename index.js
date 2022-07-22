@@ -88,7 +88,7 @@ io.sockets.on('connection', (socket) => {
     // Send the world to this player, if the world exists
     if (gameServer.brain.world) {
         const data = { world: gameServer.brain.world } 
-        socket.emit( 'genericClientMessage', { type: 'loadSentWorld', args: data } )
+        socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
     }
 
     // Handle all generic messages
@@ -114,7 +114,7 @@ io.sockets.on('connection', (socket) => {
         if (listOfAdmins.length === 0 && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
 
         // Send message
-        io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", args: { players: gameServer.brain.players } } )
+        io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", recipients: 'all', args: { players: gameServer.brain.players } } )
     })
 })
 
