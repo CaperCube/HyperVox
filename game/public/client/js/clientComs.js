@@ -169,6 +169,13 @@ class ClientComs {
     // Client to Brain coms
     ////////////////////////////////////////////////////
 
+    // Use this to send messages to the brain
+    genericToBrain( comType, data ) {
+        // Network message, if online
+        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages[comType]( data )
+        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: comType, args: data } )
+    }
+
     offlineConnect(cComs) {
         console.log('%c Offline connecting clientComs to brainComs... (client)', 'background: #124; color: #cde')
         const data = { clientCom: cComs }
@@ -180,49 +187,40 @@ class ClientComs {
     createNewWorld(size = defaultWorldSize) {
         console.log('%c Requesting new world generation... (client)', 'background: #124; color: #cde')
         const data = { size: size }
-        if (!this.isNetworked && this.brainComs) {
-            this.brainComs.clientMessages['createNewWorld']( data )
-        }
 
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'createNewWorld', args: data } )
+        this.genericToBrain( 'createNewWorld', data )
     }
 
     loadWorld(world) {
         console.log('%c Requesting world load... (client)', 'background: #124; color: #cde')
         const data = { world: world }
-        if (!this.isNetworked && this.brainComs) {
-            this.brainComs.clientMessages['loadWorld']( data )
-        }
 
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'loadWorld', args: data } )
+        this.genericToBrain( 'loadWorld', data )
     }
 
     updateSingleBlock(location, id) {
         console.log('%c Requesting update to block... (client)', 'background: #124; color: #cde')
         const data = { location: location, id: id }
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['updateSingleBlock']( data )
-
+        
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', args: data } )
+        this.genericToBrain( 'updateSingleBlock', data )
     }
 
     updateMyGamePosition(position, rotation) {
         // console.log('%c Sending my position... (client)', 'background: #124; color: #cde')
         const data = { position: position, rotation: rotation }
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['movePlayer']( data )
 
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'movePlayer', args: data } )
+        this.genericToBrain( 'movePlayer', data )
     }
 
     sendChatMessage(message, playerName, nameColor) {
         const data = { message: message, messageName: playerName, nameColor: nameColor }
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['sendChatMessage']( data )
 
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'sendChatMessage', args: data } )
+        this.genericToBrain( 'sendChatMessage', data )
     }
 
     sendShootRequest(origin, itemUsed, hitPlayerID) {
@@ -230,23 +228,21 @@ class ClientComs {
         // Server needs to know: player, origin, itemUsed
 
         const data = { origin: origin, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['shootGun']( data )
 
         // Network message
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'shootGun', args: data } )
+        this.genericToBrain( 'shootGun', data )
     }
 
     // ToDo: This should be removed because this is a server task
     sendObituary(deadPlayerID, killerPlayerID) {
         const data = { deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID, deadPlayerColor: '#ff0000', killerPlayerColor: '#00ff00'}
-        if (!this.isNetworked && this.brainComs) this.brainComs.clientMessages['applyObituary']( data )
-        else if (this.network?.connected) this.network.emit( 'genericClientMessage', { type: 'applyObituary', args: data } )
+
+        // Network message
+        this.genericToBrain( 'applyObituary', data )
     }
 
     // Other stuff that needs to be communcated to the brain / server
     // Like:
-    // moveself(newPosition, newSpeed)
-    // shootAt(location, direction)
     // changeBlockState(location, state)
 
 }
