@@ -122,7 +122,25 @@ class BrainComs {
                 this.sayWhosConnected()
             },
 
+            clientChangeName: ( data, playerID ) => {
+                // ToDo: fill this in with the brainGame command to do this
+            },
+
             sendChatMessage: ( data, playerID ) => {
+                // Sanitize message
+                const noContent = data.message.trim().length === 0
+                let messageIsInvalid = noContent
+                if (messageIsInvalid) {
+                    // const serverData = { message: `This is an invalid message`, messageName: 'Server', isServer: true }
+                    // if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
+                    // else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                    return
+                } else {
+                    const maxLength = this.brainGame.gameOptions.chatOptions.maxChatSize
+                    if (data.message.length > maxLength) data.message.subString(0, maxLength)
+
+                    // Check for HTML or js code and remove (based on server preferences)
+                }
                 // Check for chat commands
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer) {
@@ -210,13 +228,22 @@ class BrainComs {
     // Brain to Client coms
     ////////////////////////////////////////////////////
 
+    // Use this to send messages to clients, be it a online or offline game
+    // ToDo: Replace all message implementation with this
+    genericToClient( comType, data, recipients = "all" ) {
+        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages[comType]( data ) }
+        else if (this.isNetworked) {
+            this.network.emit( 'genericClientMessage', { type: comType, recipients: recipients, args: data } )
+        }
+    }
+
     // Send the full world to new players
     sendFullWorld( world ) {
         console.log('%c Sending world to player... (brain)', 'background: #124; color: #cde')
         const data = { world: world }
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['loadSentWorld']( data )
 
         // Network message
+        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['loadSentWorld']( data )
         else if (this.network) {
             const recipients = [] // ToDo: only send this to newly connected players
             this.network.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: recipients, args: data } )
@@ -227,9 +254,9 @@ class BrainComs {
     updateSingleBlock(location, id) {
         console.log('%c Sending single block change to all players... (brain)', 'background: #124; color: #cde')
         const data = { location: location, id: id }
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['updateSingleBlock']( data )
 
         // Network message
+        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['updateSingleBlock']( data )
         else if (this.network) {
             const recipients = 'all'
             this.network.emit( 'genericClientMessage', { type: 'updateSingleBlock', recipients: recipients, args: data } )
@@ -243,16 +270,22 @@ class BrainComs {
     sayWhosConnected() {
         console.log('%c Sending player list to all players... (brain)', 'background: #124; color: #cde')
         const data = { players: this.brainGame.players }
-        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['initOtherPlayers']( data )
 
         // Network message
+        if (!this.isNetworked && this.clientCom) this.clientCom.brainMessages['initOtherPlayers']( data )
         else if (this.network) {
             const recipients = 'all'
             this.network.emit( `genericClientMessage`, { type: "initOtherPlayers", args: data } )
         }
     }
 
+    changePlayerName( data ) {
+        // Let everyone know a name has changed
+        this.genericToClient('playerNameChange', data)
+    }
+
     // Other stuff that needs to be communcated to the clients
+    //...
 
 }
 

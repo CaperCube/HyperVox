@@ -88,6 +88,10 @@ const chatCommands = {
             sendMessage(mes)
         }
     },
+
+    //
+    // Player commands
+    //
     myPosition: {
         commands: ["myposition", "mypos", "mpos"],
         admin: false,
@@ -98,6 +102,38 @@ const chatCommands = {
             if (player) {
                 let mes = `${player.playerName}: X: ${player.position.x} | Y: ${player.position.y} | Z: ${player.position.z}`
                 sendMessage(mes)
+            }
+            else {
+                sendMessage(`Can't find player.`)
+            }
+        }
+    },
+    changeName: {
+        commands: ["changename", "cname"],
+        admin: false,
+        description: `Changes the name of your player.`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Change name
+            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
+            if (player) {
+                // ToDo: make this a function in brainGame so we can call it in other ways
+                let newName = args[0] || ''
+                for (let i = 1; i < args.length; i++) newName += ` ${args[i]}`
+
+                if (newName) {
+                    const oldName = player.playerName
+                    player.playerName = newName
+
+                    const data = { targetPlayerID: playerID, newName: newName }
+                    brainGame.brainComs.changePlayerName(data, 0)
+
+                    let mes = `${oldName} changed their name to ${player.playerName}`
+                    sendMessage(mes)
+                }
+                else {
+                    let mes = `That is an invalid name`
+                    sendMessage(mes)
+                }
             }
             else {
                 sendMessage(`Can't find player.`)

@@ -13,7 +13,7 @@ Reasonbly play creative mode with friends.
     - [X] Reduce meshes (remove face that won't be seen)
     - [X] Remove faces from chunk edges that touch
 - [ ] Improved Player
-    - [ ] Changeable player name
+    - [X] Changeable player name
     - [ ] Better raycaster for block selection
     - [X] Inventory system
     - [ ] Health system (tracked by brain)

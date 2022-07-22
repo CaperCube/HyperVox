@@ -49,7 +49,10 @@ class BrainGame {
             gameTickSpeed: 100, // Time in ms between game ticks
             gameUpdateSpeed: 300, // Time in ms between entity updates
             validatePlayerActions: false, // Corrects player movement server-side
-            gameMode: gameModes.creative // The brain's default game-mode
+            gameMode: gameModes.creative, // The brain's default game-mode
+            chatOptions: {
+                maxChatSize: 40, // The maximum allowed characters in a chat message
+            }
         }
         
         this.brainComs = new BrainComs({

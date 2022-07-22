@@ -93,6 +93,21 @@ class ClientComs {
                 }
             },
 
+            playerNameChange: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Set changed player name from brain (client)', 'background: #142; color: #ced' )
+
+                // Change existing player
+                console.log(data)
+                // If this is not my local player...
+                if (data.targetPlayerID !== this.clientGame.localPlayer?.playerID) {
+                    const targetPlayer = this.clientGame.networkPlayers?.filter(p => p.playerID === data.targetPlayerID)[0]
+                    // If this player exists...
+                    if (targetPlayer) {
+                        targetPlayer.setPlayerName(data.newName)
+                    }
+                }
+            },
+
             movePlayer: ( data, playerId ) => {
                 // if (this.messageDebug) console.log( '%c Set player positions from brain (client)', 'background: #142; color: #ced' )
 
