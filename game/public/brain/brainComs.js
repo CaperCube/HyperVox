@@ -131,18 +131,19 @@ class BrainComs {
                 const noContent = data.message.trim().length === 0
                 let messageIsInvalid = noContent
                 if (messageIsInvalid) {
-                    // const serverData = { message: `This is an invalid message`, messageName: 'Server', isServer: true }
-                    // if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
-                    // else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                    // Do nothing
                     return
                 } else {
                     const maxLength = this.brainGame.gameOptions.chatOptions.maxChatSize
                     if (data.message.length > maxLength) data.message.subString(0, maxLength)
 
-                    // Check for HTML or js code and remove (based on server preferences)
+                    // ToDo:
+                    // Check for HTML and/or js code and remove (based on server preferences)
+                    //...
                 }
                 // Check for chat commands
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                let commandFound = false
                 if (myBrainPlayer) {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
@@ -150,17 +151,18 @@ class BrainComs {
                     checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage) => {
                         // Send message
                         const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
-                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
-                        else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                        this.genericToClient('receiveChatMessage', serverData)
+                        commandFound = true
                     })
                 }
                 else data.messageName = ""
 
-                // Send chat message
-                if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( data ) }
-                else if (this.isNetworked) {
-                    const recipients = "all"
-                    this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: recipients, args: data } )
+                if (!commandFound) {
+                    this.genericToClient('receiveChatMessage', data)
+
+                    if (data.message.toLowerCase().includes('help')) {
+                        this.genericToClient('receiveChatMessage', { message: `Type <span style="color: #ffffff;">/help</span> for the list of chat commands.`, messageName: 'Server', isServer: true })
+                    }
                 }
             },
 

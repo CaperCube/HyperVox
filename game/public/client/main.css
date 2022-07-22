@@ -149,10 +149,10 @@ input {
 	padding: 0px 10px 0px 10px;
 
 	overflow-y: scroll;
-	pointer-events: none;
+	/* pointer-events: none;
 	user-select: none;
-	-ms-overflow-style: none;  /* IE and Edge */
-	scrollbar-width: none;  /* Firefox */
+	-ms-overflow-style: none;
+	scrollbar-width: none; */
 	
 	background-color: rgba(0,0,0,0.5);
 	color: white;

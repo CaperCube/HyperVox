@@ -2,6 +2,7 @@ import { gameModes } from "./brainGame.js"
 
 const commandOptions = {
     delimiter: '/', // The character the server will look for to exicute a chat command
+    maxLength: 2000, // The maximum allowed characters in a single server message
 }
 
 const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessage = () => {}) => {
@@ -52,7 +53,6 @@ const chatCommands = {
             var mes = []
             let mCount = 0
             mes[mCount] = `Chat commands:`
-            let maxLeng = 400
             let content = ''
             // Gather all commands
             for (const [key, value] of Object.entries(chatCommands)) {
@@ -61,11 +61,11 @@ const chatCommands = {
                 const adminNotNeeded = !chatCommands[key].admin
                 if (requireAdminPassed || adminNotNeeded) {
                     // Create message
-                    const adminDescription = chatCommands[key].admin? '(ADMIN ONLY) ' : ''
-                    content = `<br>${commandOptions.delimiter}${chatCommands[key].commands[0]} ${adminDescription}- ${chatCommands[key].description}`
+                    const adminDescription = chatCommands[key].admin? `<span style="color: #aa1133;">(ADMIN ONLY)</span> ` : ''
+                    content = `<br>${commandOptions.delimiter}<span style="color: #ffffff;">${chatCommands[key].commands[0]}</span> ${adminDescription}- ${chatCommands[key].description}`
 
                     // Split message into multiple messages
-                    if ((mes[mCount].length + content.length) >= maxLeng) {
+                    if ((mes[mCount].length + content.length) >= commandOptions.maxLength) {
                         mCount++
                         mes[mCount] = `${mes[mCount]? mes[mCount] : ''}${content}`
                     }
