@@ -18,19 +18,17 @@ Reasonbly play creative mode with friends.
     - [X] Inventory system
     - [ ] Health system (tracked by brain)
     - [X] Simple weapon
-- [ ] Basic networking
+- [X] Basic networking
     - [X] Basic event system?
         - [X] Create communication layer to be used to send messages between the client(s) and brain
         - [X] Create the ability to trigger events in the Game object (i.e. add / remove / change block)
     - [X] Connect to custom URL
-    - [ ] Send/Receive messages
+    - [X] Send/Receive messages
         - [X] Give new players a playerID
         - [X] New Players / Leaving Players
         - [X] Movement
-        - [ ] Chat messages
+        - [X] Chat messages
             - [X] Chat commands
-            - [ ] Server-side option to filter html / js code out of user messages
-                - [ ] Chat command to toggle this (Admin only)
             - [X] Privileges
         - [X] Chunk changes
     - [X] Networking for sending / receiving messages

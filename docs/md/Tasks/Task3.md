@@ -4,6 +4,10 @@
 This task should fix some useability issues and bugs, but more importantly it should add and enhance features that enable easier and more fun content creation.
 
 # Sub-Tasks
+- [ ] Chat improvements
+    - [ ] Whisper feature
+    - [ ] Server-side option to filter html / js code out of user messages
+        - [ ] Chat command to toggle this (Admin only)
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility
