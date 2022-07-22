@@ -133,7 +133,7 @@ class BrainComs {
                     return
                 } else {
                     const maxLength = this.brainGame.gameOptions.chatOptions.maxChatSize
-                    if (data.message.length > maxLength) data.message.subString(0, maxLength)
+                    if (data.message.length > maxLength) data.message = data.message.substr(0, maxLength)
 
                     // ToDo:
                     // Check for HTML and/or js code and remove (based on server preferences)
