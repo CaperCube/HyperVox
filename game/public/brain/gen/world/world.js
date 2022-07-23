@@ -9,7 +9,7 @@ class World {
         this._wSeed = worldSeed || `${Math.random()}`
         
         const worldMax = (worldSize || 3) * (chunkSize || 16) * (tileScale || 1)
-        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize)
+        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
         this.embeds = {}
 
         this.getWorldSeed = () => { return this._wSeed }

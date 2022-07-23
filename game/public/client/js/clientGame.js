@@ -202,9 +202,9 @@ class ClientGame {
         const clone = JSON.parse(JSON.stringify(world))
         this.clientWorld = new World({
             worldSeed: clone._wSeed,
-            tileScale: clone._tileScale,
-            chunkSize: clone._chunkSize,
-            worldSize: clone._worldSize
+            tileScale: parseFloat(clone._tileScale),
+            chunkSize: parseFloat(clone._chunkSize),
+            worldSize: parseFloat(clone._worldSize)
         })
         this.clientWorld.worldChunks = clone.worldChunks
         const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
