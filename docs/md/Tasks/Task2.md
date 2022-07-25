@@ -12,12 +12,11 @@ Reasonbly play creative mode with friends.
     - [X] Combine meshes in chunks (fewer draw calls = more performance)
     - [X] Reduce meshes (remove face that won't be seen)
     - [X] Remove faces from chunk edges that touch
-- [ ] Improved Player
+- [X] Improved Player
     - [X] Changeable player name
     - [X] Better raycaster for block selection
-        - [ ] Dont allow player to place block in themselves
+        - [X] Dont allow player to place block in themselves
     - [X] Inventory system
-    - [ ] Health system (tracked by brain)
     - [X] Simple weapon
 - [X] Basic networking
     - [X] Basic event system?

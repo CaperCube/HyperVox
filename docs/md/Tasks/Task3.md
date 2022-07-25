@@ -45,6 +45,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - projectiles should have a spawn timestamp that the server will fast forward to its (the server's) current time and recalculate the projectile's position to attempt to compensate for lag.
     - [ ] Item icons should be buffered in 3D (at load-in time)
 - [ ] Server improvements
+    - [ ] Player health should be authored by brain
     - [ ] Server has an update rate
         - This should only happen for entities that the server updates on it's own
         - World updates should still happen as soon as their validated

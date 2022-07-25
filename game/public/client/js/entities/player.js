@@ -1,5 +1,5 @@
 import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
-import { getArrayPos, getGlobalPos } from '../../../common/positionUtils.js'
+import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
 
@@ -38,29 +38,6 @@ boxIsColling(box){
 "i think it's probably best to check the 8 vertices. then when one has collided, you can use same vertex of current playerbox (right before collision) to find plane. at this point it doesn't matter which particular blocks are being collided with, because you only need to do  velocity.dimensionOfPlaneNormal *= -1;"
 
 */
-
-// collision code
-function boxIsIntersecting(box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) {
-    var a = {
-        minX : box1.x - (box1.w/2),
-        maxX : box1.x + (box1.w/2),
-        minZ : box1.z - (box1.d/2),
-        maxZ : box1.z + (box1.d/2),
-        minY : box1.y - (box1.h/2),
-        maxY : box1.y + (box1.h/2),
-    }
-    var b = {
-        minX : box2.x - (box2.w/2),
-        maxX : box2.x + (box2.w/2),
-        minZ : box2.z - (box2.d/2),
-        maxZ : box2.z + (box2.d/2),
-        minY : box2.y - (box2.h/2),
-        maxY : box2.y + (box2.h/2),
-    }
-    return (a.minX <= b.maxX && a.maxX >= b.minX) &&
-           (a.minY <= b.maxY && a.maxY >= b.minY) &&
-           (a.minZ <= b.maxZ && a.maxZ >= b.minZ)
-}
 
 // ClientPlayer object
 class ClientPlayer {
@@ -397,7 +374,7 @@ class ClientPlayer {
                 this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
-                const thisBlockPos = getArrayPos({x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
+                const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
                 const cursorBlock = this.clientGame?.clientWorld?.worldChunks?.[thisBlockPos.chunk.y]?.[thisBlockPos.chunk.x]?.[thisBlockPos.chunk.z]?.[thisBlockPos.block.y]?.[thisBlockPos.block.x]?.[thisBlockPos.block.z] || null
                 if (cursorBlock) {
                     const matches = this.inventory.items.filter(item => {
@@ -477,7 +454,7 @@ class ClientPlayer {
         // Apply movement
         const deltaTime = engine.getDeltaTime()
         const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        let playerBox = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: this.playerHeight, d: 0.5}
+        let playerBox = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: this.playerHeight, d: 0.5}
 
         // Blocks
         let allowMoveX = true
@@ -489,7 +466,9 @@ class ClientPlayer {
 
             let bounceOnly = bOnly || false
             // Check Y
-            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            // let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
             playerPosCheck.y += this.playerVelocity.y
             block.y += 0
             if (boxIsIntersecting(playerPosCheck, block)) {
@@ -501,11 +480,13 @@ class ClientPlayer {
                 if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
                     // Bounce
                     if (!bounceOnly) {
-                        this.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) + 0.001 //+ this.moveSpeed
+                        this.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) //+ 0.001 //+ this.moveSpeed
                         allowGrav = false
                     }
                     else {
-                        const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                        // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
+                        // if (playerIsBelow) this.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
+                        const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y - (block.h/2))
                         if (playerIsBelow) this.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
                     }
                     this.bounceY()
@@ -530,7 +511,9 @@ class ClientPlayer {
 
         const checkXCol = (block, blockID) => {
             // Check X
-            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            //let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
             playerPosCheck.x += this.playerVelocity.x
             block.y += 0
 
@@ -574,7 +557,9 @@ class ClientPlayer {
 
         const checkZCol = (block, blockID) => {
             // Check Z
-            let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            // let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
+            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
+            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
             playerPosCheck.z += this.playerVelocity.z
             block.y += 0
 
@@ -630,24 +615,27 @@ class ClientPlayer {
                 let chunkPos = arrayPos.block
 
                 let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+                const blockShape = { x: blockTypes[blockID]?.shape?.x || 0, y: blockTypes[blockID]?.shape?.y || 0, z: blockTypes[blockID]?.shape?.z || 0, w: blockTypes[blockID]?.shape?.w || 1, h: blockTypes[blockID]?.shape?.h|| 1, d: blockTypes[blockID]?.shape?.d || 1 }
+                // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
+                let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5 + blockShape.y, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
 
                 // Check X
                 let skipMid = (cy >= 0)
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
+                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
                     checkXCol(blockHere, blockID)
                 }
 
                 // Check Z
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
+                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1}
                     checkZCol(blockHere, blockID)
                 }
 
                 // Check Y
                 skipMid = (cy < 0 || cy > 0)
                 if (skipMid && blockID > 0) {
-                    let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize), y: chunkPos.y+(worldPos.y*this.chunkSize), z: chunkPos.z+(worldPos.z*this.chunkSize), w: 1, h: 1, d: 1}
+                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1}
                     checkYCol(blockHere, (cy > 0), blockID)
                 }
             }}}
@@ -721,7 +709,7 @@ class ClientPlayer {
         if (pick?.hit) {
             const newCursorPos = pick.pickedPoint
             const normal = pick.getNormal()
-            const selTolerance = 0.125
+            const selTolerance = 0.0125
             const tolerancePos = {
                 x: newCursorPos.x + (avForward.x * selTolerance),
                 y: newCursorPos.y + (avForward.y * selTolerance),

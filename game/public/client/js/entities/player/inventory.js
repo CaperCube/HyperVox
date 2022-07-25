@@ -4,7 +4,9 @@
 // Example: Blocks can exist in the form they do now, but the player should pick-up / place and Item()
 ////////////////////////////////////////////////////
 
-import { blockTypes } from "../../../../common/blockSystem.js";
+import { blockTypes } from "../../../../common/blockSystem.js"
+import { boxIsIntersecting } from "../../../../common/positionUtils.js"
+import { tileScale } from "../../clientConstants.js"
 import { sounds } from "../../resources.js"
 
 export class ItemPickup {
@@ -119,8 +121,10 @@ export class Inventory { // This specifically is a local player's hud-viewable i
             switch (useItem.itemType) {
                 case "block":
                     // Place block
-                    // ToDo: Don't place block if it would intersect with the player
-                    clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
+                    let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: player.playerHeight, d: 0.5}
+                    let cursor = {x: cursorLocation.x, y: cursorLocation.y - 0.5, z: cursorLocation.z, w: tileScale, h: tileScale, d: tileScale}
+                    
+                    if (!boxIsIntersecting(playerPosCheck, cursor)) clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
                     break
                 case "item":
                     // Use item
