@@ -14,7 +14,8 @@ Reasonbly play creative mode with friends.
     - [X] Remove faces from chunk edges that touch
 - [ ] Improved Player
     - [X] Changeable player name
-    - [ ] Better raycaster for block selection
+    - [X] Better raycaster for block selection
+        - [ ] Dont allow player to place block in themselves
     - [X] Inventory system
     - [ ] Health system (tracked by brain)
     - [X] Simple weapon

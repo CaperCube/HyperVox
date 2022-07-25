@@ -140,7 +140,6 @@ class ClientPlayer {
         //     invDown: [Buttons.minus],
         //     respawn: [Buttons.r]
         // }
-        this.debug = false
 
         // Health vars
         this.health = 100
@@ -183,6 +182,7 @@ class ClientPlayer {
         // Selection vars
         this.blockReach = 4
         this.selectCursor = {x: 0, y: 0, z: 0}
+        this.interactSelectCursor = {x: 0, y: 0, z: 0}
         this.placeInterval
         this.removeInterval
 
@@ -190,6 +190,10 @@ class ClientPlayer {
         this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
         this.selectMesh.material = this.scene.transparentMaterial
         this.selectMesh.isPickable = false
+
+        this.removeMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, this.scene)
+        this.removeMesh.material = this.scene.transparentMaterial
+        this.removeMesh.isPickable = false
 
         this.nameMesh = null
 
@@ -219,9 +223,6 @@ class ClientPlayer {
             // Set texture
             this.setPlayerName(this.playerName)
         }
-
-        // Debug lines
-        this.debugLines = BABYLON.Mesh.CreateLines("debugLines", new BABYLON.Vector3(0,0,0), this.scene, true)
     }
 
     createItemMesh(texID) {
@@ -319,7 +320,7 @@ class ClientPlayer {
     interact = () => {
         // Get block & blockID at this.cursor's location
         const cSize = this.world.getChunkSize()
-        const block = getArrayPos(this.selectCursor, cSize)
+        const block = getArrayPos(this.interactSelectCursor, cSize)
         const blockLocation = getGlobalPos(block, cSize)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
@@ -483,22 +484,6 @@ class ClientPlayer {
         let allowMoveY = true
         let allowMoveZ = true
         let allowGrav = true
-
-        // Debug lines
-        let pBoxOffset = {x: 0.5, y: 0.5, z: 0.5}
-        let debugPath = [
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y-(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-    
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x+(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z+(playerBox.d/2)+pBoxOffset.z),
-            new BABYLON.Vector3(playerBox.x-(playerBox.w/2)+pBoxOffset.x, playerBox.y+(playerBox.h/2)+pBoxOffset.y, playerBox.z-(playerBox.d/2)+pBoxOffset.z)
-        ]
 
         const checkYCol = (block, bOnly, blockID) => {
 
@@ -713,46 +698,63 @@ class ClientPlayer {
         if (this.spectateMode) this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y * this.groundFric, this.playerVelocity.z * this.groundFric)
         this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y, this.playerVelocity.z * this.groundFric)
 
-        // Position selector
+        /////////////////////////////////////////////////
+        // Perform raycast for cursor
+        /////////////////////////////////////////////////
+
+        // Defualt cursor location if no ray collision
         const avForward = this.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
-        this.selectCursor = {
-            // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * this.blockReach) ) + 0.5,
-            // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * this.blockReach) ) + 0.5,
-            // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * this.blockReach) ) + 0.5
+        this.selectCursor = this.interactSelectCursor = {
             x: Math.floor( this.avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
             y: Math.floor( this.avatar.position.y + (avForward.y * this.blockReach) ) + 0.5,
             z: Math.floor( this.avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
         }
 
-        let isObstructed = false
-        for (let i = this.blockReach; i > 0; i--) {
-            let testPos = {
-                // x: Math.floor( avatar.position.x ) + Math.round( (avForward.x * i) ) + 0.5,
-                // y: Math.floor( avatar.position.y ) + Math.round( (avForward.y * i) ) + 0.5,
-                // z: Math.floor( avatar.position.z ) + Math.round( (avForward.z * i) ) + 0.5
-                x: Math.floor( this.avatar.position.x + (avForward.x * i) ) + 0.5,
-                y: Math.floor( this.avatar.position.y + (avForward.y * i) ) + 0.5,
-                z: Math.floor( this.avatar.position.z + (avForward.z * i) ) + 0.5
+        // Raycast
+        const direction = avForward
+        const ray = new BABYLON.Ray(this.avatar.position, direction, this.blockReach)
+        // const rayHelper = new BABYLON.RayHelper(ray)
+        // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
+        const pick = this.clientGame.scene.pickWithRay(ray, (mesh) => {
+            if (mesh.name.startsWith("chunk")) return true
+        }, false)
+        if (pick?.hit) {
+            const newCursorPos = pick.pickedPoint
+            const normal = pick.getNormal()
+            const selTolerance = 0.125
+            const tolerancePos = {
+                x: newCursorPos.x + (avForward.x * selTolerance),
+                y: newCursorPos.y + (avForward.y * selTolerance),
+                z: newCursorPos.z + (avForward.z * selTolerance)
             }
-            // ToDo: Use Raycaster instead
-            
-            // const testWorldPos = getArrayPos(testPos, this.chunkSize)
-            // const testID = world.worldChunks[testWorldPos.chunk.y]?.[testWorldPos.chunk.x]?.[testWorldPos.chunk.z]?.[testWorldPos.block.y]?.[testWorldPos.block.x]?.[testWorldPos.block.z]
-            // if (testID === 0) { // Change to `if (testID !==null || !unselectable.includes(testID))`
-            //     if (isObstructed) {
-            //         this.selectCursor = testPos
-            //         break
-            //     }
-            // }
-            // else isObstructed = true
+            this.selectCursor = {
+                x: Math.floor( tolerancePos.x + (normal.x * tileScale) ) + 0.5,
+                y: Math.floor( tolerancePos.y + (normal.y * tileScale) ) + 0.5,
+                z: Math.floor( tolerancePos.z + (normal.z * tileScale) ) + 0.5
+            }
+            this.interactSelectCursor = {
+                x: Math.floor( tolerancePos.x ) + 0.5,
+                y: Math.floor( tolerancePos.y ) + 0.5,
+                z: Math.floor( tolerancePos.z ) + 0.5
+            }
         }
+        else {
+            // Hide the selection mesh if no ray collision
+            this.interactSelectCursor = {
+                x: -100,
+                y: -100,
+                z: -100
+            }
+        }
+        
+        // Position cursor meshes
         this.selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
+        this.removeMesh.position = new BABYLON.Vector3( this.interactSelectCursor.x, this.interactSelectCursor.y, this.interactSelectCursor.z )
 
+        /////////////////////////////////////////////////
+        
         // Bob camera
         // ...
-
-        // Debug lines
-        if (this.debug) this.debugLines = BABYLON.Mesh.CreateLines(null, debugPath, null, true, debugLines)
     }
 
     useInvItem = () => {
@@ -764,7 +766,7 @@ class ClientPlayer {
 
     removeBlock = () => {
         // Get cursor location
-        const changeLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        const changeLocation = { x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z }
         // Remove block
         this.clientGame.updateSingleBlock(changeLocation, 0)
     }

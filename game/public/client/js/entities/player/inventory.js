@@ -119,6 +119,7 @@ export class Inventory { // This specifically is a local player's hud-viewable i
             switch (useItem.itemType) {
                 case "block":
                     // Place block
+                    // ToDo: Don't place block if it would intersect with the player
                     clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
                     break
                 case "item":
