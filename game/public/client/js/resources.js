@@ -1,3 +1,6 @@
+// Babylon.js has an asset manager, consider looking into this for sound + texture assets
+// https://doc.babylonjs.com/divingDeeper/importers/assetManager
+
 import bkFont from '../src/textures/fonts/battlekourTitle.json' assert { type: "json" }
 import bkBodyFont from '../src/textures/fonts/battlekourBody.json' assert { type: "json" }
 
@@ -48,6 +51,11 @@ const soundSRC = {
     LASERGUN_SHOOT_1: `${SOUND_PATH}lasergun_shoot_1.mp3`,
     BLOCK_PLACE_1: `${SOUND_PATH}block_place_1.mp3`,
     BLOCK_BREAK_1: `${SOUND_PATH}block_break_1.mp3`,
+    AMB_WIND_1: `${SOUND_PATH}amb_wind_1.wav`,
+    STEP_GRASS_1: `${SOUND_PATH}Step_Grass_01.wav`,
+    STEP_GRASS_2: `${SOUND_PATH}Step_Grass_02.wav`,
+    STEP_GRASS_3: `${SOUND_PATH}Step_Grass_03.wav`,
+    MUSIC_BATTLE_1: `${SOUND_PATH}music_battle_1.mp3`,
 }
 
 const SoundIdx = {
@@ -58,6 +66,7 @@ const SoundIdx = {
     LASERGUN_SHOOT_1: 0,
     BLOCK_PLACE_1: 1,
     BLOCK_BREAK_1: 2,
+    AMB_WIND_1: 3,
 }
 
 const sounds = {

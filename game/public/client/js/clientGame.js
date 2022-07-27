@@ -245,10 +245,21 @@ class ClientGame {
         $("#chat-window").style.display = 'none'
         $("#chat-input").style.display = 'none'
         $("#chat-input").onsubmit = (e) => { e.preventDefault() }
+        // Stop all sounds
+        this.stopAllSounds()
+    }
+
+    stopAllSounds() {
+        for (const prop in sounds) {
+            sounds[prop].stop()
+        }
     }
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
+        // Stop all sounds
+        this.stopAllSounds()
+
         // Hide menu
         this.menu.hide()
         this.hud.show()
@@ -360,6 +371,23 @@ class ClientGame {
         sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
         sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
+        sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
+
+        sounds.STEP_GRASS_1 = new BABYLON.Sound("step_grass_1", soundSRC.STEP_GRASS_1, this.scene, null, { volume: 0.25, })
+        sounds.STEP_GRASS_2 = new BABYLON.Sound("step_grass_2", soundSRC.STEP_GRASS_2, this.scene, null, { volume: 0.25, })
+        sounds.STEP_GRASS_3 = new BABYLON.Sound("step_grass_3", soundSRC.STEP_GRASS_3, this.scene, null, { volume: 0.25, })
+        
+        sounds.AMB_WIND_1 = new BABYLON.Sound("amb_wind_1", soundSRC.AMB_WIND_1, this.scene, null, { 
+            loop: true,
+            autoplay: true,
+            volume: 0.25,
+        })
+
+        sounds.MUSIC_BATTLE_1 = new BABYLON.Sound("music_battle_1", soundSRC.MUSIC_BATTLE_1, this.scene, null, { 
+            loop: true,
+            // autoplay: true,
+            volume: 0.25,
+        })
 
         ////////////////////////////////////////////////////
         // Render loop

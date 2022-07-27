@@ -2,6 +2,7 @@ import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientCons
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
+import { soundSRC, sounds } from "../resources.js"
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -200,6 +201,15 @@ class ClientPlayer {
             // Set texture
             this.setPlayerName(this.playerName)
         }
+
+        this.isGrounded = false
+        setInterval( ()=>{
+            if (this.isGrounded && (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight)) {
+                const walkingSounds = [sounds.STEP_GRASS_1, sounds.STEP_GRASS_2, sounds.STEP_GRASS_3]
+                const rnd = Math.floor((Math.random() * walkingSounds.length) - 0.0001)
+                walkingSounds[rnd]?.play()
+            }
+        }, 300 )
     }
 
     createItemMesh(texID) {
@@ -398,6 +408,20 @@ class ClientPlayer {
 
     // Update player movement
     platformMovementUpdate = (engine) => {
+        /////////////////////////////////////////////////
+        // Raycast for grounded
+        /////////////////////////////////////////////////
+        const groundDir = this.avatar.getDirection(new BABYLON.Vector3(0, -1, 0))
+        const groundRay = new BABYLON.Ray(this.avatar.position, groundDir, 2.25)//(this.playerHeight*0.5) + (tileScale*0.5))
+        // const rayHelper = new BABYLON.RayHelper(ray)
+        // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
+        const groundPick = this.clientGame.scene.pickWithRay(groundRay, (mesh) => {
+            if (mesh.name.startsWith("chunk")) return true
+        }, false)
+        if (groundPick?.hit) this.isGrounded = true
+        else this.isGrounded = false
+        /////////////////////////////////////////////////
+
         //const avForward = avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         //const avUp = avatar.getDirection(new BABYLON.Vector3(0, 1, 0))
         const avRight = this.avatar.getDirection(new BABYLON.Vector3(1, 0, 0))
