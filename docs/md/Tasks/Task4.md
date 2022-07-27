@@ -17,10 +17,6 @@ The below tasks may need to be spread across future task to prevent a progress h
     - [X] Keyboard input
     - [ ] Controler input
     - [ ] Attempt virtual controller for touch devices
-- [ ] Improved Movement
-    - [ ] Running
-    - [ ] Lowered air-friction
-    - [ ] B-hopping
 - [ ] Improved Collision
     - [ ] Custom rect sizes
     - [ ] Stairs (player is "floating" above ground with a damped spring force)
@@ -35,6 +31,13 @@ The below tasks may need to be spread across future task to prevent a progress h
     - [ ] Text improvements
         - [ ] Custom color
         - [ ] Outline + color option
+        - [ ] Menu improvements
+    - [ ] Notifications
+        - [ ] Visible critical errors
+            - [ ] Browser incompatable
+            - [ ] Lost connection
+        - [ ] Connection successful
+            - [ ] Show `Start Game` menu after joining if no game is started
 
 # Clean-up Sub-Tasks
 - [ ] ...

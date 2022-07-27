@@ -13,6 +13,10 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] tunrs off block cursor visibility
     - [ ] Cannot edit blocks
     - [ ] flying only
+- [ ] [Improved Movement](./MovementOverhaul.md)
+    - [ ] Running
+    - [ ] Lowered air-friction
+    - [ ] B-hopping
 - [ ] Screenshot mode
     - [ ] Easily take screenshots of worlds
 - [ ] World improvements
@@ -30,14 +34,6 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] Allow users to customize noise patterns
     - [ ] Save patterns for use in new worlds
     - [ ] Possibly add some procedural structure tools?
-- [ ] Menu improvements
-    - [X] Pause Menu in-game
-    - [ ] Notifications
-        - [ ] Visible critical errors
-            - [ ] Browser incompatable
-            - [ ] Lost connection
-        - [ ] Connection successful
-            - [ ] Show `Start Game` menu after joining if no game is started
 - [ ] Item & gun improvements
     - [ ] Ammo does things now
     - [ ] Item pick-ups
