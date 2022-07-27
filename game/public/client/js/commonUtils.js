@@ -1,9 +1,27 @@
-$ = (n) => document.querySelector(n);
-$$ = (n) => document.querySelectorAll(n);
-function HideShowDOM(o) {
-    if (o.style.display != "none") o.style.display = "none";
-    else o.style.display = "inline-block";
+/**
+ * Shorthand for `document.querySelector()`
+ * @param query: Class name or ID name string
+ * @returns DOM element
+ */
+$ = (query) => document.querySelector(query);
+$$ = (query) => document.querySelectorAll(query);
+
+/**
+ * Toggles a DOM element's display property
+ * @param element: DOM element
+ * @param defaultStyle: The element's default display style, (default is "inline-block")
+ * @returns null
+ */
+function HideShowDOM(element, defaultStyle = "inline-block") {
+    if (element.style.display != "none") element.style.display = "none";
+    else element.style.display = defaultStyle;
 }
+
+/**
+ * Sets the SRC of and enables the iframe element on the page. If no url is provided, this will disable/hide the iframe element
+ * @param url: The url to use in the iframe
+ * @returns null
+ */
 function SetEmbed(url = null) {
     const element = $('#embedded_content')
     const iframe = $("#embed_frame")
@@ -18,6 +36,11 @@ function SetEmbed(url = null) {
         element.style.display = "none"
     }
 }
+
+/**
+ * Launches fullscreen mode
+ * @returns null
+ */
 function launchFullscreen() {
     var element = document.documentElement
     if (element.requestFullscreen) { element.requestFullscreen() }
@@ -25,6 +48,11 @@ function launchFullscreen() {
     else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen() }
     else if (element.msRequestFullscreen) { element.msRequestFullscreen() }
 }
+
+/**
+ * Exits fullscreen mode
+ * @returns null
+ */
 function quitFullscreen() {
     var element = document.documentElement
     if (element.exitFullscreen) { element.exitFullscreen() }

@@ -3,12 +3,12 @@ import { getArrayPos } from "../../../common/positionUtils.js"
 //import { defaultChunkSize, defaultWorldSize } from '../../../client/js/clientConstants.js'
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
-    constructor({worldSeed, tileScale, chunkSize, worldSize} = {}) {
+    constructor({worldSeed, tileScale = 1, chunkSize = 8, worldSize = 4} = {}) {
         this._worldFormatVersion = 'v0.1'
         this.worldChunks = [[[]]]
         this._wSeed = worldSeed || `${Math.random()}`
         
-        const worldMax = (worldSize || 3) * (chunkSize || 16) * (tileScale || 1)
+        const worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
         this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
         this.embeds = {}
 
@@ -21,16 +21,16 @@ class World {
          */
         this.getTileScale = () => { return this._tileScale }
 
-        this._chunkSize = chunkSize || 16
+        this._chunkSize = chunkSize || 8
         /**
-         * Gets the number of blocks in a chunk blocks^3 (16 = chunk size of 16x16x16)
+         * Gets the number of blocks in a chunk blocks^3 (8 = chunk size of 8x8x8)
          * @returns number
          */
         this.getChunkSize = () => { return this._chunkSize }
 
-        this._worldSize = worldSize || 3
+        this._worldSize = worldSize || 4
         /**
-         * Gets the number of chunks in a chunk in chunks^3 (16 = world size of 16x16x16)
+         * Gets the number of chunks in a chunk in chunks^3 (8 = world size of 8x8x8)
          * @returns number
          */
         this.getWorldSize = () => { return this._worldSize }

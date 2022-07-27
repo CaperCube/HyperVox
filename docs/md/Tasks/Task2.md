@@ -35,10 +35,10 @@ Reasonbly play creative mode with friends.
     - [X] Work on generic messages for extendability
 
 # Clean-up Sub-Tasks
-- [ ] Replace var & function comments with code-hint comments
-    - look at `positionUtils.js` for examples
+- [X] Replace var & function comments with code-hint comments
+    - look at `commonUtils.js` for examples
 - [ ] Start writing some more solid documentation
-    - [ ] Create an HTML page to edit, store, and search through the docs
+    - [X] Create an HTML page to edit, store, and search through the docs
         - This should be a seperate repo (so it can also scale if needed)
         - This could also be a good place to put other how-to's
             - How to play

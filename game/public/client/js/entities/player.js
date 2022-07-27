@@ -124,8 +124,8 @@ class ClientPlayer {
         this.isInvincible = false
         this.canHeal = true
         this.invincibleTime = 500 // time in ms
-        this.invincibilityTimer = null // setTimeout(()={this.isInvincible = false}), this.invincibleTime)
-        this.inventory = makeCreativeInventory(clientGame.hud) //new Inventory()
+        this.invincibilityTimer = null
+        this.inventory = makeCreativeInventory(clientGame.hud)
         this.inventory.setSelected(0)
         console.log(this.inventory)
 
@@ -203,11 +203,14 @@ class ClientPlayer {
         }
 
         this.isGrounded = false
+        this.playStepSound = () => {
+            const walkingSounds = [sounds.STEP_GRASS_1, sounds.STEP_GRASS_2, sounds.STEP_GRASS_3]
+            const rnd = Math.floor((Math.random() * walkingSounds.length) - 0.0001)
+            walkingSounds[rnd]?.play()
+        }
         setInterval( ()=>{
             if (this.isGrounded && (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight)) {
-                const walkingSounds = [sounds.STEP_GRASS_1, sounds.STEP_GRASS_2, sounds.STEP_GRASS_3]
-                const rnd = Math.floor((Math.random() * walkingSounds.length) - 0.0001)
-                walkingSounds[rnd]?.play()
+                this.playStepSound()
             }
         }, 300 )
     }
@@ -370,7 +373,6 @@ class ClientPlayer {
             assignFunctionToInput(c.jump, ()=>{if (this.spectateMode) this.moveUp=true; else if (this.usedJumps < this.allowedJumps) {this.playerVelocity.y = this.jumpStength; this.usedJumps++}}, ()=>{this.moveUp=false})
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
-            // ToDo: change fire1 and fire2 to perform the action dictated by this.inventory.selectedItem.useItem(this, 1)
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
             assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.useInvItem()},150); this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
@@ -411,14 +413,16 @@ class ClientPlayer {
         /////////////////////////////////////////////////
         // Raycast for grounded
         /////////////////////////////////////////////////
-        const groundDir = this.avatar.getDirection(new BABYLON.Vector3(0, -1, 0))
-        const groundRay = new BABYLON.Ray(this.avatar.position, groundDir, 2.25)//(this.playerHeight*0.5) + (tileScale*0.5))
-        // const rayHelper = new BABYLON.RayHelper(ray)
-        // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
+        const groundDir = new BABYLON.Vector3(0, -1, 0)
+        const groundRay = new BABYLON.Ray(this.avatar.position, groundDir, 2.25) // Slightly taller than the player
         const groundPick = this.clientGame.scene.pickWithRay(groundRay, (mesh) => {
             if (mesh.name.startsWith("chunk")) return true
         }, false)
-        if (groundPick?.hit) this.isGrounded = true
+        if (groundPick?.hit) {
+            // If we weren't grounded, play step sound
+            if (!this.isGrounded) this.playStepSound()
+            this.isGrounded = true
+        }
         else this.isGrounded = false
         /////////////////////////////////////////////////
 
@@ -452,7 +456,6 @@ class ClientPlayer {
 
         // Apply Input
         // if grounded, get ground normal, use it when calculating movement on slopes
-        //let forwardMove = new BABYLON.Vector3( inputVector.z * avForward.x, 0, inputVector.z * avForward.z )
         let forwardMove = new BABYLON.Vector3( inputVector.z * Math.sin(this.avatar.rotation.y), 0, inputVector.z * Math.cos(this.avatar.rotation.y) )
         let horzMove = new BABYLON.Vector3( inputVector.x * avRight.x, 0, inputVector.x * avRight.z )
         let vertMove = new BABYLON.Vector3( 0, inputVector.y, 0 )

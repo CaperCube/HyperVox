@@ -54,6 +54,8 @@ This task should fix some useability issues and bugs, but more importantly it sh
 
 # Clean-up Sub-Tasks
 - [ ] Try moving Babylon.js to only being a module import instead of an html script tag (getting ready for Babylon.js 5.0 in November and its [WebGPU support](https://doc.babylonjs.com/advanced_topics/webGPU))
+- [ ] Replace var & function comments with code-hint comments
+    - look at `commonUtils.js` for examples
 
 # Bonus Sub-Tasks
 - [ ] ...
