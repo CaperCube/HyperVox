@@ -9,6 +9,7 @@
 
 import { defaultWorldSize } from "./clientConstants.js"
 import ClientPlayer from "./entities/player.js"
+import { copyWorld } from "../../brain/gen/world/world.js"
 
 class ClientComs {
     constructor(props = {
@@ -56,7 +57,8 @@ class ClientComs {
                 
                 // Deep copy world
                 // This has a dual purpose of providing a client copy of the world & converting a JSON world to a World() object
-                this.clientGame.deepCopyWorld( data.world )
+                // this.clientGame.deepCopyWorld( data.world )
+                this.clientGame.clientWorld = copyWorld(data.world)
                 
                 // Start game
                 this.clientGame.startNewGameScene()

@@ -1,15 +1,44 @@
+/* ============================================
+Font imports
+============================================ */
 @font-face {
 	font-family: "BattlekourBody";
 	src: url("./src/BattlekourBody_v1.otf") format("otf");
 }
 
+/* ============================================
+Variables
+============================================ */
+:root {
+	/* Colors */
+	--color-inputBG: rgba(0,0,0,0.5);
+	--color-shadow: rgba(0,0,0,0.5);
+}
+
+/* ============================================
+Animations
+============================================ */
+@keyframes message-arrive { 
+	0% {
+		left: -100px;
+		opacity: 0;
+	}
+	100% { 
+		left: 0px;
+		opacity: 1;
+	}
+}
+
+/* ============================================
+Comon
+============================================ */
 * {
 	font-family: "BattlekourBody", Fallback, sans-serif;
 	-webkit-font-smoothing: none;
 	-moz-osx-font-smoothing: none;
 	font-smooth: never;
 	font-size: 16px;
-	text-shadow: 0px 2px 0px rgba(0,0,0,0.5);
+	text-shadow: 0px 2px 0px var(--color-shadow);
 }
 
 body {
@@ -17,6 +46,9 @@ body {
     padding: 0px;
 }
 
+/* ============================================
+Canvas
+============================================ */
 #main-canvas, #hud-canvas, #menu-canvas, #background, #loading-basic {
 	display: inline-block;
 	position: fixed;
@@ -34,6 +66,9 @@ body {
 	pointer-events: none;
 }
 
+/* ============================================
+Menu
+============================================ */
 #background {
 	background-image: url('./src/textures/bg_grid_3.png');
 	background-size: 64px;
@@ -49,35 +84,11 @@ body {
 	background-size: 128px;
 }
 
-/*
-Text fields
-*/
-
+/* ============================================
+Input Fields
+============================================ */
 input {
 	font-weight: normal;
-}
-
-#chat-input {
-	position: absolute;
-	display: none;
-	bottom: 100px;
-	left: 32px;
-	width: calc(35% + 20px);
-	height: 20px;
-}
-
-#chat-input-text {
-	position: absolute;
-	display: inline-block;
-	bottom: -10px;
-	left: 0px;
-	width: 100%;
-	height: 20px;
-
-	border: none;
-	border-radius: 0px;
-	background-color: rgba(0,0,0,0.5);
-	color: white;
 }
 
 #focus-input {
@@ -91,7 +102,7 @@ input {
 	text-align: center;
 	align-items: center;
 
-	background-color: rgba(0,0,0,0.5);
+	background-color: var(--color-inputBG);
 }
 
 #focus-input * {
@@ -131,9 +142,35 @@ input {
 
 	border: none;
 	border-radius: 4px;
-	background-color: rgba(0,0,0,0.5);
+	background-color: var(--color-inputBG);
 
 	font-size: 32px;
+	color: white;
+}
+
+/* ============================================
+Chat
+============================================ */
+#chat-input {
+	position: absolute;
+	display: none;
+	bottom: 100px;
+	left: 32px;
+	width: calc(35% + 20px);
+	height: 20px;
+}
+
+#chat-input-text {
+	position: absolute;
+	display: inline-block;
+	bottom: -10px;
+	left: 0px;
+	width: 100%;
+	height: 20px;
+
+	border: none;
+	border-radius: 0px;
+	background-color: var(--color-inputBG);
 	color: white;
 }
 
@@ -149,12 +186,8 @@ input {
 	padding: 0px 10px 0px 10px;
 
 	overflow-y: scroll;
-	/* pointer-events: none;
-	user-select: none;
-	-ms-overflow-style: none;
-	scrollbar-width: none; */
 	
-	background-color: rgba(0,0,0,0.5);
+	background-color: var(--color-inputBG);
 	color: white;
 
 	font-weight: lighter;
@@ -162,17 +195,6 @@ input {
 
 #chat-window::-webkit-scrollbar {
 	display: none;
-}
-
-@keyframes message-arrive { 
-	0% {
-		left: -100px;
-		opacity: 0;
-	}
-	100% { 
-		left: 0px;
-		opacity: 1;
-	}
 }
 
 #chat-window > p {
@@ -196,10 +218,18 @@ input {
 	color: rgba(150, 150, 150, 0.5)
 }
 
-/*===========================================
-== Embedded Content
-===========================================*/
+.noBG, .noBG > * {
+	background-color: transparent;
+	background: transparent;
+}
 
+#chat-input.noBG #chat-input-text, #chat-window.noBG {
+	background-color: transparent;
+}
+
+/* ============================================
+Embedded Content
+============================================ */
 #embedded_content {
 	position: absolute;	
 	display: none; /* inline-block; */

@@ -19,28 +19,38 @@
     // Use `<script type="module">` and `import / export` to cut down on script tags
     -->
     <!-- //////////////// Version Number /////////////////// -->
-    <script>const versionNumber = `0.02.28`;</script>
+    <script>const versionNumber = `0.02.31`;</script>
     <!-- /////////////////// Libraries ///////////////////// -->
     <script defer src="./client/js/commonUtils.js"></script>
     <script defer type="module" src="./client/js/dist/babylon.js"></script>
     <script defer type="module" src="./client/js/dist/babylon.glTF2Serializer.js"></script>
     <!-- ///////////////////// Game //////////////////////// -->
     <script defer src="./client/js/input/inputManager.js"></script>
-    <script defer type="module" src="./client/js/offlineGame.js"></script>
+    <script defer type="module" src="./client/js/client.js"></script>
 </head>
 <body>
     <!--
     ////////////////////////////////////////////////////////
-    ////                  Canvas Here                   ////
+    ////                    Canvas                      ////
     ////////////////////////////////////////////////////////
     -->
     <span id="background"></span>
     <canvas id="main-canvas"></canvas>
     <canvas id="hud-canvas"></canvas>
     <canvas id="menu-canvas"></canvas>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                   UI & Chat                    ////
+    ////////////////////////////////////////////////////////
+    -->
     <span id="loading-basic"></span>
-    <span id="chat-window"></span>
-    <form id="chat-input"><input id="chat-input-text" type="text"></input></form>
+    <span id="chat-window" class="noBG"></span>
+    <form id="chat-input" class="noBG"><input id="chat-input-text" type="text"></input></form>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                  Value Input                   ////
+    ////////////////////////////////////////////////////////
+    -->
     <form onclick="this.style.display='none'" id="focus-input">
         <h1 id="focus-input-title">Null</h1>
         <input onclick="event.stopPropagation();" id="focus-input-text" type="text" placeholder="Leave blank for default"></input><br>
@@ -48,6 +58,11 @@
         <button onclick="event.preventDefault(); this.parentElement.style.display='none'">Cancel</button>
         <button onclick="event.stopPropagation();" type="submit" form="focus-input" value="Submit">Submit</button>
     </form>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                Embeded Content                 ////
+    ////////////////////////////////////////////////////////
+    -->
     <span id="embedded_content">
         <button onclick="event.stopPropagation(); SetEmbed()" id="close-embed">Close</button>
         <iframe id="embed_frame" src="" allowtransparency="true" title="Embedded Content"></iframe>

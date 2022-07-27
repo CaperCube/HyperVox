@@ -4,10 +4,10 @@
 Reasonbly play creative mode with friends.
 
 # Sub-Tasks
-- [ ] Better world gen (start putting this in './brain')
+- [X] Better world gen (start putting this in './brain')
     - [X] Live load chunk meshes
     - [X] Save / Load worlds (probably as a .json)
-        - [ ] Move these functions inside the "World()" class
+        - [X] Move these functions inside the "World()" class
 - [X] Better chunk rendering performance
     - [X] Combine meshes in chunks (fewer draw calls = more performance)
     - [X] Reduce meshes (remove face that won't be seen)

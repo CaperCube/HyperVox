@@ -8,6 +8,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] Whisper feature
     - [ ] Server-side option to filter html / js code out of user messages
         - [ ] Chat command to toggle this (Admin only)
+    - [X] chat BG disapears when mouse is locked
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility
@@ -27,6 +28,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Option to generate new world
         - [ ] Option to load existing world via URL
     - [ ] Custom world-specific blocks
+    - [ ] "Set world spawn" chat command (admins only)
+        - This should set the spawn on the server world
+        - When saving worlds locally, we should request the brain's version of the world to save
 - [ ] Block modeling tool
     - [ ] Drawing with UV quads
 - [ ] Skybox editor

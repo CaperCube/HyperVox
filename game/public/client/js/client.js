@@ -1,46 +1,20 @@
 import ClientGame from "./clientGame.js"
 
-// import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
-// let serverURL = ""//"http://71.195.32.253:3000"//"http://localhost:3000"
-// let socket = io(serverURL)
-
-// socket.on(`welcomePacket`, (data) => {
-//     console.log(`Welcome new player!`)
-//     console.log(data)
-
-//     clientGame.clientID = data.clientID
-// })
-
-// socket.on( 'genericClientMessage', ( data ) => {
-//     const playerId = 0//socket.connectionID // This does not support multiple players per client in networked games
-//     clientGame.clientComs.brainMessages[data.type]( data.args, playerId )
-// })
-
-/*
-When making a single player game:
-
-const brain = new Game({ worldSetting: settings })
-const clientGame = new ClientGame({ connection: comLayer })
-const comLayer = new CommunicationLayer({ type: `offline`, host: brain, client: clientGame })
-
-When making a multiplayer game:
-
-const clientGame = new ClientGame({ connection: comLayer })
-const comLayer = new CommunicationLayer({ type: `online`, host: `ip`, client: clientGame })
-*/
-
+////////////////////////////////////////////////////////////
+// Canvas & Game init
+////////////////////////////////////////////////////////////
 const canvas = $('#main-canvas')
-
-// `isNetworked: false` automatically creates a `new BrainGame()` inside the ClientGame object
 const clientGame = new ClientGame({ isNetworked: false, canvas: canvas })
-// const clientGame = new ClientGame({ isNetworked: true, canvas: canvas })
-// clientGame.clientComs.network = socket
 
+// ToDo: Put these somewhere else
 Buttons.m.onPress = () => { launchFullscreen() }
 Buttons.escape.onPress = () => { quitFullscreen() }
 
-// Start game scene
-// clientGame.clientComs.createNewWorld()
+////////////////////////////////////////////////////////////
+// Menu function connections
+////////////////////////////////////////////////////////////
+
+// Create new world
 const createWorldWithSize = (size) => {
     clientGame.menu.hide()
     if ($('#loading-basic')) $('#loading-basic').style.display = 'inline-block' // ToDo: replace this with a more robust loading indicator
@@ -48,6 +22,7 @@ const createWorldWithSize = (size) => {
 }
 
 // ToDo: replace this with a better save-load system
+// When saving worlds locally, we should request the brain's version of the world to save
 const tempSaveWorld = (world) => {
     world.saveVersion = '0.1'
     let element = document.createElement('a')
@@ -62,6 +37,7 @@ const tempSaveWorld = (world) => {
     document.body.removeChild(element)
 }
 
+// Load world from file
 function browseForWorldFile() {
     // <input type="file" id="myfile" name="myfile"></input>
     let fileBrowser = document.createElement('input')
@@ -94,7 +70,7 @@ function browseForWorldFile() {
 }
 
 // Main menu
-function connectToCustom() {
+function connectToCustomServer() {
     $("#focus-input-title").innerHTML = 'Server IP'
     $("#focus-input-text").value = ''
 
@@ -109,7 +85,9 @@ function connectToCustom() {
         $("#focus-input").style.display = 'none'
     }
 }
-clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { connectToCustom() }
+
+// Main menu
+clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { connectToCustomServer() }
 
 // Play menu
 clientGame.menu.playMenu.selectableElements[0].pressButton = () => { browseForWorldFile() }
@@ -125,8 +103,6 @@ clientGame.menu.pauseMenu.selectableElements[5].pressButton = () => { clientGame
 clientGame.menu.pauseMenu.selectableElements[0].pressButton = () => {
     clientGame.menu.hide()
     setTimeout(()=>{
-        clientGame.canvas.requestPointerLock = clientGame.canvas.requestPointerLock || clientGame.canvas.mozRequestPointerLock
-        clientGame.canvas.requestPointerLock()
-        Buttons.isInputFocused = true
+        clientGame.lockCursor()
     }, 100)
 }

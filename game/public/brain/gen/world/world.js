@@ -42,7 +42,7 @@ class World {
         this.saveWorld = () => { return 'This is supposed to return the world in json format' }
     }
 
-    loadWorldFromJSON(jsonObj) {
+    loadWorldFromJSON( jsonObj ) {
         // worldFormat v0.1
         this.worldChunks = jsonObj.worldChunks
         this.worldSpawn = jsonObj.worldSpawn
@@ -54,4 +54,28 @@ class World {
     }
 }
 
+function copyWorld( world ) {
+    const clone = JSON.parse(JSON.stringify(world))
+
+    // Create new world with the same size and seed as the old one
+    const newWorld = new World({
+        worldSeed: clone._wSeed,
+        tileScale: parseFloat(clone._tileScale),
+        chunkSize: parseFloat(clone._chunkSize),
+        worldSize: parseFloat(clone._worldSize)
+    })
+
+    // Set props that weren't set from constructor
+    newWorld.worldChunks = clone.worldChunks
+    // Spawn
+    const worldMax = newWorld._worldSize * newWorld._chunkSize * newWorld._tileScale
+    const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, newWorld._chunkSize)
+    newWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
+    // Embeds
+    newWorld.embeds = clone.embeds
+
+    return newWorld
+}
+
 export default World
+export { copyWorld }

@@ -145,6 +145,21 @@ class ClientGame {
             
             Buttons.isInputFocused = false
             releaseAllButtons()
+
+            // Change chat style
+            $("#chat-window").classList.remove("noBG")
+            $("#chat-input").classList.remove("noBG")
+        }
+
+        this.lockCursor = () => {
+            // Lock cursor
+            this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock
+            this.canvas.requestPointerLock()
+            Buttons.isInputFocused = true
+
+            // Change chat style
+            $("#chat-window").classList.add("noBG")
+            $("#chat-input").classList.add("noBG")
         }
 
         Buttons.escape.onPress = Buttons.tab.onPress = (e) => {
@@ -180,7 +195,7 @@ class ClientGame {
     // Methods
     ///////////////////////////////////////////////////////
     
-    // Export world as obj (ToDo: Move this to World() class)
+    // Export world as obj (ToDo: Move this somewhere)
     exportWorldMesh() {
         // Export options
         let options = {
@@ -195,23 +210,6 @@ class ClientGame {
             glb.downloadFiles()
         })
 
-    }
-
-    // ToDo: move this to methon in the World() class
-    deepCopyWorld( world ) {
-        const clone = JSON.parse(JSON.stringify(world))
-        this.clientWorld = new World({
-            worldSeed: clone._wSeed,
-            tileScale: parseFloat(clone._tileScale),
-            chunkSize: parseFloat(clone._chunkSize),
-            worldSize: parseFloat(clone._worldSize)
-        })
-        this.clientWorld.worldChunks = clone.worldChunks
-        const worldMax = this.clientWorld._worldSize * this.clientWorld._chunkSize * this.clientWorld._tileScale
-        const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, this.clientWorld._chunkSize)
-        this.clientWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
-
-        this.clientWorld.embeds = clone.embeds
     }
 
     // Use a worker thread to load chunks
@@ -257,17 +255,30 @@ class ClientGame {
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
-        // Stop all sounds
-        this.stopAllSounds()
-
-        // Hide menu
-        this.menu.hide()
-        this.hud.show()
+        ////////////////////////////////////////////////////
+        // Restart / Start Scene & UI
+        ////////////////////////////////////////////////////
 
         // Reset game data
         this.removeScene()
         $('#main-canvas').style.display = 'inline-block'
         if ($('#loading-basic')) $('#loading-basic').style.display = 'none' // ToDo: replace this with a more robust loading indicator
+
+        // Stop all sounds
+        this.stopAllSounds()
+
+        // Enable chat window
+        $("#chat-window").style.display = 'inline-block'
+        $("#chat-input").style.display = 'inline-block'
+        $("#chat-input").onsubmit = (e) => { 
+            e.preventDefault()
+            this.clientComs.sendChatMessage($("#chat-input-text").value, this.localPlayer.playerName, this.localPlayer.playerColor)
+            $("#chat-input-text").value = ''
+        }
+
+        // Hide menu
+        this.menu.hide()
+        this.hud.show()
 
         ////////////////////////////////////////////////////
         // Misc. Event Listeners
@@ -301,9 +312,7 @@ class ClientGame {
         this.scene = DefaultScene(this.engine)
         // Lock cursor to game (release with escape key)
         this.scene.onPointerDown = (evt) => { if (evt.button === 0) {
-            this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock
-            this.canvas.requestPointerLock()
-            Buttons.isInputFocused = true
+            this.lockCursor()
 
             // To unlock (without pressing escape)
             // document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
@@ -348,15 +357,6 @@ class ClientGame {
         // Request other players
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
         if (this.clientComs.isNetworked) {
-            // Enable chat window
-            $("#chat-window").style.display = 'inline-block'
-            $("#chat-input").style.display = 'inline-block'
-            $("#chat-input").onsubmit = (e) => { 
-                e.preventDefault()
-                this.clientComs.sendChatMessage($("#chat-input-text").value, this.localPlayer.playerName, this.localPlayer.playerColor)
-                $("#chat-input-text").value = ''
-            }
-
             // Ask who's here
             this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
 
