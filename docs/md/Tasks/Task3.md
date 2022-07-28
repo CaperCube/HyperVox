@@ -28,10 +28,11 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Option to generate new world
         - [ ] Option to load existing world via URL
     - [ ] Custom world-specific blocks
+        - [ ] Custom block models
     - [ ] "Set world spawn" chat command (admins only)
         - This should set the spawn on the server world
         - When saving worlds locally, we should request the brain's version of the world to save
-- [ ] Block modeling tool
+- [ ] Block modeling tool?
     - [ ] Drawing with UV quads
 - [ ] Skybox editor
 - [ ] More work on Noise Tool (Rename to World Tool)
