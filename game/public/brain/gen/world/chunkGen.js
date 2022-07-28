@@ -144,6 +144,46 @@ class ChunkGenerator {
             
                 return blockID
             },
+            // A layered rainbow world
+            rainbowCake: ( x, y, z ) => {
+                // Return noise
+                const getNoiseVal = ( x, y, z ) => {
+                    const noiseScale = this.noiseScale * 0.5
+                    x=x*noiseScale
+                    y=y*noiseScale
+                    z=z*noiseScale
+                    let noise = this.noiseAlgorithm.get( x, y, z )
+                    return noise
+                }
+
+                // Block ID's to use
+                const colors = [
+                    blockTypes.indexOf(getBlockByName('stone-block-white')),
+                    blockTypes.indexOf(getBlockByName('stone-block-white')),
+                    blockTypes.indexOf(getBlockByName('stone-block-yellow')),
+                    blockTypes.indexOf(getBlockByName('stone-block-orange')),
+                    blockTypes.indexOf(getBlockByName('stone-block-red')),
+                    blockTypes.indexOf(getBlockByName('stone-block-violet')),
+                    blockTypes.indexOf(getBlockByName('stone-block-indigo')),                    
+                    blockTypes.indexOf(getBlockByName('stone-block-blue')),
+                    blockTypes.indexOf(getBlockByName('stone-block-green')),
+                    blockTypes.indexOf(getBlockByName('stone-block-grey')),
+                    blockTypes.indexOf(getBlockByName('stone-block-black')),
+                ]
+            
+                // Set blockID
+                const outterThickness = 0.08
+                let blockID = 0
+
+                for (let i = 0; i < colors.length; i++) {
+                    const noiseVal = getNoiseVal( x, y, z )
+                    if (noiseVal > (this.noiseTolerance + ((i+1)/40)) - outterThickness) {
+                        blockID = colors[i]
+                    }
+                }
+            
+                return blockID
+            },
             // For making neat parkour maps
             emptyParkour: ( x, y, z ) => {
                 let blockID = 0
