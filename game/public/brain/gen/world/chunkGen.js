@@ -57,7 +57,7 @@ class ChunkGenerator {
             
                 return blockID
             },
-            // A scary lava planet generation
+            // Scary lava planet generation
             lavaPlanet: ( x, y, z ) => {
                 // Return noise
                 const getNoiseVal = ( x, y, z ) => {
@@ -107,7 +107,7 @@ class ChunkGenerator {
             
                 return blockID
             },
-            // A vast ocean
+            // Ocean with land lumps
             ocean: ( x, y, z ) => {
                 // Return noise
                 const getNoiseVal = ( x, y, z ) => {
@@ -184,13 +184,13 @@ class ChunkGenerator {
             
                 return blockID
             },
-            // For making neat parkour maps
-            emptyParkour: ( x, y, z ) => {
+            // Empty with kill blocks on floor
+            emptyDeath: ( x, y, z ) => {
                 let blockID = 0
                 if (y===0) blockID = blockTypes.indexOf(getBlockByName('death'))
                 return blockID
             },
-            // For generating empty flat worlds
+            // Empty with sett blocks on floor
             empty: ( x, y, z ) => {
                 let blockID = 0
                 if (y===0) blockID = blockTypes.indexOf(getBlockByName('steel-riveted'))
