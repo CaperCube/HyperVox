@@ -158,7 +158,7 @@ class ClientPlayer {
         this.registerControls(this.controls)
 
         // Selection vars
-        this.blockReach = 4
+        this.blockReach = 5
         this.selectCursor = {x: 0, y: 0, z: 0}
         this.interactSelectCursor = {x: 0, y: 0, z: 0}
         this.placeInterval
@@ -736,11 +736,11 @@ class ClientPlayer {
         if (pick?.hit) {
             const newCursorPos = pick.pickedPoint
             const normal = pick.getNormal()
-            const selTolerance = 0.0125
+            const selTolerance = 0.25
             const tolerancePos = {
-                x: newCursorPos.x + (avForward.x * selTolerance),
-                y: newCursorPos.y + (avForward.y * selTolerance),
-                z: newCursorPos.z + (avForward.z * selTolerance)
+                x: newCursorPos.x - (normal.x * selTolerance),
+                y: newCursorPos.y - (normal.y * selTolerance),
+                z: newCursorPos.z - (normal.z * selTolerance)
             }
             this.selectCursor = {
                 x: Math.floor( tolerancePos.x + (normal.x * tileScale) ) + 0.5,
