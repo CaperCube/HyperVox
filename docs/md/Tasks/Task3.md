@@ -9,6 +9,10 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] Server-side option to filter html / js code out of user messages
         - [ ] Chat command to toggle this (Admin only)
     - [X] chat BG disapears when mouse is locked
+    - [ ] **Add / Remove blocks with chat command**
+    - [ ] **"Set world spawn" chat command (admins only)**
+        - This should set the spawn on the server world
+        - When saving worlds locally, we should request the brain's version of the world to save
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility
@@ -23,15 +27,16 @@ This task should fix some useability issues and bugs, but more importantly it sh
 - [ ] World improvements
     - [ ] Show title (& link if present) when cursor hovering over interactable blocks
     - [ ] Change file extention to ".ccw" (Caper Core World)
-    - [ ] Chain worlds
-        - [ ] Add interactable world chain block
+    - [ ] **Block to send chats as player**
+    - [ ] **Add Zones (perform check on server)**
+        - [ ] **Trigger zone (code and/or sound or resource link sound)**
+        - [ ] Game mode zone    
+    - [ ] **Chain worlds**
+        - [ ] **Add interactable world chain block**
         - [ ] Option to generate new world
         - [ ] Option to load existing world via URL
     - [ ] Custom world-specific blocks
-        - [ ] Custom block models
-    - [ ] "Set world spawn" chat command (admins only)
-        - This should set the spawn on the server world
-        - When saving worlds locally, we should request the brain's version of the world to save
+        - [ ] **Custom block models**
 - [ ] Block modeling tool?
     - [ ] Drawing with UV quads
 - [ ] Skybox editor
