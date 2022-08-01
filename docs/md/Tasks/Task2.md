@@ -38,6 +38,8 @@ Reasonbly play creative mode with friends.
 - [X] Replace var & function comments with code-hint comments
     - look at `commonUtils.js` for examples
 - [ ] Start writing some more solid documentation
+    - Write using Markdown
+    - Use [this NPM package](https://www.npmjs.com/package/markdown-to-html-converter)
     - [X] Create an HTML page to edit, store, and search through the docs
         - This should be a seperate repo (so it can also scale if needed)
         - This could also be a good place to put other how-to's
