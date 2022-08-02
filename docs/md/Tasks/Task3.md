@@ -18,10 +18,12 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] tunrs off block cursor visibility
     - [ ] Cannot edit blocks
     - [ ] flying only
-- [ ] [Improved Movement](./MovementOverhaul.md)
-    - [ ] Running
-    - [ ] Lowered air-friction
-    - [ ] B-hopping
+- [ ] [Player Improvements](./PlayerOverhaul.md)
+    - [ ] Player should seperated from avatar
+    - [ ] [Improved Movement](./MovementOverhaul.md)
+        - [ ] Running
+        - [ ] Lowered air-friction
+        - [ ] B-hopping
 - [ ] Screenshot mode
     - [ ] Easily take screenshots of worlds
 - [ ] World improvements
