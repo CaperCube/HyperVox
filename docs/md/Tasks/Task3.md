@@ -10,9 +10,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Chat command to toggle this (Admin only)
     - [X] chat BG disapears when mouse is locked
     - [X] **Add / Remove blocks with chat command**
-    - [ ] **"Set world spawn" chat command (admins only)**
+    - [X] **"Set world spawn" chat command (admins only)**
         - This should set the spawn on the server world
-        - When saving worlds locally, we should request the brain's version of the world to save
+    - [ ] When saving worlds locally, we should request the brain's version of the world to save
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility

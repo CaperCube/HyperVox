@@ -144,6 +144,14 @@ class ClientComs {
                     // ToDo: This needs to be a server-side action, not client-side
                     updatedPlayer.takeDamage(data.damage, 100, data.attackerPlayerID)
                 }
+            },
+
+            updateWorldSpawn: ( data, playerId ) => {
+                if (this.clientGame.clientWorld) {
+                    if (this.messageDebug) console.log( '%c Update world spawn from brain (client)', 'background: #142; color: #ced' )
+                    // Update client world
+                    this.clientGame.clientWorld.worldSpawn = data.location
+                }
             }
         }
     }

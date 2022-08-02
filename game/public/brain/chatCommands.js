@@ -263,17 +263,31 @@ const chatCommands = {
     //
     // World commands
     //
+    setWorldSpawn: {
+        commands: ["setworldspawn", "setwspawn", "sws"],
+        admin: true,
+        description: `Set's the player's current location as the world's default spawn point.`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Get player position
+            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
+            const position = player.position
+
+            // Set spawn
+            const location = getArrayPos(position, brainGame.world._chunkSize)
+            brainGame.changeWorldSpawn(location)
+            sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+        }
+    },
     setBlock: {
         commands: ["setblock", "sblock"],
         admin: true,
-        description: `Sets a block in the world to the given ID. (Exambple: "/setblock X Y Z ID")`,
+        description: `Sets a block in the world to the given ID. (Example: "/setblock X Y Z ID")`,
         function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            // ToDo: make this not break with invalid values
             const position = {x: args[0], y: args[1], z: args[2]}
             const location = getArrayPos(position, brainGame.world._chunkSize)
             const blockID = args[3]
             brainGame.updateSingleBlock(location, blockID)
-            sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z}} set to ${blockID}`)
+            sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
         }
     }
 }

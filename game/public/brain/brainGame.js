@@ -172,6 +172,14 @@ class BrainGame {
         }
     }
 
+    changeWorldSpawn = ( location ) => {
+        // Set world spawn
+        this.world.worldSpawn = location
+
+        // Tell others about this change
+        this.brainComs.genericToClient('updateWorldSpawn', {location: location})
+    }
+
     // ToDo: this should check the player's position using a time stamp
     // Note: This function should only be used for "hitscan" guns, projectiles should move like entities
     checkIfShotHitAnyone = ( data, authorID ) => { 
