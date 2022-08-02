@@ -1,3 +1,4 @@
+import { getArrayPos } from "../common/positionUtils.js"
 import { gameModes } from "./brainGame.js"
 
 const commandOptions = {
@@ -258,6 +259,23 @@ const chatCommands = {
             else sendMessage(`Player not found`)
         }
     },
+
+    //
+    // World commands
+    //
+    setBlock: {
+        commands: ["setblock", "sblock"],
+        admin: true,
+        description: `Sets a block in the world to the given ID. (Exambple: "/setblock X Y Z ID")`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // ToDo: make this not break with invalid values
+            const position = {x: args[0], y: args[1], z: args[2]}
+            const location = getArrayPos(position, brainGame.world._chunkSize)
+            const blockID = args[3]
+            brainGame.updateSingleBlock(location, blockID)
+            sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z}} set to ${blockID}`)
+        }
+    }
 }
 
 export {

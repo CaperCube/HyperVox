@@ -9,7 +9,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] Server-side option to filter html / js code out of user messages
         - [ ] Chat command to toggle this (Admin only)
     - [X] chat BG disapears when mouse is locked
-    - [ ] **Add / Remove blocks with chat command**
+    - [X] **Add / Remove blocks with chat command**
     - [ ] **"Set world spawn" chat command (admins only)**
         - This should set the spawn on the server world
         - When saving worlds locally, we should request the brain's version of the world to save
@@ -62,6 +62,12 @@ This task should fix some useability issues and bugs, but more importantly it sh
 - [ ] Try moving Babylon.js to only being a module import instead of an html script tag (getting ready for Babylon.js 5.0 in November and its [WebGPU support](https://doc.babylonjs.com/advanced_topics/webGPU))
 - [ ] Replace var & function comments with code-hint comments
     - look at `commonUtils.js` for examples
+- [ ] Start writing some more solid documentation
+    - Write using Markdown
+    - Use [this NPM package](https://www.npmjs.com/package/markdown-to-html-converter)
+- [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
+    - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
+    - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
 
 # Bonus Sub-Tasks
 - [ ] ...

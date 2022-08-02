@@ -37,10 +37,7 @@ Reasonbly play creative mode with friends.
 # Clean-up Sub-Tasks
 - [X] Replace var & function comments with code-hint comments
     - look at `commonUtils.js` for examples
-- [ ] Start writing some more solid documentation
-    - Write using Markdown
-    - Use [this NPM package](https://www.npmjs.com/package/markdown-to-html-converter)
-    - [X] Create an HTML page to edit, store, and search through the docs
+- [X] Create an HTML page to edit, store, and search through the docs
         - This should be a seperate repo (so it can also scale if needed)
         - This could also be a good place to put other how-to's
             - How to play
@@ -49,9 +46,6 @@ Reasonbly play creative mode with friends.
 
 # Bonus Sub-Tasks
 - [X] Block objects (referenced by blockID)
-- [ ] Consider creating a custom `PatternGenerator` class with various seeded 3D noise generators
-    - [Perlin noise tutorial](https://joeiddon.github.io/projects/javascript/perlin.html)
-    - [Helpful article on seeded random](https://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html)
 - [X] Interactable blocks
     - [X] Embedded link block
 - [X] .glb world export

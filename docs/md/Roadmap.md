@@ -16,7 +16,7 @@ The format for version number is as follows:
 - No game yet, just core features
     - [X] Upload to Github
     - [X] [Task 1](./Tasks/Task1.md) (Core engine work)
-    - [ ] [Task 2](./Tasks/Task2.md) (Creative mode with friends)
+    - [X] [Task 2](./Tasks/Task2.md) (Creative mode with friends)
 - Public game link when version 0.6 is done
     - [ ] [Task 3](./Tasks/Task3.md) (More Tools)
     - [ ] [Task 4](./Tasks/Task4.md) (Technical improvements)

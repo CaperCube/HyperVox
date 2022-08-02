@@ -110,44 +110,50 @@ class BrainGame {
 
     updateSingleBlock = ( location, id ) => {
         if (this.world) {
-            // Validate change
-            // ...
+            const locationExists = (!!this.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x])
+            if (locationExists) {
+                // Make sure the block ID is valid
+                const newID = parseInt(id, 10)
 
-            // Make change
-            this.world.worldChunks
-            [location.chunk.y][location.chunk.x][location.chunk.z]
-            [location.block.y][location.block.x][location.block.z] = id
+                // Validate change
+                // ...
 
-            // Check block below
-            // ToDo: replace this with more robust logic
-            if (id > 0) {
-                let underBlock = location.block.y-1
-                let underChunk = location.chunk.y
+                // Make change
+                this.world.worldChunks
+                [location.chunk.y][location.chunk.x][location.chunk.z]
+                [location.block.y][location.block.x][location.block.z] = newID
 
-                if (underBlock < 0) { 
-                    underChunk--
-                    underBlock = this.world.worldChunks[0][0][0].length-1
-                }
+                // Check neighboring blocks
+                // ToDo: replace this with more robust logic
+                if (newID > 0) {
+                    let underBlock = location.block.y-1
+                    let underChunk = location.chunk.y
 
-                if (underChunk >= 0) {
-                    let thisBlock = this.world.worldChunks
-                    [underChunk][location.chunk.x][location.chunk.z]
-                    [underBlock][location.block.x][location.block.z]
-                    // console.log(underChunk, underBlock)
-                    if (thisBlock === blockTypes.indexOf(getBlockByName('grass'))) {
-                        const dirtID = blockTypes.indexOf(getBlockByName('dirt'))
-                        const underLocation = {
-                            chunk: { x: location.chunk.x, y: underChunk, z: location.chunk.z },
-                            block: { x: location.block.x, y: underBlock, z: location.block.z }
+                    if (underBlock < 0) { 
+                        underChunk--
+                        underBlock = this.world.worldChunks[0][0][0].length-1
+                    }
+
+                    if (underChunk >= 0) {
+                        let thisBlock = this.world.worldChunks
+                        [underChunk][location.chunk.x][location.chunk.z]
+                        [underBlock][location.block.x][location.block.z]
+                        // console.log(underChunk, underBlock)
+                        if (thisBlock === blockTypes.indexOf(getBlockByName('grass'))) {
+                            const dirtID = blockTypes.indexOf(getBlockByName('dirt'))
+                            const underLocation = {
+                                chunk: { x: location.chunk.x, y: underChunk, z: location.chunk.z },
+                                block: { x: location.block.x, y: underBlock, z: location.block.z }
+                            }
+                            thisBlock = dirtID
+                            this.brainComs.updateSingleBlock( underLocation, dirtID )
                         }
-                        thisBlock = dirtID
-                        this.brainComs.updateSingleBlock( underLocation, dirtID )
                     }
                 }
-            }
 
-            // Update players with change (if validated)
-            this.brainComs.updateSingleBlock( location, id )
+                // Update players with change (if validated)
+                this.brainComs.updateSingleBlock( location, newID )
+            }
         }
 
     }
