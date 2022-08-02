@@ -13,6 +13,7 @@ The below tasks may need to be spread across future task to prevent a progress h
 
 # Sub-Tasks
 - [ ] Better input system
+    - Look into [Babylon.js's input system](https://doc.babylonjs.com/divingDeeper/input)
     - [ ] All inupt devices should be configured to the `Controls` array
     - [X] Keyboard input
     - [ ] Controler input

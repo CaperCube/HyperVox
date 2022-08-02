@@ -12,7 +12,6 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [X] **Add / Remove blocks with chat command**
     - [X] **"Set world spawn" chat command (admins only)**
         - This should set the spawn on the server world
-    - [ ] When saving worlds locally, we should request the brain's version of the world to save
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] tunrs off block cursor visibility
@@ -27,6 +26,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
 - [ ] Screenshot mode
     - [ ] Easily take screenshots of worlds
 - [ ] World improvements
+    - [ ] When saving worlds locally, we should request the brain's version of the world to save
     - [ ] Show title (& link if present) when cursor hovering over interactable blocks
     - [ ] Change file extention to ".ccw" (Caper Core World)
     - [ ] **Block to send chats as player**
