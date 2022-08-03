@@ -37,10 +37,32 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] **Add interactable world chain block**
         - [ ] Option to generate new world
         - [ ] Option to load existing world via URL
-    - [ ] Custom world-specific blocks
-        - [ ] **Custom block models**
-- [ ] Block modeling tool?
-    - [ ] Drawing with UV quads
+    - [ ] **Custom block models**
+        - [ ] Custom world-specific blocks
+            - [ ] "Import .ccm" button in WorldTool
+        - [ ] Block modeling tool?
+            - First-person mesh building
+            - No world, instead use an array of quads
+            - Inventory contains mesh tools
+                - Place Quad
+                - Remove Quad
+                - Edit UV
+                - Edit Quad
+            - Direction of view designates the quad's orientation
+            - [ ] Drawing with UV quads
+            - [ ] Saves as JSON ".ccm"
+            - [ ] Includes data for mesh type
+                - meshData: {...}
+                    - quads: {...}
+                        - quad: {...}
+                            - position: { x, y, z } // 0 = min, 1 = max
+                            - facing: 'top' // designates the quad normal and orientation
+                            - uvOffset: { x: 0.03125, y: 0 }
+                            - uvRotation: 0 // 0, 1, 2, or 3 representing 90* rotations
+                - type: 'block'
+                    - name: 'chair'
+                    - categories: ['brown', 'decorative']
+                - type: 'avatar'
 - [ ] Skybox editor
 - [ ] More work on Noise Tool (Rename to World Tool)
     - [ ] Allow users to customize noise patterns
