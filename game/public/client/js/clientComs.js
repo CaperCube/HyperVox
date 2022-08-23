@@ -152,6 +152,20 @@ class ClientComs {
                     // Update client world
                     this.clientGame.clientWorld.worldSpawn = data.location
                 }
+            },
+
+            updateBlockMetaData: ( data, playerId ) => {
+                if (this.clientGame.clientWorld) {
+                    if (this.messageDebug) console.log( `%c Update world's block metadata from brain (client)`, 'background: #142; color: #ced' )
+                    //{blockPropName: blockPropName, data: data}
+
+                    // If the blockData object doesn't exist, create it
+                    // ToDo: We want to make sure this property exsists when the world is loaded, not here
+                    if (!this.clientGame.clientWorld.blockData) this.clientGame.clientWorld.blockData = {}
+
+                    // Set data
+                    this.clientGame.clientWorld.blockData[data.blockPropName] = data.data
+                }
             }
         }
     }

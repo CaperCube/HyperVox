@@ -3,6 +3,8 @@ import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
 import { tileScale, defaultChunkSize, defaultWorldSize, getRandomName } from '../client/js/clientConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
+import { getPropByString } from "../common/dataUtils.js"
+import { getGlobalPos } from "../common/positionUtils.js"
 
 const gameModes = {
     creative: 'creative',
@@ -169,6 +171,28 @@ class BrainGame {
             console.log('This player does not exist')
             // This player does not exist
             // ToDo: send a chat message saying this player does not exist
+        }
+    }
+
+    setBlockMetaData = ( location, data ) => {
+        if (this.world) {
+            // Check if this spot in the world exists
+            const locationExists = (!!this.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x])
+            if (locationExists) {
+                // Get block and prop name
+                const blockPosition = getGlobalPos(location, this.world._chunkSize)
+                const blockPropName = `${blockPosition.x}_${blockPosition.y}_${blockPosition.z}`
+
+                // If the blockData object doesn't exist, create it
+                // ToDo: We want to make sure this property exsists when the world is loaded, not here
+                if (!this.world.blockData) this.world.blockData = {}
+
+                // Set data
+                this.world.blockData[blockPropName] = data
+
+                // Tell others about this change
+                this.brainComs.genericToClient('updateBlockMetaData', {blockPropName: blockPropName, data: data})
+            }
         }
     }
 
