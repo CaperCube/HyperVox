@@ -325,6 +325,14 @@ class ClientGame {
         // Start generating chunk meshes
         this.genMeshesFromChunks(this.clientWorld, null)
 
+        // Allow debugger to be opened
+        Buttons.backquote.onPress = (e) => {
+            //this.scene.debugLayer.show()
+            this.scene.debugLayer.show({
+                embedMode: true,
+            })
+        }
+
         ////////////////////////////////////////////////////
         // Player and Camera
         ////////////////////////////////////////////////////
