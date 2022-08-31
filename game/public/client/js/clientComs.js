@@ -44,6 +44,10 @@ class ClientComs {
         // Incoming messages from brain
         ////////////////////////////////////////////////////
         this.brainMessages = {
+            testMessage: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Test message (client)', 'background: #142; color: #ced' )
+            },
+
             updateSingleBlock: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Update single block (client)', 'background: #142; color: #ced' )
                 this.clientGame.updateBlock( data.location, data.id )
@@ -110,6 +114,40 @@ class ClientComs {
                 }
             },
 
+            updateAllPlayers: ( data, playerId ) => {
+                // Update all players
+                
+                // Loop through all data player objects received
+                for (let i = 0; i < data.players.length; i++) {
+
+                    // Get reference to player data object
+                    const dataPlayer = data.players[i]
+
+                    // Update network players
+                    if (dataPlayer.playerID !== this.clientGame.localPlayer?.playerID) {
+                        // Get player by ID
+                        const thisPlayer = this.clientGame.networkPlayers.filter(player => player.playerID === dataPlayer.playerID)[0]
+                        if (thisPlayer) {
+                            // Update player data
+                            thisPlayer.health = dataPlayer.health
+                            thisPlayer.stats = dataPlayer.stats
+
+                            // Update position & rotation
+                            thisPlayer.position = dataPlayer.position
+                            // ToDo: Update this when we start using the PlayerAvatar() class
+                            if (thisPlayer.avatar) thisPlayer.head.rotation = dataPlayer.rotation
+                        }
+                    }
+                    // Update local player(s)
+                    else {
+                        // Update player data
+                        // this.clientGame.localPlayer.health = dataPlayer.health
+                        this.clientGame.localPlayer.stats = dataPlayer.stats
+                    }
+                }
+            },
+
+            // Depricated: Remove this function :)
             movePlayer: ( data, playerId ) => {
                 // if (this.messageDebug) console.log( '%c Set player positions from brain (client)', 'background: #142; color: #ced' )
 

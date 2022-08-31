@@ -28,7 +28,11 @@ class BrainPlayer {
         this.rotation = { x: 0, y: 0, z: 0 }
         this.health = 100 // not yet implemented
 
-        this.points = 0
+        this.stats = {
+            kills: 0,
+            deaths: 0,
+            points: 0
+        }
 
         // Vars for validation
         // (Not implemented yet. See 'docs/LagCompensation.md')
@@ -48,8 +52,8 @@ class BrainGame {
         // Game vars
         ///////////////////////////////////////////////////////
         this.gameOptions = {
-            gameTickSpeed: 100, // Time in ms between game ticks
-            gameUpdateSpeed: 300, // Time in ms between entity updates
+            gameTickSpeed: 30, // Time in ms between game ticks
+            // gameUpdateSpeed: 300, // Time in ms between entity updates
             validatePlayerActions: false, // Corrects player movement server-side
             gameMode: gameModes.creative, // The brain's default game-mode
             chatOptions: {
@@ -68,6 +72,9 @@ class BrainGame {
         this.players = []
         this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
+
+        // Brain computation vars
+        this.gameTickInterval = null
     }
 
     ///////////////////////////////////////////////////////
@@ -97,6 +104,9 @@ class BrainGame {
 
         // Send world to connected users
         this.brainComs.sendFullWorld( this.world )
+
+        // Start server brain loop
+        this.startGameLoop()
     }
 
     loadWorld = ( jsonWorld ) => {
@@ -225,9 +235,72 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////
-    gameUpdate = () => { /* Here is where faster updates should happen (e.g. entity positions, enemy movement updates) */ }
-    movementValidation = () => { /* Here is where we should validate player movements and actions, when needed */ }
-    gameTick = () => { /* Here is where all the world updates should happen */ }
+    startGameLoop = () => {
+        // Stop loop if it's there already
+        if (this.gameTickInterval) {
+            this.stopGameLoop()
+        }
+
+        // Reset player data
+        //...
+
+        // Start loop
+        this.gameTickInterval = setInterval(()=>{ this.gameTick() }, this.gameOptions.gameTickSpeed)
+    }
+
+    stopGameLoop = () => {
+        // Stop loop
+        this.gameTickInterval = null
+    }
+
+    // Here is where faster updates should happen (e.g. entity positions, enemy movement updates)
+    gameUpdate = () => {
+        //...
+    }
+
+    // Here is where we should validate player movements and actions, when needed
+    actionValidation = () => {
+        //...
+    }
+
+    // Here is where all the world updates should happen
+    gameTick = () => {
+        ///////////////////////////////////////////////////////
+        // send all player's positions
+        ///////////////////////////////////////////////////////
+        let data = {}
+        data.players = []
+
+        // Get all player's data
+        for (let i = 0; i < this.players.length; i++)
+        {
+            const myBrainPlayer = this.players[i]
+
+            if (myBrainPlayer) {
+                // Update data packet
+                const myData = {
+                    playerID: myBrainPlayer.playerID,
+                    position: myBrainPlayer.position,
+                    rotation: myBrainPlayer.rotation,
+                    health: myBrainPlayer.health,
+                    stats: myBrainPlayer.stats
+                }
+
+                // Put into data object
+                data.players.push(myData)
+
+                // ToDo: compile the updates and send them as a single message
+                // this.brainComs.genericToClient('movePlayer', data)
+            }
+        }
+
+        ///////////////////////////////////////////////////////
+        // Send update
+        ///////////////////////////////////////////////////////
+
+        this.brainComs.genericToClient('updateAllPlayers', data)
+        // or 'gameUpdateTick'
+    }
 }
 
 export default BrainGame

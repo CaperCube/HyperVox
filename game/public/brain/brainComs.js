@@ -114,9 +114,9 @@ class BrainComs {
                 }
 
                 // Network the data
-                if (this.isNetworked) {
-                    this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: "all", args: data } )
-                }
+                // if (this.isNetworked) {
+                //     this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: "all", args: data } )
+                // }
             },
 
             askWhosConnected: ( data, playerID ) => {
