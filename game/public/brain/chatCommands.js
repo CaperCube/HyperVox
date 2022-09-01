@@ -22,14 +22,14 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
                     commandFound = true
                     // If admin is required
                     if (chatCommands[key].admin) {
-                        if (isAdmin) chatCommands[key].function(message, name, playerID, isAdmin, brainGame, args, sendMessage)
+                        if (isAdmin) chatCommands[key].action(message, name, playerID, isAdmin, brainGame, args, sendMessage)
                         else {
                             // Tell them they need better priv to do this
                             sendMessage(`Sorry ${name}, you need to have admin privileges to do this.`)
                         }
                     }
                     // If admin is not required
-                    else chatCommands[key].function(message, name, playerID, isAdmin, brainGame, args, sendMessage)
+                    else chatCommands[key].action(message, name, playerID, isAdmin, brainGame, args, sendMessage)
                 }
                 if (commandFound) break
             }
@@ -49,7 +49,7 @@ const chatCommands = {
         commands: ["help"],
         admin: false,
         description: `Displays the available chat commands.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // List all commands
             var mes = []
             let mCount = 0
@@ -83,7 +83,7 @@ const chatCommands = {
         commands: ["about"],
         admin: false,
         description: `Displays information about the current world.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Show info about world
             let mes = `This command should probably display information stored in the world file, but I haven't done that yet. oops! '\\_("/)_/${'`'}<br>Type "${commandOptions.delimiter}help" to see the list of commands.`
             sendMessage(mes, true)
@@ -97,7 +97,7 @@ const chatCommands = {
         commands: ["myposition", "mypos", "mpos"],
         admin: false,
         description: `Displays your position in the game's chat.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Show position
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
             if (player) {
@@ -113,7 +113,7 @@ const chatCommands = {
         commands: ["changename", "cname"],
         admin: false,
         description: `Changes the name of your player.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Change name
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
             if (player) {
@@ -149,7 +149,7 @@ const chatCommands = {
         commands: ["listadmins"],
         admin: false,
         description: `Lists all current admins.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //ToDo: add in whitelisted players who may not be online
             // Get the list of admins
             const adminList = brainGame.players.filter( p => p.isAdmin)
@@ -167,7 +167,7 @@ const chatCommands = {
         commands: ["endrace"],
         admin: false,
         description: `Ends the current race for you only.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //...
             sendMessage(`Sadly, this does not work yet :(`)
         }
@@ -176,7 +176,7 @@ const chatCommands = {
         commands: ["gamemode", "gm"],
         admin: true,
         description: `Changes your game mode. (Example: ${commandOptions.delimiter}gamemode creative)`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             const myBrainPlayer = brainGame.players.filter( p => p.playerID === playerID )[0]
             if (Object.keys(gameModes).includes(args[0])) {
                 // Set game mode
@@ -194,7 +194,7 @@ const chatCommands = {
         commands: ["servergamemode", "sgm"],
         admin: true,
         description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode parkour)`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (Object.values(gameModes).includes(args[0])) {
                 // Set game mode
                 brainGame.gameOptions.gameMode = args[0]
@@ -213,7 +213,7 @@ const chatCommands = {
         commands: ["admin", "op"],
         admin: true,
         description: `Makes the targeted player an admin. (Example: ${commandOptions.delimiter}admin Blocky Crab)`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Get player name from arguments
             let argString = ''
             for (let i = 0; i < args.length; i++) {
@@ -238,7 +238,7 @@ const chatCommands = {
         commands: ["removeadmin", "deop"],
         admin: true,
         description: `Removes admin from the targeted player. (Example: ${commandOptions.delimiter}removeadmin Silly Gamer)`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Get player name from arguments
             let argString = ''
             for (let i = 0; i < args.length; i++) {
@@ -263,7 +263,7 @@ const chatCommands = {
         commands: ["tickrate", "tr"],
         admin: true,
         description: `Sets the server's game update speed. (Example: ${commandOptions.delimiter}tickrate 30)`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set tick rate
                 const newRate = parseFloat(args[0])
@@ -281,7 +281,7 @@ const chatCommands = {
         commands: ["genworld"],
         admin: true,
         description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld 8 lavaPlanet")`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set generator props
                 const newSize = (args[0])? parseFloat(args[0]) : 4
@@ -301,7 +301,7 @@ const chatCommands = {
         commands: ["setworldspawn", "setwspawn", "sws"],
         admin: true,
         description: `Set's the player's current location as the world's default spawn point.`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Get player position
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
             const position = player.position
@@ -316,7 +316,7 @@ const chatCommands = {
         commands: ["setblock", "sblock"],
         admin: true,
         description: `Sets a block in the world to the given ID. (Example: "/setblock X Y Z ID")`,
-        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             const position = {x: args[0], y: args[1], z: args[2]}
             const location = getArrayPos(position, brainGame.world._chunkSize)
             const blockID = args[3]
