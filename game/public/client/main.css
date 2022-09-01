@@ -44,6 +44,7 @@ Comon
 body {
     margin: 0px;
     padding: 0px;
+	overflow: hidden;
 }
 
 /* ============================================
@@ -267,4 +268,67 @@ Embedded Content
 	font-size: 24px;
 
 	z-index: 10;
+}
+
+/* ============================================
+How to Play Window
+============================================ */
+
+#howtoplay-window {
+	display: inline-block;
+	position: absolute;
+
+	padding: 0;
+
+	width: 50%;
+	height: 100%;
+
+	top: 0px;
+	right: 0px;
+
+	background-color: var(--color-shadow);
+	color: white;
+
+	z-index: 1000;
+	transition: 1s;
+}
+
+#howtoplay-content {
+	display: inline-block;
+	position: relative;
+
+	padding: 20px;
+
+	width: calc(100% - 40px);
+	height: calc(100% - 40px);
+
+	overflow-y: auto;
+}
+
+#howtoplay-window.closed {
+	right: -50%;
+}
+
+#howtoplay-window h1 {
+	font-size: 32px;
+}
+
+#howtoplay-button {
+	display: inline-block;
+	position: absolute;
+
+	width: 40px;
+	height: 40px;
+
+	background-color: var(--color-shadow);
+	text-align: center;
+	font-size: 25px;
+	line-height: 40px;
+	user-select: none;
+
+	top: 0px;
+	left: -40px;
+
+	cursor: pointer;
+	z-index: 1000;
 }

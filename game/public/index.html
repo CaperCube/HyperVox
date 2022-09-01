@@ -19,7 +19,7 @@
     // Use `<script type="module">` and `import / export` to cut down on script tags
     -->
     <!-- //////////////// Version Number /////////////////// -->
-    <script>const versionNumber = `0.03.3`;</script>
+    <script>const versionNumber = `0.03.4`;</script>
     <!-- /////////////////// Libraries ///////////////////// -->
     <script defer src="./client/js/commonUtils.js"></script>
     <script defer type="module" src="./client/js/dist/babylon.js"></script>
@@ -66,5 +66,46 @@
     <span id="embedded_content">
         <button onclick="event.stopPropagation(); SetEmbed()" id="close-embed">Close</button>
         <iframe id="embed_frame" src="" allowtransparency="true" title="Embedded Content"></iframe>
+    </span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                  How To Play                   ////
+    ////////////////////////////////////////////////////////
+    -->
+    <span id="howtoplay-window">
+        <span id="howtoplay-button" onclick="$('#howtoplay-window').classList.toggle('closed')">?</span>
+        <span id="howtoplay-content">
+            <p>
+                <h1>Compatibility</h1>
+                <span style="color: #ff9900">The game will currently only load when using <span style="color: #44dd22">Chrome, Edge,</span> or other <span style="color: #44dd22">Chromium-based browsers</span>.</span><br>
+            </p>
+            <p>
+                <h1>How to Play</h1>
+                <span style="color: #ff9900">This is an early version</span> of the project, so many features may not work fully as expected.<br>
+                <br>
+                <span style="color: #88aaff">To play multiplayer</span>, click "Join Online" and then "Submit" without typing anything. If you don't load load into the game, a multiplayer game hasn't been created yet, so you can then use "Start Game" to create one.
+            </p>
+            <p>
+                <h1>Controls</h1>
+                <u>Caution:</u> Please avoid <span style="color: #ff9900">pressing "Ctrl" while playing</span>! "Ctrl" has many functions, some of which <span style="color: #ff9900">will close or change tabs.</span><br>
+                <br>
+                <span style="color: #88aaff">Tab</span> = Open menu<br>
+                <br>
+                <span style="color: #88aaff">WASD</span> = Move player<br>
+                <span style="color: #88aaff">Space</span> = Jump<br>
+                <span style="color: #88aaff">Mouse</span> = Look<br>
+                <br>
+                <span style="color: #88aaff">Left Click</span> = Place block<br>
+                <span style="color: #88aaff">Right Click</span> = Remove block<br>
+                <span style="color: #88aaff">Mouse Scroll</span> or <span style="color: #88aaff">-+</span> = Change selected block<br>
+                <span style="color: #88aaff">E</span> = Eye-drop block<br>
+            </p>
+            <p>
+                <h1>Noclip Mode</h1>
+                <span style="color: #88aaff">R</span> = Toggle noclip<br>
+                <span style="color: #88aaff">Space</span> = Fly up<br>
+                <span style="color: #88aaff">Shift</span> = Fly down<br>
+            </p>
+        </span>
     </span>
 </body>
