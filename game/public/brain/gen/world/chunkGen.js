@@ -238,6 +238,9 @@ class ChunkGenerator {
         this.noiseAlgorithm.noiseSeed(stringToSeed(usedSeed)) // Changing the seed will change the value of `this.noiseAlgorithm.get(x,y,z)`
         this.noiseAlgorithm2.noiseSeed(stringToSeed(`${usedSeed}_gen2`)) // Changing the seed will change the value of `this.noiseAlgorithm.get(x,y,z)`
 
+        // Set the noise pattern
+        const patternToUse = (this.noisePatterns.hasOwnProperty(pattern))? pattern : 'basic'
+
         // Generate the chunk data
         let worldChunks = [[[]]]
         for (let y = 0; y < worldSize; y++) {
@@ -247,7 +250,7 @@ class ChunkGenerator {
         for (let z = 0; z < worldSize; z++) {
             // Generate chunk with a position offset
             const chunkOffset = { x: x*chunkSize, y: y*chunkSize, z: z*chunkSize }
-            const chunk = this.generateChunk(chunkOffset, chunkSize, pattern)
+            const chunk = this.generateChunk(chunkOffset, chunkSize, patternToUse)
             worldChunks[y][x][z] = chunk
         }}}
 

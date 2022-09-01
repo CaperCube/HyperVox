@@ -259,7 +259,41 @@ const chatCommands = {
             else sendMessage(`Player not found`)
         }
     },
-
+    changeGameMode: {
+        commands: ["tickrate", "tr"],
+        admin: true,
+        description: `Sets the server's game update speed. (Example: ${commandOptions.delimiter}tickrate 30)`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set tick rate
+                const newRate = parseFloat(args[0])
+                brainGame.changeGameLoopSpeed(newRate)
+                // Send message
+                sendMessage(`Server tick rate set to ${newRate}ms`)
+            }
+            else {
+                // Send message
+                sendMessage(`You must type a value. Try something like: "${commandOptions.delimiter}tickrate 30"`)
+            }
+        }
+    },
+    generateNewWorld: {
+        commands: ["genworld"],
+        admin: true,
+        description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld 8 lavaPlanet")`,
+        function: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set generator props
+                const newSize = (args[0])? parseFloat(args[0]) : 4
+                const newPattern = (args[1])? args[1] : 'basic'
+                // Create new world
+                brainGame.createNewWorld( newSize, newPattern )
+                // Send message
+                sendMessage(`New ${newSize} sized world generated.`)
+            }
+        }
+    },
+    
     //
     // World commands
     //

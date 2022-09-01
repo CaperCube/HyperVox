@@ -1,46 +1,12 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
-import { tileScale, defaultChunkSize, defaultWorldSize, getRandomName } from '../client/js/clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"
-
-const gameModes = {
-    creative: 'creative',
-    parkour: 'parkour',
-    deathMatch: 'deathmatch',
-    teamDeathMatch: 'teamDeathMatch',
-}
-
-// ToDo: Move this player class to a seperate file
-class BrainPlayer {
-    constructor(playerID) {
-        this.playerID = playerID
-        this.playerName = getRandomName()//'Player' // ToDo: use 'getRandomPlayerName()'
-
-        // Game vars
-        this.isAdmin = false // ToDo: set as true if this is the first player in the lobby
-        this.gameMode = gameModes.creative // this overrides 'gameOptions.gameMode'
-
-        this.respawmPoint = { x: 0, y: 0, z: 0 } // not yet implemented
-        this.position = { x: 0, y: 0, z: 0 }
-        this.rotation = { x: 0, y: 0, z: 0 }
-        this.health = 100 // not yet implemented
-
-        this.stats = {
-            kills: 0,
-            deaths: 0,
-            points: 0
-        }
-
-        // Vars for validation
-        // (Not implemented yet. See 'docs/LagCompensation.md')
-        this.positionHistory = {
-            //'stamp-1230'
-        }
-    }
-}
+import BrainPlayer from "./entities/brainPlayer.js"
+import { gameModes } from '../common/commonConstants.js'
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
@@ -89,7 +55,7 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    createNewWorld = ( size ) => {
+    createNewWorld = ( size, pattern = 'basic' ) => {
         // Create new world object
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 
@@ -98,7 +64,8 @@ class BrainGame {
         const genWorld = this.generator.generateWorld({
             seed: this.world.getWorldSeed(),
             chunkSize: this.world.getChunkSize(),
-            worldSize: this.world.getWorldSize()
+            worldSize: this.world.getWorldSize(),
+            pattern: pattern,
         })
         this.world.worldChunks = genWorld
 
@@ -248,8 +215,21 @@ class BrainGame {
         this.gameTickInterval = setInterval(()=>{ this.gameTick() }, this.gameOptions.gameTickSpeed)
     }
 
+    changeGameLoopSpeed = (newSpeed) => {
+        // Change speed
+        this.gameOptions.gameTickSpeed = newSpeed
+
+        // Reset loop if already running
+        if (this.gameTickInterval) {
+            clearInterval(this.gameTickInterval)
+            // Restart loop
+            this.gameTickInterval = setInterval(()=>{ this.gameTick() }, this.gameOptions.gameTickSpeed)
+        }
+    }
+
     stopGameLoop = () => {
         // Stop loop
+        clearInterval(this.gameTickInterval)
         this.gameTickInterval = null
     }
 

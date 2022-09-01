@@ -114,9 +114,8 @@ class BrainComs {
                 }
 
                 // Network the data
-                // if (this.isNetworked) {
-                //     this.network.emit( 'genericClientMessage', { type: 'movePlayer', recipients: "all", args: data } )
-                // }
+                // Moved
+                // The server now automatically sends this info with "brainGame.gameTick()"
             },
 
             askWhosConnected: ( data, playerID ) => {
@@ -214,10 +213,24 @@ class BrainComs {
                 const killerPlayer = this.brainGame.players.filter( p => p.playerID === data.killerPlayerID )[0]
                 const deadPlayer = this.brainGame.players.filter( p => p.playerID === data.deadPlayerID )[0]
 
+                // Apply score
+                if (killerPlayer) killerPlayer.stats.kills++
+                if (deadPlayer) deadPlayer.stats.deaths++
+
                 // Send message
                 let serverData
-                    if (killerPlayer) serverData = { message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b>`, messageName: 'Server', isServer: true }
-                    else serverData = { message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b> died of natural causes`, messageName: 'Server', isServer: true }
+                    // If a player is killed by another player
+                    if (killerPlayer) serverData = {
+                        message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b>`,
+                        messageName: 'Server',
+                        isServer: true
+                    }
+                    // If they player died on their own
+                    else serverData = {
+                        message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b> died of natural causes`,
+                        messageName: 'Server',
+                        isServer: true
+                    }
                 if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
                 else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
             }
