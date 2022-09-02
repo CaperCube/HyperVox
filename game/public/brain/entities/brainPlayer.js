@@ -24,7 +24,7 @@ export default class BrainPlayer extends BrainEntity {
         this.stats = {
             kills: 0,
             deaths: 0,
-            points: 0
+            score: 0,
         }
 
         // Vars for validation
@@ -32,5 +32,13 @@ export default class BrainPlayer extends BrainEntity {
         // this.positionHistory = {
         //     //'stamp-1230'
         // }
+    }
+
+    ResetStats() {
+        this.stats = {
+            kills: 0,
+            deaths: 0,
+            score: 0,
+        }
     }
 }

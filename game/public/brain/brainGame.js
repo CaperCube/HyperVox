@@ -181,6 +181,12 @@ class BrainGame {
         this.brainComs.genericToClient('updateWorldSpawn', {location: location})
     }
 
+    resetScores = () => {
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i]) this.players[i].ResetStats()
+        }
+    }
+
     // ToDo: this should check the player's position using a time stamp
     // Note: This function should only be used for "hitscan" guns, projectiles should move like entities
     checkIfShotHitAnyone = ( data, authorID ) => { 

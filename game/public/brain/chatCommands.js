@@ -293,6 +293,17 @@ const chatCommands = {
             }
         }
     },
+    resetScores: {
+        commands: ["resetscores", "clearscores"],
+        admin: true,
+        description: `Resets all connected player's stats to 0 (Example: "${commandOptions.delimiter}resetScores")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Reset scores
+            brainGame.resetScores()
+            // Send message
+            sendMessage(`All player scores have been reset.`)
+        }
+    },
     
     //
     // World commands

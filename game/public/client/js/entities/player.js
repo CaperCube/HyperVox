@@ -52,7 +52,7 @@ class ClientPlayer {
         this.stats = {
             kills: 0,
             deaths: 0,
-            points: 0
+            score: 0
         }
 
         // Private vars

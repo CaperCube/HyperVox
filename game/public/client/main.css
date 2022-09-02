@@ -391,7 +391,7 @@ Lobby
 	background-color: var(--color-panel-dark);
 }
 
-.player-name, .player-k, .player-d, .player-points {
+.player-name, .player-k, .player-d, .player-score {
 	display: inline-block;
 	position: relative;
 
@@ -412,7 +412,7 @@ Lobby
 	color: #ff9900;
 }
 
-.player-points {
+.player-score {
 	color: #88aaff;
 }
 

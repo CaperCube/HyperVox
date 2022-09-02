@@ -14,7 +14,7 @@ export function ClearLobbyContent() {
 /**
  * Gets the lobby DOM by playerId
  * @param playerId: The id of the player being accessed
- * @returns { name: DOM element, kills: DOM element, deaths: DOM element, points: DOM element }
+ * @returns { name: DOM element, kills: DOM element, deaths: DOM element, score: DOM element }
 */
 export function GetLobbyDOMDataByID(playerId) {
     const formattedId = (`${playerId}`).replace(".", "")
@@ -25,7 +25,7 @@ export function GetLobbyDOMDataByID(playerId) {
             name: playerDOM.querySelector('.player-name'),
             kills: playerDOM.querySelector('.player-k'),
             deaths: playerDOM.querySelector('.player-d'),
-            points: playerDOM.querySelector('.player-points')
+            score: playerDOM.querySelector('.player-score')
         }
         
         return playerStats
@@ -61,10 +61,10 @@ export function CreateLobbyPlayerDOM(playerData) {
     pD.innerHTML = playerData.stats?.deaths || 0
     pDOM.appendChild(pD)
 
-    const pPoints = document.createElement("span")
-    pPoints.className = "player-points"
-    pPoints.innerHTML = playerData.stats?.points || 0
-    pDOM.appendChild(pPoints)
+    const pScore = document.createElement("span")
+    pScore.className = "player-score"
+    pScore.innerHTML = playerData.stats?.score || 0
+    pDOM.appendChild(pScore)
 
     $("#player-list-content").appendChild(pDOM)
 
@@ -102,7 +102,7 @@ export function UpdateLobbyPlayerData(playerData) {
                 playerDOM.name.innerHTML = pData.playerName
                 playerDOM.kills.innerHTML = pData.stats.kills
                 playerDOM.deaths.innerHTML = pData.stats.deaths
-                playerDOM.points.innerHTML = pData.stats.points
+                playerDOM.score.innerHTML = pData.stats.score
             }
             else {
                 CreateLobbyPlayerDOM(pData)
