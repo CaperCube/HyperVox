@@ -245,6 +245,10 @@ class ClientGame {
         $("#chat-input").onsubmit = (e) => { e.preventDefault() }
         // Remove command buttons
         $("#lobby-reset-scores").onclick = () => {}
+        $("#lobby-set-spectator").onclick = () => {}
+        $("#lobby-set-creative").onclick = () => {}
+        $("#lobby-set-deathmatch").onclick = () => {}
+        $("#lobby-set-parkour").onclick = () => {}
         // Stop all sounds
         this.stopAllSounds()
     }
@@ -280,6 +284,10 @@ class ClientGame {
 
         // Add command buttons
         $("#lobby-reset-scores").onclick = () => { this.clientComs.sendChatMessage(`/clearscores`, this.localPlayer.playerName, this.localPlayer.playerColor) }
+        $("#lobby-set-spectator").onclick = () => { this.clientComs.sendChatMessage(`/sgm spectator`, this.localPlayer.playerName, this.localPlayer.playerColor) }
+        $("#lobby-set-creative").onclick = () => { this.clientComs.sendChatMessage(`/sgm creative`, this.localPlayer.playerName, this.localPlayer.playerColor) }
+        $("#lobby-set-deathmatch").onclick = () => { this.clientComs.sendChatMessage(`/sgm deathmatch`, this.localPlayer.playerName, this.localPlayer.playerColor) }
+        $("#lobby-set-parkour").onclick = () => { this.clientComs.sendChatMessage(`/sgm parkour`, this.localPlayer.playerName, this.localPlayer.playerColor) }
 
         // Hide menu
         this.menu.hide()

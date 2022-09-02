@@ -232,24 +232,14 @@ class ClientPlayer {
     startRace = () => {
         if (!this.isRacing){
             this.isRacing = true
-            this.raceStartTime = Date.now()
+            this.clientGame.clientComs.genericToBrain( 'startRace', {} )
         }
     }
 
     endRace = () => {
         if (this.isRacing) {
             this.isRacing = false
-            this.raceEndTime = Date.now()
-
-            const diffTotal = this.raceEndTime - this.raceStartTime
-            const diffMin = Math.round(diffTotal / 60000) // minutes
-            const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
-            const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
-
-            console.log(this.playerName)
-            console.log(this.playerName)
-
-            this.clientGame.clientComs.sendChatMessage(`<u>Finished in: ${diffMin}:${diffSec}:${diffMs}</u>`, this.playerName, this.playerColor)
+            this.clientGame.clientComs.genericToBrain( 'endRace', {} )
         }
     }
 

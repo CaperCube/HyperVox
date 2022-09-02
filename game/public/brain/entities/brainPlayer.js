@@ -25,7 +25,10 @@ export default class BrainPlayer extends BrainEntity {
             kills: 0,
             deaths: 0,
             score: 0,
+            // startTime: 0,
         }
+
+        this.startTime = 0
 
         // Vars for validation
         // (Not implemented yet. See 'docs/LagCompensation.md')

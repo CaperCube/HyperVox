@@ -162,6 +162,41 @@ class BrainComs {
                     }
                 }
             },
+            
+            startRace: ( data, playerID ) => {
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                if (myBrainPlayer && myBrainPlayer.gameMode === gameModes.parkour) {
+                    // Log time for player's start time
+                    if (!myBrainPlayer.startTime) {
+                        myBrainPlayer.startTime = Date.now()
+                    }
+                }
+            },
+
+            endRace: ( data, playerID ) => {
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                if (myBrainPlayer && myBrainPlayer.gameMode === gameModes.parkour) {
+                    if (!!myBrainPlayer.startTime) {
+                        // Calculate time elapsed
+                        const raceStartTime = myBrainPlayer.startTime
+                        const raceEndTime = Date.now()
+            
+                        const diffTotal = raceEndTime - raceStartTime
+                        const diffMin = Math.round(diffTotal / 60000) // minutes
+                        const diffSec = Math.round((diffTotal % 60000) / 1000) // seconds
+                        const diffMs = Math.round((diffTotal % 60000) % 1000) // ms
+
+                        // Reset score and reset start time
+                        myBrainPlayer.stats.score = `${diffMin}:${diffSec}:${diffMs}`
+                        myBrainPlayer.startTime = 0
+
+                        // Send message
+                        const responseMessage = `<span style="padding: 5px; color: white; border: 2px solid green;"><b style="color: green;">${myBrainPlayer?.playerName}</b> has finished! Time: ${myBrainPlayer.stats.score}</span>`
+                        const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
+                        this.genericToClient('receiveChatMessage', serverData)
+                    }
+                }
+            },
 
             // A player requested to fire a gun
             shootGun: ( data, playerID ) => {
