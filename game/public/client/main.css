@@ -298,7 +298,7 @@ Side Menu & Tabs
 	color: white;
 
 	z-index: 1000;
-	transition: 1s;
+	transition: 0.5s;
 }
 
 #side-menu-tabs {

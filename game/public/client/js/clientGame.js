@@ -243,6 +243,8 @@ class ClientGame {
         $("#chat-window").style.display = 'none'
         $("#chat-input").style.display = 'none'
         $("#chat-input").onsubmit = (e) => { e.preventDefault() }
+        // Remove command buttons
+        $("#lobby-reset-scores").onclick = () => {}
         // Stop all sounds
         this.stopAllSounds()
     }
@@ -275,6 +277,9 @@ class ClientGame {
             this.clientComs.sendChatMessage($("#chat-input-text").value, this.localPlayer.playerName, this.localPlayer.playerColor)
             $("#chat-input-text").value = ''
         }
+
+        // Add command buttons
+        $("#lobby-reset-scores").onclick = () => { this.clientComs.sendChatMessage(`/clearscores`, this.localPlayer.playerName, this.localPlayer.playerColor) }
 
         // Hide menu
         this.menu.hide()

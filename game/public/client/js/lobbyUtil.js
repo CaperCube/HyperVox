@@ -93,7 +93,6 @@ export function CreateLobbyPlayerList(playerData) {
 */
 export function UpdateLobbyPlayerData(playerData) {
     // Loop through playerData and update their content
-    console.log(playerData)
     for (let i = 0; i < playerData.length; i++) {
         const pData = playerData[i]
         if (pData) {
