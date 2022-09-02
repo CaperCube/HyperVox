@@ -15,6 +15,7 @@ Variables
 	--color-shadow: rgba(0,0,0,0.5);
 
 	--color-panel: rgba(125, 125, 125, 0.5);
+	--color-panel-light: rgba(186, 186, 186, 0.5);
 	--color-panel-dark: rgba(64, 64, 64, 0.5);
 }
 
@@ -387,8 +388,8 @@ Lobby
 	background-color: var(--color-shadow);
 }
 
-#player-list-content .player-row:first-of-type {
-	background-color: var(--color-panel-dark);
+#player-list-content .player-row:first-of-type > span {
+	border: 2px solid var(--color-panel-light);
 }
 
 .player-name, .player-k, .player-d, .player-score {

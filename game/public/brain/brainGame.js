@@ -24,7 +24,9 @@ class BrainGame {
             gameMode: gameModes.creative, // The brain's default game-mode
             chatOptions: {
                 maxChatSize: 40, // The maximum allowed characters in a chat message
-            }
+            },
+            // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
+            scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
         }
         
         this.brainComs = new BrainComs({

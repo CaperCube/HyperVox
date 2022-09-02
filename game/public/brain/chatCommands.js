@@ -293,6 +293,20 @@ const chatCommands = {
             }
         }
     },
+    setScoreLimit: {
+        commands: ["scorelimit", "setscorelimit"],
+        admin: true,
+        description: `Changes the game's score limit (Example: "${commandOptions.delimiter}scorelimit 20")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set limit
+                const newScore = parseFloat(args[0])
+                brainGame.gameOptions.scoreLimit = newScore
+                // Send message
+                sendMessage(`The score limit has been changed to ${newScore}.`)
+            }
+        }
+    },
     resetScores: {
         commands: ["resetscores", "clearscores"],
         admin: true,
