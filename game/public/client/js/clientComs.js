@@ -10,6 +10,7 @@
 import { defaultWorldSize } from "./clientConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
+import { UpdateLobbyPlayerData, CreateLobbyPlayerList, ClearLobbyContent } from "./lobbyUtil.js"
 
 class ClientComs {
     constructor(props = {
@@ -97,6 +98,12 @@ class ClientComs {
                         delete this.clientGame.networkPlayers[p]
                     }
                 }
+
+                // Create score-board
+                // const newPlayers = [this.clientGame.localPlayer, ...this.clientGame.networkPlayers]
+                // for (let i = 0; i < newPlayers.length; i++) console.log(newPlayers[i].playerName)
+                // CreateLobbyPlayerList(newPlayers)
+                ClearLobbyContent()
             },
 
             playerNameChange: ( data, playerId ) => {
@@ -145,6 +152,9 @@ class ClientComs {
                         this.clientGame.localPlayer.stats = dataPlayer.stats
                     }
                 }
+
+                // Update scores
+                UpdateLobbyPlayerData([this.clientGame.localPlayer, ...this.clientGame.networkPlayers])
             },
 
             // Depricated: Remove this function :)

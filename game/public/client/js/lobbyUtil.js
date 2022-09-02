@@ -1,0 +1,112 @@
+/////////////////////////////////////////////////////
+// Lobby
+/////////////////////////////////////////////////////
+
+/**
+ * Clears the lobby's contents
+ * @returns null
+*/
+export function ClearLobbyContent() {
+    const lobbyContent = $("#player-list-content")
+    lobbyContent.innerHTML = ""
+}
+
+/**
+ * Gets the lobby DOM by playerId
+ * @param playerId: The id of the player being accessed
+ * @returns { name: DOM element, kills: DOM element, deaths: DOM element, points: DOM element }
+*/
+export function GetLobbyDOMDataByID(playerId) {
+    const formattedId = (`${playerId}`).replace(".", "")
+    const playerDOM = $(`#lobby_${formattedId}`)
+
+    if (playerDOM) {
+        const playerStats = {
+            name: playerDOM.querySelector('.player-name'),
+            kills: playerDOM.querySelector('.player-k'),
+            deaths: playerDOM.querySelector('.player-d'),
+            points: playerDOM.querySelector('.player-points')
+        }
+        
+        return playerStats
+    }
+    else return null
+}
+
+/**
+ * Creates the lobby DOM for a player
+ * @param playerData: The data of the player being created
+ * @returns null
+*/
+export function CreateLobbyPlayerDOM(playerData) {
+    const formattedId = (`${playerData.playerID}`).replace(".", "")
+    const pDOMId = `lobby_${formattedId}`
+    
+    const pDOM = document.createElement("span")
+    pDOM.className = "player-row"
+    pDOM.id = pDOMId
+
+    const pName = document.createElement("span")
+    pName.className = "player-name"
+    pName.innerHTML = playerData.playerName
+    pDOM.appendChild(pName)
+
+    const pK = document.createElement("span")
+    pK.className = "player-k"
+    pK.innerHTML = playerData.stats?.kills || 0
+    pDOM.appendChild(pK)
+
+    const pD = document.createElement("span")
+    pD.className = "player-d"
+    pD.innerHTML = playerData.stats?.deaths || 0
+    pDOM.appendChild(pD)
+
+    const pPoints = document.createElement("span")
+    pPoints.className = "player-points"
+    pPoints.innerHTML = playerData.stats?.points || 0
+    pDOM.appendChild(pPoints)
+
+    $("#player-list-content").appendChild(pDOM)
+
+    console.log("Created player lobby DOM")
+}
+
+/**
+ * Creates the players shown in the lobby (this is intended to be used when players join / leave a game)
+ * @param playerData: The array of all connected players and their data
+ * @returns null
+*/
+export function CreateLobbyPlayerList(playerData) {
+    // Clear the current lobby contents
+    ClearLobbyContent()
+
+    // Loop through playerData and create a DOM element for each
+    for (let i = 0; i < playerData.length; i++) {
+        if (playerData[i]) CreateLobbyPlayerDOM(playerData[i])
+    }
+}
+
+/**
+ * Updates the data show in the lobby for the connected players
+ * @param playerData: The array of all connected players and their data
+ * @returns null
+*/
+export function UpdateLobbyPlayerData(playerData) {
+    // Loop through playerData and update their content
+    console.log(playerData)
+    for (let i = 0; i < playerData.length; i++) {
+        const pData = playerData[i]
+        if (pData) {
+            const playerDOM = GetLobbyDOMDataByID(pData.playerID)
+            if (playerDOM) {
+                playerDOM.name.innerHTML = pData.playerName
+                playerDOM.kills.innerHTML = pData.stats.kills
+                playerDOM.deaths.innerHTML = pData.stats.deaths
+                playerDOM.points.innerHTML = pData.stats.points
+            }
+            else {
+                CreateLobbyPlayerDOM(pData)
+            }
+        }
+    }
+}

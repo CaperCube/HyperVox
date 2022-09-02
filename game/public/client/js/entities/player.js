@@ -49,6 +49,12 @@ class ClientPlayer {
         this.playerName = 'Player'
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
 
+        this.stats = {
+            kills: 0,
+            deaths: 0,
+            points: 0
+        }
+
         // Private vars
         this.groundFric = 0.75
         this.gravity = -0.0125

@@ -18,6 +18,24 @@ function HideShowDOM(element, defaultStyle = "inline-block") {
 }
 
 /**
+ * Hides all side menu tabs except the selected one
+ * @param element: The DOM element to show
+ * @returns null
+ */
+function SwitchSideMenuTab(element) {
+    // Loop through all side menu tabs and hide them
+    const helpTab = $("#help-tab")
+    const lobbyTab = $("#lobby-tab")
+    const contTab = $("#controls-tab")
+
+    helpTab.classList.add('hidden')
+    contTab.classList.add('hidden')
+    lobbyTab.classList.add('hidden')
+
+    if (element) element.classList.remove('hidden')
+}
+
+/**
  * Sets the SRC of and enables the iframe element on the page. If no url is provided, this will disable/hide the iframe element
  * @param url: The url to use in the iframe
  * @returns null

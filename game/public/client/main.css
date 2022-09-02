@@ -13,6 +13,9 @@ Variables
 	/* Colors */
 	--color-inputBG: rgba(0,0,0,0.5);
 	--color-shadow: rgba(0,0,0,0.5);
+
+	--color-panel: rgba(125, 125, 125, 0.5);
+	--color-panel-dark: rgba(64, 64, 64, 0.5);
 }
 
 /* ============================================
@@ -45,6 +48,10 @@ body {
     margin: 0px;
     padding: 0px;
 	overflow: hidden;
+}
+
+.hidden {
+	display: none;
 }
 
 /* ============================================
@@ -271,10 +278,10 @@ Embedded Content
 }
 
 /* ============================================
-How to Play Window
+Side Menu & Tabs
 ============================================ */
 
-#howtoplay-window {
+#side-menu {
 	display: inline-block;
 	position: absolute;
 
@@ -293,7 +300,7 @@ How to Play Window
 	transition: 1s;
 }
 
-#howtoplay-content {
+#side-menu-tabs {
 	display: inline-block;
 	position: relative;
 
@@ -305,15 +312,15 @@ How to Play Window
 	overflow-y: auto;
 }
 
-#howtoplay-window.closed {
+#side-menu.closed {
 	right: -50%;
 }
 
-#howtoplay-window h1 {
+#side-menu-tabs h1 {
 	font-size: 32px;
 }
 
-#howtoplay-button {
+#side-menu-button {
 	display: inline-block;
 	position: absolute;
 
@@ -331,4 +338,93 @@ How to Play Window
 
 	cursor: pointer;
 	z-index: 1000;
+}
+
+.tab-button {
+	display: inline-block;
+	position: relative;
+
+	height: 40px;
+	padding: 0 10px;
+	margin: 0;
+
+	background-color: var(--color-shadow);
+	text-align: center;
+	font-size: 25px;
+	line-height: 40px;
+
+	top: 0px;
+	left: 0px;
+
+	user-select: none;
+	cursor: pointer;
+}
+
+/* ============================================
+Lobby
+============================================ */
+
+#player-list {
+	display: inline-block;
+	position: relative;
+
+	height: auto;
+	width: calc(100% - 10px);
+
+	padding: 5px;
+
+	background-color: var(--color-panel);
+}
+
+.player-row {
+	display: flex;
+	flex-wrap: nowrap;
+	position: relative;
+
+	height: 40px;
+	width: 100%;
+
+	background-color: var(--color-shadow);
+}
+
+#player-list-content .player-row:first-of-type {
+	background-color: var(--color-panel-dark);
+}
+
+.player-name, .player-k, .player-d, .player-points {
+	display: inline-block;
+	position: relative;
+
+	height: 36px;
+	width: 76px;
+
+	line-height: 38px;
+	text-align: center;
+
+	border: 2px solid var(--color-shadow);
+}
+
+.player-k {
+	color: #44dd22;
+}
+
+.player-d {
+	color: #ff9900;
+}
+
+.player-points {
+	color: #88aaff;
+}
+
+.player-name {
+	text-align: left;
+	width: calc(100% - ((80px * 3) + 10px));
+
+	padding: 0 5px;
+
+	overflow: hidden;
+}
+
+#lobby-labels {
+	color: rgba(255,255,255,0.5);
 }
