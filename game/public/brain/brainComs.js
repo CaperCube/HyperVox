@@ -262,15 +262,17 @@ class BrainComs {
                         // Decalre winner
                         playerWon = true
 
-                        // Reset game
-                        //this.brainGame.resetScores()
+                        // Set server game more to spectator
+                        this.brainGame.gameOptions.gameMode = gameModes.spectator
+                        for (let i = 0; i < this.brainGame.players.length; i++) this.brainGame.players[i].gameMode = this.brainGame.gameOptions.gameMode
+
                     }
                 }
 
                 // Send message
                 // If a player won the game
                 if (playerWon) serverData = {
-                    message: `<span style="padding: 5px; color: white; border: 2px solid ${data.killerPlayerColor};"><b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> has won!</span>`,
+                    message: `<span style="padding: 5px; color: white; border: 2px solid ${data.killerPlayerColor};"><b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> has won!</span><br><br>Game mode changed to ${this.brainGame.gameOptions.gameMode}.`,
                     messageName: 'Server',
                     isServer: true
                 }

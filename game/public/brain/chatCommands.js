@@ -259,7 +259,7 @@ const chatCommands = {
             else sendMessage(`Player not found`)
         }
     },
-    changeGameMode: {
+    changeTickRate: {
         commands: ["tickrate", "tr"],
         admin: true,
         description: `Sets the server's game update speed. (Example: ${commandOptions.delimiter}tickrate 30)`,
