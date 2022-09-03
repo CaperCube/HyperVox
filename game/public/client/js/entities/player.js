@@ -103,6 +103,12 @@ class ClientPlayer {
             // console.log(this.body)
             this.body.name = `body_player-${this.playerID}`
             this.head.name = `head_player-${this.playerID}`
+
+            // Set overlay color
+            this.body.overlayColor = new BABYLON.Color3.Red()
+            this.head.overlayColor = new BABYLON.Color3.Red()
+            this.body.renderOverlay = false
+            this.head.renderOverlay = false
         }
         else {
             // Camera is present, so create a item mesh in front of it
@@ -248,7 +254,7 @@ class ClientPlayer {
             // Apply damage
             this.health -= damage
 
-            // Only do this for loocal player
+            // Only do this for local player
             if (this.playerID === this.clientGame.localPlayer.playerID) {
 
                 // Update health readout
@@ -263,7 +269,7 @@ class ClientPlayer {
                     // Bob player's view
                     // ToDo: make screen red or something
                     this.avatarOffset.y += 0.15
-                    setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
+                    setTimeout( ()=>{ this.avatarOffset.y -= 0.15 }, iTime/6 )
                 }
                 else {
                     // Player is dead, respawn
@@ -279,7 +285,17 @@ class ClientPlayer {
             else {
                 // If other player, just bob
                 this.avatarOffset.y += 0.15
-                setTimeout( ()=>{this.avatarOffset.y -= 0.15}, iTime/6 )
+                if (this.body && this.head) {
+                    this.body.renderOverlay = true
+                    this.head.renderOverlay = true
+                }
+                setTimeout( ()=>{
+                    this.avatarOffset.y -= 0.15
+                    if (this.body && this.head) {
+                        this.body.renderOverlay = false
+                        this.head.renderOverlay = false
+                    }
+                }, iTime/6 )
             }
         }
     }

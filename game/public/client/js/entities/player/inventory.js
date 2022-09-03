@@ -199,6 +199,12 @@ function shoot(clientGame, player, item) {
     // console.log("Shoot")
     if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
 
+    // Play shoot animation
+    if (player.itemMesh) player.itemMesh.position.z -= 0.15
+    setTimeout( ()=>{ if (player.itemMesh) player.itemMesh.position.z += 0.15 }, 100 )
+
+    // Create bullet trail (ToDo: remove this and change with a better system)
+
     // Send brain message
     const origin = {
         location: { x: player.avatar.position.x, y: player.avatar.position.y, z: player.avatar.position.z},
