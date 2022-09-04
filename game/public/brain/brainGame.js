@@ -89,6 +89,26 @@ class BrainGame {
         this.brainComs.sendFullWorld( this.world )
     }
 
+    // ToDo: refactor this to pull from server files
+    loadWorldFromURL = ( worldName, msgCallback ) => {
+        let startedLoading = false
+
+        // Send request to load json
+        getJSON(worldName,
+            (err, data) => {
+            if (err !== null) {
+                msgCallback(`URL request failed:  ${err}`)
+            } else {
+                if (!startedLoading) {
+                    if (data) {
+                        startedLoading = true
+                        this.loadWorld( JSON.parse(data) )
+                    }
+                }
+            }
+        })
+    }
+
     updateSingleBlock = ( location, id ) => {
         if (this.world) {
             const locationExists = (!!this.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x])
@@ -288,6 +308,56 @@ class BrainGame {
 
         this.brainComs.genericToClient('updateAllPlayers', data)
         // or 'gameUpdateTick'
+    }
+}
+
+// ToDo: refactor this to allow different world sources (or to get from server)
+const getJSON = function(worldName, callback) {
+    if (typeof(XMLHttpRequest) == "undefined") {
+        import('http').then((pkg) => {
+            const httpPkg = pkg.default
+
+            // Request options
+            var options = {
+                hostname: 'localhost',
+                port: '3000',
+                path: `/worlds/${worldName}.json`,
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }
+
+            // Create request
+            let req = httpPkg.request(options, function(res) {
+                res.setEncoding('utf8')
+                let data = ''
+                res.on('data', (chunk) => {
+                    // Get data chunks
+                    data += chunk
+                })
+                res.on('end', () => {
+                    // Finished!
+                    callback(null, data)
+                })
+            })
+            req.on('error', (e) => {
+                // Failed request
+                callback(e.message, null)
+            })
+            req.end()
+        })
+    } else {
+        let xhr = new XMLHttpRequest()
+        xhr.open('GET', url, true)
+        xhr.responseType = 'json'
+        xhr.onload = function() {
+            let status = xhr.status
+        if (status === 200) {
+            callback(null, xhr.response)
+        } else {
+            callback(status, xhr.response)
+        }
+        }
+        xhr.send()
     }
 }
 
