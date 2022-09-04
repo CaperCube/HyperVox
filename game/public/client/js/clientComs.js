@@ -57,6 +57,9 @@ class ClientComs {
             loadSentWorld: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Load world from brain (client)', 'background: #142; color: #ced' )
 
+                // Stop current game
+                // this.clientGame.removeScene()
+
                 // Store world
                 if (this.isNetworked) this.clientGame.clientWorld = data.world
                 

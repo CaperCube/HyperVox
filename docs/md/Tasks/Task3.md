@@ -12,12 +12,19 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [X] **Add / Remove blocks with chat command**
     - [X] **"Set world spawn" chat command (admins only)**
         - This should set the spawn on the server world
+    - [X] Chat command to clear all player scores
+    - [ ] tp command
+    - [ ] tpall command
 - [ ] Spectator game mode
     - [ ] Turns off HUD
-    - [ ] tunrs off block cursor visibility
+    - [ ] Tunrs off block cursor visibility
     - [ ] Cannot edit blocks
-    - [ ] flying only
+    - [ ] Invisible to others
+    - [ ] Flying only
 - [ ] [Player Improvements](./PlayerOverhaul.md)
+    - [X] Better hurt animation for network players
+    - [X] Basic Shooting animation
+    - [X] Scoreboard / player list
     - [ ] Player should seperated from avatar
     - [ ] [Improved Movement](./MovementOverhaul.md)
         - [ ] Running
@@ -35,8 +42,8 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Game mode zone    
     - [ ] **Chain worlds**
         - [ ] **Add interactable world chain block**
-        - [ ] Option to generate new world
-        - [ ] Option to load existing world via URL
+        - [X] Option to generate new world
+        - [X] Option to load existing world via URL
     - [ ] **Custom block models**
         - [ ] Custom world-specific blocks
             - [ ] "Import .ccm" button in WorldTool
@@ -75,8 +82,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - projectiles should have a spawn timestamp that the server will fast forward to its (the server's) current time and recalculate the projectile's position to attempt to compensate for lag.
     - [ ] Item icons should be buffered in 3D (at load-in time)
 - [ ] Server improvements
+    - [X] Gamemode updates and scores
     - [ ] Player health should be authored by brain
-    - [ ] Server has an update rate
+    - [X] Server has an update rate
         - This should only happen for entities that the server updates on it's own
         - World updates should still happen as soon as their validated
     - [ ] Lag compensation (There may be a better system than this, this just seemed simple)

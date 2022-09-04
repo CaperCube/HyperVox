@@ -653,7 +653,7 @@ class ClientPlayer {
                 let worldPos = arrayPos.chunk
                 let chunkPos = arrayPos.block
 
-                let blockID = this.world.worldChunks[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
+                let blockID = this.world?.worldChunks?.[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
                 const blockShape = { x: blockTypes[blockID]?.shape?.x || 0, y: blockTypes[blockID]?.shape?.y || 0, z: blockTypes[blockID]?.shape?.z || 0, w: blockTypes[blockID]?.shape?.w || 1, h: blockTypes[blockID]?.shape?.h|| 1, d: blockTypes[blockID]?.shape?.d || 1 }
                 // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
                 let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5 + blockShape.y, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"

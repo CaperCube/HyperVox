@@ -235,10 +235,11 @@ class ClientGame {
     }
 
     removeScene() {
+        delete this.localPlayer
+        this.localPlayer = null
         this.engine.stopRenderLoop()
         this.scene = null
         this.mainCamera = null
-        this.localPlayer = null
         this.networkPlayers = []
         $("#chat-window").style.display = 'none'
         $("#chat-input").style.display = 'none'
@@ -252,7 +253,7 @@ class ClientGame {
         // Stop all sounds
         this.stopAllSounds()
     }
-
+    
     stopAllSounds() {
         for (const prop in sounds) {
             sounds[prop].stop()
