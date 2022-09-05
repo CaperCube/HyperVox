@@ -21,6 +21,12 @@ class PlayerAvatar {
             this.body.scaling.x = this.body.scaling.z = 0.5
             this.body.parent = this.root
             this.head.parent = this.root
+
+            // Set overlay color
+            this.body.overlayColor = new BABYLON.Color3.Red()
+            this.head.overlayColor = new BABYLON.Color3.Red()
+            this.body.renderOverlay = false
+            this.head.renderOverlay = false
         }
     }
 }

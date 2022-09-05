@@ -117,19 +117,7 @@ class ClientPlayer {
         //this.playerCamera = camera
 
         // Player controls
-        this.controls = controls
-        // controls: {
-        //     upAxis1: [Buttons.up],
-        //     downAxis1: [Buttons.down],
-        //     leftAxis1: [Buttons.left],
-        //     rightAxis1: [Buttons.right],
-        //     run: [Buttons.z],
-        //     jump: [Buttons.x],
-        //     fire1: [Buttons.lmb],
-        //     invUp: [Buttons.equals],
-        //     invDown: [Buttons.minus],
-        //     respawn: [Buttons.r]
-        // }
+        this.controls = controls // The buttons
 
         // Health vars
         this.health = 100
@@ -187,6 +175,11 @@ class ClientPlayer {
 
         this.nameMesh = null
 
+        ///////////////////////////////////////////////////////
+        // Name Tag
+        ///////////////////////////////////////////////////////
+
+        // ToDo: Refactor this / move this to another location (world text should not be a Player function)
         // If this player is not mine, create the nametag
         console.log("My player ID: ", this.playerID)
         if (this.playerID !== this.clientGame.clientID) {
@@ -214,6 +207,10 @@ class ClientPlayer {
             this.setPlayerName(this.playerName)
         }
 
+        ///////////////////////////////////////////////////////
+        // Walking sound
+        ///////////////////////////////////////////////////////
+
         this.isGrounded = false
         this.playStepSound = () => {
             const walkingSounds = [sounds.STEP_GRASS_1, sounds.STEP_GRASS_2, sounds.STEP_GRASS_3]
@@ -227,11 +224,33 @@ class ClientPlayer {
         }, 300 )
     }
 
+    ///////////////////////////////////////////////////////
+    // Held Item Mesh
+    ///////////////////////////////////////////////////////
+
     createItemMesh(texID) {
         if (this.itemMesh) this.itemMesh.dispose()
         this.itemMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0.75, y: -0.9, z: 0.5}, 'left', texID, this.clientGame.scene)
         this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75
         this.itemMesh.parent = this.avatar
+    }
+
+    ///////////////////////////////////////////////////////
+    // Player functions (ToDo: move some of these)
+    ///////////////////////////////////////////////////////
+
+    useInvItem = () => {
+        // Get cursor location
+        const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+        // Use selected item
+        this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
+    }
+
+    removeBlock = () => {
+        // Get cursor location
+        const changeLocation = { x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z }
+        // Remove block
+        this.clientGame.updateSingleBlock(changeLocation, 0)
     }
 
     //ToDo: move race logic to brain
@@ -249,6 +268,7 @@ class ClientPlayer {
         }
     }
 
+    // ToDo: Do Damage / Healing on brain, and refactor this to just be the animations
     takeDamage = (damage, iTime = this.invincibleTime, damageDealer = null) => { // This is not networked at the moment
         if (!this.isInvincible) {
             // Apply damage
@@ -314,6 +334,7 @@ class ClientPlayer {
         }
     }
 
+    // ToDo: This should be on brain
     teleportPlayer = (newPosition) => {
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.position = new BABYLON.Vector3(newPosition.x, newPosition.y, newPosition.z)
@@ -326,11 +347,12 @@ class ClientPlayer {
         const blockLocation = getGlobalPos(block, cSize)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
-        // ToDo: block interaction should be a client request sent to the brain
+        // ToDo: This should be a request sent to the brain (in the case of command blocks, the server can then exicute them without the need for player permissions)
         // Call block's interaction function
-        if (typeof blockTypes[blockID].interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
+        if (typeof blockTypes[blockID]?.interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
     }
 
+    // ToDo: rename this to be more clear this is just for the nametag
     // Set player nametag
     setPlayerName = (newName) => {
         // Set name
@@ -351,10 +373,11 @@ class ClientPlayer {
                     // Rescale mesh and texture
                     this.nameMesh.scaling.y = 0.5
                     this.nameMesh.scaling.x = (img.width / img.height) / 2
-                })
+            })
         }
     }
 
+    // ToDo: This should be stored per-player on the brain
     setPlayerSpawn = (newPos = {x:0, y:0, z:0}) => {
         // Set respawn location
         this.respawnPoint = new BABYLON.Vector3(newPos.x, newPos.y, newPos.z)
@@ -367,8 +390,11 @@ class ClientPlayer {
             BABYLON.Animation.CreateAndStartAnimation("spawnPointAnimation", this.respawnMesh, "rotation.y", 30, 120, 0, Math.PI, 1)
         }
     }
-
+    
+    ///////////////////////////////////////////////////////
     // Register controls with actions
+    ///////////////////////////////////////////////////////
+
     registerControls = (c) => {
         if (c) {
             // Movement
@@ -420,7 +446,10 @@ class ClientPlayer {
         }
     }
 
-    // Update player movement
+    ///////////////////////////////////////////////////////
+    // Player movement (ToDo: Make this it's own file so we can support different movement types)
+    ///////////////////////////////////////////////////////
+
     platformMovementUpdate = (engine) => {
         /////////////////////////////////////////////////
         // Raycast for grounded
@@ -784,19 +813,9 @@ class ClientPlayer {
         // ...
     }
 
-    useInvItem = () => {
-        // Get cursor location
-        const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
-        // Use selected item
-        this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
-    }
-
-    removeBlock = () => {
-        // Get cursor location
-        const changeLocation = { x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z }
-        // Remove block
-        this.clientGame.updateSingleBlock(changeLocation, 0)
-    }
+    ///////////////////////////////////////////////////////
+    // Movement helpers (ToDo: move these to their own file)
+    ///////////////////////////////////////////////////////
 
     bounceY = () => {
         if (Math.abs(this.playerVelocity.y) > 0) this.usedJumps = 0 // reset jump
@@ -839,6 +858,10 @@ class ClientPlayer {
             this.position.z + ((this.playerVelocity.z/frameRateMult) * deltaTime)
         )
     }
+
+    ///////////////////////////////////////////////////////
+    // Player Pos update (called inside movement loops)
+    ///////////////////////////////////////////////////////
 
     updatePosition() {
         this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )

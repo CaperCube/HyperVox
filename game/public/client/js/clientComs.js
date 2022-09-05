@@ -151,6 +151,9 @@ class ClientComs {
                     // Update local player(s)
                     else {
                         // Update player data
+                        // ToDo: Position should be overrided in some cases (Teleporting, Server validation, player death)
+
+                        // ToDo: Health should be completely brain-side when damaging blocks are resolved on brain
                         // this.clientGame.localPlayer.health = dataPlayer.health
                         this.clientGame.localPlayer.stats = dataPlayer.stats
                     }
