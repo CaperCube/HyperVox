@@ -61,7 +61,7 @@ export function basicMovement(engine, player, movementVector) {
             let blockID = player.world?.worldChunks?.[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             const blockShape = { x: blockTypes[blockID]?.shape?.x || 0, y: blockTypes[blockID]?.shape?.y || 0, z: blockTypes[blockID]?.shape?.z || 0, w: blockTypes[blockID]?.shape?.w || 1, h: blockTypes[blockID]?.shape?.h|| 1, d: blockTypes[blockID]?.shape?.d || 1 }
             // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
-            let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5 + blockShape.y, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
+            let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*player.chunkSize) + blockShape.y, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
 
             // Check X
             let skipMid = (cy >= 0)
@@ -164,14 +164,14 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
         if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
             // Bounce
             if (!bounceOnly) {
-                player.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) + 0.001 //+ player.moveSpeed
+                player.position.y = ((block.y + (block.h/2)) + (playerBox.h/2))// + 0.001 //+ player.moveSpeed
                 allowGrav = false
             }
             else {
                 // const playerIsBelow = (player.position.y + (playerBox.h/2)) < (block.y)
                 // if (playerIsBelow) player.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
                 const playerIsBelow = (player.position.y + (playerBox.h/2)) < (block.y - (block.h/2))
-                if (playerIsBelow) player.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
+                if (playerIsBelow) player.position.y = 100//((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
             }
             bounceY(player)
         }
