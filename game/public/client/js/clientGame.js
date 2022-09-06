@@ -426,7 +426,7 @@ class ClientGame {
             if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
 
             // Update player (change this to a loop for local machine players if we do that)
-            if (this.localPlayer) this.localPlayer.platformMovementUpdate(this.engine)
+            if (this.localPlayer) this.localPlayer.movementUpdate(this.engine)
 
             // Update network players
             for (let p in this.networkPlayers) {

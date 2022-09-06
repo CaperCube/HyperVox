@@ -1,8 +1,10 @@
-import { debug, tileScale, getRandomName, defaultChunkSize } from '../clientConstants.js'
+import { debug, tileScale, defaultChunkSize } from '../clientConstants.js'
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
 import { soundSRC, sounds } from "../resources.js"
+import { updatePlayerCursor } from './player/playerCursor.js'
+import { basicMovement } from './player/movement.js'
 
 /* ToDo still:
     [X] Player position seperate from avatar position (i.e. avatar.position = this.position + avatarOffset)
@@ -450,7 +452,7 @@ class ClientPlayer {
     // Player movement (ToDo: Make this it's own file so we can support different movement types)
     ///////////////////////////////////////////////////////
 
-    platformMovementUpdate = (engine) => {
+    movementUpdate = (engine) => {
         /////////////////////////////////////////////////
         // Raycast for grounded
         /////////////////////////////////////////////////
@@ -502,361 +504,29 @@ class ClientPlayer {
         let vertMove = new BABYLON.Vector3( 0, inputVector.y, 0 )
         let movementVector = new BABYLON.Vector3( forwardMove.x + horzMove.x, vertMove.y, forwardMove.z + horzMove.z )
         
-        // Apply velocity
-        if (this.spectateMode) {
-            this.playerVelocity.x += (movementVector.x * this.flySpeed)
-            this.playerVelocity.y += (vertMove.y * this.flySpeed)
-            this.playerVelocity.z += (movementVector.z * this.flySpeed)
-        }
-        else {
-            if (this.isInFluid) {
-                this.playerVelocity.x += (movementVector.x * this.moveSpeed) / this.fluidViscosity
-                this.playerVelocity.z += (movementVector.z * this.moveSpeed) / this.fluidViscosity
-            }
-            else {
-                this.playerVelocity.x += (movementVector.x * this.moveSpeed)
-                this.playerVelocity.z += (movementVector.z * this.moveSpeed)
-            }
-        }
+        /////////////////////////////////////////////////
+        // Movement
+        /////////////////////////////////////////////////
 
-        // Apply movement
-        const deltaTime = engine.getDeltaTime()
-        const frameRateMult = 1000/60//engine.getFps().toFixed()//1000/60  //(1 sec / fps)
-        let playerBox = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: this.playerHeight, d: 0.5}
+        basicMovement(engine, this, movementVector)
 
-        // Blocks
-        let allowMoveX = true
-        let allowMoveY = true
-        let allowMoveZ = true
-        let allowGrav = true
-
-        const checkYCol = (block, bOnly, blockID) => {
-
-            let bounceOnly = bOnly || false
-            // Check Y
-            // let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
-            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
-            playerPosCheck.y += this.playerVelocity.y
-            block.y += 0
-            if (boxIsIntersecting(playerPosCheck, block)) {
-
-                // Bouncy block
-                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
-
-                // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
-                    // Bounce
-                    if (!bounceOnly) {
-                        this.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) //+ 0.001 //+ this.moveSpeed
-                        allowGrav = false
-                    }
-                    else {
-                        // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
-                        // if (playerIsBelow) this.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
-                        const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y - (block.h/2))
-                        if (playerIsBelow) this.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
-                    }
-                    this.bounceY()
-                }
-                
-                // Damage player if damaging block
-                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
-                // Set respawn point if respawn block
-                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
-                // Teleporter block
-                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Heal player
-                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
-                // Fluid
-                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
-            }
-        }
-
-        const checkXCol = (block, blockID) => {
-            // Check X
-            //let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
-            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
-            playerPosCheck.x += this.playerVelocity.x
-            block.y += 0
-
-            if (boxIsIntersecting(playerPosCheck, block)) {
-
-                // Bouncy block
-                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
-
-                // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
-                    // Move player to contact
-                    // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
-                    // if (!playerIsBelow) {
-                    //     const playerIsBehind = (this.position.x + (playerBox.d/2)) < block.x
-                    //     if (playerIsBehind) this.position.x = ((block.x - (block.d/2)) + (playerBox.d/2)) - 0.001
-                    //     else this.position.x = ((block.x + (block.d)) + (playerBox.d/2)) + 0.001
-                    // }
-
-                    // Bounce
-                    this.bounceX()
-                    //this.position.x = block.x + (block.d/2) + (playerBox.d/2)//+ this.moveSpeed
-                    //allowMoveX = false
-                }
-
-                // Damage player if damaging block
-                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
-                // Set respawn point if respawn block
-                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
-                // Teleporter block
-                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Heal player
-                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
-                // Fluid
-                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
-            }
-        }
-
-        const checkZCol = (block, blockID) => {
-            // Check Z
-            // let playerPosCheck = {x: (this.position.x - 0.5), y: this.position.y, z: (this.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
-            // let playerPosCheck = {x: this.position.x, y: this.position.y, z: this.position.z, w: 0.5, h: 2, d: 0.5}
-            let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
-            playerPosCheck.z += this.playerVelocity.z
-            block.y += 0
-
-            if (boxIsIntersecting(playerPosCheck, block)) {
-
-                // Bouncy block
-                this.bounce = blockTypes[blockID]?.bounciness || this.defaultBounce
-                
-                // Check if block is colidable
-                if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
-                    // Move player to contact
-                    // const playerIsBelow = (this.position.y + (playerBox.h/2)) < (block.y)
-                    // if (!playerIsBelow) {    
-                    //     const playerIsLeft = (this.position.z + (playerBox.w/2)) < (block.z)
-                    //     if (playerIsLeft) this.position.z = ((block.z - (block.w/2)) + (playerBox.w/2)) - 0.001
-                    //     else this.position.z = ((block.z + (block.w)) + (playerBox.w/2)) + 0.001
-                    // }
-
-                    // Bounce
-                    this.bounceZ()
-                    //this.position.z = block.z + (block.w/2) + (playerBox.w/2)//+ this.moveSpeed
-                    //allowMoveZ = false
-                }
-
-                // Damage player if damaging block
-                if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) this.takeDamage(blockTypes[blockID].damage || 0)
-                // Set respawn point if respawn block
-                if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: this.respawnPoint.x, y: this.respawnPoint.y, z: this.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)}) this.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + this.playerHeight, z: block.z + (block.h/2)})
-                // Teleporter block
-                if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) this.teleportPlayer(this.worldDefualtSpawn)
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceStart)) this.startRace()
-                // Start race if starting line block
-                if (blockTypes[blockID]?.categories.includes(blockCats.raceEnd)) this.endRace()
-                // Heal player
-                if (blockTypes[blockID]?.categories.includes(blockCats.healing)) this.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
-                // Fluid
-                if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { this.fluidViscosity = blockTypes[blockID].viscosity || 1; this.isInFluid = true }
-            }
-        }
-        
-        if (!this.spectateMode && this.world) {
-            this.isInFluid = false
-            // Check X
-            for (let cy = -2; cy < 2; cy++) {
-            for (let cx = -1; cx < 2; cx++) {
-            for (let cz = -1; cz < 2; cz++) {
-
-                // Check this block
-                let blockPos = {x: this.position.x+cx, y: this.position.y+cy, z: this.position.z+cz}
-                let arrayPos = getArrayPos(blockPos, this.chunkSize)
-                let worldPos = arrayPos.chunk
-                let chunkPos = arrayPos.block
-
-                let blockID = this.world?.worldChunks?.[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
-                const blockShape = { x: blockTypes[blockID]?.shape?.x || 0, y: blockTypes[blockID]?.shape?.y || 0, z: blockTypes[blockID]?.shape?.z || 0, w: blockTypes[blockID]?.shape?.w || 1, h: blockTypes[blockID]?.shape?.h|| 1, d: blockTypes[blockID]?.shape?.d || 1 }
-                // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
-                let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5 + blockShape.y, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
-
-                // Check X
-                let skipMid = (cy >= 0)
-                if (skipMid && blockID > 0) {
-                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
-                    checkXCol(blockHere, blockID)
-                }
-
-                // Check Z
-                if (skipMid && blockID > 0) {
-                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1}
-                    checkZCol(blockHere, blockID)
-                }
-
-                // Check Y
-                skipMid = (cy < 0 || cy > 0)
-                if (skipMid && blockID > 0) {
-                    // let blockHere = {x: chunkPos.x+(worldPos.x*this.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*this.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*this.chunkSize)+0.5, w: 1, h: 1, d: 1}
-                    checkYCol(blockHere, (cy > 0), blockID)
-                }
-            }}}
-        }
-
-        // World floor Y lower bounds
-        let frameGrav = ((this.gravity/frameRateMult) * deltaTime)
-        if (this.isInFluid) frameGrav = (((this.gravity / this.fluidViscosity)/frameRateMult) * deltaTime)
-        if (((this.position.y)) < 1) {
-            this.bounceY()
-            this.position.y = 1
-        }
-        else if (!this.spectateMode && allowGrav) {
-            // Apply gravity
-            this.playerVelocity.y += frameGrav
-        }
-        this.keepMovingY(deltaTime, frameRateMult)
-
-        if (!this.spectateMode) {
-            // World X bounds
-            if (this.position.x < 0) {
-                this.bounceX()
-                this.position.x = 0
-            }
-            else if (this.position.x > (this.worldSize * this.chunkSize * tileScale)) {
-                this.bounceX()
-                this.position.x = (this.worldSize * this.chunkSize * tileScale)
-            }
-
-            // World Z bounds
-            if (this.position.z < 0) {
-                this.bounceZ()
-                this.position.z = 0
-            }
-            else if (this.position.z > (this.worldSize * this.chunkSize * tileScale)) {
-                this.bounceZ()
-                this.position.z = (this.worldSize * this.chunkSize * tileScale)
-            }
-        }
-
-        if (allowMoveX) this.keepMovingX(deltaTime, frameRateMult)
-        if (allowMoveZ) this.keepMovingZ(deltaTime, frameRateMult)
-
+        /////////////////////////////////////////////////
         // Apply positions
+        /////////////////////////////////////////////////
+
         this.updatePosition()
 
-        // Dampen
-        if (this.spectateMode) this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y * this.groundFric, this.playerVelocity.z * this.groundFric)
-        this.playerVelocity = new BABYLON.Vector3(this.playerVelocity.x * this.groundFric, this.playerVelocity.y, this.playerVelocity.z * this.groundFric)
-
         /////////////////////////////////////////////////
-        // Perform raycast for cursor
+        // Update cursor
         /////////////////////////////////////////////////
 
-        // Defualt cursor location if no ray collision
-        const avForward = this.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
-        this.selectCursor = this.interactSelectCursor = {
-            x: Math.floor( this.avatar.position.x + (avForward.x * this.blockReach) ) + 0.5,
-            y: Math.floor( this.avatar.position.y + (avForward.y * this.blockReach) ) + 0.5,
-            z: Math.floor( this.avatar.position.z + (avForward.z * this.blockReach) ) + 0.5
-        }
-
-        // Raycast
-        const direction = avForward
-        const ray = new BABYLON.Ray(this.avatar.position, direction, this.blockReach)
-        // const rayHelper = new BABYLON.RayHelper(ray)
-        // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
-        const pick = this.clientGame.scene.pickWithRay(ray, (mesh) => {
-            if (mesh.name.startsWith("chunk")) return true
-        }, false)
-        if (pick?.hit) {
-            const newCursorPos = pick.pickedPoint
-            const normal = pick.getNormal()
-            const selTolerance = 0.25
-            const tolerancePos = {
-                x: newCursorPos.x - (normal.x * selTolerance),
-                y: newCursorPos.y - (normal.y * selTolerance),
-                z: newCursorPos.z - (normal.z * selTolerance)
-            }
-            this.selectCursor = {
-                x: Math.floor( tolerancePos.x + (normal.x * tileScale) ) + 0.5,
-                y: Math.floor( tolerancePos.y + (normal.y * tileScale) ) + 0.5,
-                z: Math.floor( tolerancePos.z + (normal.z * tileScale) ) + 0.5
-            }
-            this.interactSelectCursor = {
-                x: Math.floor( tolerancePos.x ) + 0.5,
-                y: Math.floor( tolerancePos.y ) + 0.5,
-                z: Math.floor( tolerancePos.z ) + 0.5
-            }
-        }
-        else {
-            // Hide the selection mesh if no ray collision
-            this.interactSelectCursor = {
-                x: -100,
-                y: -100,
-                z: -100
-            }
-        }
+        updatePlayerCursor(this)
         
-        // Position cursor meshes
-        this.selectMesh.position = new BABYLON.Vector3( this.selectCursor.x, this.selectCursor.y, this.selectCursor.z )
-        this.removeMesh.position = new BABYLON.Vector3( this.interactSelectCursor.x, this.interactSelectCursor.y, this.interactSelectCursor.z )
-
         /////////////////////////////////////////////////
-        
         // Bob camera
+        /////////////////////////////////////////////////
+
         // ...
-    }
-
-    ///////////////////////////////////////////////////////
-    // Movement helpers (ToDo: move these to their own file)
-    ///////////////////////////////////////////////////////
-
-    bounceY = () => {
-        if (Math.abs(this.playerVelocity.y) > 0) this.usedJumps = 0 // reset jump
-        this.playerVelocity.y *= -this.bounce
-    }
-
-    bounceX = () => {
-        this.playerVelocity.x *= -this.bounce
-    }
-
-    bounceZ = () => {
-        this.playerVelocity.z *= -this.bounce
-    }
-
-    keepMovingY = (deltaTime, frameRateMult) => {
-        // Apply position 
-        //if (Math.abs(playerVelocity.y) > this.moveSpeed) {
-            this.position = new BABYLON.Vector3(
-                this.position.x,
-                this.position.y + ((this.playerVelocity.y/frameRateMult) * deltaTime),
-                this.position.z
-            )
-        //}
-    }
-
-    keepMovingX = (deltaTime, frameRateMult) => {
-        // Apply position
-        this.position = new BABYLON.Vector3(
-            this.position.x + ((this.playerVelocity.x/frameRateMult) * deltaTime),
-            this.position.y,
-            this.position.z
-        )
-    }
-
-    keepMovingZ = (deltaTime, frameRateMult) => {
-        // Apply position
-        this.position = new BABYLON.Vector3(
-            this.position.x,
-            this.position.y,
-            this.position.z + ((this.playerVelocity.z/frameRateMult) * deltaTime)
-        )
     }
 
     ///////////////////////////////////////////////////////
