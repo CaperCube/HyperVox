@@ -43,7 +43,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] **Chain worlds**
         - [ ] **Add interactable world chain block**
         - [X] Option to generate new world
-        - [X] Option to load existing world via URL
+        - [~] Option to load existing world via world name (grabs from server / local folder)
     - [ ] **Custom block models**
         - [ ] Custom world-specific blocks
             - [ ] "Import .ccm" button in WorldTool

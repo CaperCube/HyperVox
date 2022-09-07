@@ -170,8 +170,8 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
             else {
                 // const playerIsBelow = (player.position.y + (playerBox.h/2)) < (block.y)
                 // if (playerIsBelow) player.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
-                const playerIsBelow = (player.position.y + (playerBox.h/2)) < (block.y - (block.h/2))
-                if (playerIsBelow) player.position.y = 100//((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
+                const playerIsBelow = (player.position.y + (playerBox.h/2)) < (block.y)// - (block.h/2))
+                if (playerIsBelow) player.position.y = ((block.y - (block.h/2)) - (playerBox.h/2)) - 0.001
             }
             bounceY(player)
         }
