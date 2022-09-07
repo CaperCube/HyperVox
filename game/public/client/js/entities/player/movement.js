@@ -94,6 +94,7 @@ export function basicMovement(engine, player, movementVector) {
 
     // Y Bound (Floor)
     if (((player.position.y)) < 1) {
+        allowGrav = false
         bounceY(player)
         player.position.y = 1
     }
@@ -164,7 +165,7 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
         if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
             // Bounce
             if (!bounceOnly) {
-                player.position.y = ((block.y + (block.h/2)) + (playerBox.h/2))// + 0.001 //+ player.moveSpeed
+                player.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) //+ 0.001 //+ player.moveSpeed
                 allowGrav = false
             }
             else {
