@@ -32,7 +32,7 @@ export function basicMovement(engine, player, movementVector) {
     ///////////////////////////////////////////////////////
 
     // Motion vars
-    const deltaTime = engine.getDeltaTime()
+    const deltaTime = engine.getDeltaTime() //* 0.001
     const frameRateMult = 1000/60 //player.engine.getFps().toFixed()  //(1 sec / fps)
     let frameGrav = ((player.gravity/frameRateMult) * deltaTime)
 
@@ -154,8 +154,9 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
     // let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: 2, d: 0.5}
 
     let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
-    playerPosCheck.y += player.playerVelocity.y
-    block.y += 0
+    playerPosCheck.y += player.playerVelocity.y //+ 0.01
+    // block.y += 0
+    
     if (boxIsIntersecting(playerPosCheck, block)) {
 
         // Bouncy block
@@ -201,7 +202,7 @@ const checkXCol = (block, blockID, player, playerBox) => {
 
     let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
     playerPosCheck.x += player.playerVelocity.x
-    block.y += 0
+    // block.y += 0
 
     if (boxIsIntersecting(playerPosCheck, block)) {
 
@@ -248,7 +249,7 @@ const checkZCol = (block, blockID, player, playerBox) => {
 
     let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
     playerPosCheck.z += player.playerVelocity.z
-    block.y += 0
+    // block.y += 0
 
     if (boxIsIntersecting(playerPosCheck, block)) {
 
