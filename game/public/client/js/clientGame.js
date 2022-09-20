@@ -189,6 +189,10 @@ class ClientGame {
             fontPath: `./client/src/textures/fonts/`
         })
         this.hud.hide()
+
+        // Chunk load interval
+        this.loadChunkInterval = null
+        this.chunkQueue = {}
     }
 
     ///////////////////////////////////////////////////////
@@ -212,6 +216,120 @@ class ClientGame {
 
     }
 
+    // Check if chunk is in range of main camera
+    isChunkInRange(camPosition, chunkLocation, renderDistance, chunkSize) {
+        // Get array coordinates of camera
+        const camLocation = getArrayPos(camPosition, chunkSize)
+
+        // Check distance
+        const xInRange = Math.abs(camLocation.chunk.x - chunkLocation.x) <= renderDistance
+        const yInRange = Math.abs(camLocation.chunk.y - chunkLocation.y) <= renderDistance
+        const zInRange = Math.abs(camLocation.chunk.z - chunkLocation.z) <= renderDistance
+
+        // Return
+        if (xInRange && yInRange && zInRange)
+            return true
+        else return false
+    }
+
+    clamp = (val, min, max) => { return Math.min(Math.max(val, min), max) }
+
+    queueProximalChunks() {
+        if (this.mainCamera) {
+
+            const world = this.clientWorld.worldChunks
+            const renderDistance = 3
+            const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
+
+            // ToDo: fix this so we're not looping through the entire world every time
+
+            // const camLowerY = this.clamp(camPos.y - renderDistance, 0, world?.length)
+            // const camUpperY = this.clamp(camPos.y + renderDistance, 0, world?.length)
+
+            for (let y = 0; y < world?.length; y++) {
+            // for (let y = camLowerY; y < camUpperY; y++) {
+
+            // const camLowerX = this.clamp(camPos.x - renderDistance, 0, world?.[y]?.length)
+            // const camUpperX = this.clamp(camPos.x + renderDistance, 0, world?.[y]?.length)
+
+            for (let x = 0; x < world?.[y]?.length; x++) {
+            // for (let x = camLowerX; x < camUpperX; x++) {
+
+            // const camLowerZ = this.clamp(camPos.z - renderDistance, 0, world?.[y]?.[x]?.length)
+            // const camUpperZ = this.clamp(camPos.z + renderDistance, 0, world?.[y]?.[x]?.length)
+
+            for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
+            // for (let z = camLowerZ; z < camUpperZ; z++) {
+        
+                const chunkLocation = { x: x, y: y, z: z }
+                // console.log('chunk', chunkLocation)
+
+                // Check if this chunk is in range 
+                if (this.isChunkInRange(camPos, chunkLocation, renderDistance, this.clientWorld._chunkSize)) {
+                    // // Create a collection of only the effected chunks
+                    // const chunkGroup = meshGen.getChunkGroup( world, { x: x, y: y, z: z } )
+        
+                    // // Generate chunk
+                    // workerGenChunkMesh( chunkGroup, true )
+                    this.queueChunkMeshGen(world, chunkLocation)
+                }
+
+                // this.queueChunkMeshGen(world, chunkLocation)
+
+                // else {
+                //     const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
+
+                //     // Unqueue it
+                //     this.chunkQueue[chunkName] = false
+
+                //     // Remove if it exists
+                //     const existingChunkMesh = this.scene.getMeshByName(chunkName)
+                //     if (existingChunkMesh) existingChunkMesh.dispose()
+
+                // }
+            }}}
+
+            const allChunkMeshes = this.scene.meshes.filter( (m) => { return m.name.includes('chunk_') })
+            // console.log(allChunkMeshes)
+
+            for (let i = 0; i < allChunkMeshes?.length; i++) {
+                const chunkName = allChunkMeshes[i].name
+                const terms = chunkName.split('_')[1].split('-')
+                
+                const chunkLocation = { x: parseInt(terms[0]), y: parseInt(terms[1]), z: parseInt(terms[2]) }
+                // console.log(terms)
+                
+                if (!this.isChunkInRange(camPos, chunkLocation, renderDistance, this.clientWorld._chunkSize)) {
+                    // Unqueue it
+                    this.chunkQueue[chunkName] = false
+
+                    // Remove if it exists
+                    const existingChunkMesh = this.scene.getMeshByName(chunkName)
+                    if (existingChunkMesh) existingChunkMesh.dispose()
+                }
+            }
+
+            // isChunkInRange(camPosition, chunkLocation, renderDistance, chunkSize)
+        }
+    }
+
+    queueChunkMeshGen(world, chunkLocation) {
+        // Check the chunk queue
+        const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
+
+        if (!this.chunkQueue[chunkName]) {
+            // Tell ourselves we've queued this chunk
+            this.chunkQueue[chunkName] = true
+            console.log('queued!')
+
+            // Tell the chunk worker to load the chunk
+            // this.chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
+            // Start generating chunk meshes
+            const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: chunkLocation.x, y: chunkLocation.y, z: chunkLocation.z })
+            this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
+        }
+    }
+
     // Use a worker thread to load chunks
     genMeshesFromChunks(world, chunkLocation = null) {
         let chunkWorker = this.chunkWorker
@@ -219,7 +337,12 @@ class ClientGame {
         // To start the thread work
         if (window.Worker && this.chunkWorker) {
             if (chunkLocation) chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
-            else chunkWorker.postMessage({world: world.worldChunks, type: 'full' })
+            else if (this.mainCamera) {
+                //{x: 0, y: 0, z: 0}
+                const cPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
+                console.log(cPos)
+                chunkWorker.postMessage({ camPosition: cPos, world: world.worldChunks, type: 'full' })
+            }
         }
         else {
             // ToDo (maybe): Create a fall-back solution for browsers that don't support workers
@@ -337,7 +460,7 @@ class ClientGame {
         this.meshGen.createWorldBorders(this.clientWorld, this.scene)
 
         // Start generating chunk meshes
-        this.genMeshesFromChunks(this.clientWorld, null)
+        // this.genMeshesFromChunks(this.clientWorld, null)
 
         // Allow debugger to be opened
         Buttons.backquote.onPress = (e) => {
@@ -414,6 +537,8 @@ class ClientGame {
         ////////////////////////////////////////////////////
         // Render loop
         ////////////////////////////////////////////////////
+
+        this.loadChunkInterval = setInterval(()=>{ this.queueProximalChunks() }, 250)
 
         this.engine.runRenderLoop(() => { // setInterval( function(){ 
             // Update frame

@@ -263,6 +263,7 @@ class ChunkGenerator {
     ////////////////////////////////////////////////////
 
     // Used to clamp the generated values between 0 and 1
+    // ToDo: Move to common utility file
     clamp = (val, min, max) => { return Math.min(Math.max(val, min), max) }
 }
 
