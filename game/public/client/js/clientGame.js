@@ -191,6 +191,7 @@ class ClientGame {
         this.hud.hide()
 
         // Chunk load interval
+        this.chunkRenderDistance = 3
         this.loadChunkInterval = null
         this.chunkQueue = {}
     }
@@ -217,10 +218,7 @@ class ClientGame {
     }
 
     // Check if chunk is in range of main camera
-    isChunkInRange(camPosition, chunkLocation, renderDistance, chunkSize) {
-        // Get array coordinates of camera
-        const camLocation = getArrayPos(camPosition, chunkSize)
-
+    isChunkInRange(camLocation, chunkLocation, renderDistance) {
         // Check distance
         const xInRange = Math.abs(camLocation.chunk.x - chunkLocation.x) <= renderDistance
         const yInRange = Math.abs(camLocation.chunk.y - chunkLocation.y) <= renderDistance
@@ -232,74 +230,47 @@ class ClientGame {
         else return false
     }
 
-    clamp = (val, min, max) => { return Math.min(Math.max(val, min), max) }
+    clamp (val, min, max) { return Math.min(Math.max(val, min), max) }
 
     queueProximalChunks() {
         if (this.mainCamera) {
+            //////////////////////////////////
+            // Generate chunks in range
+            //////////////////////////////////
 
-            const world = this.clientWorld.worldChunks
-            const renderDistance = 3
+            // Get array coordinates of camera
             const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
+            const camLocation = getArrayPos(camPos, this.clientWorld._chunkSize)
 
-            // ToDo: fix this so we're not looping through the entire world every time
+            // Loop thorough chunks near us
+            const camLowerY = this.clamp((camLocation.chunk.y - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperY = this.clamp((camLocation.chunk.y + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            for (let y = camLowerY; y < camUpperY; y++) {
 
-            // const camLowerY = this.clamp(camPos.y - renderDistance, 0, world?.length)
-            // const camUpperY = this.clamp(camPos.y + renderDistance, 0, world?.length)
+            const camLowerX = this.clamp((camLocation.chunk.x - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperX = this.clamp((camLocation.chunk.x + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            for (let x = camLowerX; x < camUpperX; x++) {
 
-            for (let y = 0; y < world?.length; y++) {
-            // for (let y = camLowerY; y < camUpperY; y++) {
-
-            // const camLowerX = this.clamp(camPos.x - renderDistance, 0, world?.[y]?.length)
-            // const camUpperX = this.clamp(camPos.x + renderDistance, 0, world?.[y]?.length)
-
-            for (let x = 0; x < world?.[y]?.length; x++) {
-            // for (let x = camLowerX; x < camUpperX; x++) {
-
-            // const camLowerZ = this.clamp(camPos.z - renderDistance, 0, world?.[y]?.[x]?.length)
-            // const camUpperZ = this.clamp(camPos.z + renderDistance, 0, world?.[y]?.[x]?.length)
-
-            for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
-            // for (let z = camLowerZ; z < camUpperZ; z++) {
-        
+            const camLowerZ = this.clamp((camLocation.chunk.z - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperZ = this.clamp((camLocation.chunk.z + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            for (let z = camLowerZ; z < camUpperZ; z++) {
+                // Queue the chunk
                 const chunkLocation = { x: x, y: y, z: z }
-                // console.log('chunk', chunkLocation)
-
-                // Check if this chunk is in range 
-                if (this.isChunkInRange(camPos, chunkLocation, renderDistance, this.clientWorld._chunkSize)) {
-                    // // Create a collection of only the effected chunks
-                    // const chunkGroup = meshGen.getChunkGroup( world, { x: x, y: y, z: z } )
-        
-                    // // Generate chunk
-                    // workerGenChunkMesh( chunkGroup, true )
-                    this.queueChunkMeshGen(world, chunkLocation)
-                }
-
-                // this.queueChunkMeshGen(world, chunkLocation)
-
-                // else {
-                //     const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
-
-                //     // Unqueue it
-                //     this.chunkQueue[chunkName] = false
-
-                //     // Remove if it exists
-                //     const existingChunkMesh = this.scene.getMeshByName(chunkName)
-                //     if (existingChunkMesh) existingChunkMesh.dispose()
-
-                // }
+                this.queueChunkMeshGen(this.clientWorld.worldChunks, chunkLocation)
             }}}
 
+            //////////////////////////////////
+            // Remove chunks out of range
+            //////////////////////////////////
             const allChunkMeshes = this.scene.meshes.filter( (m) => { return m.name.includes('chunk_') })
-            // console.log(allChunkMeshes)
 
             for (let i = 0; i < allChunkMeshes?.length; i++) {
+                // Get chunk name & location
                 const chunkName = allChunkMeshes[i].name
                 const terms = chunkName.split('_')[1].split('-')
-                
                 const chunkLocation = { x: parseInt(terms[0]), y: parseInt(terms[1]), z: parseInt(terms[2]) }
-                // console.log(terms)
                 
-                if (!this.isChunkInRange(camPos, chunkLocation, renderDistance, this.clientWorld._chunkSize)) {
+                if (!this.isChunkInRange(camLocation, chunkLocation, this.chunkRenderDistance)) {
                     // Unqueue it
                     this.chunkQueue[chunkName] = false
 
@@ -308,71 +279,54 @@ class ClientGame {
                     if (existingChunkMesh) existingChunkMesh.dispose()
                 }
             }
-
-            // isChunkInRange(camPosition, chunkLocation, renderDistance, chunkSize)
         }
     }
 
-    queueChunkMeshGen(world, chunkLocation) {
+    queueChunkMeshGen(world, chunkLocation, override = false) {
         // Check the chunk queue
         const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
 
-        if (!this.chunkQueue[chunkName]) {
+        // if (window.Worker && this.chunkWorker) {
+        if (!this.chunkQueue[chunkName] || override) {
             // Tell ourselves we've queued this chunk
             this.chunkQueue[chunkName] = true
-            console.log('queued!')
 
             // Tell the chunk worker to load the chunk
-            // this.chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
-            // Start generating chunk meshes
             const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: chunkLocation.x, y: chunkLocation.y, z: chunkLocation.z })
             this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
         }
     }
 
-    // Use a worker thread to load chunks
-    genMeshesFromChunks(world, chunkLocation = null) {
-        let chunkWorker = this.chunkWorker
-
-        // To start the thread work
-        if (window.Worker && this.chunkWorker) {
-            if (chunkLocation) chunkWorker.postMessage({ world: world.worldChunks, chunkLocation: chunkLocation, type: 'chunk-only' })
-            else if (this.mainCamera) {
-                //{x: 0, y: 0, z: 0}
-                const cPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
-                console.log(cPos)
-                chunkWorker.postMessage({ camPosition: cPos, world: world.worldChunks, type: 'full' })
-            }
-        }
-        else {
-            // ToDo (maybe): Create a fall-back solution for browsers that don't support workers
-            // for (let y = 0; y < world?.length; y++) {
-            // for (let x = 0; x < world?.[y]?.length; x++) {
-            // for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
-            //     // Create a collection of only the effected chunks
-            //     const chunkGroup = this.meshGen.getChunkGroup( world, { x: x, y: y, z: z } )
-            //     // Generate chunk
-            //     this.meshGen.createChunkMesh( chunkGroup, this.clientWorld.worldChunks )
-            // }}}
-        }
-    }
-
     removeScene() {
+        // Remove local player
         delete this.localPlayer
         this.localPlayer = null
+
+        // Stop rendering and remove scene
         this.engine.stopRenderLoop()
         this.scene = null
+
+        // Stop chunk loading
+        this.chunkQueue = {}
+        clearInterval(this.loadChunkInterval)
+        this.loadChunkInterval = null
+
+        // Remove other players and camera
         this.mainCamera = null
         this.networkPlayers = []
+
+        // Remove UI functions / styles
         $("#chat-window").style.display = 'none'
         $("#chat-input").style.display = 'none'
         $("#chat-input").onsubmit = (e) => { e.preventDefault() }
+
         // Remove command buttons
         $("#lobby-reset-scores").onclick = () => {}
         $("#lobby-set-spectator").onclick = () => {}
         $("#lobby-set-creative").onclick = () => {}
         $("#lobby-set-deathmatch").onclick = () => {}
         $("#lobby-set-parkour").onclick = () => {}
+
         // Stop all sounds
         this.stopAllSounds()
     }
@@ -459,9 +413,6 @@ class ClientGame {
         // Create world border mesh
         this.meshGen.createWorldBorders(this.clientWorld, this.scene)
 
-        // Start generating chunk meshes
-        // this.genMeshesFromChunks(this.clientWorld, null)
-
         // Allow debugger to be opened
         Buttons.backquote.onPress = (e) => {
             //this.scene.debugLayer.show()
@@ -538,6 +489,7 @@ class ClientGame {
         // Render loop
         ////////////////////////////////////////////////////
 
+        // Start interval for loading new chunks
         this.loadChunkInterval = setInterval(()=>{ this.queueProximalChunks() }, 250)
 
         this.engine.runRenderLoop(() => { // setInterval( function(){ 
@@ -717,8 +669,12 @@ class ClientGame {
         const wSize = this.clientWorld.getWorldSize()
 
         // Start generating chunk meshes
-        const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z })
-        this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
+        // Get array coordinates of camera
+        const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
+        const camLocation = getArrayPos(camPos, cSize)
+        if (this.isChunkInRange(camLocation, location.chunk, this.chunkRenderDistance)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
+        // const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z })
+        // this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
 
         // Update neighboring chunks if needed
         const xIsAtChunkFarEdge = (location.block.x === cSize-1)
