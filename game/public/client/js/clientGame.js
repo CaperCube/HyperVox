@@ -543,7 +543,8 @@ class ClientGame {
         const worldSpawnPos = new BABYLON.Vector3(worldSpawn.x, worldSpawn.y, worldSpawn.z)
         this.mainCamera = new BABYLON.UniversalCamera('playerCamera', worldSpawnPos, this.scene)
         this.mainCamera.minZ = tileScale/10
-        this.mainCamera.maxZ = fogDistance
+        // this.mainCamera.maxZ = fogDistance
+        this.mainCamera.maxZ = (this.chunkRenderDistance + 1) * this.clientWorld._chunkSize
 
         this.mainCamera.attachControl(this.canvas, true)
         this.mainCamera.inputs.attached.keyboard.detachControl()
