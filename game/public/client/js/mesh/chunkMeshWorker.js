@@ -8,23 +8,7 @@ const scene = new BABYLON.Scene(engine)
 
 const meshGen = new MeshGenerator()
 
-// Generate a mesh for each chunk in the world data
-function workerGenMeshesFromChunks(world) {
-    for (let y = 0; y < world?.length; y++) {
-    for (let x = 0; x < world?.[y]?.length; x++) {
-    for (let z = 0; z < world?.[y]?.[x]?.length; z++) {
-
-        // Create a collection of only the effected chunks
-        const chunkGroup = meshGen.getChunkGroup( world, { x: x, y: y, z: z } )
-
-        // Generate chunk
-        workerGenChunkMesh( chunkGroup, true )
-    }}}
-
-    // When all chunk meshes have been sent, tell the main thread that we're done
-    postMessage("doneLoadingChunks")
-}
-
+// Generate a mesh data for the given chunk
 function workerGenChunkMesh( chunkGroup, isPartOfBatch = false ) {
     if (chunkGroup?.thisChunk) {
 
@@ -57,8 +41,6 @@ function workerGenChunkMesh( chunkGroup, isPartOfBatch = false ) {
 // Listen for event from main thread to start
 onmessage = function(event) {
     switch (event.data.type) {
-        case 'full':
-            workerGenMeshesFromChunks(event.data.world)
         case 'chunk-only':
             workerGenChunkMesh(event.data.chunkGroup, false)
         default:

@@ -4,6 +4,7 @@ import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys, getRandomName } from './clientConstants.js'
 import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
+import { clamp } from '../../common/dataUtils.js'
 import ClientPlayer from './entities/player.js'
 import MeshGenerator from './mesh/meshGen.js'
 import DefaultScene from "./defaultScene.js"
@@ -197,25 +198,8 @@ class ClientGame {
     }
 
     ///////////////////////////////////////////////////////
-    // Methods
+    // Chunk Gen
     ///////////////////////////////////////////////////////
-    
-    // Export world as obj (ToDo: Move this somewhere)
-    exportWorldMesh() {
-        // Export options
-        let options = {
-            // Only export meshes with "chunk" in the name
-            shouldExportNode: function (node) {
-                return node.name.includes('chunk')
-            },
-        }
-
-        // Export & download
-        BABYLON.GLTF2Export.GLBAsync(this.scene, "fileName", options).then((glb) => {
-            glb.downloadFiles()
-        })
-
-    }
 
     // Check if chunk is in range of main camera
     isChunkInRange(camLocation, chunkLocation, renderDistance) {
@@ -230,8 +214,7 @@ class ClientGame {
         else return false
     }
 
-    clamp (val, min, max) { return Math.min(Math.max(val, min), max) }
-
+    // Queues nearby chunk generation (Triggered on an interval)
     queueProximalChunks() {
         if (this.mainCamera) {
             //////////////////////////////////
@@ -243,16 +226,16 @@ class ClientGame {
             const camLocation = getArrayPos(camPos, this.clientWorld._chunkSize)
 
             // Loop thorough chunks near us
-            const camLowerY = this.clamp((camLocation.chunk.y - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperY = this.clamp((camLocation.chunk.y + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerY = clamp((camLocation.chunk.y - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperY = clamp((camLocation.chunk.y + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
             for (let y = camLowerY; y < camUpperY; y++) {
 
-            const camLowerX = this.clamp((camLocation.chunk.x - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperX = this.clamp((camLocation.chunk.x + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerX = clamp((camLocation.chunk.x - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperX = clamp((camLocation.chunk.x + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
             for (let x = camLowerX; x < camUpperX; x++) {
 
-            const camLowerZ = this.clamp((camLocation.chunk.z - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperZ = this.clamp((camLocation.chunk.z + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerZ = clamp((camLocation.chunk.z - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camUpperZ = clamp((camLocation.chunk.z + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
             for (let z = camLowerZ; z < camUpperZ; z++) {
                 // Queue the chunk
                 const chunkLocation = { x: x, y: y, z: z }
@@ -282,6 +265,7 @@ class ClientGame {
         }
     }
 
+    // Tells the chunk worker to start generating a chunk
     queueChunkMeshGen(world, chunkLocation, override = false) {
         // Check the chunk queue
         const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
@@ -295,6 +279,134 @@ class ClientGame {
             const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: chunkLocation.x, y: chunkLocation.y, z: chunkLocation.z })
             this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
         }
+    }
+
+    // This is used for client-authored block updates
+    updateSingleBlock(location, id) {
+        if (this.clientWorld) {
+            // Get adjusted position from global position
+            const cSize = this.clientWorld.getChunkSize()
+            const wSize = this.clientWorld.getWorldSize()
+            const worldPos = getArrayPos(location, cSize)
+            
+            // Check if block is within the world
+            const isWithinExsitingChunk = (
+                worldPos.chunk.z < wSize && worldPos.chunk.z >= 0 &&
+                worldPos.chunk.x < wSize && worldPos.chunk.x >= 0 &&
+                worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
+            )
+            if (isWithinExsitingChunk) {
+                const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
+                const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
+                let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
+
+                // Check if this change is actually different from world data
+                if (updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] !== id) {
+                    // Early chunk update on client
+                    updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
+
+                    // Early mesh update on client (if networked)
+                    if (this.clientComs.isNetworked) this.updateChunks(worldPos)
+                            
+                    // Send event to brain to update the chunk
+                    this.clientComs.updateSingleBlock(worldPos, id)
+
+                    // Play sound
+                    switch (id) {
+                        case 0:
+                            // Remove block
+                            if (sounds.BLOCK_BREAK_1) sounds.BLOCK_BREAK_1.play()
+                            break
+                        default:
+                            // Place block                        
+                            if (sounds.BLOCK_PLACE_1) sounds.BLOCK_PLACE_1.play()
+                            break
+                    }
+                }
+            }
+        }
+    }
+
+    // Update the chunk mesh
+    updateChunks(location) {
+        const cSize = this.clientWorld.getChunkSize()
+        const wSize = this.clientWorld.getWorldSize()
+
+        // Get array coordinates of camera
+        const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
+        const camLocation = getArrayPos(camPos, cSize)
+
+        // Start generating chunk meshes
+        if (this.isChunkInRange(camLocation, location.chunk, this.chunkRenderDistance)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
+
+        // Update neighboring chunks if needed
+        const xIsAtChunkFarEdge = (location.block.x === cSize-1)
+        const xIsAtChunkNearEdge = (location.block.x === 0)
+        const yIsAtChunkFarEdge = (location.block.y === cSize-1)
+        const yIsAtChunkNearEdge = (location.block.y === 0)
+        const zIsAtChunkFarEdge = (location.block.z === cSize-1)
+        const zIsAtChunkNearEdge = (location.block.z === 0)
+
+        // X
+        if (xIsAtChunkFarEdge && (location.chunk.x + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x + 1, y: location.chunk.y, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        else if (xIsAtChunkNearEdge && (location.chunk.x - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x - 1, y: location.chunk.y, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        // Y
+        if (yIsAtChunkFarEdge && (location.chunk.y + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y + 1, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        else if (yIsAtChunkNearEdge && (location.chunk.y - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y - 1, z: location.chunk.z },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        // Z
+        if (zIsAtChunkFarEdge && (location.chunk.z + 1) < wSize) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z + 1 },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+        else if (zIsAtChunkNearEdge && (location.chunk.z - 1) >= 0) {
+            this.updateChunks({
+                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z - 1 },
+                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
+            })
+        }
+    }
+    
+    ///////////////////////////////////////////////////////
+    // Methods
+    ///////////////////////////////////////////////////////
+    
+    // Export world as obj (ToDo: Move this somewhere)
+    exportWorldMesh() {
+        // Export options
+        let options = {
+            // Only export meshes with "chunk" in the name
+            shouldExportNode: function (node) {
+                return node.name.includes('chunk')
+            },
+        }
+
+        // Export & download
+        BABYLON.GLTF2Export.GLBAsync(this.scene, "fileName", options).then((glb) => {
+            glb.downloadFiles()
+        })
+
     }
 
     removeScene() {
@@ -616,114 +728,6 @@ class ClientGame {
 
     // Create an offline session
     //... (ToDo: Move clientGame init code to a function and use here)
-
-    // This is used for client-authored block updates
-    updateSingleBlock(location, id) {
-        if (this.clientWorld) {
-            // Get adjusted position from global position
-            const cSize = this.clientWorld.getChunkSize()
-            const wSize = this.clientWorld.getWorldSize()
-            const worldPos = getArrayPos(location, cSize)
-            
-            // Check if block is within the world
-            const isWithinExsitingChunk = (
-                worldPos.chunk.z < wSize && worldPos.chunk.z >= 0 &&
-                worldPos.chunk.x < wSize && worldPos.chunk.x >= 0 &&
-                worldPos.chunk.y < wSize && worldPos.chunk.y >= 0
-            )
-            if (isWithinExsitingChunk) {
-                const worldOffset = {x: worldPos.chunk.x, y: worldPos.chunk.y, z: worldPos.chunk.z}
-                const blockOffset = {x: worldPos.block.x, y: worldPos.block.y, z: worldPos.block.z}
-                let updatedChunk = this.clientWorld.worldChunks[worldOffset.y][worldOffset.x][worldOffset.z]
-
-                // Check if this change is actually different from world data
-                if (updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] !== id) {
-                    // Early chunk update on client
-                    updatedChunk[blockOffset.y][blockOffset.x][blockOffset.z] = id
-
-                    // Early mesh update on client (if networked)
-                    if (this.clientComs.isNetworked) this.updateChunks(worldPos)
-                            
-                    // Send event to brain to update the chunk
-                    this.clientComs.updateSingleBlock(worldPos, id)
-
-                    // Play sound
-                    switch (id) {
-                        case 0:
-                            // Remove block
-                            if (sounds.BLOCK_BREAK_1) sounds.BLOCK_BREAK_1.play()
-                            break
-                        default:
-                            // Place block                        
-                            if (sounds.BLOCK_PLACE_1) sounds.BLOCK_PLACE_1.play()
-                            break
-                    }
-                }
-            }
-        }
-    }
-
-    // Update the chunk mesh
-    updateChunks(location) {
-        const cSize = this.clientWorld.getChunkSize()
-        const wSize = this.clientWorld.getWorldSize()
-
-        // Start generating chunk meshes
-        // Get array coordinates of camera
-        const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
-        const camLocation = getArrayPos(camPos, cSize)
-        if (this.isChunkInRange(camLocation, location.chunk, this.chunkRenderDistance)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
-        // const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z })
-        // this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
-
-        // Update neighboring chunks if needed
-        const xIsAtChunkFarEdge = (location.block.x === cSize-1)
-        const xIsAtChunkNearEdge = (location.block.x === 0)
-        const yIsAtChunkFarEdge = (location.block.y === cSize-1)
-        const yIsAtChunkNearEdge = (location.block.y === 0)
-        const zIsAtChunkFarEdge = (location.block.z === cSize-1)
-        const zIsAtChunkNearEdge = (location.block.z === 0)
-
-        // X
-        if (xIsAtChunkFarEdge && (location.chunk.x + 1) < wSize) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x + 1, y: location.chunk.y, z: location.chunk.z },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-        else if (xIsAtChunkNearEdge && (location.chunk.x - 1) >= 0) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x - 1, y: location.chunk.y, z: location.chunk.z },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-        // Y
-        if (yIsAtChunkFarEdge && (location.chunk.y + 1) < wSize) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x, y: location.chunk.y + 1, z: location.chunk.z },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-        else if (yIsAtChunkNearEdge && (location.chunk.y - 1) >= 0) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x, y: location.chunk.y - 1, z: location.chunk.z },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-        // Z
-        if (zIsAtChunkFarEdge && (location.chunk.z + 1) < wSize) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z + 1 },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-        else if (zIsAtChunkNearEdge && (location.chunk.z - 1) >= 0) {
-            this.updateChunks({
-                chunk: { x: location.chunk.x, y: location.chunk.y, z: location.chunk.z - 1 },
-                block: { x: 1, y: 1, z: 1 } // We don't care what block this is since the whole mesh will regenerate, but we don't want a chunk edge otherwise we get an recursive loop
-            })
-        }
-    }
 
     // Load an embed link
     loadEmbed = (block, blockID) => {

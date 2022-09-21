@@ -1,5 +1,6 @@
 import perlinNoise3d from "../../../client/js/dist/pnoise3d.js"
 import { blockTypes, getBlockByName } from "../../../common/blockSystem.js"
+// import { clamp } from "../../../common/dataUtils.js"
 
 ////////////////////////////////////////////////////
 // Chunk generators
@@ -261,10 +262,6 @@ class ChunkGenerator {
     ////////////////////////////////////////////////////
     // Noise functions (all should return 0 or some valid block ID)
     ////////////////////////////////////////////////////
-
-    // Used to clamp the generated values between 0 and 1
-    // ToDo: Move to common utility file
-    clamp = (val, min, max) => { return Math.min(Math.max(val, min), max) }
 }
 
 export default ChunkGenerator
