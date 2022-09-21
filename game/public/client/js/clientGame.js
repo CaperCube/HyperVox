@@ -191,7 +191,7 @@ class ClientGame {
         this.hud.hide()
 
         // Chunk load interval
-        this.chunkRenderDistance = 3
+        this.chunkRenderDistance = 6
         this.loadChunkInterval = null
         this.chunkQueue = {}
     }
