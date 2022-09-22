@@ -4,6 +4,7 @@
 This task should fix some useability issues and bugs, but more importantly it should add and enhance features that enable easier and more fun content creation.
 
 # Sub-Tasks
+- [X] Show connected players in menu (if online)
 - [ ] Chat improvements
     - [ ] Whisper feature
     - [ ] Server-side option to filter html / js code out of user messages
@@ -18,7 +19,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
 - [ ] Spectator game mode
     - [ ] Turns off HUD
     - [ ] Tunrs off block cursor visibility
-    - [ ] Cannot edit blocks
+    - [X] Cannot edit blocks
     - [ ] Invisible to others
     - [ ] Flying only
 - [ ] [Player Improvements](./PlayerOverhaul.md)
@@ -30,8 +31,6 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Running
         - [ ] Lowered air-friction
         - [ ] B-hopping
-- [ ] Screenshot mode
-    - [ ] Easily take screenshots of worlds
 - [ ] World improvements
     - [ ] When saving worlds locally, we should request the brain's version of the world to save
     - [ ] Show title (& link if present) when cursor hovering over interactable blocks
@@ -70,6 +69,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
                     - name: 'chair'
                     - categories: ['brown', 'decorative']
                 - type: 'avatar'
+- [ ] Better chunking
+    - [X] Render meshes base on distance from main camera
+    - [ ] Render chunk view for visual debugging (draw multi-segment lines)
 - [ ] Skybox editor
 - [ ] More work on Noise Tool (Rename to World Tool)
     - [ ] Allow users to customize noise patterns
