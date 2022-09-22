@@ -44,6 +44,7 @@ const DefaultScene = (engine) => {
     
     skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene)
     skybox.infiniteDistance = true
+    skybox.ignoreCameraMaxZ = true
     skybox.renderingGroupId = 0
 
     let skyboxMaterial = new BABYLON.StandardMaterial("skyBoxMat", scene)
@@ -62,6 +63,7 @@ const DefaultScene = (engine) => {
     // Stars
     stars = BABYLON.MeshBuilder.CreateSphere("stars", { diameter: 200.0 }, scene)
     stars.infiniteDistance = true
+    stars.ignoreCameraMaxZ = true
     stars.renderingGroupId = 0
 
     stars.scaling = new BABYLON.Vector3 (1, 5, 1)
@@ -83,6 +85,7 @@ const DefaultScene = (engine) => {
     // Stars 2
     stars2 = BABYLON.MeshBuilder.CreateSphere("stars", { diameter: 400.0 }, scene)
     stars2.infiniteDistance = true
+    stars2.ignoreCameraMaxZ = true
     stars2.renderingGroupId = 0
 
     stars2.scaling = new BABYLON.Vector3 (1, 1, 1)

@@ -201,12 +201,21 @@ class MenuSystem extends TileRenderer {
             defaultValue: settingsLoaded?.fov || 1.35,
             valRange: [0.55,2.15],
         })
-        const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'Defaults'})
+
+        const chunkDistSlider = new UISlider({
+            ...SliderDefaults,
+            text: `Chunk Dist`,
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*4.5 },
+            increment: 1,
+            defaultValue: settingsLoaded?.chunkDist || 5,
+            valRange: [1,10],
+        })
+        const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Defaults'})
         // Back
-        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
+        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, defaultsButton, optionsBackButton])
+        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton])
 
         /////////////////////////////////////////////////////////
         // Play menu
@@ -232,21 +241,29 @@ class MenuSystem extends TileRenderer {
         pauseOptionsButton.pressButton = () => { this.setScene(this.pauseOptions) }
         
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
-        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*4.5}, tiles: [buttonMid], text: 'Leave Game'})
-        const pauseMainMenuButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Main Menu'})
-        pauseMainMenuButton.pressButton = () => { this.setScene(this.mainMenu) }
-
-        const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
+        const pauseNewWorldButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'New World'})
+        pauseNewWorldButton.pressButton = () => { this.setScene(this.pausePlayMenu) }
+        const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
         
-        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseMainMenuButton, pauseOptionsButton, pauseExportButton])
+        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*6.5}, tiles: [buttonMid], text: 'Leave Game'})
+        
+        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseNewWorldButton, pauseOptionsButton, pauseExportButton])
+
+        /////////////////////////////////////////////////////////
+        // Pause Play Menu
+        /////////////////////////////////////////////////////////
+        const pausePlayBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
+        pausePlayBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
+        this.pausePlayMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, pausePlayBackButton])
 
         /////////////////////////////////////////////////////////
         // Pause Options
         /////////////////////////////////////////////////////////
-        const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
+        const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [button], text: 'Back'})
         pauseOptionsBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
 
-        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, defaultsButton, pauseOptionsBackButton])
+        //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
+        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, pauseOptionsBackButton])
 
         // Selection vars
         this.selectedScene = this.mainMenu
