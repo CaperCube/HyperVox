@@ -49,7 +49,8 @@ class ClientGame {
         this.settings = {
             mouseSensitivity: settingsLoaded?.mouseSensitivity || 400, //higher is slower
             fov: settingsLoaded?.fov || 1.35,
-            // ToDo: put player controlls in here
+            chunkDist: settingsLoaded?.chunkDist || 5,
+            // ToDo: put player controls in here
         }
 
         ///////////////////////////////////////////////////////
@@ -126,17 +127,30 @@ class ClientGame {
             fontPath: `./client/src/textures/fonts/`
         })
 
+        //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
+
         // Look Speed
         this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ this.settings.mouseSensitivity = val; this.updateSettings(); }
         // this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ console.log(val) }
+
         // FoV
         this.menu.optionsMenu.selectableElements[1].valueUpdateFunction = (val)=>{ this.settings.fov = val; this.updateSettings(); }
+
         // GUI scale
-        // this.menu.optionsMenu.selectableElements[2].valueUpdateFunction = ()=>{ this.settings.mouseSensitivity += 100; this.updateSettings(); }
+        // this.menu.optionsMenu.selectableElements[2].valueUpdateFunction = ()=>{ this.settings.guiScale += 100; this.updateSettings(); }
+
+        // Chunk distance
+        this.menu.optionsMenu.selectableElements[3].valueUpdateFunction = (val)=>{
+            this.settings.chunkDist = val;
+            if (this.mainCamera && this.clientWorld) this.mainCamera.maxZ = (this.settings.chunkDist + 1) * (this.clientWorld?._chunkSize || 8)
+            this.updateSettings();
+        }
+
         // Defaults
-        this.menu.optionsMenu.selectableElements[3].pressButton = ()=>{
+        this.menu.optionsMenu.selectableElements[4].pressButton = ()=>{
             this.menu.optionsMenu.selectableElements[0].update(400)
             this.menu.optionsMenu.selectableElements[1].update(1.35)
+            this.menu.optionsMenu.selectableElements[3].update(5)
         }
 
         this.unlockCursor = () => {
@@ -192,7 +206,6 @@ class ClientGame {
         this.hud.hide()
 
         // Chunk load interval
-        this.chunkRenderDistance = 6
         this.loadChunkInterval = null
         this.chunkQueue = {}
     }
@@ -226,16 +239,16 @@ class ClientGame {
             const camLocation = getArrayPos(camPos, this.clientWorld._chunkSize)
 
             // Loop thorough chunks near us
-            const camLowerY = clamp((camLocation.chunk.y - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperY = clamp((camLocation.chunk.y + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerY = clamp((camLocation.chunk.y - this.settings.chunkDist), 0, this.clientWorld._worldSize)
+            const camUpperY = clamp((camLocation.chunk.y + this.settings.chunkDist), 0, this.clientWorld._worldSize)
             for (let y = camLowerY; y < camUpperY; y++) {
 
-            const camLowerX = clamp((camLocation.chunk.x - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperX = clamp((camLocation.chunk.x + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerX = clamp((camLocation.chunk.x - this.settings.chunkDist), 0, this.clientWorld._worldSize)
+            const camUpperX = clamp((camLocation.chunk.x + this.settings.chunkDist), 0, this.clientWorld._worldSize)
             for (let x = camLowerX; x < camUpperX; x++) {
 
-            const camLowerZ = clamp((camLocation.chunk.z - this.chunkRenderDistance), 0, this.clientWorld._worldSize)
-            const camUpperZ = clamp((camLocation.chunk.z + this.chunkRenderDistance), 0, this.clientWorld._worldSize)
+            const camLowerZ = clamp((camLocation.chunk.z - this.settings.chunkDist), 0, this.clientWorld._worldSize)
+            const camUpperZ = clamp((camLocation.chunk.z + this.settings.chunkDist), 0, this.clientWorld._worldSize)
             for (let z = camLowerZ; z < camUpperZ; z++) {
                 // Queue the chunk
                 const chunkLocation = { x: x, y: y, z: z }
@@ -253,7 +266,7 @@ class ClientGame {
                 const terms = chunkName.split('_')[1].split('-')
                 const chunkLocation = { x: parseInt(terms[0]), y: parseInt(terms[1]), z: parseInt(terms[2]) }
                 
-                if (!this.isChunkInRange(camLocation, chunkLocation, this.chunkRenderDistance)) {
+                if (!this.isChunkInRange(camLocation, chunkLocation, this.settings.chunkDist)) {
                     // Unqueue it
                     this.chunkQueue[chunkName] = false
 
@@ -337,7 +350,7 @@ class ClientGame {
         const camLocation = getArrayPos(camPos, cSize)
 
         // Start generating chunk meshes
-        if (this.isChunkInRange(camLocation, location.chunk, this.chunkRenderDistance)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
+        if (this.isChunkInRange(camLocation, location.chunk, this.settings.chunkDist)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
 
         // Update neighboring chunks if needed
         const xIsAtChunkFarEdge = (location.block.x === cSize-1)
@@ -523,7 +536,7 @@ class ClientGame {
         }}
 
         // Create world border mesh
-        this.meshGen.createWorldBorders(this.clientWorld, this.scene)
+        const worldBorderMesh = this.meshGen.createWorldBorders(this.clientWorld, this.scene)
 
         // Allow debugger to be opened
         Buttons.backquote.onPress = (e) => {
@@ -544,7 +557,7 @@ class ClientGame {
         this.mainCamera = new BABYLON.UniversalCamera('playerCamera', worldSpawnPos, this.scene)
         this.mainCamera.minZ = tileScale/10
         // this.mainCamera.maxZ = fogDistance
-        this.mainCamera.maxZ = (this.chunkRenderDistance + 1) * this.clientWorld._chunkSize
+        this.mainCamera.maxZ = (this.settings.chunkDist + 1) * this.clientWorld._chunkSize
 
         this.mainCamera.attachControl(this.canvas, true)
         this.mainCamera.inputs.attached.keyboard.detachControl()
