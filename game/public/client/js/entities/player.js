@@ -59,7 +59,7 @@ class ClientPlayer {
 
         // Private vars
         this.groundFric = 0.75
-        this.gravity = -0.0125
+        this.gravity = -0.0085//-0.0125
         this.defaultBounce = 0.05
         this.bounce = this.defaultBounce
         this.usedJumps = 0
@@ -150,9 +150,9 @@ class ClientPlayer {
 
         // Movement vars
         this.spectateMode = false
-        this.moveSpeed = 0.025 //tileScale/40
+        this.moveSpeed = 0.018//0.025 //tileScale/40
         this.flySpeed = 0.05
-        this.jumpStength = 0.2
+        this.jumpStength = 0.15//0.2
         this.allowedJumps = 2
         this.isInFluid = false
         this.fluidViscosity = 1

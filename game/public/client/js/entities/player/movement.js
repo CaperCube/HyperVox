@@ -32,9 +32,10 @@ export function basicMovement(engine, player, movementVector) {
     ///////////////////////////////////////////////////////
 
     // Motion vars
-    const deltaTime = engine.getDeltaTime() //* 0.001
-    const frameRateMult = 1000/60 //player.engine.getFps().toFixed()  //(1 sec / fps)
-    let frameGrav = ((player.gravity/frameRateMult) * deltaTime)
+    // const deltaTime = 16 // ToDo: MAKE SURE this and "clientGame.clientUpdateSpeed" are the same
+    // const frameRateMult = 1000/60 // ToDo: 
+    // let frameGrav = ((player.gravity/frameRateMult) * deltaTime)
+    let frameGrav = player.gravity
 
     // Collision vars
     let playerBox = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: player.playerHeight, d: 0.5}
@@ -86,7 +87,8 @@ export function basicMovement(engine, player, movementVector) {
     }
 
     // Gravity changes
-    if (player.isInFluid) frameGrav = (((player.gravity / player.fluidViscosity)/frameRateMult) * deltaTime)
+    // if (player.isInFluid) frameGrav = (((player.gravity / player.fluidViscosity)/frameRateMult) * deltaTime)
+    if (player.isInFluid) frameGrav = (player.gravity / player.fluidViscosity)
 
     ///////////////////////////////////////////////////////
     // World bounds
@@ -102,7 +104,7 @@ export function basicMovement(engine, player, movementVector) {
         // Apply gravity
         player.playerVelocity.y += frameGrav
     }
-    keepMovingY(player, deltaTime, frameRateMult)
+    keepMovingY(player)//, deltaTime, frameRateMult)
 
     // X & Y Bounds
     if (!player.spectateMode) {
@@ -127,8 +129,8 @@ export function basicMovement(engine, player, movementVector) {
         }
     }
 
-    if (allowMoveX) keepMovingX(player, deltaTime, frameRateMult)
-    if (allowMoveZ) keepMovingZ(player, deltaTime, frameRateMult)
+    if (allowMoveX) keepMovingX(player)//, deltaTime, frameRateMult)
+    if (allowMoveZ) keepMovingZ(player)//, deltaTime, frameRateMult)
 
     ///////////////////////////////////////////////////////
     // Friction
@@ -306,29 +308,29 @@ const bounceZ = (player) => {
     player.playerVelocity.z *= -player.bounce
 }
 
-const keepMovingY = (player, deltaTime, frameRateMult) => {
+const keepMovingY = (player) => {//, deltaTime, frameRateMult) => {
     // Apply position 
     player.position = new BABYLON.Vector3(
         player.position.x,
-        player.position.y + ((player.playerVelocity.y/frameRateMult) * deltaTime),
+        player.position.y + player.playerVelocity.y,//((player.playerVelocity.y/frameRateMult) * deltaTime),
         player.position.z
     )
 }
 
-const keepMovingX = (player, deltaTime, frameRateMult) => {
+const keepMovingX = (player) => {//, deltaTime, frameRateMult) => {
     // Apply position
     player.position = new BABYLON.Vector3(
-        player.position.x + ((player.playerVelocity.x/frameRateMult) * deltaTime),
+        player.position.x + player.playerVelocity.x,//((player.playerVelocity.x/frameRateMult) * deltaTime),
         player.position.y,
         player.position.z
     )
 }
 
-const keepMovingZ = (player, deltaTime, frameRateMult) => {
+const keepMovingZ = (player) => {//, deltaTime, frameRateMult) => {
     // Apply position
     player.position = new BABYLON.Vector3(
         player.position.x,
         player.position.y,
-        player.position.z + ((player.playerVelocity.z/frameRateMult) * deltaTime)
+        player.position.z + player.playerVelocity.z//((player.playerVelocity.z/frameRateMult) * deltaTime)
     )
 }

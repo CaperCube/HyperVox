@@ -50,8 +50,12 @@ class ClientGame {
             mouseSensitivity: settingsLoaded?.mouseSensitivity || 400, //higher is slower
             fov: settingsLoaded?.fov || 1.35,
             chunkDist: settingsLoaded?.chunkDist || 5,
+            // clientUpdateSpeed
             // ToDo: put player controls in here
         }
+
+        // ToDo: make this a setting
+        this.clientUpdateSpeed = 16 // roughly 60 fps (1000ms/60frames = 16.6666)
 
         ///////////////////////////////////////////////////////
         // Player vars
@@ -78,6 +82,7 @@ class ClientGame {
         this.engine = new BABYLON.Engine(this.canvas, false)
         this.frame = 0
         this.scene
+        this.updateLoop = null
 
         // mesh helper object
         this.meshGen = new MeshGenerator()
@@ -428,6 +433,8 @@ class ClientGame {
         this.localPlayer = null
 
         // Stop rendering and remove scene
+        clearInterval(this.updateLoop)
+        this.updateLoop = null
         this.engine.stopRenderLoop()
         this.scene = null
 
@@ -623,12 +630,32 @@ class ClientGame {
             this.frame++
 
             // Tell the brain my position
-            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
+            // if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
 
             // Update materials
             if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
 
-            // Update player (change this to a loop for local machine players if we do that)
+            // Update player (change this to loop through all local machine players, if we do that)
+            // if (this.localPlayer) this.localPlayer.movementUpdate(this.engine)
+
+            // Update network players
+            // for (let p in this.networkPlayers) {
+            //     if (this.networkPlayers[p]) {
+            //         this.networkPlayers[p].updatePosition()
+            //     }
+            // }
+
+            // render scene
+            this.scene.render()
+        }) // }, 1000/90 )
+
+        // Create an update loop (for client-side collision and movement updates)
+        this.updateLoop = setInterval(()=>{
+
+            // Tell the brain my position
+            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
+
+            // Update player (change this to loop through all local machine players, if we do that)
             if (this.localPlayer) this.localPlayer.movementUpdate(this.engine)
 
             // Update network players
@@ -638,9 +665,7 @@ class ClientGame {
                 }
             }
 
-            // render scene
-            this.scene.render()
-        }) // }, 1000/90 )
+        }, this.clientUpdateSpeed)
     }
 
     // This is used when switching to an online session
