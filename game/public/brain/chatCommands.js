@@ -141,6 +141,33 @@ const chatCommands = {
             }
         }
     },
+    adminLogin: {
+        commands: ["adminlogin", "al"],
+        admin: false,
+        description: `Attempt an admin login with a passoword. (Example: ${commandOptions.delimiter}adminlogin password)`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Set the admin status of all matching players
+            const myPlayer = brainGame.players.filter( p => p.playerID === playerID )?.[0]
+            if (myPlayer) {
+                // Get password from args
+                let argString = ''
+                for (let i = 0; i < args.length; i++) {
+                    argString += `${args[i]}`
+                    if (i < args.length-1) argString += ' '
+                }
+
+                // Check password
+                if (brainGame.adminPassword && argString === brainGame.adminPassword) {
+                    // Set admin
+                    myPlayer.isAdmin = true
+                    // Send message
+                    sendMessage(`${myPlayer.playerName} is now an admin`)
+                }
+                else sendMessage(`Wrong password`)
+            }
+            else sendMessage(`Player not found`)
+        }
+    },
 
     //
     // Server commands

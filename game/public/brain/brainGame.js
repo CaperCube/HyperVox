@@ -18,6 +18,7 @@ class BrainGame {
         // Game vars
         ///////////////////////////////////////////////////////
         this.gameOptions = {
+            adminAlwaysExists: false,
             gameTickSpeed: 30, // Time in ms between game ticks
             // gameUpdateSpeed: 300, // Time in ms between entity updates
             validatePlayerActions: false, // Corrects player movement server-side
@@ -40,6 +41,7 @@ class BrainGame {
         this.players = []
         this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
+        this.adminPassword = "admin" // Set to null for no login // ToDo: This should get stored elsewhere or loaded in
 
         // Brain computation vars
         this.gameTickInterval = null

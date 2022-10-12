@@ -80,7 +80,11 @@ io.sockets.on('connection', (socket) => {
     // Add player to brain
     const isFirstPlayer = (gameServer.brain.players.length === 0)
     gameServer.brain.players.push(myServerPlayer)
-    if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
+
+    // Assign admin role
+    if (gameServer.brain.gameOptions.adminAlwaysExists) {
+        if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
+    }
 
     // Tell the new client what their ID is
     socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
@@ -110,8 +114,10 @@ io.sockets.on('connection', (socket) => {
         //delete SOCKET_LIST[socket.ID]
 
         // If no admin exists, assign a new one
-        const listOfAdmins = gameServer?.brain?.players?.filter(p => p.isAdmin)
-        if (listOfAdmins.length === 0 && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
+        if (gameServer.brain.gameOptions.adminAlwaysExists) {
+            const listOfAdmins = gameServer?.brain?.players?.filter(p => p.isAdmin)
+            if (listOfAdmins.length === 0 && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
+        }
 
         // Send message
         io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", recipients: 'all', args: { players: gameServer.brain.players } } )
