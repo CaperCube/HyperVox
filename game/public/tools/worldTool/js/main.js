@@ -2,6 +2,7 @@ import { staticImageSRC } from "../../../client/js/resources.js"//"/client/js/re
 import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"//"/brain/gen/world/chunkGen.js"
 import { blockTypes } from "../../../common/blockSystem.js"
 import World from "../../../brain/gen/world/world.js"
+import { getGlobalPos } from "../../../common/positionUtils.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
@@ -29,6 +30,11 @@ let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
 let steps2D = 3
 let world = [[[]]] // ToDo: change to an actual world object
+let worldSpawn = {
+    chunk: { x: 0, y: 0, z: 0 },
+    block: { x: 0, y: 0, z: 0 }
+}
+let blockData = {}
 
 // Editor vars
 let tempLayer = [[]]
@@ -41,6 +47,7 @@ const tools = {
     // eraser: 'eraser',
     rect: 'rect',
     filledRect: 'filledrect',
+    edit: 'edit',
 }
 let editorTool = tools.pencil // The tool to use now
 let altAction = false // when using RMB with a tool
@@ -85,6 +92,7 @@ $("#DOM_loadWorld").onclick = () => { browseForWorldFile() }
 $("#DOM_saveWorld").onclick = () => { saveWorld(world) }
 $("#DOM_pencilbtn").onclick = () => { setEditorTool(tools.pencil) }
 $("#DOM_rectbtn").onclick = () => { setEditorTool(tools.rect) }
+$("#DOM_editbtn").onclick = () => { setEditorTool(tools.edit) }
 $("#DOM_filledrectbtn").onclick = () => { setEditorTool(tools.filledRect) }
 
 // Defaults
@@ -140,6 +148,52 @@ function populateDOMBlockList(dropList, itemArray) {
     }
 }
 
+function populateDOMBlockData() {
+    // Search "bazingo"
+    // to change the world object structure from "embeds" to "blockdata"
+
+    // "embeds": { - This should change to "blockdata"
+    // 	"36_21_6_20": "http://localhost:3001/public/viewer/index.html?scene=dump/wild.bd",
+    // 	"36_18_6_20": "http://erickalpin.com/petition/"
+    // },
+
+    // Clear all DOM elements in the list
+    $("#DOM_blockdata").innerHTML = ""
+
+    // Loop through block data object and create DOM elements for them
+    Object.keys(blockData).forEach(bName => {
+        // New span
+        let newBD = document.createElement("span")
+        newBD.setAttribute("id", `block_${bName}`)
+        newBD.classList.add("blockdata-field")
+        newBD.innerHTML = `${bName}: `
+
+        // New text area
+        let newTextArea = document.createElement("textarea")
+        const textID = `input_${bName}`
+        newTextArea.setAttribute("id", textID)
+        newTextArea.addEventListener("input", (e) => { setDataForBlock(bName, e.target.value) })
+        newTextArea.innerHTML = blockData[bName]
+
+        // New delete button
+        let newButton = document.createElement("button")
+        newButton.onclick = () => { createDataForBlock(true, bName) }
+        newButton.innerHTML = 'X'
+
+        // Add elements to span
+        newBD.appendChild(newTextArea)
+        newBD.appendChild(newButton)
+
+        // add elements to list
+        $("#DOM_blockdata").appendChild(newBD)
+        $("#DOM_blockdata").appendChild(document.createElement("br"))
+    })
+
+    // <span id="block_gX_gY_gZ_ID" class="blockdata-field">
+    //     gX_gY_gZ_ID: <textarea oninput="setDataForBlock('gX_gY_gZ_ID', this.innerHTML)"></textarea> <button onclick="createDataForBlock(true, 'gX_gY_gZ_ID')">X</button><br>
+    // </span>
+}
+
 function updateViewDirection(newVal) {
     // Set value
     viewDirection = newVal
@@ -176,6 +230,9 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     _resolution = (chunkSize * worldSize)
     pixelSize = canvas.width/_resolution
     world = newWorld.worldChunks || [[[]]]
+    worldSpawn = newWorld.worldSpawn
+    // Search "bazingo"
+    blockData = newWorld.embeds || {} // ToDo: This will be changing to newWorld.blockData
 
     canvasTemp.width = canvasTemp.height = canvas.width
 
@@ -184,6 +241,9 @@ function updateWorld(newWorld) { // ToDo: create a World() object
 
     // Update slider
     resetDepthSlider()
+
+    // Update block data section
+    populateDOMBlockData()
 }
 
 function resetDepthSlider() {
@@ -228,6 +288,9 @@ function DOMNoiseFnc() {
 
     // Update slider
     resetDepthSlider()
+
+    // Update block data section
+    populateDOMBlockData()
 }
 
 function updateDepth(el) {
@@ -308,10 +371,12 @@ canvas.addEventListener('pointerdown', (e) => {
     switch (e.button) {
         case 0: // LMB
             if (editorTool === tools.pencil) drawPencil()
+            else if (editorTool === tools.edit) createDataForBlock()
             break
         case 2: // RMB
             altAction = true
             if (editorTool === tools.pencil) drawPencil(altAction)
+            else if (editorTool === tools.edit) createDataForBlock(altAction)
             break
     }
 
@@ -451,6 +516,7 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === 'b') setEditorTool(tools.pencil)
     else if (e.key === 'r') setEditorTool(tools.rect)
     else if (e.key === 'f') setEditorTool(tools.filledRect)
+    else if (e.key === 'i') setEditorTool(tools.edit)
     else if (e.key === '-') { $('#DOM_drawdepthslider').value--; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
     else if (e.key === '=') { $('#DOM_drawdepthslider').value++; $('#DOM_drawdepthvalue').innerHTML = $('#DOM_drawdepthslider').value }
     else if (e.key === 'Alt') {
@@ -604,6 +670,99 @@ function drawBlockWithDepth(currentDepth, viewPos, blockIndex) {
             }
         }
     }
+}
+
+function getWorldPositionAtMouse(currentDepth, viewPos) {
+    let location = {
+        chunk: { x: 0, y: 0, z: 0 },
+        block: { x: 0, y: 0, z: 0 }
+    }
+
+    switch (viewDirection) {
+        case 0: // X
+            let newX = currentDepth
+            newX = (newX > _resolution)? _resolution : newX
+            const worldX = getWorldPos({ x: newX, y: 0 }, false)
+            // Create
+            location = {
+                chunk: { x: worldX.chunk.x, y: viewPos.chunk.y, z: viewPos.chunk.z },
+                block: { x: worldX.block.x, y: viewPos.block.y, z: viewPos.block.z }
+            }
+            break
+        case 1: // Y
+            let newY = currentDepth
+            newY = (newY > _resolution)? _resolution : newY
+            const worldY = getWorldPos({ x: newY, y: 0 }, false)
+            // Create
+            location = {
+                chunk: { x: viewPos.chunk.x, y: worldY.chunk.x, z: viewPos.chunk.z },
+                block: { x: viewPos.block.x, y: worldY.block.x, z: viewPos.block.z }
+            }
+            break
+        case 2: // Z
+            let newZ = currentDepth
+            newZ = (newZ > _resolution)? _resolution : newZ
+            const worldZ = getWorldPos({ x: newZ, y: 0 }, false)
+            // Create
+            location = {
+                chunk: { x: viewPos.chunk.x, y: viewPos.chunk.y, z: worldZ.chunk.x },
+                block: { x: viewPos.block.x, y: viewPos.block.y, z: worldZ.block.x }
+            }
+            break
+    }
+
+    return location
+}
+
+function createDataForBlock(remove = false, blockName = null, blockID = null) {
+    // Get world layer
+    const depth = $("#DOM_depthslider").value
+    // Get world position
+    const viewPos = getViewPos(depth)
+    // Get global position
+    const gPos = getGlobalPos(viewPos, chunkSize)
+    // Get block ID
+    const mPos = getWorldPositionAtMouse(depth, viewPos)
+    const blockAtMouse = world[mPos.chunk.y]?.[mPos.chunk.x]?.[mPos.chunk.z]?.[mPos.block.y]?.[mPos.block.x]?.[mPos.block.z]
+    const bID = (blockID === null)? blockAtMouse : blockID
+
+    // Get block name
+    const bName = blockName || `${bID}_${gPos.x}_${gPos.y}_${gPos.z}`
+    // console.log("block data change", bName)
+
+    if (remove) {
+        // Remove metadata for this block
+        delete blockData[bName]
+    }
+    else {
+        // Create metadata for this block
+        if (!blockData[bName]) blockData[bName] = ""
+    }
+
+    // Update DOM
+    populateDOMBlockData()
+
+    // Show selected
+    $(`#block_${bName}`)?.classList.add('selected-blockdata')
+}
+
+function setDataForBlock(blockName = null, newData = "") {
+
+    // Check if this block exists in the list
+    if (Object.keys(blockData).includes(blockName)) {
+    }
+    else {
+        createDataForBlock(true, blockName)
+    }
+
+    // Set the data
+    blockData[blockName] = newData
+
+    // console.log(blockData, blockData[blockLocation], newData)
+    // console.log(newData)
+
+    // Update DOM
+    //populateDOMBlockData()
 }
 
 ////////////////////////////////////////////////////////
@@ -820,6 +979,9 @@ const saveWorld = (saveWorld) => {
     w._chunkSize = chunkSize
     w._wSeed = $('#DOM_seed').value
     w.saveVersion = '0.1'
+    if (worldSpawn) w.worldSpawn = worldSpawn
+    // Search "bazingo"
+    w.embeds = blockData // ToDo: This will be changing to w.blockData
 
     let element = document.createElement('a')
     element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( w ) ) )

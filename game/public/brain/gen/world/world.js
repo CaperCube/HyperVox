@@ -10,6 +10,7 @@ class World {
         
         const worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
         this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
+        // bazingo
         this.embeds = {}
 
         this.getWorldSeed = () => { return this._wSeed }
@@ -46,7 +47,7 @@ class World {
         // worldFormat v0.1
         this.worldChunks = jsonObj.worldChunks
         this.worldSpawn = jsonObj.worldSpawn
-        this.embeds = jsonObj.embeds
+        this.embeds = jsonObj.embeds // bazingo
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale
         this._chunkSize = jsonObj._chunkSize
@@ -72,6 +73,7 @@ function copyWorld( world ) {
     const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, newWorld._chunkSize)
     newWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
     // Embeds
+    // bazingo
     newWorld.embeds = clone.embeds
 
     return newWorld

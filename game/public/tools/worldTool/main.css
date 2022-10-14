@@ -109,3 +109,7 @@ button.selected {
 	background-color: var(--color-accent);
 	color: var(--color-5);
 }
+
+.selected-blockdata {
+	border: 2px solid #00ff00;
+}

@@ -86,9 +86,10 @@
                 </select><br>
                 <br>
                 Tool:<br>
-                <button id="DOM_pencilbtn" title="Pencil tool (e)" style="width: 40px">▪</button><br>
+                <button id="DOM_pencilbtn" title="Pencil tool (b)" style="width: 40px">▪</button><br>
                 <button id="DOM_rectbtn" title="Rectangle tool (r)" style="width: 40px">🔲</button><br>
                 <button id="DOM_filledrectbtn" title="Filled Rectangle tool (f)" style="width: 40px">⬛</button><br>
+                <button id="DOM_editbtn" title="Edit tool (i)" style="width: 40px">Edit</button><br>
                 <br>
                 Draw Depth: <span id="DOM_drawdepthvalue">0</span><br>
                 <input id="DOM_drawdepthslider" type="range" min="1" max="32" step="1" value="1" oninput="document.getElementById('DOM_drawdepthvalue').innerHTML = this.value;">
@@ -101,6 +102,14 @@
                 Script:<br>
                 <input id="DOM_custompattern" type="text" value="let blockID = 0; if (y===0) blockID = blockTypes.indexOf(getBlockByName('steel-riveted')); return blockID"><br>
                 <button id="DOM_generateCustomBttn" title="Generate a new world using the custom pattern (deletes current world)" onclick="DOMNoiseFnc()">New Custom World</button>
+            </span>
+        </span>
+        <span class="section">
+            <h2 onclick="toggleFold(this)">Block Data</h2>
+            <span id="DOM_blockdata" class="foldable">
+                <span id="block_ID_gX_gY_gZ" class="blockdata-field">
+                    ID_gX_gY_gZ: <textarea oninput="setDataForBlock('gX_gY_gZ_ID', this.innerHTML)"></textarea> <button onclick="createDataForBlock(true, 'gX_gY_gZ_ID')">X</button><br>
+                </span>
             </span>
         </span>
         <!-- Help -->
