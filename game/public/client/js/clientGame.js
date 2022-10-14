@@ -769,6 +769,8 @@ class ClientGame {
     //... (ToDo: Move clientGame init code to a function and use here)
 
     // Load an embed link
+    // ToDo: Change this to accept a url, only run this function a command initiated it
+    // bazingo
     loadEmbed = (block, blockID) => {
         const uniqueBlock = `${blockID}_${block.x}_${block.y}_${block.z}`
         console.log(uniqueBlock)
