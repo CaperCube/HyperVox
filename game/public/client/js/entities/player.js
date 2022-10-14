@@ -81,6 +81,8 @@ class ClientPlayer {
         // The object in the scene the player will be controlling
         this.avatar = avatar? avatar : new BABYLON.TransformNode("root")
         this.itemMesh = null
+        this.muzzleFlashMesh = null
+        this.muzzleFlashLight = null
         this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
         this.head = avatar? null : BABYLON.Mesh.MergeMeshes([
             // Head
@@ -115,6 +117,7 @@ class ClientPlayer {
         else {
             // Camera is present, so create a item mesh in front of it
             this.createItemMesh(193)
+            this.createMuzzleFlash(209)
         }
         //this.playerCamera = camera
 
@@ -130,6 +133,8 @@ class ClientPlayer {
         this.inventory = makeCreativeInventory(clientGame.hud)
         this.inventory.setSelected(0)
         console.log(this.inventory)
+        // Don't allow use until next interval
+        this.itemUseIsBlocked = false
 
         // Gameplay vars
         // ToDo: a lot of these should only be stored / tracked on the brain, not on the client
@@ -237,15 +242,48 @@ class ClientPlayer {
         this.itemMesh.parent = this.avatar
     }
 
+    createMuzzleFlash(texID) {
+        // Mesh
+        if (this.muzzleFlashMesh) this.muzzleFlashMesh.dispose()
+        this.muzzleFlashMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0.751, y: -0.875, z: 1.225}, 'left', texID, this.clientGame.scene)
+        this.muzzleFlashMesh.scaling.x = this.muzzleFlashMesh.scaling.y = this.muzzleFlashMesh.scaling.z = 0.75
+        this.muzzleFlashMesh.parent = this.avatar
+        this.muzzleFlashMesh.setEnabled(false)
+
+        // Light
+        if (this.muzzleFlashLight) this.muzzleFlashLight.dispose()
+        this.muzzleFlashLight = new BABYLON.PointLight("gunPointLight", new BABYLON.Vector3(0.6, -0.5, 1.4), this.clientGame.scene)
+        this.muzzleFlashLight.parent = this.avatar
+        this.muzzleFlashLight.intensity = 1
+        this.muzzleFlashLight.range = 10
+        this.muzzleFlashLight.setEnabled(false)
+    }
+
     ///////////////////////////////////////////////////////
     // Player functions (ToDo: move some of these)
     ///////////////////////////////////////////////////////
 
     useInvItem = () => {
-        // Get cursor location
-        const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
-        // Use selected item
-        this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
+
+        // Function to use item
+        const doUse = () => {
+            // Block item use for an interval
+            this.itemUseIsBlocked = true
+            setTimeout(()=>{ this.itemUseIsBlocked = false }, this.inventory?.items?.[this.inventory.selectedIndex]?.useTime || 150)
+            // Get cursor location
+            const cursorLocation = { x: this.selectCursor.x, y: this.selectCursor.y, z: this.selectCursor.z }
+            // Use selected item
+            this.inventory.useItem(this.clientGame, this, cursorLocation, this.inventory.selectedIndex)
+        }
+
+        // Do first use
+        if (!this.itemUseIsBlocked) doUse()
+
+        // Set the interval for auto items
+        if (this.inventory?.items?.[this.inventory.selectedIndex].useAuto)
+        {
+            this.placeInterval = setInterval( ()=>{ doUse() }, this.inventory?.items?.[this.inventory.selectedIndex]?.useTime || 150 )
+        }
     }
 
     removeBlock = () => {
@@ -414,8 +452,8 @@ class ClientPlayer {
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
-            assignFunctionToInput(c.fire1, ()=>{ this.placeInterval = setInterval(()=>{this.useInvItem()},150); this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
-            assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()},150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
+            assignFunctionToInput(c.fire1, ()=>{ this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
+            assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()}, 150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()

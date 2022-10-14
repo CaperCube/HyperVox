@@ -212,7 +212,19 @@ class BrainComs {
                     // if (this.messageDebug) console.log( '%c Shot validated (brain)', 'background: #142; color: #ced', data )
 
                     // Validate hit
-                    const gunDamage = 5 // ToDo: change this based on "data.item"
+                    let gunDamage = 0 // ToDo: change this so the server looks at the items in the common dir
+                    console.log(data)
+                    switch (data.item.itemName) {
+                        case "Rail Gun":
+                            gunDamage = 35
+                            break
+                        case "SMG":
+                            gunDamage = 5
+                            break
+                        default:
+                            gunDamage = 5
+                            break
+                    }
                     // ToDo: actually use "checkIfShotHitAnyone()"
                     const hitPlayerID = parseFloat(data.hitPlayerID) //this.brainGame.checkIfShotHitAnyone(data, playerID)                    
 

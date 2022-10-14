@@ -23,12 +23,16 @@ export class Item {
         itemType = 'block',
         stackSize = 1,
         maxStackSize = 100, // 0 = infinate
+        useTime = 150, // time in ms between uses
+        useAuto = true, // if true, the user and hold down the action button to use repeatedly
     }) {
         // Identifiers
         this.itemName = itemName
         this.itemType = itemType
         this.itemID = itemID
 
+        this.useTime = useTime // time in ms between uses
+        this.useAuto = useAuto // if true, the user and hold down the action button to use repeatedly
         this.stackSize = stackSize
         this.maxStackSize = maxStackSize
         this.consumeable = true
@@ -155,13 +159,26 @@ export const makeCreativeInventory = (hud = null) => {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
     // Temp gun item    
     const gun = new Item({
-        itemName: "gun",
+        itemName: "SMG",
         itemID: 193, // maybe 191 or 193
         itemType: 'gun',
         stackSize: 1,
         maxStackSize: 0,
+        useTime: 120
     })
     cInv.items.push(gun)
+
+    // Temp gun 2    
+    const gun2 = new Item({
+        itemName: "Rail Gun",
+        itemID: 194, // maybe 191 or 193
+        itemType: 'gun',
+        stackSize: 1,
+        maxStackSize: 0,
+        useTime: 1200,
+        useAuto: false
+    })
+    cInv.items.push(gun2)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Fill inv
@@ -197,11 +214,33 @@ function shoot(clientGame, player, item) {
     
     // If allowed, shoot
     // console.log("Shoot")
-    if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+    switch (item.itemName) {
+        case "Rail Gun":
+            if (sounds.RAILGUN_SHOOT_1) sounds.RAILGUN_SHOOT_1.play()
+            break
+        default:
+            if (sounds.LASERGUN_SHOOT_1) sounds.LASERGUN_SHOOT_1.play()
+            break
+    }
 
     // Play shoot animation
-    if (player.itemMesh) player.itemMesh.position.z -= 0.15
-    setTimeout( ()=>{ if (player.itemMesh) player.itemMesh.position.z += 0.15 }, 100 )
+    if (player.itemMesh) {
+        // Knockback
+        const fps = 60
+        const frames = fps * (item.useTime / 1000) // Set the length of animation to the item's useTime
+        BABYLON.Animation.CreateAndStartAnimation("ItemZPosition", player.itemMesh, "position.z", fps, frames, 0.75, 1, 0)
+
+        // Muzzle Flash
+        if (player.muzzleFlashMesh)
+        {
+            player.muzzleFlashMesh.setEnabled(true)
+            player.muzzleFlashLight.setEnabled(true)
+            setTimeout( ()=>{
+                player.muzzleFlashMesh.setEnabled(false)
+                player.muzzleFlashLight.setEnabled(false)
+            }, 80)
+        }
+    }
 
     // Create bullet trail (ToDo: remove this and change with a better system)
 

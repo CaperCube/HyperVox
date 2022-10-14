@@ -598,6 +598,7 @@ class ClientGame {
         ////////////////////////////////////////////////////
         
         sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
+        sounds.RAILGUN_SHOOT_1 = new BABYLON.Sound("railgun_shoot_1", soundSRC.RAILGUN_SHOOT_1, this.scene)
         sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)

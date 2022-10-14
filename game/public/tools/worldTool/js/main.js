@@ -536,10 +536,14 @@ document.addEventListener('keyup', (e) => {
 // Tool actions
 ////////////////////////////////////////////////////////
 function drawToolPreview(position = {x:0,y:0}, tileIndex = 0, opacity = 1, context = ctxTemp) {
+    // Set Opacity
     context.globalAlpha = opacity
     context.clearRect(0, 0, context.canvas.width, context.canvas.height)
-    drawTileHere(position.x, position.y, pixelSize, tileIndex, context)
 
+    // Draw cursor
+    drawTileHere(position.x, position.y, pixelSize, tileIndex, context, (editorTool === tools.edit))
+
+    // Reset Opacity
     context.globalAlpha = 1
 }
 
@@ -778,23 +782,28 @@ function generateNoise(pat, depth, seed) {
     drawWorld(world, depth)
 }
 
-function drawTileHere(x, y, size, id, myCtx = ctx) {
+function drawTileHere(x, y, size, id, myCtx = ctx, isCursor = false) {
     // Get block from ID
     const block = blockTypes[id] || blockTypes[0]
     let textureID = 0
-    switch (viewDirection) {
-        case 0:
-            textureID = block.textures.left || 0
-            break
-        case 1:
-            textureID = block.textures.top || 0
-            break
-        case 2:
-            textureID = block.textures.front || 0
-            break
-        default:
-            textureID = block.textures.front || 0
-            break
+    if (isCursor) {
+        textureID = 254
+    }
+    else {
+        switch (viewDirection) {
+            case 0:
+                textureID = block.textures.left || 0
+                break
+            case 1:
+                textureID = block.textures.top || 0
+                break
+            case 2:
+                textureID = block.textures.front || 0
+                break
+            default:
+                textureID = block.textures.front || 0
+                break
+        }
     }
     // Calculate ID offset
     const rows = 16

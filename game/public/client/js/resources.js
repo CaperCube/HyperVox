@@ -48,7 +48,8 @@ const soundSRC = {
     // `${SOUND_PATH}Step_Grass_01.wav`,
     // `${SOUND_PATH}Step_Grass_02.wav`,
     // `${SOUND_PATH}Step_Grass_03.wav`
-    LASERGUN_SHOOT_1: `${SOUND_PATH}lasergun_shoot_1.mp3`,
+    LASERGUN_SHOOT_1: `${SOUND_PATH}lasergun_shoot_2.mp3`,
+    RAILGUN_SHOOT_1: `${SOUND_PATH}railgun_shoot_1.mp3`,
     BLOCK_PLACE_1: `${SOUND_PATH}block_place_1.mp3`,
     BLOCK_BREAK_1: `${SOUND_PATH}block_break_1.mp3`,
     AMB_WIND_1: `${SOUND_PATH}amb_wind_1.wav`,
