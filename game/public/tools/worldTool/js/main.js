@@ -35,6 +35,7 @@ let worldSpawn = {
     block: { x: 0, y: 0, z: 0 }
 }
 let blockData = {}
+let intervalCommands = {}
 
 // Editor vars
 let tempLayer = [[]]
@@ -94,6 +95,7 @@ $("#DOM_pencilbtn").onclick = () => { setEditorTool(tools.pencil) }
 $("#DOM_rectbtn").onclick = () => { setEditorTool(tools.rect) }
 $("#DOM_editbtn").onclick = () => { setEditorTool(tools.edit) }
 $("#DOM_filledrectbtn").onclick = () => { setEditorTool(tools.filledRect) }
+$("#DOM_newinterval").onclick = () => { createIntervalCommand() }
 
 // Defaults
 populateDOMList($("#DOM_genList"), Object.keys(generator.noisePatterns))
@@ -101,6 +103,7 @@ populateDOMBlockList($("#DOM_blockList"), blockTypes)
 setEditorTool(tools.pencil)
 updateViewDirection(2)
 
+// Pattern dropdown
 function populateDOMList(dropList, itemArray) {
     if (dropList) {
         // Get array of generator patterns
@@ -123,6 +126,7 @@ function populateDOMList(dropList, itemArray) {
     }
 }
 
+// Block dropdown
 function populateDOMBlockList(dropList, itemArray) {
     if (dropList) {
         // Get array of generator patterns
@@ -138,7 +142,7 @@ function populateDOMBlockList(dropList, itemArray) {
             const nameString = `${listOptions[i].name}`
             const newOption = document.createElement('option')
             newOption.value = nameString
-            newOption.innerHTML = nameString
+            newOption.innerHTML = `${nameString} - ${i}`
 
             dropList.appendChild(newOption)
         }
@@ -148,6 +152,7 @@ function populateDOMBlockList(dropList, itemArray) {
     }
 }
 
+// Block Data
 function populateDOMBlockData() {
     // "blockData": {
     // 	"36_21_6_20": "http://localhost:3001/public/viewer/index.html?scene=dump/wild.bd",
@@ -167,10 +172,11 @@ function populateDOMBlockData() {
 
         // New text area
         let newTextArea = document.createElement("textarea")
-        const textID = `input_${bName}`
-        newTextArea.setAttribute("id", textID)
+        // const textID = `input_${bName}`
+        // newTextArea.setAttribute("id", textID)
         newTextArea.addEventListener("input", (e) => { setDataForBlock(bName, e.target.value) })
-        newTextArea.innerHTML = blockData[bName]
+        // newTextArea.innerHTML = blockData[bName]
+        newTextArea.value = blockData[bName]
 
         // New delete button
         let newButton = document.createElement("button")
@@ -191,6 +197,104 @@ function populateDOMBlockData() {
     // </span>
 }
 
+// Interval commands
+function populateDOMIntervalCommands() {
+    //$("#DOM_intervalcommands")
+
+    // "intervalCommands": {
+	// 	"short": {
+	// 		"command": "/tblock 25 30 20 8 0",
+	// 		"time": 1000
+	// 	}
+	// }
+
+    // Clear all DOM elements in the list
+    $("#DOM_intervalcommands").innerHTML = ""
+
+    // Loop through block data object and create DOM elements for them
+    Object.keys(intervalCommands).forEach(icName => {
+        // New span
+        let newIC = document.createElement("span")
+        newIC.setAttribute("id", `ic_${icName}`)
+        newIC.classList.add("ic-field")
+        newIC.innerHTML = `${icName}: `
+
+        // New text area
+        let newTextArea = document.createElement("input")
+        newTextArea.addEventListener("input", (e) => { setDataForIntervalCommand(icName, { command: e.target.value }) })
+        // newTextArea.innerHTML = intervalCommands[icName].command
+        newTextArea.value = intervalCommands[icName].command
+
+        // New number input
+        let newNumberInput = document.createElement("textarea")
+        newNumberInput.setAttribute("type", "number")
+        newNumberInput.setAttribute("value", 1000)
+        newNumberInput.addEventListener("input", (e) => { setDataForIntervalCommand(icName, { time: e.target.value }) })
+        newNumberInput.value = intervalCommands[icName].time
+
+        // New delete button
+        let newButton = document.createElement("button")
+        newButton.onclick = () => { createIntervalCommand(true, icName) }
+        newButton.innerHTML = 'X'
+
+        // Add elements to span
+        newIC.appendChild(newTextArea)
+        newIC.appendChild(newNumberInput)
+        newIC.appendChild(newButton)
+
+        // add elements to list
+        $("#DOM_intervalcommands").appendChild(newIC)
+        $("#DOM_intervalcommands").appendChild(document.createElement("br"))
+    })
+
+    // <span id="ic_short" class="ic-field">
+    //     short: <textarea oninput="setDataForIntervalCommand('short', { command: this.innerHTML })"> </textarea> <input type="number" value="1000" oninput="setDataForIntervalCommand('short', { time: this.innerHTML })"> <button onclick="createIntervalCommand(true, 'short')">X</button><br>
+    // </span>
+}
+
+function createIntervalCommand(remove = false, intervalName = null) {
+    if (remove) {
+        // Remove metadata for this block
+        delete intervalCommands[intervalName]
+    }
+    else {
+        // If no name assigned to the new interval, create one
+        let intervalNumber = 0
+        if (!intervalName) {
+            intervalName = "interval"
+
+            // Look for other intervals with this name
+            while (Object.keys(intervalCommands).includes(`${intervalName}-${intervalNumber}`)) {
+                intervalNumber++
+            }
+        }
+        // Create metadata for this block
+        const newIntervalName = `${intervalName}-${intervalNumber}`
+        if (!intervalCommands[newIntervalName]) intervalCommands[newIntervalName] = {
+            command: "",
+            time: 1000
+        }
+    }
+
+    // Update DOM
+    populateDOMIntervalCommands()
+}
+
+function setDataForIntervalCommand(intervalName = null, newData = { command: null, time: null }) {
+    // Check if this block exists in the list
+    if (Object.keys(intervalCommands).includes(intervalName)) {
+    }
+    else {
+        createIntervalCommand(true, intervalName)
+    }
+
+    // Set the data
+    //intervalCommands[intervalName] = newData
+    if (newData.command) intervalCommands[intervalName].command = newData.command
+    if (newData.time) intervalCommands[intervalName].time = newData.time
+}
+
+// View & World
 function updateViewDirection(newVal) {
     // Set value
     viewDirection = newVal
@@ -229,6 +333,7 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     world = newWorld.worldChunks || [[[]]]
     worldSpawn = newWorld.worldSpawn
     blockData = newWorld.blockData || {}
+    intervalCommands = newWorld.intervalCommands || {}
 
     canvasTemp.width = canvasTemp.height = canvas.width
 
@@ -238,8 +343,9 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     // Update slider
     resetDepthSlider()
 
-    // Update block data section
+    // Update data sections
     populateDOMBlockData()
+    populateDOMIntervalCommands()
 }
 
 function resetDepthSlider() {
@@ -297,6 +403,7 @@ function updateDepth(el) {
     drawWorld(world, el.value)
 }
 
+// Tool Setting
 function setEditorTool(newTool) {
     // Selecat tool
     editorTool = newTool
@@ -725,6 +832,7 @@ function getWorldPositionAtMouse(currentDepth, viewPos) {
     return location
 }
 
+// Block data
 function createDataForBlock(remove = false, blockName = null, blockID = null) {
     // Get world layer
     const depth = $("#DOM_depthslider").value
@@ -997,6 +1105,7 @@ const saveWorld = (saveWorld) => {
     w.saveVersion = '0.1'
     if (worldSpawn) w.worldSpawn = worldSpawn
     w.blockData = blockData
+    w.intervalCommands = intervalCommands
 
     let element = document.createElement('a')
     element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( w ) ) )

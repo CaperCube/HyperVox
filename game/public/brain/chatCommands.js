@@ -7,6 +7,8 @@ const commandOptions = {
 }
 
 const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessage = () => {}) => {
+    let commandFound = false
+    
     if (message.startsWith(commandOptions.delimiter)) {
         // Delete the delimiter
         const args = message.slice(commandOptions.delimiter.length).trim().split(" ")
@@ -14,7 +16,6 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
         const commandText = args.shift().toLowerCase()
 
         // Check commands
-        let commandFound = false
         for (const [key, value] of Object.entries(chatCommands)) {
             for (var i = 0; i < chatCommands[key].commands.length; i++) {
                 // if command is found, exicute it
@@ -39,6 +40,7 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
             sendMessage(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`)
         }
     }
+    return commandFound
 }
 
 const chatCommands = {
@@ -385,11 +387,43 @@ const chatCommands = {
         admin: true,
         description: `Sets a block in the world to the given ID. (Example: "/setblock X Y Z ID")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            const position = {x: args[0], y: args[1], z: args[2]}
-            const location = getArrayPos(position, brainGame.world._chunkSize)
-            const blockID = args[3]
-            brainGame.updateSingleBlock(location, blockID)
-            sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
+            if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
+            {
+                const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
+                const location = getArrayPos(position, brainGame.world._chunkSize)
+                const blockID = parseInt(args[3])
+                brainGame.updateSingleBlock(location, blockID)
+                // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
+            }
+            else {
+                sendMessage(`Incorrect arguments`)
+            }
+        }
+    },
+    toggleBlock: {
+        commands: ["toggleblock", "tblock"],
+        admin: true,
+        description: `Switches a block in the world to on of the two given IDs. (Example: "/toggleblock X Y Z ID1 ID2")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
+            {
+                const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
+                const location = getArrayPos(position, brainGame.world._chunkSize)
+                const blockID1 = parseInt(args[3])
+                const blockID2 = parseInt(args[4] || 0)
+
+                // Check if this block is on of the ID's already
+                const blockHereId = parseInt(brainGame.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x]?.[location.block.z] || 0)
+                if (blockHereId === blockID1) brainGame.updateSingleBlock(location, blockID2)
+                else if (blockHereId === blockID2) brainGame.updateSingleBlock(location, blockID1)
+                else brainGame.updateSingleBlock(location, blockID1)
+
+                // brainGame.updateSingleBlock(location, blockID1)
+                // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID1} or ${blockID2}`)
+            }
+            else {
+                sendMessage(`Incorrect arguments`)
+            }
         }
     }
 }

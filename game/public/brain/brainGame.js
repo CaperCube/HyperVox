@@ -91,6 +91,9 @@ class BrainGame {
 
         // Send world to connected users
         this.brainComs.sendFullWorld( this.world )
+
+        // Start server brain loop
+        this.startGameLoop()
     }
 
     // ToDo: refactor this to pull from server files
@@ -211,8 +214,8 @@ class BrainGame {
             // Run command
             if (formattedCommand.length > 0) {
                 let commandFound = false
-                checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
-                    commandFound = true
+                commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
+                    // commandFound = true
                     // Send message
                     const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
                     this.brainComs.genericToClient('receiveChatMessage', serverData, 'all')

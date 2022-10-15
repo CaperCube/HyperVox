@@ -16,12 +16,8 @@ class World {
         this.intervalCommands = {}
         // this.intervalCommands = {
         //     short: {
-        //         command: "/setblock 20 35 20 10",
+        //         command: "/tblock 20 35 20 8 0",
         //         time: 1000
-        //     },
-        //     long: {
-        //         command: "/setblock 20 35 20 0",
-        //         time: 2000
         //     }
         // }
 
@@ -60,6 +56,7 @@ class World {
         this.worldChunks = jsonObj.worldChunks
         this.worldSpawn = jsonObj.worldSpawn
         this.blockData = jsonObj.blockData
+        this.intervalCommands = jsonObj.intervalCommands
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale
         this._chunkSize = jsonObj._chunkSize
@@ -86,6 +83,7 @@ function copyWorld( world ) {
     newWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
     // Block Data
     newWorld.blockData = clone.blockData
+    newWorld.intervalCommands = clone.intervalCommands
 
     return newWorld
 }

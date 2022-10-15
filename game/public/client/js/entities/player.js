@@ -168,7 +168,7 @@ class ClientPlayer {
         this.blockReach = 5
         this.selectCursor = {x: 0, y: 0, z: 0}
         this.interactSelectCursor = {x: 0, y: 0, z: 0}
-        this.placeInterval
+        this.useInterval
         this.removeInterval
 
         // Name tag mesh
@@ -282,7 +282,7 @@ class ClientPlayer {
         // Set the interval for auto items
         if (this.inventory?.items?.[this.inventory.selectedIndex].useAuto)
         {
-            this.placeInterval = setInterval( ()=>{ doUse() }, this.inventory?.items?.[this.inventory.selectedIndex]?.useTime || 150 )
+            this.useInterval = setInterval( ()=>{ doUse() }, this.inventory?.items?.[this.inventory.selectedIndex]?.useTime || 150 )
         }
     }
 
@@ -452,16 +452,18 @@ class ClientPlayer {
             assignFunctionToInput(c.run, ()=>{this.moveDown=true}, ()=>{this.moveDown=false})
             // Build, Use, Shoot
             assignFunctionToInput(c.interact, ()=>{ this.interact() }, ()=>{ })
-            assignFunctionToInput(c.fire1, ()=>{ this.useInvItem() }, ()=>{ clearInterval(this.placeInterval) })
+            assignFunctionToInput(c.fire1, ()=>{ this.useInvItem() }, ()=>{ clearInterval(this.useInterval) })
             assignFunctionToInput(c.fire2, ()=>{ this.removeInterval =  setInterval(()=>{this.removeBlock()}, 150); this.removeBlock() }, ()=>{ clearInterval(this.removeInterval) })
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()
                 this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.invDown, ()=>{
                 this.inventory.selectNext()
                 this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
                 const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
@@ -479,6 +481,7 @@ class ClientPlayer {
                         this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
                     }
                 }
+                clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
         }
         else {
