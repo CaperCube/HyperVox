@@ -198,6 +198,28 @@ class BrainComs {
                 }
             },
 
+            runBlockCommand: ( data, playerID ) => {
+                // Get block reference
+                const targetBlock = `${data.blockID}_${data.blockPos.x}_${data.blockPos.y}_${data.blockPos.z}`
+
+                // Get command from world file based on blockID's index data
+                let blockCommand = ""
+                if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
+                    // Run command
+                    blockCommand = this.brainGame.world.blockData[targetBlock]
+
+                    // Seperate multi-line commands
+                    // https://regexr.com/
+                    let commandList = blockCommand.split(/(;)/) // /(;+? )/
+
+                    commandList.forEach(command => {
+                        // Remove (semicolons) or (spaces at the beginning of the string)
+                        const formattedCommand = command.replace(/(;|^ )/, "")
+                        if (formattedCommand.length > 0) this.brainGame.runCommandString(formattedCommand)
+                    })
+                }
+            },
+
             // A player requested to fire a gun
             shootGun: ( data, playerID ) => {
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]

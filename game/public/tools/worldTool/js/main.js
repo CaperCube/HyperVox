@@ -149,10 +149,7 @@ function populateDOMBlockList(dropList, itemArray) {
 }
 
 function populateDOMBlockData() {
-    // Search "bazingo"
-    // to change the world object structure from "embeds" to "blockdata"
-
-    // "embeds": { - This should change to "blockdata"
+    // "blockData": {
     // 	"36_21_6_20": "http://localhost:3001/public/viewer/index.html?scene=dump/wild.bd",
     // 	"36_18_6_20": "http://erickalpin.com/petition/"
     // },
@@ -231,8 +228,7 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     pixelSize = canvas.width/_resolution
     world = newWorld.worldChunks || [[[]]]
     worldSpawn = newWorld.worldSpawn
-    // Search "bazingo"
-    blockData = newWorld.embeds || {} // ToDo: This will be changing to newWorld.blockData
+    blockData = newWorld.blockData || {}
 
     canvasTemp.width = canvasTemp.height = canvas.width
 
@@ -989,8 +985,7 @@ const saveWorld = (saveWorld) => {
     w._wSeed = $('#DOM_seed').value
     w.saveVersion = '0.1'
     if (worldSpawn) w.worldSpawn = worldSpawn
-    // Search "bazingo"
-    w.embeds = blockData // ToDo: This will be changing to w.blockData
+    w.blockData = blockData
 
     let element = document.createElement('a')
     element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( w ) ) )

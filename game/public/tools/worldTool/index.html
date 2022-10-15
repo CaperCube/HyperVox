@@ -67,15 +67,6 @@
                 <!-- Use tolerance? <input id="DOM_useTolerance" type="checkbox" checked="true" onchange="updateTolerance(this)"> -->
             </span>
         </span>
-        <!-- World Data -->
-        <span class="section" style="display: none;">
-            <h2 onclick="toggleFold(this)">World Data</h2>
-            <span class="foldable folded">
-                Game Mode:<br>
-                World Spawn:<br>
-                Embeds:<br>
-            </span>
-        </span>
         <!-- Tools -->
         <span class="section">
             <h2 onclick="toggleFold(this)">Tools</h2>
@@ -104,6 +95,15 @@
                 <button id="DOM_generateCustomBttn" title="Generate a new world using the custom pattern (deletes current world)" onclick="DOMNoiseFnc()">New Custom World</button>
             </span>
         </span>
+        <!-- World Data -->
+        <span class="section" style="display: none;">
+            <h2 onclick="toggleFold(this)">World Data</h2>
+            <span class="foldable folded">
+                Game Mode:<br>
+                World Spawn:<br>
+            </span>
+        </span>
+        <!-- Block Data -->
         <span class="section">
             <h2 onclick="toggleFold(this)">Block Data</h2>
             <span id="DOM_blockdata" class="foldable">

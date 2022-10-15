@@ -309,7 +309,8 @@ const blockTypes = [
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.embed],
         textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
         // ToDo: BlockTypes should be expressable as json, change "interact" to a string (the string can then reference a function else-where)
-        interact: (clientGame, blockLocation, blockID) => { clientGame.loadEmbed(blockLocation, blockID) }
+        // interact: (clientGame, blockLocation, blockID) => { clientGame.loadEmbed(blockLocation, blockID) }
+        interact: (clientGame, blockLocation, blockID) => { clientGame.clientComs.genericToBrain( "runBlockCommand", { blockPos: blockLocation, blockID: blockID } ) }
     },
     // 0x0026
     {

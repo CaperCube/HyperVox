@@ -7,6 +7,7 @@ import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
 import { gameModes } from '../common/commonConstants.js'
+import { checkForCommand } from "./chatCommands.js"
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
 class BrainGame {
@@ -194,6 +195,24 @@ class BrainGame {
                 // Tell others about this change
                 this.brainComs.genericToClient('updateBlockMetaData', {blockPropName: blockPropName, data: data})
             }
+        }
+    }
+
+    runCommandString = ( command ) => {
+        // Run command
+        let commandFound = false
+        checkForCommand(command, "Server", 0, true, this, (responseMessage, isPrivate) => {
+            commandFound = true
+            // Send message
+            const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
+            this.brainComs.genericToClient('receiveChatMessage', serverData, 'all')
+        })
+        if (!commandFound) {
+            let data = {
+                message: command,
+                messageName: "Server"
+            }
+            this.brainComs.genericToClient('receiveChatMessage', data)
         }
     }
 
