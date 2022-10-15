@@ -110,22 +110,18 @@ export function basicMovement(engine, player, movementVector) {
     if (!player.spectateMode) {
         // World X bounds
         if (player.position.x < 0) {
-            bounceX(player)
-            player.position.x = 0
+            player.position.x = 0.05
         }
         else if (player.position.x > (player.worldSize * player.chunkSize * tileScale)) {
-            bounceX(player)
-            player.position.x = (player.worldSize * player.chunkSize * tileScale)
+            player.position.x = (player.worldSize * player.chunkSize * tileScale) - 0.05
         }
 
         // World Z bounds
         if (player.position.z < 0) {
-            bounceZ(player)
-            player.position.z = 0
+            player.position.z = 0.05
         }
         else if (player.position.z > (player.worldSize * player.chunkSize * tileScale)) {
-            bounceZ(player)
-            player.position.z = (player.worldSize * player.chunkSize * tileScale)
+            player.position.z = (player.worldSize * player.chunkSize * tileScale) - 0.05
         }
     }
 

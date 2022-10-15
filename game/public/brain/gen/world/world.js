@@ -12,6 +12,19 @@ class World {
         this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
         this.blockData = {}
 
+        // ToDo: Add this to World Tool
+        this.intervalCommands = {}
+        // this.intervalCommands = {
+        //     short: {
+        //         command: "/setblock 20 35 20 10",
+        //         time: 1000
+        //     },
+        //     long: {
+        //         command: "/setblock 20 35 20 0",
+        //         time: 2000
+        //     }
+        // }
+
         this.getWorldSeed = () => { return this._wSeed }
 
         this._tileScale = tileScale || 1

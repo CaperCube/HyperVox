@@ -39,6 +39,7 @@ class BrainGame {
 
         this.generator = new ChunkGenerator()
         this.world = null
+        this.intervalCommands = []
         this.players = []
         this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
@@ -199,21 +200,32 @@ class BrainGame {
     }
 
     runCommandString = ( command ) => {
-        // Run command
-        let commandFound = false
-        checkForCommand(command, "Server", 0, true, this, (responseMessage, isPrivate) => {
-            commandFound = true
-            // Send message
-            const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
-            this.brainComs.genericToClient('receiveChatMessage', serverData, 'all')
-        })
-        if (!commandFound) {
-            let data = {
-                message: command,
-                messageName: "Server"
+        // Run multiple commands
+        // https://regexr.com/
+        let commandList = command?.split(/(;)/) // /(;+? )/
+
+        commandList?.forEach(cmd => {
+            // Remove (semicolons) or (spaces at the beginning of the string)
+            const formattedCommand = cmd.replace(/(;|^ )/, "")
+            
+            // Run command
+            if (formattedCommand.length > 0) {
+                let commandFound = false
+                checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
+                    commandFound = true
+                    // Send message
+                    const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
+                    this.brainComs.genericToClient('receiveChatMessage', serverData, 'all')
+                })
+                if (!commandFound) {
+                    let data = {
+                        message: formattedCommand,
+                        messageName: "Server"
+                    }
+                    this.brainComs.genericToClient('receiveChatMessage', data)
+                }
             }
-            this.brainComs.genericToClient('receiveChatMessage', data)
-        }
+        })
     }
 
     changeWorldSpawn = ( location ) => {
@@ -260,6 +272,17 @@ class BrainGame {
         // Reset player data
         //...
 
+        // Create intervals
+        if (this.world.intervalCommands) {
+            Object.values(this.world.intervalCommands).forEach( interval => {
+                // Create interval
+                this.intervalCommands.push( setInterval( () => { 
+                    // Run commands
+                    this.runCommandString(interval.command)
+                }, interval.time ) )
+            })
+        }
+
         // Start loop
         this.gameTickInterval = setInterval(()=>{ this.gameTick() }, this.gameOptions.gameTickSpeed)
     }
@@ -280,6 +303,10 @@ class BrainGame {
         // Stop loop
         clearInterval(this.gameTickInterval)
         this.gameTickInterval = null
+
+        // Clear all interval commands
+        this.intervalCommands.forEach( interval => { clearInterval(interval) } )
+        this.intervalCommands = []
     }
 
     // Here is where faster updates should happen (e.g. entity positions, enemy movement updates)

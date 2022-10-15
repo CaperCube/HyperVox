@@ -207,16 +207,7 @@ class BrainComs {
                 if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
                     // Run command
                     blockCommand = this.brainGame.world.blockData[targetBlock]
-
-                    // Seperate multi-line commands
-                    // https://regexr.com/
-                    let commandList = blockCommand.split(/(;)/) // /(;+? )/
-
-                    commandList.forEach(command => {
-                        // Remove (semicolons) or (spaces at the beginning of the string)
-                        const formattedCommand = command.replace(/(;|^ )/, "")
-                        if (formattedCommand.length > 0) this.brainGame.runCommandString(formattedCommand)
-                    })
+                    this.brainGame.runCommandString(blockCommand)
                 }
             },
 
