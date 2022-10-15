@@ -432,6 +432,17 @@ canvas.addEventListener('pointermove', (e) => {
         // Draw tool preview
         drawToolPreview({x:mouseGridPos.x,y:mouseGridPos.y}, blockTypes.indexOf(selectedBlock), 0.5, ctxTemp)
     }
+
+    // Show mouse coordinates
+    // Get world layer
+    const depth = $("#DOM_depthslider").value
+    // Get world position
+    const viewPos = getViewPos(depth)
+    // Get global position
+    const gPos = getWorldPositionAtMouse(depth, viewPos)
+    const blockPos = getGlobalPos(gPos, chunkSize)
+    // Show the value somehere
+    $("#DOM_blockposition").innerHTML = `X: ${blockPos.x} Y: ${blockPos.y} Z: ${blockPos.z}`
 })
 
 document.addEventListener('wheel', (e) => {
