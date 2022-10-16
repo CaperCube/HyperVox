@@ -36,7 +36,7 @@ class ClientComs {
         this.brainComs = this.isNetworked? null : props.brainComs
 
         // Debugging options
-        this.messageDebug = true
+        this.messageDebug = false
 
         // Connect to brainCom if offline
         if (!this.isNetworked) this.offlineConnect(this)

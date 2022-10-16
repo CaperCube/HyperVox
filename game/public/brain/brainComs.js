@@ -342,7 +342,7 @@ class BrainComs {
 
     // Tell connected players to update the chunk containing the updated block
     updateSingleBlock(location, id) {
-        console.log('%c Sending single block change to all players... (brain)', 'background: #124; color: #cde')
+        // console.log('%c Sending single block change to all players... (brain)', 'background: #124; color: #cde')
         const data = { location: location, id: id }
 
         // Network message
