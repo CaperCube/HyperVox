@@ -338,6 +338,13 @@ const blockTypes = [
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.color.yellow],
         textures: { top: 26, bottom: 27, front: 25, back: 25, left: 25, right: 25 },
     },
+    // 0x002a
+    {
+        name: 'death-block',
+        categories: [blockCats.color.red, blockCats.color.black, blockCats.color.grey, blockCats.damaging],
+        textures: { top: 29, bottom: 29, front: 29, back: 29, left: 29, right: 29 },
+        damage: 1000
+    },
 ]
 
 export {
