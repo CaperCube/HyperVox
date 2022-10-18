@@ -268,10 +268,22 @@ function shoot(clientGame, player, item) {
     }, false)
     if (pick?.hit) {
         const m = pick.pickedMesh
+        
+        // Show impact mesh
+        // player.impactMesh.setEnabled(true)
+        const pickNormal = pick.getNormal()
+        const posPush = 0.125
+        player.impactMesh.position = new BABYLON.Vector3(pick.pickedPoint.x + (pickNormal.x * posPush), pick.pickedPoint.y + (pickNormal.y * posPush), pick.pickedPoint.z + (pickNormal.z * posPush))
+        player.impactMesh.setEnabled(true)
+        setTimeout(()=>{player.impactMesh.setEnabled(false)}, 50)
+
         if (m.name.includes("player")) {
             // Get ID from mesh name
             const idIndex = m.name.indexOf("-")
             hitPlayerID = m.name.substring(idIndex+1, m.name.length)
+            
+            // ToDo: Play confirmation sound or something
+            sounds.PLAYER_HIT_1.play()
         }
     }
 

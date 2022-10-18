@@ -99,6 +99,13 @@ class ClientPlayer {
         this.itemMesh = null
         this.muzzleFlashMesh = null
         this.muzzleFlashLight = null
+        // Impact Mesh
+        this.impactMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
+        this.impactMesh.scaling.x = this.impactMesh.scaling.y = this.impactMesh.scaling.z = 0.75
+        this.impactMesh.setEnabled(false)
+        this.impactMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+
+        // Avatar
         this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
         this.head = avatar? null : BABYLON.Mesh.MergeMeshes([
             // Head

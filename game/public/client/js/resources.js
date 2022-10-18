@@ -56,6 +56,7 @@ const soundSRC = {
     STEP_GRASS_1: `${SOUND_PATH}Step_Grass_01.wav`,
     STEP_GRASS_2: `${SOUND_PATH}Step_Grass_02.wav`,
     STEP_GRASS_3: `${SOUND_PATH}Step_Grass_03.wav`,
+    PLAYER_HIT_1: `${SOUND_PATH}player_hit_1.wav`,
     MUSIC_BATTLE_1: `${SOUND_PATH}music_battle_1.mp3`,
 }
 

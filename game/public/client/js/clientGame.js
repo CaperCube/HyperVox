@@ -603,6 +603,8 @@ class ClientGame {
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
 
+        sounds.PLAYER_HIT_1 = new BABYLON.Sound("player_hit_1", soundSRC.PLAYER_HIT_1, this.scene, null, { volume: 0.125, })
+
         sounds.STEP_GRASS_1 = new BABYLON.Sound("step_grass_1", soundSRC.STEP_GRASS_1, this.scene, null, { volume: 0.25, })
         sounds.STEP_GRASS_2 = new BABYLON.Sound("step_grass_2", soundSRC.STEP_GRASS_2, this.scene, null, { volume: 0.25, })
         sounds.STEP_GRASS_3 = new BABYLON.Sound("step_grass_3", soundSRC.STEP_GRASS_3, this.scene, null, { volume: 0.25, })
