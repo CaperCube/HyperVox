@@ -66,6 +66,22 @@ class ClientPlayer {
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
 
+        // Player controls
+        this.controls = controls // The buttons
+
+        // Health vars
+        this.health = 100
+        this.isInvincible = false
+        this.canHeal = true
+        this.invincibleTime = 500 // time in ms
+        this.invincibilityTimer = null
+        this.inventory = makeCreativeInventory(clientGame.hud)
+        this.inventory.setSelected(0)
+        console.log(this.inventory)
+        // Don't allow use until next interval
+        this.itemUseIsBlocked = false
+
+        // System vars
         this.clientGame = clientGame
         this.meshGen = clientGame.meshGen
         this.scene = clientGame.scene
@@ -116,25 +132,12 @@ class ClientPlayer {
         }
         else {
             // Camera is present, so create a item mesh in front of it
-            this.createItemMesh(193)
+            // this.createItemMesh(blockTypes[1], "item")
+            const startItem = this.inventory.items[this.inventory.selectedIndex]
+            this.createItemMesh(startItem, startItem.itemType)
             this.createMuzzleFlash(209)
         }
         //this.playerCamera = camera
-
-        // Player controls
-        this.controls = controls // The buttons
-
-        // Health vars
-        this.health = 100
-        this.isInvincible = false
-        this.canHeal = true
-        this.invincibleTime = 500 // time in ms
-        this.invincibilityTimer = null
-        this.inventory = makeCreativeInventory(clientGame.hud)
-        this.inventory.setSelected(0)
-        console.log(this.inventory)
-        // Don't allow use until next interval
-        this.itemUseIsBlocked = false
 
         // Gameplay vars
         // ToDo: a lot of these should only be stored / tracked on the brain, not on the client
@@ -235,10 +238,36 @@ class ClientPlayer {
     // Held Item Mesh
     ///////////////////////////////////////////////////////
 
-    createItemMesh(texID) {
+    createItemMesh(item, itemType = "item") {
         if (this.itemMesh) this.itemMesh.dispose()
-        this.itemMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0.75, y: -0.9, z: 0.5}, 'left', texID, this.clientGame.scene)
-        this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75
+        const img = item.getItemImage()
+        switch (itemType) {
+            case "block":
+                const leftFace = img.textures.left
+                const topFace = img.textures.top
+                const backFace = img.textures.back
+                
+                let cubeFaces = []
+                const posBlock = {x: 1, y: -1.5, z: 1.75}
+                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", leftFace, this.clientGame.scene) )
+                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", topFace, this.clientGame.scene) )
+                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", backFace, this.clientGame.scene) )
+                this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
+                console.log(this.itemMesh)
+                this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.25
+                // this.itemMesh.setScale(new BABYLON.Vector3(0.25, 0.25, 0.25))
+                break
+            default:
+                const texID = img.index
+                const posItem = {x: 0.75, y: -0.9, z: 0.5}//{x: 0.25, y: -0.75, z: -0.125}
+                this.itemMesh = this.clientGame.meshGen.createQuadWithUVs(posItem, "left", texID, this.clientGame.scene)
+                this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75//0.25
+                break
+        }
+        // Disable raycasting for this mesh
+        this.itemMesh.isPickable = false
+        // Render above other items
+        this.itemMesh.renderingGroupId = 1
         this.itemMesh.parent = this.avatar
     }
 
@@ -249,6 +278,11 @@ class ClientPlayer {
         this.muzzleFlashMesh.scaling.x = this.muzzleFlashMesh.scaling.y = this.muzzleFlashMesh.scaling.z = 0.75
         this.muzzleFlashMesh.parent = this.avatar
         this.muzzleFlashMesh.setEnabled(false)
+
+        // Disable raycasting for this mesh
+        this.muzzleFlashMesh.isPickable = false
+        // Render above other items
+        this.muzzleFlashMesh.renderingGroupId = 1
 
         // Light
         if (this.muzzleFlashLight) this.muzzleFlashLight.dispose()
@@ -457,12 +491,12 @@ class ClientPlayer {
             assignFunctionToInput(c.noclip, ()=>{ this.spectateMode = !this.spectateMode }, ()=>{})
             assignFunctionToInput(c.invUp, ()=>{
                 this.inventory.selectPrev()
-                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex], this.inventory.items[this.inventory.selectedIndex].itemType)
                 clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.invDown, ()=>{
                 this.inventory.selectNext()
-                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                this.createItemMesh(this.inventory.items[this.inventory.selectedIndex], this.inventory.items[this.inventory.selectedIndex].itemType)
                 clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
@@ -478,7 +512,7 @@ class ClientPlayer {
                     // Only eye-drop if block is found in inventory
                     if (matches.length > 0) {
                         this.inventory.setSelected(this.inventory.items.indexOf(matches[0]))
-                        this.createItemMesh(this.inventory.items[this.inventory.selectedIndex].getItemImage().index)
+                        this.createItemMesh(this.inventory.items[this.inventory.selectedIndex], this.inventory.items[this.inventory.selectedIndex].itemType)
                     }
                 }
                 clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate

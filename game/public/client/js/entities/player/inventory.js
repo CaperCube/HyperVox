@@ -56,17 +56,20 @@ export class Item {
             case 'block':
                 return { 
                     material: null,
-                    index: blockTypes[this.itemID]?.textures['front']
+                    index: blockTypes[this.itemID]?.textures['front'],
+                    textures: blockTypes[this.itemID]?.textures
                 }
             case 'item':
                 return { 
                     material: null,
-                    index: this.itemID // ToDo: Reference a different texture atlas
+                    index: this.itemID, // ToDo: Reference a different texture atlas
+                    textures: null
                 }
             default:
                 return { 
                     material: null,
-                    index: this.itemID // ToDo: Reference a different texture atlas
+                    index: this.itemID, // ToDo: Reference a different texture atlas
+                    textures: null
                 }
         }
     }
