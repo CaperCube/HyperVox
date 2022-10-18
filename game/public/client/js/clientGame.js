@@ -598,12 +598,12 @@ class ClientGame {
         ////////////////////////////////////////////////////
         
         sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
-        sounds.RAILGUN_SHOOT_1 = new BABYLON.Sound("railgun_shoot_1", soundSRC.RAILGUN_SHOOT_1, this.scene)
+        sounds.RAILGUN_SHOOT_1 = new BABYLON.Sound("railgun_shoot_2", soundSRC.RAILGUN_SHOOT_1, this.scene, null, { volume: 0.75, })
         sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
         sounds.BLOCK_BREAK_1 = new BABYLON.Sound("block_break_1", soundSRC.BLOCK_BREAK_1, this.scene)
 
-        sounds.PLAYER_HIT_1 = new BABYLON.Sound("player_hit_1", soundSRC.PLAYER_HIT_1, this.scene, null, { volume: 0.125, })
+        sounds.PLAYER_HIT_1 = new BABYLON.Sound("player_hit_1", soundSRC.PLAYER_HIT_1, this.scene, null, { volume: 0.5, })
 
         sounds.STEP_GRASS_1 = new BABYLON.Sound("step_grass_1", soundSRC.STEP_GRASS_1, this.scene, null, { volume: 0.25, })
         sounds.STEP_GRASS_2 = new BABYLON.Sound("step_grass_2", soundSRC.STEP_GRASS_2, this.scene, null, { volume: 0.25, })
