@@ -260,7 +260,7 @@ class ClientPlayer {
                 cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", topFace, this.clientGame.scene) )
                 cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", backFace, this.clientGame.scene) )
                 this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
-                console.log(this.itemMesh)
+                
                 this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.25
                 // this.itemMesh.setScale(new BABYLON.Vector3(0.25, 0.25, 0.25))
                 break
