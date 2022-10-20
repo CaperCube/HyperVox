@@ -297,7 +297,6 @@ class BrainComs {
                 // Send message
                 // If a player won the game
                 if (playerWon) serverData = {
-                    // message: `<span style="padding: 5px; color: white; border: 2px solid ${data.killerPlayerColor};"><b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> has won!</span><br><br>Game mode changed to ${this.brainGame.gameOptions.gameMode}.`,
                     message: `
                     <span style="display: inline-block; position: fixed; top: 20%; left: 0px; color: white; width: 100%; height: 80%; font-size: 10vh; text-align: center;">
                         <span style="color: ${data.killerPlayerColor}; font-size: 10vh;">
