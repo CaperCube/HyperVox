@@ -450,10 +450,10 @@ function getPointerOffset(e) {
     const doc = eventDoc.documentElement
     const body = eventDoc.body
 
-    let pX = e.pageX +
+    let pX = e.offsetX + //e.pageX +
         (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
         (doc && doc.clientLeft || body && body.clientLeft || 0)
-    let pY = e.pageY +
+    let pY = e.offsetY + //e.pageY +
         (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
         (doc && doc.clientTop  || body && body.clientTop  || 0 )
 
@@ -507,6 +507,9 @@ pointerOuts.forEach( (event) => {
 })
 
 canvas.addEventListener('pointermove', (e) => {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+    
     // Get pointer offset
     const offset = getPointerOffset(e)
 
@@ -550,7 +553,7 @@ canvas.addEventListener('pointermove', (e) => {
     const blockPos = getGlobalPos(gPos, chunkSize)
     // Show the value somehere
     $("#DOM_blockposition").innerHTML = `X: ${blockPos.x} Y: ${blockPos.y} Z: ${blockPos.z}`
-})
+}, { passive: false })
 
 document.addEventListener('wheel', (e) => {
     // Change block
