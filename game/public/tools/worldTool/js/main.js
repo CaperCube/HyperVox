@@ -687,16 +687,25 @@ function drawRect(erase = false) {
     // Draw
     const deltaX = mouseGridPos.x - mouseGridStart.x
     const deltaY = mouseGridPos.y - mouseGridStart.y
+    const rectWidth = Math.abs(deltaX)+1
+    const rectHeight = Math.abs(deltaY)+1
     //TL
-    for (let w = 0; w < Math.abs(deltaX)+1; w++) {
-        const rectX = mouseGridStart.x + Math.floor( (w / Math.abs(deltaX)) * deltaX )
-        //TL
-        tempLayer[mouseGridStart.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
-        //BR
-        tempLayer[mouseGridPos.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+    for (let w = 0; w < rectWidth; w++) {
+        let rectX = 0
+        if (deltaX > 0) rectX = mouseGridStart.x + w
+        else rectX = mouseGridStart.x - w
+        if (tempLayer[0].length > rectX)
+        {
+            //TL
+            tempLayer[mouseGridStart.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+            //BR
+            tempLayer[mouseGridPos.y][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+        }
     }
-    for (let h = 0; h < Math.abs(deltaY)+1; h++) {
-        const rectY = mouseGridStart.y + Math.floor( (h / Math.abs(deltaY)) * deltaY )
+    for (let h = 0; h < rectHeight; h++) {
+        let rectY = 0 
+        if (deltaY > 0) rectY = mouseGridStart.y + h
+        else rectY = mouseGridStart.y - h
         if (tempLayer[rectY]) {
             //TL
             tempLayer[rectY][mouseGridStart.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
@@ -707,6 +716,14 @@ function drawRect(erase = false) {
 
     // Draw edit preview
     drawLayer(tempLayer, ctxTemp)
+
+    // Draw rect numbers
+    const sizeText = `W: ${rectWidth} | H: ${rectHeight}`
+    const textPos = { x: 1 * pixelSize, y: 2 * pixelSize}
+    ctxTemp.fillStyle = `rgba( 255, 255, 255, 1 )`
+    // ctxTemp.strokeText(sizeText, textPos.x, textPos.y)
+    // ctxTemp.fillStyle = `rgba( 0, 0, 0, 1 )`
+    ctxTemp.fillText(sizeText, textPos.x, textPos.y)
 }
 
 function drawFilledRect(erase = false) {
@@ -717,12 +734,21 @@ function drawFilledRect(erase = false) {
     // Draw
     const deltaX = mouseGridPos.x - mouseGridStart.x
     const deltaY = mouseGridPos.y - mouseGridStart.y
+    const rectWidth = Math.abs(deltaX)+1
+    const rectHeight = Math.abs(deltaY)+1
     //TL
-    for (let w = 0; w < Math.abs(deltaX)+1; w++) {
-    const rectX = mouseGridStart.x + Math.floor( (w / Math.abs(deltaX)) * deltaX )
-    for (let h = 0; h < Math.abs(deltaY)+1; h++) {
-        const rectY = mouseGridStart.y + Math.floor( (h / Math.abs(deltaY)) * deltaY )
-        if (tempLayer[rectY]) {
+    for (let w = 0; w < rectWidth; w++) {
+    // const rectX = mouseGridStart.x + Math.floor( (w / Math.abs(deltaX)) * deltaX )
+        let rectX = 0
+        if (deltaX > 0) rectX = mouseGridStart.x + w
+        else rectX = mouseGridStart.x - w
+    for (let h = 0; h < rectHeight; h++) {
+        // const rectY = mouseGridStart.y + Math.floor( (h / Math.abs(deltaY)) * deltaY )
+        let rectY = 0
+        if (deltaY > 0) rectY = mouseGridStart.y + h
+        else rectY = mouseGridStart.y - h
+
+        if (tempLayer[rectY]?.[rectX] != undefined) {
             // tempLayer[mouseGridStart.y][mouseGridStart.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
             tempLayer[rectY][rectX] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
         }
@@ -731,6 +757,14 @@ function drawFilledRect(erase = false) {
 
     // Draw edit preview
     drawLayer(tempLayer, ctxTemp)
+
+    // Draw rect numbers
+    const sizeText = `W: ${rectWidth} | H: ${rectHeight}`
+    const textPos = { x: 1 * pixelSize, y: 2 * pixelSize}
+    ctxTemp.fillStyle = `rgba( 255, 255, 255, 1 )`
+    // ctxTemp.strokeText(sizeText, textPos.x, textPos.y)
+    // ctxTemp.fillStyle = `rgba( 0, 0, 0, 1 )`
+    ctxTemp.fillText(sizeText, textPos.x, textPos.y)
 }
 
 function fillFromTempLayer() {
