@@ -72,6 +72,13 @@ class ClientComs {
                 this.clientGame.startNewGameScene()
             },
 
+            saveClientWorld: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Save client world (client)', 'background: #142; color: #ced' )
+
+                // Save world
+                this.clientGame.saveWorld(data.worldName)
+            },
+
             initOtherPlayers: ( data, playerId ) => { 
                 if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
 

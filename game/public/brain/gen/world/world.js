@@ -4,7 +4,8 @@ import { getArrayPos } from "../../../common/positionUtils.js"
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
     constructor({worldSeed, tileScale = 1, chunkSize = 8, worldSize = 4} = {}) {
-        this._worldFormatVersion = 'v0.1'
+        this._worldFormatVersion = '0.1'
+        //this.worldName = 'world'
         this.worldChunks = [[[]]]
         this._wSeed = worldSeed || `${Math.random()}`
         

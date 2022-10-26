@@ -382,6 +382,28 @@ const chatCommands = {
             sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
         }
     },
+    saveWorld: {
+        commands: ["saveworld"],
+        admin: true,
+        description: `Saves the current world on the server.`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // Get world name
+            let newName = args[0] || ''
+            for (let i = 1; i < args.length; i++) newName += ` ${args[i]}`
+
+            // Save
+            brainGame.saveWorld((worldName) => {                
+                if (worldName) {
+                    // Save world on server
+                    sendMessage(`World "${worldName}" saved!`)
+                }
+                else {
+                    // Else, the game is saving on the client
+                    sendMessage(`Saving on client`)
+                }
+            }, newName)
+        }
+    },
     setBlock: {
         commands: ["setblock", "sblock"],
         admin: true,

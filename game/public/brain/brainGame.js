@@ -29,6 +29,7 @@ class BrainGame {
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
+            worldPath: './game/public/worlds/',
         }
         
         this.brainComs = new BrainComs({
@@ -94,6 +95,25 @@ class BrainGame {
 
         // Start server brain loop
         this.startGameLoop()
+    }
+
+    saveWorld = (callback, wName) => {
+        // Create a name for the file
+        let worldName = wName || 'server_world'
+
+        // Check if networked game
+        if (this.brainComs.isNetworked) {
+            // Stringify the world
+            const worldData = JSON.stringify(this.world)
+
+            // Save file
+            saveFile(this.gameOptions.worldPath, worldName, worldData, ()=>{ callback(worldName) })
+        }
+        else {
+            // Tell client to save world
+            this.brainComs.genericToClient('saveClientWorld', {worldName: worldName})
+            callback(null)
+        }
     }
 
     // ToDo: refactor this to pull from server files
@@ -410,6 +430,23 @@ const getJSON = function(worldName, callback) {
         }
         xhr.send()
     }
+}
+
+const saveFile = function(path, fileName, fileData, callback) {
+    // If using a server, import fs
+    import('fs').then((pkg) => {
+        const fs = pkg.default
+
+        fs.writeFile(`./${path}${fileName}.json`, fileData, function (err) {
+            if (err) {
+                return console.log(err)
+            }
+            console.log('World saved!')
+
+            // Do callback
+            callback()
+        })
+    })
 }
 
 export default BrainGame

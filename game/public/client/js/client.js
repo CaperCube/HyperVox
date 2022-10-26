@@ -21,22 +21,6 @@ const createWorldWithSize = (size) => {
     setTimeout(() => { clientGame.clientComs.createNewWorld(size) }, 100)
 }
 
-// ToDo: replace this with a better save-load system
-// When saving worlds locally, we should request the brain's version of the world to save
-const tempSaveWorld = (world) => {
-    world.saveVersion = '0.1'
-    let element = document.createElement('a')
-    element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( world ) ) )
-    element.setAttribute( 'download', 'level.json' )
-  
-    element.style.display = 'none'
-    document.body.appendChild(element)
-  
-    element.click()
-  
-    document.body.removeChild(element)
-}
-
 // Load world from file
 function browseForWorldFile() {
     // <input type="file" id="myfile" name="myfile"></input>
@@ -96,7 +80,7 @@ clientGame.menu.playMenu.selectableElements[2].pressButton = () => { createWorld
 clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorldWithSize(16) }
 
 // Pause menu
-clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { tempSaveWorld(clientGame.clientWorld) }
+clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { clientGame.saveWorld('world.json') }
 clientGame.menu.pauseMenu.selectableElements[2].pressButton = () => { clientGame.goOffline() }
 clientGame.menu.pauseMenu.selectableElements[5].pressButton = () => { clientGame.exportWorldMesh() }
 

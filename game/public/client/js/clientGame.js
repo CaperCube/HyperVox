@@ -409,6 +409,26 @@ class ClientGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
+
+    saveWorld(worldName) {
+        // ToDo:
+        // When saving worlds locally, we should request the brain's version of the world to save
+
+        // Set save version
+        this.clientWorld.saveVersion = '0.1'
+
+        // Create download link
+        let element = document.createElement('a')
+        element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( this.clientWorld ) ) )
+        element.setAttribute( 'download', worldName || 'world.json' )
+      
+        element.style.display = 'none'
+        document.body.appendChild(element)
+      
+        element.click()
+      
+        document.body.removeChild(element)
+    }
     
     // Export world as obj (ToDo: Move this somewhere)
     exportWorldMesh() {
@@ -827,6 +847,7 @@ class ClientGame {
             newMessage.remove()
         },21000)
     }
+
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////
