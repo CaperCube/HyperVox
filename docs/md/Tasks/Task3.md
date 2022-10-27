@@ -14,9 +14,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [X] **"Set world spawn" chat command (admins only)**
         - This should set the spawn on the server world
     - [X] Chat command to clear all player scores
-    - [ ] tp command
-    - [ ] tpall command
-- [ ] Spectator game mode
+    - [X] tp command
+        - [X] tp all command
+- [X] Spectator game mode
     - [ ] Turns off HUD
     - [ ] Tunrs off block cursor visibility
     - [X] Cannot edit blocks
@@ -39,10 +39,10 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] **Add Zones (perform check on server)**
         - [ ] **Trigger zone (code and/or sound or resource link sound)**
         - [ ] Game mode zone    
-    - [ ] **Chain worlds**
-        - [ ] **Add interactable world chain block**
+    - [X] **Chain worlds**
+        - [X] **Add interactable world chain block**
         - [X] Option to generate new world
-        - [~] Option to load existing world via world name (grabs from server / local folder)
+        - [X] Option to load existing world via world name (grabs from server / local folder)
 - [ ] Better chunking
     - [X] Render meshes base on distance from main camera
     - [ ] Render chunk view for visual debugging (draw multi-segment lines)

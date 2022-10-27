@@ -21,3 +21,13 @@ export function getPropByString(obj, propString) {
 
 // Clamps a value to a min and max range
 export function clamp (val, min, max) { return Math.min(Math.max(val, min), max) }
+
+export function randomIndex(ar) {
+    const min = 0
+    const max = Math.floor(ar.length - 1)
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+export function randomArray(arr) {
+    return arr[randomIndex(arr)]
+}

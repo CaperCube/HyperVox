@@ -2,7 +2,8 @@
 import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys, getRandomName } from './clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, lsKeys } from './clientConstants.js'
+import { getRandomName } from '../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import { clamp } from '../../common/dataUtils.js'
 import ClientPlayer from './entities/player.js'

@@ -102,20 +102,21 @@ class BrainComs {
                 data.playerID = playerID
 
                 // Update the BrainPlayer's position
-                // ToDo: validate player movement when online
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer) {
-                    myBrainPlayer.position = data.position
-                    myBrainPlayer.rotation = data.rotation
+                    // ToDo: validate player movement when online
+                    //...
 
-                    // Update data packet
-                    data.position = myBrainPlayer.position
-                    data.rotation = myBrainPlayer.rotation
+                    // Position
+                    if (!myBrainPlayer.override) {
+                        myBrainPlayer.position = data.position
+                    }
+
+                    // Rotation
+                    myBrainPlayer.rotation = data.rotation
                 }
 
-                // Network the data
-                // Moved
-                // The server now automatically sends this info with "brainGame.gameTick()"
+                // The server automatically sends this data to clients with "brainGame.gameTick()"
             },
 
             askWhosConnected: ( data, playerID ) => {
@@ -366,11 +367,6 @@ class BrainComs {
 
         // Network message
         this.genericToClient('initOtherPlayers', data)
-    }
-
-    changePlayerName( data ) {
-        // Let everyone know a name has changed
-        this.genericToClient('playerNameChange', data)
     }
 
     // Other stuff that needs to be communcated to the clients

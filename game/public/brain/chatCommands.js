@@ -1,4 +1,5 @@
 import { getArrayPos } from "../common/positionUtils.js"
+import { randomArray } from "../common/dataUtils.js"
 import { gameModes } from "./brainGame.js"
 
 const commandOptions = {
@@ -107,7 +108,7 @@ const chatCommands = {
                 sendMessage(mes)
             }
             else {
-                sendMessage(`Can't find player.`)
+                sendMessage(`Can't find player.`, true)
             }
         }
     },
@@ -119,27 +120,15 @@ const chatCommands = {
             // Change name
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
             if (player) {
-                // ToDo: make this a function in brainGame so we can call it in other ways
+                // Get user's desired name
                 let newName = args[0] || ''
                 for (let i = 1; i < args.length; i++) newName += ` ${args[i]}`
 
-                if (newName) {
-                    const oldName = player.playerName
-                    player.playerName = newName
-
-                    const data = { targetPlayerID: playerID, newName: newName }
-                    brainGame.brainComs.changePlayerName(data, 0)
-
-                    let mes = `${oldName} changed their name to ${player.playerName}`
-                    sendMessage(mes)
-                }
-                else {
-                    let mes = `That is an invalid name`
-                    sendMessage(mes)
-                }
+                // Tell brain to change the name
+                brainGame.changePlayerName(player, newName)
             }
             else {
-                sendMessage(`Can't find player.`)
+                sendMessage(`Can't find player.`, true)
             }
         }
     },
@@ -165,9 +154,65 @@ const chatCommands = {
                     // Send message
                     sendMessage(`${myPlayer.playerName} is now an admin`)
                 }
-                else sendMessage(`Wrong password`)
+                else sendMessage(`Wrong password`, true)
             }
-            else sendMessage(`Player not found`)
+            else sendMessage(`Player not found`, true)
+        }
+    },
+    teleport: {
+        commands: ["teleport", "tp"],
+        admin: true,
+        description: `Teleports a player to a specified location. (Example: ${commandOptions.delimiter}tp <X> <Y> <Z> <player name (optional)>)`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            let players = []
+
+            //////////////////////////////////////
+            // Get position
+            let position
+            if (args[0] && args[1] && args[2]) {
+                position = {
+                    x: parseFloat(args[0]),
+                    y: parseFloat(args[1]),
+                    z: parseFloat(args[2])
+                }
+            }
+            else {
+                // Invalid arguments
+                sendMessage(`Invalid arguments.`, true)
+                return
+            }
+            
+            //////////////////////////////////////
+            // Get Player
+            // If specified...
+            if (args[3]) {
+                // If all players targeted
+                if (args[3] === "@a") players = brainGame.players
+                else if (args[3] === "@r") players[0] = randomArray(brainGame.players)
+
+                // Else try to get player by name
+                else players[0] = brainGame.players.filter(p => p.playerName === args[3])[0]
+            }
+            // Else get this player
+            else {
+                players[0] = brainGame.players.filter(p => p.playerID === playerID)[0]
+            }
+
+            //////////////////////////////////////
+            // Move this player if they exist
+            for (let i = 0; i < players.length; i++) {
+                if (players[i]) {
+                    // Set position & override
+                    players[i].override = true
+                    players[i].position = position
+
+                    // Send message
+                    sendMessage(`${players[i].playerName} teleported to X: ${position.x} | Y: ${position.y} | Z: ${position.z}`)
+                }
+                else {
+                    sendMessage(`Can't find player.`, true)
+                }
+            }
         }
     },
 
@@ -189,7 +234,7 @@ const chatCommands = {
                 else if (i < adminList.length-2) adminsString += ', '
             }
             // Send message
-            sendMessage(`The current admins are: ${adminsString}`)                                   
+            sendMessage(`The current admins are: ${adminsString}`, true)                                   
         }
     },
     endRace: {
@@ -198,7 +243,7 @@ const chatCommands = {
         description: `Ends the current race for you only.`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //...
-            sendMessage(`Sadly, this does not work yet :(`)
+            sendMessage(`Sadly, this does not work yet :(`, true)
         }
     },
     changeGameMode: {
@@ -215,7 +260,7 @@ const chatCommands = {
             }
             else {
                 // Send message
-                sendMessage(`That is not a valid game mode`)
+                sendMessage(`That is not a valid game mode`, true)
             }
         }
     },
@@ -234,7 +279,7 @@ const chatCommands = {
             }
             else {
                 // Send message
-                sendMessage(`That is not a valid game mode`)
+                sendMessage(`That is not a valid game mode`, true)
             }
         }
     },
@@ -260,7 +305,7 @@ const chatCommands = {
                     sendMessage(`${playersMatchingName[i].playerName} is now an admin`)                                   
                 }
             }
-            else sendMessage(`Player not found`)
+            else sendMessage(`Player not found`, true)
         }
     },
     removeAdmin: {
@@ -285,7 +330,7 @@ const chatCommands = {
                     sendMessage( `${playersMatchingName[i].playerName} is no longer an admin.`)                                   
                 }
             }
-            else sendMessage(`Player not found`)
+            else sendMessage(`Player not found`, true)
         }
     },
     changeTickRate: {
@@ -302,7 +347,7 @@ const chatCommands = {
             }
             else {
                 // Send message
-                sendMessage(`You must type a value. Try something like: "${commandOptions.delimiter}tickrate 30"`)
+                sendMessage(`You must type a value. Try something like: "${commandOptions.delimiter}tickrate 30"`, true)
             }
         }
     },
@@ -334,7 +379,7 @@ const chatCommands = {
                 // sendMessage(`${message}`)
             }
             else {
-                sendMessage(`You must provide a URL.`)
+                sendMessage(`You must provide a world name.`, true)
             }
         }
     },
@@ -372,14 +417,29 @@ const chatCommands = {
         admin: true,
         description: `Set's the player's current location as the world's default spawn point.`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            // Get player position
-            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
-            const position = player.position
+            // If coordinates provided
+            if (args[0] && args[1] && args[2]) {
+                // Get position
+                const position = {
+                    x: parseFloat(args[0]),
+                    y: parseFloat(args[1]),
+                    z: parseFloat(args[2])
+                }
+                const location = getArrayPos(position, brainGame.world._chunkSize)
+                brainGame.changeWorldSpawn(location)
+                sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+            }
+            // If coordinates are NOT provided
+            else {
+                // Get player position
+                const player = brainGame.players.filter(p => p.playerID === playerID)[0]
+                const position = player.position
 
-            // Set spawn
-            const location = getArrayPos(position, brainGame.world._chunkSize)
-            brainGame.changeWorldSpawn(location)
-            sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+                // Set spawn
+                const location = getArrayPos(position, brainGame.world._chunkSize)
+                brainGame.changeWorldSpawn(location)
+                sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+            }
         }
     },
     saveWorld: {
@@ -418,7 +478,7 @@ const chatCommands = {
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
             }
             else {
-                sendMessage(`Incorrect arguments`)
+                sendMessage(`Invalid arguments`, true)
             }
         }
     },
@@ -444,7 +504,7 @@ const chatCommands = {
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID1} or ${blockID2}`)
             }
             else {
-                sendMessage(`Incorrect arguments`)
+                sendMessage(`Invalid arguments`, true)
             }
         }
     }

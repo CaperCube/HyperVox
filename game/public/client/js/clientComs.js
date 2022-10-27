@@ -129,6 +129,9 @@ class ClientComs {
                         targetPlayer.setPlayerName(data.newName)
                     }
                 }
+                else {
+                    this.clientGame.localPlayer.setPlayerName(data.newName)
+                }
             },
 
             updateAllPlayers: ( data, playerId ) => {
@@ -157,6 +160,11 @@ class ClientComs {
                     }
                     // Update local player(s)
                     else {
+                        // Override position if flagged
+                        if (dataPlayer.override) {
+                            this.clientGame.localPlayer.position = dataPlayer.position
+                        }
+
                         // Update player data
                         // ToDo: Position should be overrided in some cases (Teleporting, Server validation, player death)
 

@@ -19,66 +19,6 @@ const defaultWorldSize = 10
 const fogDistance = 1000
 const renderScale = 1
 
-// Player vars
-const playerNames = {
-    adjective: [
-        "King",
-        "Crazed",
-        "Cracked",
-        "Good",
-        "Kind",
-        "Evil",
-        "Bad",
-        "Wrong",
-        "Hollow",
-        "Slimy",
-        "Blocky",
-        "Cubic",
-        "Soccer",
-        "Meh"
-    ],
-    nouns: [
-        "Player",
-        "Stinker",
-        "Wombat",
-        "Salamader",
-        "Buster",
-        "Billy",
-        "Crab",
-        "Gibby",
-        "Name",
-        "Gamer",
-        "Knight",
-        "Dog",
-        "Cat",
-        "Scope",
-        "Tap",
-        "Fart",
-        "Block",
-        "Android",
-        "Robot",
-        "Snake",
-        "NPC",
-        "Doctor",
-        "Sock"
-    ]
-}
-
-const getRandomName = () => {
-    var phrase = randomArray(playerNames.adjective) + " " + randomArray(playerNames.nouns)
-    return phrase
-}
-
-function randomIndex(ar) {
-    const min = 0
-    const max = Math.floor(ar.length - 1)
-    return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function randomArray(arr) {
-    return arr[randomIndex(arr)]
-}
-
 // Local storage keys
 const lsKeys = { 
     clientSettings: 'clientSettings',
@@ -91,6 +31,5 @@ export {
     defaultWorldSize,
     fogDistance,
     renderScale,
-    lsKeys,
-    getRandomName
+    lsKeys
 }

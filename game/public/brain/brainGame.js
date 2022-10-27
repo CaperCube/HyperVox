@@ -6,7 +6,7 @@ import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
-import { gameModes } from '../common/commonConstants.js'
+import { gameModes, formatPlayerName } from '../common/commonConstants.js'
 import { checkForCommand } from "./chatCommands.js"
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
@@ -222,6 +222,11 @@ class BrainGame {
         }
     }
 
+    sendChatMessage = ( message, recipients = "all") => {
+        const data = { message: message, messageName: 'Server', isServer: true }
+        this.brainComs.genericToClient('receiveChatMessage', data, recipients)
+    }
+
     runCommandString = ( command ) => {
         // Run multiple commands
         // https://regexr.com/
@@ -237,15 +242,10 @@ class BrainGame {
                 commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
                     // commandFound = true
                     // Send message
-                    const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
-                    this.brainComs.genericToClient('receiveChatMessage', serverData, 'all')
+                    this.sendChatMessage(responseMessage)
                 })
                 if (!commandFound) {
-                    let data = {
-                        message: formattedCommand,
-                        messageName: "Server"
-                    }
-                    this.brainComs.genericToClient('receiveChatMessage', data)
+                    this.sendChatMessage(formattedCommand)
                 }
             }
         })
@@ -262,6 +262,34 @@ class BrainGame {
     resetScores = () => {
         for (let i = 0; i < this.players.length; i++) {
             if (this.players[i]) this.players[i].ResetStats()
+        }
+    }
+
+    ///////////////////////////////////////////////////////
+    // Player Methods
+    ///////////////////////////////////////////////////////
+    changePlayerName = (player, newName, isQuiet = false) => {
+        // Format player name
+        newName = formatPlayerName(newName)
+
+        if (newName) {
+            // Store old name
+            const oldName = player.playerName
+            
+            // Set new name on server
+            player.playerName = newName
+
+            // Update client players
+            const data = { targetPlayerID: player.playerID, newName: newName }
+            this.brainComs.genericToClient('playerNameChange', data)
+            this.brainComs.sayWhosConnected()
+
+            // Send message
+            this.sendChatMessage(`${oldName} changed their name to ${player.playerName}`)
+        }
+        else {
+            // If name is invalid, tell the authoring player
+            this.sendChatMessage(`That is an invalid name`, [player.playerID])
         }
     }
 
@@ -359,6 +387,7 @@ class BrainGame {
                 // Update data packet
                 const myData = {
                     playerID: myBrainPlayer.playerID,
+                    override: myBrainPlayer.override,
                     position: myBrainPlayer.position,
                     rotation: myBrainPlayer.rotation,
                     health: myBrainPlayer.health,
@@ -368,7 +397,10 @@ class BrainGame {
                 // Put into data object
                 data.players.push(myData)
 
-                // ToDo: compile the updates and send them as a single message
+                // If this tick, the player was in override, turn it off
+                if (myBrainPlayer.override) myBrainPlayer.override = false
+
+                // ToDo: compile all updates and send them as a single message
                 // this.brainComs.genericToClient('movePlayer', data)
             }
         }
