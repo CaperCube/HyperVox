@@ -19,6 +19,8 @@ const defaultWorldSize = 10
 const fogDistance = 1000
 const renderScale = 1
 
+const chatMessageTime = 8000 // in milliseconds
+
 // Local storage keys
 const lsKeys = { 
     clientSettings: 'clientSettings',
@@ -31,5 +33,6 @@ export {
     defaultWorldSize,
     fogDistance,
     renderScale,
+    chatMessageTime,
     lsKeys
 }

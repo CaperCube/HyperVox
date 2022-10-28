@@ -299,7 +299,7 @@ class BrainComs {
                 // If a player won the game
                 if (playerWon) serverData = {
                     message: `
-                    <span style="display: inline-block; position: fixed; top: 20%; left: 0px; color: white; width: 100%; height: 80%; font-size: 10vh; text-align: center;">
+                    <span class="msg-title">
                         <span style="color: ${data.killerPlayerColor}; font-size: 10vh;">
                             ${killerPlayer?.playerName}
                         </span>

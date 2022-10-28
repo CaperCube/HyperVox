@@ -238,8 +238,8 @@ class BrainGame {
             
             // Run command
             if (formattedCommand.length > 0) {
-                let commandFound = false
-                commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
+                    let commandFound = false
+                    commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
                     // commandFound = true
                     // Send message
                     this.sendChatMessage(responseMessage)
