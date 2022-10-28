@@ -207,8 +207,8 @@ class BrainComs {
                 let blockCommand = ""
                 if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
                     // Run command
-                    blockCommand = this.brainGame.world.blockData[targetBlock]
-                    this.brainGame.runCommandString(blockCommand)
+                    blockCommand = this.brainGame.world.blockData[targetBlock].command
+                    if (blockCommand) this.brainGame.runCommandString(blockCommand)
                 }
             },
 

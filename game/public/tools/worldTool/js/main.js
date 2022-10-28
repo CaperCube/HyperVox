@@ -159,6 +159,13 @@ function populateDOMBlockData() {
     // 	"36_18_6_20": "http://erickalpin.com/petition/"
     // },
 
+    // {
+    //     "36_X_Y_Z": { 
+    //         title: "", 
+    //         command: ""
+    //     }
+    // }
+
     // Clear all DOM elements in the list
     $("#DOM_blockdata").innerHTML = ""
 
@@ -170,13 +177,19 @@ function populateDOMBlockData() {
         newBD.classList.add("blockdata-field")
         newBD.innerHTML = `${bName}: `
 
-        // New text area
+        // New title text area
+        let newTitleArea = document.createElement("textarea")
+        newTitleArea.addEventListener("input", (e) => { setDataForBlock(bName, { title: e.target.value }) })
+        newTitleArea.value = blockData[bName].title
+
+        // New command text area
         let newTextArea = document.createElement("textarea")
         // const textID = `input_${bName}`
         // newTextArea.setAttribute("id", textID)
-        newTextArea.addEventListener("input", (e) => { setDataForBlock(bName, e.target.value) })
+        // newTextArea.addEventListener("input", (e) => { setDataForBlock(bName, e.target.value) })
+        newTextArea.addEventListener("input", (e) => { setDataForBlock(bName, { command: e.target.value }) })
         // newTextArea.innerHTML = blockData[bName]
-        newTextArea.value = blockData[bName]
+        newTextArea.value = blockData[bName].command
 
         // New delete button
         let newButton = document.createElement("button")
@@ -184,6 +197,7 @@ function populateDOMBlockData() {
         newButton.innerHTML = 'X'
 
         // Add elements to span
+        newBD.appendChild(newTitleArea)
         newBD.appendChild(newTextArea)
         newBD.appendChild(newButton)
 
@@ -220,13 +234,13 @@ function populateDOMIntervalCommands() {
         newIC.innerHTML = `${icName}: `
 
         // New text area
-        let newTextArea = document.createElement("input")
+        let newTextArea = document.createElement("textarea")
         newTextArea.addEventListener("input", (e) => { setDataForIntervalCommand(icName, { command: e.target.value }) })
         // newTextArea.innerHTML = intervalCommands[icName].command
         newTextArea.value = intervalCommands[icName].command
 
         // New number input
-        let newNumberInput = document.createElement("textarea")
+        let newNumberInput = document.createElement("input")
         newNumberInput.setAttribute("type", "number")
         newNumberInput.setAttribute("value", 1000)
         newNumberInput.addEventListener("input", (e) => { setDataForIntervalCommand(icName, { time: e.target.value }) })
@@ -271,7 +285,7 @@ function createIntervalCommand(remove = false, intervalName = null) {
         // Create metadata for this block
         const newIntervalName = `${intervalName}-${intervalNumber}`
         if (!intervalCommands[newIntervalName]) intervalCommands[newIntervalName] = {
-            command: "",
+            command: "Chat command",
             time: 1000
         }
     }
@@ -391,8 +405,11 @@ function DOMNoiseFnc() {
     // Update slider
     resetDepthSlider()
 
-    // Update block data section
+    // Update data sections
+    blockData = {}
+    intervalCommands = {}
     populateDOMBlockData()
+    populateDOMIntervalCommands()
 }
 
 function updateDepth(el) {
@@ -555,7 +572,7 @@ canvas.addEventListener('pointermove', (e) => {
     $("#DOM_blockposition").innerHTML = `X: ${blockPos.x} Y: ${blockPos.y} Z: ${blockPos.z}`
 }, { passive: false })
 
-document.addEventListener('wheel', (e) => {
+$("#canvas-holder-main").addEventListener('wheel', (e) => {
     // Change block
     if (altHeld) {
         if (e.deltaY > 0) {
@@ -892,7 +909,7 @@ function createDataForBlock(remove = false, blockName = null, blockID = null) {
     }
     else {
         // Create metadata for this block
-        if (!blockData[bName]) blockData[bName] = ""
+        if (!blockData[bName]) blockData[bName] = { title: "Title", command: "Chat command" } //""
     }
 
     // Update DOM
@@ -902,7 +919,28 @@ function createDataForBlock(remove = false, blockName = null, blockID = null) {
     $(`#block_${bName}`)?.classList.add('selected-blockdata')
 }
 
-function setDataForBlock(blockName = null, newData = "") {
+function setDataForBlock(blockName = null, newData = { title: null, command: null }) {
+
+    // // Check if this block exists in the list
+    // if (Object.keys(blockData).includes(blockName)) {
+    // }
+    // else {
+    //     createDataForBlock(true, blockName)
+    // }
+
+    // // Set the data
+    // blockData[blockName] = newData
+
+
+
+
+    // console.log(blockData, blockData[blockLocation], newData)
+    // console.log(newData)
+
+    // Update DOM
+    //populateDOMBlockData()
+
+
 
     // Check if this block exists in the list
     if (Object.keys(blockData).includes(blockName)) {
@@ -912,13 +950,8 @@ function setDataForBlock(blockName = null, newData = "") {
     }
 
     // Set the data
-    blockData[blockName] = newData
-
-    // console.log(blockData, blockData[blockLocation], newData)
-    // console.log(newData)
-
-    // Update DOM
-    //populateDOMBlockData()
+    if (newData.title) blockData[blockName].title = newData.title
+    if (newData.command) blockData[blockName].command = newData.command
 }
 
 ////////////////////////////////////////////////////////

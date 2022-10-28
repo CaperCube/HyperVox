@@ -12,6 +12,12 @@ class World {
         const worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
         this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
         this.blockData = {}
+        // {
+        //     "36_X_Y_Z": { 
+        //         title: "", 
+        //         command: ""
+        //     }
+        // }
 
         // ToDo: Add this to World Tool
         this.intervalCommands = {}

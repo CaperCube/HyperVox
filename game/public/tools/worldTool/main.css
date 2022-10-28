@@ -20,7 +20,7 @@ body {
 	color: var(--color-5);
 	font-family: sans-serif;
 
-	overflow: hidden;
+	overflow-x: hidden;
 }
 
 .canvas-holder {

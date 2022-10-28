@@ -191,6 +191,32 @@ class ClientPlayer {
         this.removeMesh.isPickable = false
 
         this.nameMesh = null
+        this.hoverTextMesh = BABYLON.Mesh.CreatePlane("hoverText", 1, this.scene, false)
+        this.hoverText = ""
+
+        ///////////////////////////////////////////////////////
+        // Hover Text
+        ///////////////////////////////////////////////////////
+        // Create material
+        this.hoverTextMesh.material = new BABYLON.StandardMaterial('nameMat')
+        this.hoverTextMesh.useAlphaFromDiffuseTexture = true
+        this.hoverTextMesh.material.specularColor = new BABYLON.Color3(0, 0, 0)
+        this.hoverTextMesh.material.useAlphaFromDiffuseTexture = true
+
+        // Bake rotation
+        this.hoverTextMesh.rotation.z = Math.PI
+        this.hoverTextMesh.rotation.y = Math.PI
+        this.hoverTextMesh.bakeCurrentTransformIntoVertices()
+
+        // Parent mesh to player
+        this.hoverTextMesh.position = new BABYLON.Vector3(0, 0, 0)
+
+        this.hoverTextMesh.material.backFaceCulling = false
+        this.hoverTextMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+        this.hoverTextMesh.renderingGroupId = 1
+
+        // Set texture
+        this.setHoverText("")
 
         ///////////////////////////////////////////////////////
         // Name Tag
@@ -431,6 +457,42 @@ class ClientPlayer {
         // ToDo: This should be a request sent to the brain (in the case of command blocks, the server can then exicute them without the need for player permissions)
         // Call block's interaction function
         if (typeof blockTypes[blockID]?.interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
+    }
+
+    // ToDo: this is mostly redundant, merge this code with "setPlayerName"
+    setHoverText = (newText = "", pos = { x:0, y:0, z:0 }) => {
+        // Set the current text
+        this.hoverText = newText
+
+        // If blank, turn off
+        if (!newText) {
+            this.hoverTextMesh.setEnabled(false)
+        }
+        else {
+            // Turn text on
+            this.hoverTextMesh.setEnabled(true)
+
+            // Only do this for me!!
+            if (this.playerID === this.clientGame.clientID) {
+                // Draw new texture from menu system bakeText()
+                if (this.clientGame.menu.fonts[0])
+                    this.clientGame.menu.bakeText(newText, this.clientGame.menu.fonts[0], (img) => { 
+                        const textTexture = new BABYLON.Texture(img.src, this.scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+
+                        this.hoverTextMesh.material.diffuseTexture = textTexture
+                        this.hoverTextMesh.material.emissiveTexture = textTexture
+
+                        this.hoverTextMesh.material.diffuseTexture.hasAlpha = true
+
+                        // Rescale mesh and texture
+                        this.hoverTextMesh.scaling.y = 0.25
+                        this.hoverTextMesh.scaling.x = (img.width / img.height) / 4
+                })
+            }
+
+            // Set position
+            this.hoverTextMesh.position = new BABYLON.Vector3(pos.x, pos.y + 1, pos.z)
+        }
     }
 
     // ToDo: rename this to be more clear this is just for the nametag

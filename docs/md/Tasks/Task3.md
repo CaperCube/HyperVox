@@ -33,12 +33,13 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] B-hopping
 - [ ] World improvements
     - [ ] When saving worlds locally, we should request the brain's version of the world to save
-    - [ ] Show title (& link if present) when cursor hovering over interactable blocks
+    - [X] Show title (& link if present) when cursor hovering over interactable blocks
     - [ ] Change file extention to ".ccw" (Caper Core World)
-    - [ ] **Block to send chats as player**
+    - [X] **Block to send chats as player**
     - [ ] **Add Zones (perform check on server)**
         - [ ] **Trigger zone (code and/or sound or resource link sound)**
-        - [ ] Game mode zone    
+            - Probably just a chat message trigger zone
+            - Can change game mode if using chat messages
     - [X] **Chain worlds**
         - [X] **Add interactable world chain block**
         - [X] Option to generate new world
