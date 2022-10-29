@@ -408,6 +408,20 @@ const chatCommands = {
             sendMessage(`All player scores have been reset.`)
         }
     },
+    setCommandTime: {
+        commands: ["commandtime", "comtime"],
+        admin: true,
+        description: `Changes the game's score limit (Example: "${commandOptions.delimiter}commandtime 1000")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set limit
+                const newVal = parseInt(args[0])
+                brainGame.gameOptions.commandBlockTriggerTime = newVal
+                // Send message
+                sendMessage(`The command trigger time has been changed to ${newVal}.`)
+            }
+        }
+    },
     
     //
     // World commands

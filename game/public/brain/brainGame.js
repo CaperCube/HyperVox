@@ -19,7 +19,8 @@ class BrainGame {
         // Game vars
         ///////////////////////////////////////////////////////
         this.gameOptions = {
-            adminAlwaysExists: false,
+            adminAlwaysExists: false, // If true, the the brain will always try to have at least one admin in a game
+            worldPath: './game/public/worlds/', // The folder in which the brain looks for world files
             gameTickSpeed: 30, // Time in ms between game ticks
             // gameUpdateSpeed: 300, // Time in ms between entity updates
             validatePlayerActions: false, // Corrects player movement server-side
@@ -29,7 +30,7 @@ class BrainGame {
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
-            worldPath: './game/public/worlds/',
+            commandBlockTriggerTime: 1000 // Time in ms between valid command block triggers
         }
         
         this.brainComs = new BrainComs({
@@ -41,6 +42,7 @@ class BrainGame {
         this.generator = new ChunkGenerator()
         this.world = null
         this.intervalCommands = []
+        this.commandBlockCanBeRun = true
         this.players = []
         this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"

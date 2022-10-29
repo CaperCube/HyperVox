@@ -200,15 +200,22 @@ class BrainComs {
             },
 
             runBlockCommand: ( data, playerID ) => {
-                // Get block reference
-                const targetBlock = `${data.blockID}_${data.blockPos.x}_${data.blockPos.y}_${data.blockPos.z}`
+                // Limit how often command blocks can be run
+                if (this.brainGame.commandBlockCanBeRun) {
+                    // disallow further use for a time
+                    this.brainGame.commandBlockCanBeRun = false
+                    setTimeout(()=>{ this.brainGame.commandBlockCanBeRun = true }, this.brainGame.gameOptions.commandBlockTriggerTime)
 
-                // Get command from world file based on blockID's index data
-                let blockCommand = ""
-                if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
-                    // Run command
-                    blockCommand = this.brainGame.world.blockData[targetBlock].command
-                    if (blockCommand) this.brainGame.runCommandString(blockCommand)
+                    // Get block reference
+                    const targetBlock = `${data.blockID}_${data.blockPos.x}_${data.blockPos.y}_${data.blockPos.z}`
+
+                    // Get command from world file based on blockID's index data
+                    let blockCommand = ""
+                    if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
+                        // Run command
+                        blockCommand = this.brainGame.world.blockData[targetBlock].command
+                        if (blockCommand) this.brainGame.runCommandString(blockCommand)
+                    }
                 }
             },
 
