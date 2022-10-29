@@ -20,7 +20,7 @@ body {
 	color: var(--color-5);
 	font-family: sans-serif;
 
-	overflow-x: hidden;
+	overflow: hidden;
 }
 
 .canvas-holder {
@@ -73,8 +73,11 @@ body {
 	top: 0px;
 	left: calc(var(--size-canvas) + var(--size-border));
 
-	width: calc(100% - var(--size-canvas) - var(--size-border));
+	width: calc(100% - var(--size-canvas) - calc(var(--size-border) * 2));
 	height: 100%;
+	max-height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .section {
