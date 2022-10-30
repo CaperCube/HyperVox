@@ -526,5 +526,6 @@ const chatCommands = {
 
 export {
     commandOptions,
+    chatCommands,
     checkForCommand,
 }

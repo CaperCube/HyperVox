@@ -3,6 +3,7 @@ import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"//"/brain/gen/w
 import { blockTypes } from "../../../common/blockSystem.js"
 import World from "../../../brain/gen/world/world.js"
 import { getGlobalPos } from "../../../common/positionUtils.js"
+import { chatCommands } from "../../../brain/chatCommands.js"
 
 // Canvas vars
 const canvas = $('#main-canvas')
@@ -102,6 +103,7 @@ populateDOMList($("#DOM_genList"), Object.keys(generator.noisePatterns))
 populateDOMBlockList($("#DOM_blockList"), blockTypes)
 setEditorTool(tools.pencil)
 updateViewDirection(2)
+loadChatCommands()
 
 // Pattern dropdown
 function populateDOMList(dropList, itemArray) {
@@ -150,6 +152,13 @@ function populateDOMBlockList(dropList, itemArray) {
         dropList.value = listOptions[1].name
         selectedBlock = blockTypes.filter(b=>b.name === $("#DOM_blockList").value)[0]
     }
+}
+
+// Chat command List
+function loadChatCommands() {
+    Object.keys(chatCommands).forEach((key)=>{
+        console.log(key, chatCommands[key])
+    })
 }
 
 // Block Data
