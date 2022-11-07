@@ -49,6 +49,7 @@ class ClientGame {
         const settingsLoaded = (localStorageIsAllowed())? JSON.parse(localStorage.getItem(lsKeys.clientSettings)) : null // Load settings if the exist
         this.settings = {
             mouseSensitivity: settingsLoaded?.mouseSensitivity || 400, //higher is slower
+            mouseInertia: 0.5, // 0 = no mouse smoothing
             fov: settingsLoaded?.fov || 1.35,
             chunkDist: settingsLoaded?.chunkDist || 5,
             // clientUpdateSpeed
@@ -133,17 +134,17 @@ class ClientGame {
             fontPath: `./client/src/textures/fonts/`
         })
 
-        //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
+        //[lookSlider, fovSlider, mouseInertiaeSlider, chunkDistSlider, defaultsButton, optionsBackButton]
 
         // Look Speed
         this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ this.settings.mouseSensitivity = ((this.menu.optionsMenu.selectableElements[0].valRange[0] + this.menu.optionsMenu.selectableElements[0].valRange[1]) - val); this.updateSettings(); }
         // this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ console.log(val) }
 
-        // FoV
-        this.menu.optionsMenu.selectableElements[1].valueUpdateFunction = (val)=>{ this.settings.fov = val; this.updateSettings(); }
+        // Inertia
+        this.menu.optionsMenu.selectableElements[1].valueUpdateFunction = (val)=>{ this.settings.mouseInertia = val; this.updateSettings(); }
 
-        // GUI scale
-        // this.menu.optionsMenu.selectableElements[2].valueUpdateFunction = ()=>{ this.settings.guiScale += 100; this.updateSettings(); }
+        // FoV
+        this.menu.optionsMenu.selectableElements[2].valueUpdateFunction = (val)=>{ this.settings.fov = val; this.updateSettings(); }
 
         // Chunk distance
         this.menu.optionsMenu.selectableElements[3].valueUpdateFunction = (val)=>{
@@ -154,8 +155,9 @@ class ClientGame {
 
         // Defaults
         this.menu.optionsMenu.selectableElements[4].pressButton = ()=>{
-            this.menu.optionsMenu.selectableElements[0].update(400)
-            this.menu.optionsMenu.selectableElements[1].update(1.35)
+            this.menu.optionsMenu.selectableElements[0].update(2000)
+            this.menu.optionsMenu.selectableElements[1].update(0.5)
+            this.menu.optionsMenu.selectableElements[2].update(1.35)
             this.menu.optionsMenu.selectableElements[3].update(5)
         }
 
@@ -588,7 +590,7 @@ class ClientGame {
 
         this.mainCamera.attachControl(this.canvas, true)
         this.mainCamera.inputs.attached.keyboard.detachControl()
-        this.mainCamera.inertia = 0.05 // 0 = no mouse smoothing
+        this.mainCamera.inertia = this.settings.mouseInertia // 0 = no mouse smoothing
         this.mainCamera.speed = 0 // Movement speed
         this.mainCamera.fov = this.settings.fov // 1 is default
         this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
@@ -860,8 +862,11 @@ class ClientGame {
     //TODO use a bool array of fields that were updated to eliminate unnecessary processing
     updateSettings() {
         // Make updates
-        this.mainCamera.fov = this.settings.fov // 1 is default
-        this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
+        if (this.mainCamera) {
+            this.mainCamera.fov = this.settings.fov // 1 is default
+            this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
+            this.mainCamera.inertia = this.settings.mouseInertia // Mouse inertia
+        }
 
         // After updating, save to local storage
         localStorage.setItem(lsKeys.clientSettings, JSON.stringify(this.settings))

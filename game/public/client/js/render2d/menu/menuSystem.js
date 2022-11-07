@@ -179,24 +179,25 @@ class MenuSystem extends TileRenderer {
             ...SliderDefaults,
             text: 'Look Speed',
             position: { x: menuConstants.tileSize, y: menuConstants.tileSize*1.5 },
-            increment: 100,
-            defaultValue: (settingsLoaded?.mouseSensitivity)? (1100 - settingsLoaded?.mouseSensitivity) : 400,
-            valRange: [100,1000],
+            increment: 400,
+            defaultValue: (settingsLoaded?.mouseSensitivity)? (4100 - settingsLoaded?.mouseSensitivity) : 2000,
+            valRange: [100,4000],
         })
 
-        const guiScaleSlider = new UISlider({
+        // const guiScaleSlider = new UISlider({
+        const mouseInertiaeSlider = new UISlider({
             ...SliderDefaults,
-            text: 'GUI Scale',
-            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*3.5 },
-            increment: 1,
-            defaultValue: 2,
-            valRange: [1,4],
+            text: 'Look Inertia',
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*2.5 },
+            increment: 0.25,
+            defaultValue: settingsLoaded?.mouseInertia || 0.5,
+            valRange: [0,0.9],
         })
 
         const fovSlider = new UISlider({
             ...SliderDefaults,
             text: 'FoV',
-            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*2.5 },
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*3.5 },
             increment: 0.1,
             defaultValue: settingsLoaded?.fov || 1.35,
             valRange: [0.55,2.15],
@@ -215,7 +216,7 @@ class MenuSystem extends TileRenderer {
         const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton])
+        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, mouseInertiaeSlider, fovSlider, chunkDistSlider, defaultsButton, optionsBackButton])
 
         /////////////////////////////////////////////////////////
         // Play menu
@@ -263,7 +264,7 @@ class MenuSystem extends TileRenderer {
         pauseOptionsBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
 
         //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
-        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, pauseOptionsBackButton])
+        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, mouseInertiaeSlider, chunkDistSlider, defaultsButton, pauseOptionsBackButton])
 
         // Selection vars
         this.selectedScene = this.mainMenu
