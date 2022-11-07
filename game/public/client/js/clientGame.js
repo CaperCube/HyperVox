@@ -136,7 +136,7 @@ class ClientGame {
         //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
 
         // Look Speed
-        this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ this.settings.mouseSensitivity = val; this.updateSettings(); }
+        this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ this.settings.mouseSensitivity = ((this.menu.optionsMenu.selectableElements[0].valRange[0] + this.menu.optionsMenu.selectableElements[0].valRange[1]) - val); this.updateSettings(); }
         // this.menu.optionsMenu.selectableElements[0].valueUpdateFunction = (val)=>{ console.log(val) }
 
         // FoV
@@ -194,11 +194,8 @@ class ClientGame {
             this.menu.toggleVisibility()
         }
 
-        assignFunctionToInput([Buttons.bracketLeft], ()=>{ this.settings.mouseSensitivity += 100; this.updateSettings(); }, ()=>{});
-        assignFunctionToInput([Buttons.bracketRight], ()=>{ if (this.settings.mouseSensitivity < 100) this.settings.mouseSensitivity = 1; else this.settings.mouseSensitivity -= 100; this.updateSettings(); }, ()=>{});
         assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings()}, ()=>{});
         assignFunctionToInput([Buttons.period], () => { this.settings.fov += .1; this.updateSettings()}, ()=>{});
-        assignFunctionToInput([Buttons.slash], () => {if (this.localPlayer && this.scene) { console.log(getArrayPos(this.localPlayer.position, this.clientWorld._chunkSize)) }}, ()=>{});
 
         ///////////////////////////////////////////////////////
         // HUD vars
@@ -568,10 +565,12 @@ class ClientGame {
 
         // Allow debugger to be opened
         Buttons.backquote.onPress = (e) => {
-            //this.scene.debugLayer.show()
-            this.scene.debugLayer.show({
-                embedMode: true,
-            })
+            if (!this.scene.debugLayer.isVisible()) {
+                this.scene.debugLayer.show({
+                    embedMode: true,
+                })
+            }
+            else this.scene.debugLayer.hide()
         }
 
         ////////////////////////////////////////////////////
@@ -589,7 +588,7 @@ class ClientGame {
 
         this.mainCamera.attachControl(this.canvas, true)
         this.mainCamera.inputs.attached.keyboard.detachControl()
-        this.mainCamera.inertia = 0 // no mouse smoothing
+        this.mainCamera.inertia = 0.05 // 0 = no mouse smoothing
         this.mainCamera.speed = 0 // Movement speed
         this.mainCamera.fov = this.settings.fov // 1 is default
         this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity

@@ -180,7 +180,7 @@ class MenuSystem extends TileRenderer {
             text: 'Look Speed',
             position: { x: menuConstants.tileSize, y: menuConstants.tileSize*1.5 },
             increment: 100,
-            defaultValue: settingsLoaded?.mouseSensitivity || 400,
+            defaultValue: (settingsLoaded?.mouseSensitivity)? (1100 - settingsLoaded?.mouseSensitivity) : 400,
             valRange: [100,1000],
         })
 
