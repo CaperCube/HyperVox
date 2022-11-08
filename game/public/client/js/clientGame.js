@@ -56,7 +56,7 @@ class ClientGame {
             // ToDo: put player controls in here
         }
 
-        // ToDo: make this a setting
+        // ToDo: make this a setting? maybe not, the movement speed is currently dependent on this
         this.clientUpdateSpeed = 16 // roughly 60 fps (1000ms/60frames = 16.6666)
 
         ///////////////////////////////////////////////////////
