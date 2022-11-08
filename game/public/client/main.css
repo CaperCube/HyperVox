@@ -304,7 +304,7 @@ Side Menu & Tabs
 
 	padding: 0;
 
-	width: 50%;
+	width: 30%;
 	height: 100%;
 
 	top: 0px;
@@ -330,7 +330,7 @@ Side Menu & Tabs
 }
 
 #side-menu.closed {
-	right: -50%;
+	right: -30%;
 }
 
 #side-menu-tabs h1 {

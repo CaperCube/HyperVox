@@ -65,11 +65,12 @@ app.use(express.static(__dirname + '/game/public'))
 const gameServer = new GameServer(io.sockets)
 
 // The list of all socket connections
-let SOCKET_LIST = {}
+// let SOCKET_LIST = {}
+io.sockets.SOCKET_LIST = {}
 io.sockets.on('connection', (socket) => {
     // Create a client ID for this connection
     socket.ID = Math.random()
-    SOCKET_LIST[socket.ID] = socket
+    io.sockets.SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)
 
     // Create new player
@@ -107,11 +108,12 @@ io.sockets.on('connection', (socket) => {
 
         // Remove from player list
         const iDMatchedPlayers = gameServer?.brain?.players?.filter(p => p.playerID === socket.ID)
+        const playerName = iDMatchedPlayers[0]?.playerName || "Player"
         if (iDMatchedPlayers?.length > 0) {
             // Remove player
             gameServer.brain.players.splice(gameServer.brain.players.indexOf(iDMatchedPlayers[0]), 1)
         }
-        //delete SOCKET_LIST[socket.ID]
+        //delete io.sockets.SOCKET_LIST[socket.ID]
 
         // If no admin exists, assign a new one
         if (gameServer.brain.gameOptions.adminAlwaysExists) {
@@ -120,6 +122,7 @@ io.sockets.on('connection', (socket) => {
         }
 
         // Send message
+        io.sockets.emit( `genericClientMessage`, { type: "receiveChatMessage", recipients: 'all', args: { message: `${playerName} has left the game.`, messageName: "Server", nameColor: "#888888", isServer: true } } )
         io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", recipients: 'all', args: { players: gameServer.brain.players } } )
     })
 })

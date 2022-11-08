@@ -719,13 +719,31 @@ class ClientGame {
             $('#main-canvas').style.display = 'none'
 
             // Connect
-            let socket = io.connect(serverURL, { reconnection: false })
+            let socket = io.connect(serverURL, {
+                reconnection: false,
+                timeout: 1000
+            })
+            socket.on('connect', (err) => {
+                console.log(err)
+                console.log("connected!")
+                // Set heartbeat ping (this will ensure the client goes back to the menu if the connection fails / ends)
+                socket.pingTimeout = 1000
+                socket.pingInterval = 500
+            })
             socket.on('connect_error', (err) => {
+                // ToDo: Tell client there's a connection error
                 console.log(err)
                 this.goOffline()
             })
             socket.on('connect_failed', (err) => {
-                handleErrors(err)
+                // ToDo: Tell client there's a connection error
+                console.log(err)
+                this.goOffline()
+            })
+            socket.on('disconnect', (err) => {
+                // ToDo: Tell client they've been disconnected
+                console.log("YO YOU BEEN KICKED!!!")
+                console.log(err)
                 this.goOffline()
             })
 

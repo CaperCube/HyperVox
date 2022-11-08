@@ -32,13 +32,16 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
                     }
                     // If admin is not required
                     else chatCommands[key].action(message, name, playerID, isAdmin, brainGame, args, sendMessage)
+
+                    // Stop the loop here
+                    return commandFound
                 }
                 if (commandFound) break
             }
             if (commandFound) break
         }
         if (!commandFound) {
-            sendMessage(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`)
+            sendMessage(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`, true)
         }
     }
     return commandFound
@@ -151,6 +154,7 @@ const chatCommands = {
                 if (brainGame.adminPassword && argString === brainGame.adminPassword) {
                     // Set admin
                     myPlayer.isAdmin = true
+                    console.log(`${myPlayer.playerName} has logged in as an admin.`)
                     // Send message
                     sendMessage(`${myPlayer.playerName} is now an admin`)
                 }
@@ -211,6 +215,39 @@ const chatCommands = {
                 }
                 else {
                     sendMessage(`Can't find player.`, true)
+                }
+            }
+        }
+    },
+    kick: {
+        commands: ["kick"],
+        admin: true,
+        description: `Kicks the desired player from the game. (Example: ${commandOptions.delimiter}kick <player name>`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            // This command should only work in an online game
+            if (brainGame.brainComs.isNetworked) {
+                if (args[0]) {
+                    // Get player by name
+                    const searchPlayer = brainGame.players.filter(p => p.playerName === args[0])[0]
+                    if (!searchPlayer) {
+                        sendMessage(`Can't find player named ${args[0]}.`, true)
+                        return
+                    }
+                    const playerName = searchPlayer.playerName
+                    
+                    // Get player by ID
+                    const player = brainGame.brainComs.network.SOCKET_LIST[searchPlayer.playerID]
+                    if (player) {
+                        // Disconnect this player
+                        player.disconnect()
+                        sendMessage(`${playerName} has been kicked from the game.`, true)
+                    }
+                    else {
+                        sendMessage(`Can't find player named ${args[0]}.`, true)
+                    }
+                }
+                else {
+                    sendMessage(`You can't kick nobody.`, true)
                 }
             }
         }

@@ -146,18 +146,20 @@ class BrainComs {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
                     // Check message for commands
-                    checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage, isPrivate) => {
+                    commandFound = checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage, isPrivate) => {
                         // Send message
                         const serverData = { message: responseMessage, messageName: 'Server', isServer: true }
                         this.genericToClient('receiveChatMessage', serverData, isPrivate? [playerID] : 'all')
-                        commandFound = true
                     })
                 }
                 else data.messageName = ""
 
-                if (!commandFound) {
+                // If command not found AND no command delimiter
+                if (!commandFound && !data.message.startsWith(commandOptions.delimiter)) {
+                    // Send message
                     this.genericToClient('receiveChatMessage', data)
 
+                    // Send help message if message includes "help"
                     if (data.message.toLowerCase().includes('help')) {
                         this.genericToClient('receiveChatMessage', { message: `Type <span style="color: #ffffff;">/help</span> for the list of chat commands.`, messageName: 'Server', isServer: true })
                     }
