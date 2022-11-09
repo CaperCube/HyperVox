@@ -1,5 +1,5 @@
-import { staticImageSRC } from "../../../client/js/resources.js"//"/client/js/resources.js"
-import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"//"/brain/gen/world/chunkGen.js"
+// import { staticImageSRC } from "../../../client/js/resources.js"
+import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"
 import { blockTypes } from "../../../common/blockSystem.js"
 import World from "../../../brain/gen/world/world.js"
 import { getGlobalPos } from "../../../common/positionUtils.js"
@@ -15,7 +15,7 @@ const textureSheet = new Image(512,512)
 textureSheet.onload = () => { 
     DOMNoiseFnc()
 }
-textureSheet.src = staticImageSRC.Tiles
+textureSheet.src = `../../client/src/textures/textures.png` //staticImageSRC.Tiles
 
 // Temp canvas vars
 const canvasTemp = $('#temp-canvas')
