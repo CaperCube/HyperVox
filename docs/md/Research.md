@@ -3,8 +3,7 @@ This is the master list of topics that require further research. This can includ
 
 # Things to research
 Move to `Things we know` with relevant links once completed.
-- [X] Hosting single-player game (can we do this on itch.io?)
-    - Yes, at least on Newgrounds
+- Nothing
 
 # Things we know
-- [ ] [Nothing](https://example.com/)
+- [Nothing](https://example.com/)
