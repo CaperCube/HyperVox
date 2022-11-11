@@ -377,7 +377,7 @@ class ClientPlayer {
     }
 
     // ToDo: Do Damage / Healing on brain, and refactor this to just be the animations
-    takeDamage = (damage, iTime = this.invincibleTime, damageDealer = null) => { // This is not networked at the moment
+    takeDamage = (damage, iTime = this.invincibleTime, damageDealer = null) => {
         if (!this.isInvincible) {
             // Apply damage
             this.health -= damage
@@ -395,15 +395,14 @@ class ClientPlayer {
 
                 if (this.health > 0) {
                     // Bob player's view
-                    // ToDo: make screen red or something
                     this.avatarOffset.y += 0.15
                     setTimeout( ()=>{ this.avatarOffset.y -= 0.15 }, iTime/6 )
                 }
                 else {
                     // Player is dead, respawn
-                    this.health = 100
-                    this.clientGame.hud.enableDamageMarker(this.health)
-                    this.teleportPlayer(this.respawnPoint)
+                    // this.health = 100
+                    // this.clientGame.hud.enableDamageMarker(this.health)
+                    // this.teleportPlayer(this.respawnPoint)
 
                     // ToDo: Do this on server
                     // Send message to tell the server I died

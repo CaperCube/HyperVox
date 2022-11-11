@@ -235,7 +235,21 @@ class ClientComs {
                     // Set data
                     this.clientGame.clientWorld.blockData[data.blockPropName] = data.data
                 }
-            }
+            },
+
+            // ToDo: This is a temporary solution untill we have logic on the brain to track player's spawn points & force respawn players
+            respawn: ( data, playerId ) => {
+                // if (this.messageDebug) console.log( '%c Set player positions from brain (client)', 'background: #142; color: #ced' )
+
+                // This message is only intended for the player who's meant to respawn
+                const myPlayer = this.clientGame.localPlayer
+                if (myPlayer) {
+                    // Player is dead, respawn
+                    myPlayer.health = 100
+                    this.clientGame.hud.enableDamageMarker(myPlayer.health)
+                    myPlayer.teleportPlayer(myPlayer.respawnPoint)
+                }
+            },
         }
     }
 
@@ -328,7 +342,7 @@ class ClientComs {
 
     // ToDo: This should be removed because this is a server task
     sendObituary(deadPlayerID, killerPlayerID) {
-        const data = { deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID, deadPlayerColor: '#ff0000', killerPlayerColor: '#00ff00'}
+        const data = { deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID}
 
         // Network message
         this.genericToBrain( 'applyObituary', data )

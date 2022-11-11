@@ -283,6 +283,67 @@ class BrainGame {
         }
     }
 
+    killPlayer = (deadPlayer, killerPlayer = null) => {
+        let serverData = {}
+        let playerWon = false
+
+        // ToDo: Move these colors to a constans file?
+        const deadPlayerColor = '#ff0000'
+        const killerPlayerColor = '#00ff00'
+
+        // Apply score
+        if (deadPlayer) deadPlayer.stats.deaths++
+        else return // No player has died, so stop here
+        if (killerPlayer) {
+            killerPlayer.stats.kills++
+
+            // Check score limit
+            if (this.gameOptions.gameMode === gameModes.deathMatch &&
+                killerPlayer.stats.kills >= this.gameOptions.scoreLimit) {
+                // Decalre winner
+                playerWon = true
+
+                // Set server game more to spectator
+                this.gameOptions.gameMode = gameModes.spectator
+                for (let i = 0; i < this.players.length; i++) this.players[i].gameMode = this.gameOptions.gameMode
+
+            }
+        }
+
+        // Create message
+        // If a player won the game
+        if (playerWon) serverData = {
+            message: `
+            <span class="msg-title">
+                <span style="color: ${killerPlayerColor}; font-size: 10vh;">
+                    ${killerPlayer?.playerName}
+                </span>
+                has won!
+            </span>
+            <br>Game mode changed to ${this.gameOptions.gameMode}.`,
+            messageName: 'Server',
+            isServer: true
+        }
+        // If a player is killed by another player
+        else if (killerPlayer) serverData = {
+            message: `<b style="color: ${killerPlayerColor};">${killerPlayer?.playerName}</b> killed <b style="color: ${deadPlayerColor};">${deadPlayer?.playerName}</b>`,
+            messageName: 'Server',
+            isServer: true
+        }
+        // If they player died on their own
+        else serverData = {
+            message: `<b style="color: ${deadPlayerColor};">${deadPlayer?.playerName}</b> died from nature.`,
+            messageName: 'Server',
+            isServer: true
+        }
+
+        // Send message
+        this.brainComs.genericToClient('receiveChatMessage', serverData)
+
+        // Respawn player
+        this.brainComs.genericToClient('respawn', {}, [deadPlayer.playerID])
+    }
+
     ///////////////////////////////////////////////////////
     // Player Methods
     ///////////////////////////////////////////////////////

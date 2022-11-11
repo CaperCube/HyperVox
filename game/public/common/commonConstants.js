@@ -6,7 +6,7 @@ const gameModes = {
     spectator: 'spectator',
     parkour: 'parkour',
     deathMatch: 'deathmatch',
-    teamDeathMatch: 'teamDeathMatch',
+    teamDeathMatch: 'teamdeathmatch',
 }
 
 // Consider including chunk scale in here as well

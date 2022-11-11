@@ -283,55 +283,7 @@ class BrainComs {
                 const killerPlayer = this.brainGame.players.filter( p => p.playerID === data.killerPlayerID )[0]
                 const deadPlayer = this.brainGame.players.filter( p => p.playerID === data.deadPlayerID )[0]
 
-                let serverData = {}
-                let playerWon = false
-
-                // Apply score
-                if (deadPlayer) deadPlayer.stats.deaths++
-                if (killerPlayer) {
-                    killerPlayer.stats.kills++
-
-                    // Check score limit
-                    if (this.brainGame.gameOptions.gameMode === gameModes.deathMatch &&
-                        killerPlayer.stats.kills >= this.brainGame.gameOptions.scoreLimit) {
-                        // Decalre winner
-                        playerWon = true
-
-                        // Set server game more to spectator
-                        this.brainGame.gameOptions.gameMode = gameModes.spectator
-                        for (let i = 0; i < this.brainGame.players.length; i++) this.brainGame.players[i].gameMode = this.brainGame.gameOptions.gameMode
-
-                    }
-                }
-
-                // Send message
-                // If a player won the game
-                if (playerWon) serverData = {
-                    message: `
-                    <span class="msg-title">
-                        <span style="color: ${data.killerPlayerColor}; font-size: 10vh;">
-                            ${killerPlayer?.playerName}
-                        </span>
-                        has won!
-                    </span>
-                    <br>Game mode changed to ${this.brainGame.gameOptions.gameMode}.`,
-                    messageName: 'Server',
-                    isServer: true
-                }
-                // If a player is killed by another player
-                else if (killerPlayer) serverData = {
-                    message: `<b style="color: ${data.killerPlayerColor};">${killerPlayer?.playerName}</b> killed <b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b>`,
-                    messageName: 'Server',
-                    isServer: true
-                }
-                // If they player died on their own
-                else serverData = {
-                    message: `<b style="color: ${data.deadPlayerColor};">${deadPlayer?.playerName}</b> died of natural causes`,
-                    messageName: 'Server',
-                    isServer: true
-                }
-                if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['receiveChatMessage']( serverData ) }
-                else if (this.isNetworked) this.network.emit( 'genericClientMessage', { type: 'receiveChatMessage', recipients: 'all', args: serverData } )
+                this.brainGame.killPlayer(deadPlayer, killerPlayer)
             }
         }
     }

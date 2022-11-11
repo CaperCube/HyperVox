@@ -47,6 +47,26 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
     return commandFound
 }
 
+const getPlayers = (arg, brainGame, playerID = null) => {
+    let players = []
+
+    // Check for "@a" or "@r"
+    if (arg) {
+        // If all players targeted
+        if (arg === "@a") players = brainGame.players
+        else if (arg === "@r") players[0] = randomArray(brainGame.players)
+
+        // Check for name
+        else players[0] = brainGame.players.filter(p => p.playerName === arg)[0]
+    }
+    // Else get chat player
+    else {
+        players[0] = brainGame.players.filter(p => p.playerID === playerID)[0]
+    }
+
+    return players
+}
+
 const chatCommands = {
     //
     // Info commands
@@ -118,7 +138,7 @@ const chatCommands = {
     changeName: {
         commands: ["changename", "cname"],
         admin: false,
-        description: `Changes the name of your player.`,
+        description: `Changes the name of the target player. (Example: ${commandOptions.delimiter}changename <new name>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Change name
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
@@ -131,14 +151,14 @@ const chatCommands = {
                 brainGame.changePlayerName(player, newName)
             }
             else {
-                sendMessage(`Can't find player.`, true)
+                sendMessage(`No player found.`, true)
             }
         }
     },
     adminLogin: {
         commands: ["adminlogin", "al"],
         admin: false,
-        description: `Attempt an admin login with a passoword. (Example: ${commandOptions.delimiter}adminlogin password)`,
+        description: `Attempt an admin login with a passoword. (Example: ${commandOptions.delimiter}adminlogin <password>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Set the admin status of all matching players
             const myPlayer = brainGame.players.filter( p => p.playerID === playerID )?.[0]
@@ -168,8 +188,6 @@ const chatCommands = {
         admin: true,
         description: `Teleports a player to a specified location. (Example: ${commandOptions.delimiter}tp <X> <Y> <Z> <player name (optional)>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            let players = []
-
             //////////////////////////////////////
             // Get position
             let position
@@ -187,20 +205,8 @@ const chatCommands = {
             }
             
             //////////////////////////////////////
-            // Get Player
-            // If specified...
-            if (args[3]) {
-                // If all players targeted
-                if (args[3] === "@a") players = brainGame.players
-                else if (args[3] === "@r") players[0] = randomArray(brainGame.players)
-
-                // Else try to get player by name
-                else players[0] = brainGame.players.filter(p => p.playerName === args[3])[0]
-            }
-            // Else get this player
-            else {
-                players[0] = brainGame.players.filter(p => p.playerID === playerID)[0]
-            }
+            // Get Player(s)
+            let players = getPlayers(args[3], brainGame, playerID)
 
             //////////////////////////////////////
             // Move this player if they exist
@@ -219,6 +225,24 @@ const chatCommands = {
             }
         }
     },
+    kill: {
+        commands: ["kill"],
+        admin: true,
+        description: `Kills the targeted player. (Example: ${commandOptions.delimiter}kill <player name (optional)>)`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[0], brainGame, playerID)
+
+            if (players.length > 0) {
+                for (let i = 0; i < players.length; i++) {
+                    // Kill this player
+                    brainGame.killPlayer(players[i])
+                }
+            }
+            else sendMessage(`No player not found`, true)
+        }
+    },
     kick: {
         commands: ["kick"],
         admin: true,
@@ -226,24 +250,25 @@ const chatCommands = {
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // This command should only work in an online game
             if (brainGame.brainComs.isNetworked) {
+
                 if (args[0]) {
-                    // Get player by name
-                    const searchPlayer = brainGame.players.filter(p => p.playerName === args[0])[0]
-                    if (!searchPlayer) {
-                        sendMessage(`Can't find player named ${args[0]}.`, true)
-                        return
-                    }
-                    const playerName = searchPlayer.playerName
+                    //////////////////////////////////////
+                    // Get Player(s)
+                    let players = getPlayers(args[0], brainGame)
                     
-                    // Get player by ID
-                    const player = brainGame.brainComs.network.SOCKET_LIST[searchPlayer.playerID]
-                    if (player) {
-                        // Disconnect this player
-                        player.disconnect()
-                        sendMessage(`${playerName} has been kicked from the game.`, true)
-                    }
-                    else {
-                        sendMessage(`Can't find player named ${args[0]}.`, true)
+                    //////////////////////////////////////
+                    // Get player(s) by ID
+                    for (let i = 0; i < players.length; i++) {
+                        const player = brainGame.brainComs.network.SOCKET_LIST[players[i]?.playerID]
+                        const playerName = players[i]?.playerName || '???'
+                        if (player) {
+                            // Disconnect this player
+                            player.disconnect()
+                            sendMessage(`${playerName} has been kicked from the game.`, true)
+                        }
+                        else {
+                            sendMessage(`Can't find player named ${args[0]}.`, true)
+                        }
                     }
                 }
                 else {
@@ -252,16 +277,62 @@ const chatCommands = {
             }
         }
     },
+    makeAdmin: {
+        commands: ["admin", "op"],
+        admin: true,
+        description: `Makes the targeted player an admin. (Example: ${commandOptions.delimiter}admin <player name>)`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[0], brainGame)
 
-    //
-    // Server commands
-    //
+            if (players.length > 0) {
+                for (let i = 0; i < players.length; i++) {
+                    if (!players[i].isAdmin) {
+                        // Set admin
+                        players[i].isAdmin = true
+                        // Send message
+                        sendMessage(`${players[i].playerName} is now an admin`)
+                    }
+                    else {
+                        sendMessage(`${players[i].playerName} is already an admin`, true)
+                    }                              
+                }
+            }
+            else sendMessage(`No player not found`, true)
+        }
+    },
+    removeAdmin: {
+        commands: ["removeadmin", "deop"],
+        admin: true,
+        description: `Removes admin from the targeted player. (Example: ${commandOptions.delimiter}removeadmin <player name>)`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[0], brainGame)
+
+            if (players.length > 0) {
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i].isAdmin) {
+                        // Set admin
+                        players[i].isAdmin = false
+                        // Send message
+                        sendMessage(`${players[i].playerName} is no longer admin`)
+                    }
+                    else {
+                        sendMessage(`${players[i].playerName} is already a commoner`, true)
+                    }                              
+                }
+            }
+            else sendMessage(`No player not found`, true)
+        }
+    },
     listAdmins: {
         commands: ["listadmins"],
         admin: false,
         description: `Lists all current admins.`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            //ToDo: add in whitelisted players who may not be online
+            // ToDo: add in whitelisted players who may not be online
             // Get the list of admins
             const adminList = brainGame.players.filter( p => p.isAdmin)
             let adminsString = ''
@@ -274,6 +345,10 @@ const chatCommands = {
             sendMessage(`The current admins are: ${adminsString}`, true)                                   
         }
     },
+
+    //
+    // Server commands
+    //
     endRace: {
         commands: ["endrace"],
         admin: false,
@@ -286,88 +361,61 @@ const chatCommands = {
     changeGameMode: {
         commands: ["gamemode", "gm"],
         admin: true,
-        description: `Changes your game mode. (Example: ${commandOptions.delimiter}gamemode creative)`,
+        description: `Changes your game mode. (Example: ${commandOptions.delimiter}gamemode <game mode> <player name (optional)>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            const myBrainPlayer = brainGame.players.filter( p => p.playerID === playerID )[0]
-            if (Object.keys(gameModes).includes(args[0])) {
-                // Set game mode
-                myBrainPlayer.gameMode = args[0]
-                // Send message
-                sendMessage(`${myBrainPlayer?.playerName} has set their game mode to ${args[0]}`)
-            }
-            else {
-                // Send message
-                sendMessage(`That is not a valid game mode`, true)
+
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[1], brainGame, playerID)
+            // const myBrainPlayer = brainGame.players.filter( p => p.playerID === playerID )[0]
+            
+            //////////////////////////////////////
+            // Change game mode for all matching players
+            for (let i = 0; i < players.length; i++) {
+                // If this player exists...
+                if (players[i]) {
+                    let found = false
+                    Object.values(gameModes).forEach((gm)=>{
+                        if (args[0].toLowerCase() === gm.toLowerCase()) {
+                            // Set game mode
+                            players[i].gameMode = gm
+                            // Send message
+                            sendMessage(`${players[i]?.playerName}'s game mode has changed to ${gm}`)
+                            // end function here
+                            found = true
+                            return
+                        }
+                    })
+
+                    // No matching game modes found
+                    if (!found) sendMessage(`That is not a valid game mode`, true)
+                }
             }
         }
     },
     changeServerGameMode: {
         commands: ["servergamemode", "sgm"],
         admin: true,
-        description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode parkour)`,
+        description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode <game mode>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (Object.values(gameModes).includes(args[0])) {
-                // Set game mode
-                brainGame.gameOptions.gameMode = args[0]
-                // Set all player's game modes to server game mode
-                for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = args[0]
-                // Send message
-                sendMessage(`The server game mode has changed to ${args[0]}`)
-            }
-            else {
-                // Send message
-                sendMessage(`That is not a valid game mode`, true)
-            }
-        }
-    },
-    makeAdmin: {
-        commands: ["admin", "op"],
-        admin: true,
-        description: `Makes the targeted player an admin. (Example: ${commandOptions.delimiter}admin Blocky Crab)`,
-        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            // Get player name from arguments
-            let argString = ''
-            for (let i = 0; i < args.length; i++) {
-                argString += `${args[i]}`
-                if (i < args.length-1) argString += ' '
-            }
-
-            // Set the admin status of all matching players
-            const playersMatchingName = brainGame.players.filter( p => p.playerName === argString )
-            if (playersMatchingName.length > 0) {
-                for (let i = 0; i < playersMatchingName.length; i++) {
-                    // Set admin
-                    playersMatchingName[i].isAdmin = true
+            let found = false
+            Object.values(gameModes).forEach((gm)=>{
+                if (args[0].toLowerCase() === gm.toLowerCase()) {
+                    // Set game mode
+                    brainGame.gameOptions.gameMode = gm
+                    // Set all player's game modes to server game mode
+                    for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
                     // Send message
-                    sendMessage(`${playersMatchingName[i].playerName} is now an admin`)                                   
-                }
-            }
-            else sendMessage(`Player not found`, true)
-        }
-    },
-    removeAdmin: {
-        commands: ["removeadmin", "deop"],
-        admin: true,
-        description: `Removes admin from the targeted player. (Example: ${commandOptions.delimiter}removeadmin Silly Gamer)`,
-        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            // Get player name from arguments
-            let argString = ''
-            for (let i = 0; i < args.length; i++) {
-                argString += `${args[i]}`
-                if (i < args.length-1) argString += ' '
-            }
+                    sendMessage(`The server game mode has changed to ${gm}`)
 
-            // Set the admin status of all matching players
-            const playersMatchingName = brainGame.players.filter( p => p.playerName === argString )
-            if (playersMatchingName.length > 0) {
-                for (let i = 0; i < playersMatchingName.length; i++) {
-                    // Set admin
-                    playersMatchingName[i].isAdmin = false
-                    // Send message
-                    sendMessage( `${playersMatchingName[i].playerName} is no longer an admin.`)                                   
+                    // end function here
+                    found = true
+                    return
                 }
-            }
-            else sendMessage(`Player not found`, true)
+            })
+
+            // No matching game modes found
+            if (!found) sendMessage(`That is not a valid game mode`, true)
         }
     },
     changeTickRate: {
@@ -448,7 +496,7 @@ const chatCommands = {
     setCommandTime: {
         commands: ["commandtime", "comtime"],
         admin: true,
-        description: `Changes the game's score limit (Example: "${commandOptions.delimiter}commandtime 1000")`,
+        description: `Changes the command block execution cooldown time (in milliseconds). (Example: "${commandOptions.delimiter}commandtime 1000")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set limit
