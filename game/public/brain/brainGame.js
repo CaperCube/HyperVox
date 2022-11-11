@@ -64,6 +64,22 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
+    addNewPlayer = () => { // ToDo: Move the player connected code from index.js to here
+        // Create a new player and return it
+
+        // Create BrainPlayer
+        // Push to brain player array
+        // Set gameMode
+        // Assign admin if relevent
+
+        // Send welcome packet
+
+        // Create world if needed
+        // Send world to player
+
+        // Return player
+    }
+
     createNewWorld = ( size, pattern = 'basic' ) => {
         // Create new world object
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})

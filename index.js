@@ -74,6 +74,9 @@ io.sockets.on('connection', (socket) => {
     io.sockets.SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)
 
+    ////////////////////////////////////////
+    // Move this to brain and use for single-player games too
+    ////////////////////////////////////////////////////////////////////////////////
     // Create new player
     // gameServer.brain.players.push(socket.ID)
     const myServerPlayer = new BrainPlayer(socket.ID)
@@ -91,12 +94,23 @@ io.sockets.on('connection', (socket) => {
     // Tell the new client what their ID is
     socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
 
+    // Generate a new world
+    // If a world doesn't already exist...
+    if (!gameServer.brain.world) {
+        // gameServer.brain.createNewWorld(defaultWorldSize)
+    }
+
     // Send the world to this player, if the world exists
     if (gameServer.brain.world) {
         const data = { world: gameServer.brain.world } 
         socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
     }
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////
 
+    ////////////////////////////////////////
+    // Message Handlers
+    ////////////////////////////////////////
     // Handle all generic messages
     socket.on( 'genericClientMessage', ( data ) => {
         const playerID = socket.ID // This does not support multiple players per client in networked games
@@ -130,14 +144,12 @@ io.sockets.on('connection', (socket) => {
 
 // listen for socket requests
 serv.listen(PORT, () => {
-    console.log(`Server listening for connections on port ${PORT}`)
+    console.log(`Now listening for connections on port ${PORT}`)
 })
 
 ///////////////////////////////////////
 // Server started
 ///////////////////////////////////////
-console.log(
-    `Web server has started!`,
-    `This is NOT the game server`,
-    `Link to game: http://localhost:${PORT}/index.html`
-)
+console.log('\x1b[32m%s\x1b[0m', `Server has started!`)
+console.log('\x1b[34m%s\x1b[0m',`Link to game: http://localhost:${PORT}/index.html`)
+console.log('\x1b[34m%s\x1b[0m',`Link to editor: http://localhost:${PORT}/tools/worldTool/index.html`)
