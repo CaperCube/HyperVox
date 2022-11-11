@@ -23,6 +23,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+import { defaultWorldSize } from './game/public/common/commonConstants.js'
 import { BrainPlayer } from './game/public/brain/brainGame.js'
 import GameServer from './game/server/gameServer.js'
 import { Server } from 'socket.io'

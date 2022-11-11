@@ -1,6 +1,6 @@
 import { getArrayPos } from "../../../common/positionUtils.js"
 
-//import { defaultChunkSize, defaultWorldSize } from '../../../client/js/clientConstants.js'
+// import { defaultChunkSize, defaultWorldSize } from '../../../common/commonConstants.js'
 class World {
     // Remove tileScale (this probably shouldn't be so easy to change)
     constructor({worldSeed, tileScale = 1, chunkSize = 8, worldSize = 4} = {}) {

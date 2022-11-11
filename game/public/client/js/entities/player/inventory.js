@@ -6,7 +6,7 @@
 
 import { blockTypes } from "../../../../common/blockSystem.js"
 import { boxIsIntersecting } from "../../../../common/positionUtils.js"
-import { tileScale } from "../../clientConstants.js"
+import { tileScale } from "../../../../common/commonConstants.js"
 import { sounds } from "../../resources.js"
 
 export class ItemPickup {

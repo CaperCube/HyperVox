@@ -11,11 +11,6 @@ const debug = {
     consoleLogs: true
 }
 
-// Consider including chunk scale in here as well
-const tileScale = 1 // Do not change this
-const defaultChunkSize = 8
-const defaultWorldSize = 10
-
 const fogDistance = 1000
 const renderScale = 1
 
@@ -28,9 +23,6 @@ const lsKeys = {
 
 export {
     debug,
-    tileScale,
-    defaultChunkSize,
-    defaultWorldSize,
     fogDistance,
     renderScale,
     chatMessageTime,

@@ -1,5 +1,5 @@
 import '../dist/babylon.js'
-import { tileScale } from '../clientConstants.js'
+import { tileScale } from '../../../common/commonConstants.js'
 import { blockTypes, blockCats, getBlocksByCat } from '../../../common/blockSystem.js'
 
 class MeshGenerator {

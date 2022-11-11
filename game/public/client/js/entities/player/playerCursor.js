@@ -1,4 +1,4 @@
-import { tileScale } from '../../clientConstants.js'
+import { tileScale } from '../../../../common/commonConstants.js'
 import { getArrayPos } from '../../../../common/positionUtils.js'
 
 export function updatePlayerCursor(player) {

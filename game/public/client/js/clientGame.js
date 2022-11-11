@@ -2,8 +2,8 @@
 import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, fogDistance, renderScale, chatMessageTime, lsKeys } from './clientConstants.js'
-import { getRandomName } from '../../common/commonConstants.js'
+import { fogDistance, renderScale, chatMessageTime, lsKeys } from './clientConstants.js'
+import { getRandomName, tileScale } from '../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import { clamp } from '../../common/dataUtils.js'
 import ClientPlayer from './entities/player.js'
@@ -257,7 +257,7 @@ class ClientGame {
             for (let z = camLowerZ; z < camUpperZ; z++) {
                 // Queue the chunk
                 const chunkLocation = { x: x, y: y, z: z }
-                this.queueChunkMeshGen(this.clientWorld.worldChunks, chunkLocation)
+                this.queueChunkMeshGen(chunkLocation)
             }}}
 
             //////////////////////////////////
@@ -284,7 +284,7 @@ class ClientGame {
     }
 
     // Tells the chunk worker to start generating a chunk
-    queueChunkMeshGen(world, chunkLocation, override = false) {
+    queueChunkMeshGen(chunkLocation, override = false) {
         // Check the chunk queue
         const chunkName = `chunk_${chunkLocation.x}-${chunkLocation.y}-${chunkLocation.z}`
 
@@ -355,7 +355,7 @@ class ClientGame {
         const camLocation = getArrayPos(camPos, cSize)
 
         // Start generating chunk meshes
-        if (this.isChunkInRange(camLocation, location.chunk, this.settings.chunkDist)) this.queueChunkMeshGen(this.clientWorld.worldChunks, location.chunk, true)
+        if (this.isChunkInRange(camLocation, location.chunk, this.settings.chunkDist)) this.queueChunkMeshGen(location.chunk, true)
 
         // Update neighboring chunks if needed
         const xIsAtChunkFarEdge = (location.block.x === cSize-1)

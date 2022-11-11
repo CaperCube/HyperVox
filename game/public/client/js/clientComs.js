@@ -7,7 +7,7 @@
 // through here first to get to the client
 ////////////////////////////////////////////////////
 
-import { defaultWorldSize } from "./clientConstants.js"
+import { defaultWorldSize } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
 import { UpdateLobbyPlayerData, CreateLobbyPlayerList, ClearLobbyContent } from "./lobbyUtil.js"

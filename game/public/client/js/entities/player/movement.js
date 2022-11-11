@@ -1,4 +1,4 @@
-import { tileScale } from '../../clientConstants.js'
+import { tileScale } from '../../../../common/commonConstants.js'
 import { getArrayPos, boxIsIntersecting } from '../../../../common/positionUtils.js'
 import { blockCats, blockTypes } from '../../../../common/blockSystem.js'
 

@@ -1,7 +1,7 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
-import { tileScale, defaultChunkSize, defaultWorldSize } from '../client/js/clientConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize } from '../common/commonConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"

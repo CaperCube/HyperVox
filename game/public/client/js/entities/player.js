@@ -1,4 +1,5 @@
-import { debug, tileScale, defaultChunkSize } from '../clientConstants.js'
+import { debug } from '../clientConstants.js'
+import { tileScale, defaultChunkSize } from '../../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
