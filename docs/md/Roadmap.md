@@ -29,11 +29,11 @@ The format for version number is as follows:
             - [ ] Blacklist / Whitelist
         - [ ] Appropriately license this repo
         - [ ] Rent an actual public & private server for the game
-        - [ ] Setup a home page for the game with relevant links
-            - [ ] Repo
-            - [ ] Game (Newgrounds link)
-            - [ ] How to play
-            - [ ] How to host
+        - [X] Setup a home page for the game with relevant links
+            - [X] Repo
+            - [X] Game (Newgrounds link?)
+            - [X] How to play
+            - [X] How to host
             - [ ] User submissions?
 - Singleplayer, coop, and progression features
     - [ ] Task 6 (Tools to help in making items, structures, npcs?, etc.) (And to encourage modding)

@@ -12,6 +12,8 @@ The below tasks may need to be spread across future task to prevent a progress h
     - Remove double-sided faces and generate meshes as real quads with UV coordinates
 
 # Sub-Tasks
+- [ ] World improvements
+    - [ ] Render chunk view for visual debugging (draw multi-segment lines)
 - [ ] Better input system
     - Look into [Babylon.js's input system](https://doc.babylonjs.com/divingDeeper/input)
     - [ ] All inupt devices should be configured to the `Controls` array

@@ -44,9 +44,8 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [X] **Add interactable world chain block**
         - [X] Option to generate new world
         - [X] Option to load existing world via world name (grabs from server / local folder)
-- [ ] Better chunking
+- [X] Better chunking
     - [X] Render meshes base on distance from main camera
-    - [ ] Render chunk view for visual debugging (draw multi-segment lines)
 - [ ] Skybox editor
 - [ ] More work on Noise Tool (Rename to World Tool)
     - [ ] Allow users to customize noise patterns
