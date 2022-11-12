@@ -57,7 +57,7 @@ const getPlayers = (arg, brainGame, playerID = null) => {
         else if (arg === "@r") players[0] = randomArray(brainGame.players)
 
         // Check for name
-        else players[0] = brainGame.players.filter(p => p.playerName === arg)[0]
+        else players = brainGame.players.filter(p => p.playerName === arg)
     }
     // Else get chat player
     else {
@@ -138,20 +138,27 @@ const chatCommands = {
     changeName: {
         commands: ["changename", "cname"],
         admin: false,
-        description: `Changes the name of the target player. (Example: ${commandOptions.delimiter}changename <new name>)`,
+        description: `Changes the name of the target player. (Example: ${commandOptions.delimiter}changename <new name> <player name (optional)>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            // Change name
-            const player = brainGame.players.filter(p => p.playerID === playerID)[0]
-            if (player) {
-                // Get user's desired name
-                let newName = args[0] || ''
-                for (let i = 1; i < args.length; i++) newName += ` ${args[i]}`
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[1], brainGame, playerID)
+            const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
 
-                // Tell brain to change the name
-                brainGame.changePlayerName(player, newName)
-            }
-            else {
-                sendMessage(`No player found.`, true)
+            for (let i = 0; i < players.length; i++) {
+                if (isAdmin || players[i] === thisPlayer) {
+                    // Change name
+                    if (players[i]) {
+                        // Tell brain to change the name
+                        brainGame.changePlayerName(players[i], args[0])
+                    }
+                    else {
+                        sendMessage(`No player found.`, true)
+                    }
+                }
+                else {
+                    sendMessage(`Only admins can change other player's names.`, true)
+                }
             }
         }
     },
@@ -345,19 +352,6 @@ const chatCommands = {
             sendMessage(`The current admins are: ${adminsString}`, true)                                   
         }
     },
-
-    //
-    // Server commands
-    //
-    endRace: {
-        commands: ["endrace"],
-        admin: false,
-        description: `Ends the current race for you only.`,
-        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            //...
-            sendMessage(`Sadly, this does not work yet :(`, true)
-        }
-    },
     changeGameMode: {
         commands: ["gamemode", "gm"],
         admin: true,
@@ -391,6 +385,19 @@ const chatCommands = {
                     if (!found) sendMessage(`That is not a valid game mode`, true)
                 }
             }
+        }
+    },
+
+    //
+    // Server commands
+    //
+    endRace: {
+        commands: ["endrace"],
+        admin: false,
+        description: `Ends the current race for you only.`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            //...
+            sendMessage(`Sadly, this does not work yet :(`, true)
         }
     },
     changeServerGameMode: {
@@ -433,38 +440,6 @@ const chatCommands = {
             else {
                 // Send message
                 sendMessage(`You must type a value. Try something like: "${commandOptions.delimiter}tickrate 30"`, true)
-            }
-        }
-    },
-    generateNewWorld: {
-        commands: ["genworld"],
-        admin: true,
-        description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld 8 lavaPlanet")`,
-        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (args[0]) {
-                // Set generator props
-                const newSize = (args[0])? parseFloat(args[0]) : 4
-                const newPattern = (args[1])? args[1] : 'basic'
-                // Create new world
-                brainGame.createNewWorld( newSize, newPattern )
-                // Send message
-                sendMessage(`New ${newSize} sized world generated.`)
-            }
-        }
-    },
-    loadWorldUrl: {
-        commands: ["loadworld"],
-        admin: true,
-        description: `Loads a world from a URL (Example: "${commandOptions.delimiter}loadworld www.capercore.com/world.json")`,
-        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (args[0]) {
-                // Load world
-                brainGame.loadWorldFromURL( args[0], sendMessage )
-                // Send message
-                // sendMessage(`${message}`)
-            }
-            else {
-                sendMessage(`You must provide a world name.`, true)
             }
         }
     },
@@ -561,6 +536,38 @@ const chatCommands = {
                     sendMessage(`Saving on client`)
                 }
             }, newName)
+        }
+    },
+    generateNewWorld: {
+        commands: ["genworld"],
+        admin: true,
+        description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld 8 lavaPlanet")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set generator props
+                const newSize = (args[0])? parseFloat(args[0]) : 4
+                const newPattern = (args[1])? args[1] : 'basic'
+                // Create new world
+                brainGame.createNewWorld( newSize, newPattern )
+                // Send message
+                sendMessage(`New ${newSize} sized world generated.`)
+            }
+        }
+    },
+    loadWorldUrl: {
+        commands: ["loadworld"],
+        admin: true,
+        description: `Loads a world from a URL (Example: "${commandOptions.delimiter}loadworld www.capercore.com/world.json")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Load world
+                brainGame.loadWorldFromURL( args[0], sendMessage )
+                // Send message
+                // sendMessage(`${message}`)
+            }
+            else {
+                sendMessage(`You must provide a world name.`, true)
+            }
         }
     },
     setBlock: {
