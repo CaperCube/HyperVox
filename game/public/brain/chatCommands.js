@@ -47,6 +47,10 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
     return commandFound
 }
 
+const chatEmphasis = (text) => {
+    return `<span style="color: white;">${text}</span>`
+}
+
 const getPlayers = (arg, brainGame, playerID = null) => {
     let players = []
 
@@ -127,7 +131,7 @@ const chatCommands = {
             // Show position
             const player = brainGame.players.filter(p => p.playerID === playerID)[0]
             if (player) {
-                let mes = `${player.playerName}: X: ${player.position.x} | Y: ${player.position.y} | Z: ${player.position.z}`
+                let mes = `${chatEmphasis(player.playerName)}: X: ${player.position.x} | Y: ${player.position.y} | Z: ${player.position.z}`
                 sendMessage(mes)
             }
             else {
@@ -138,7 +142,7 @@ const chatCommands = {
     changeName: {
         commands: ["changename", "cname"],
         admin: false,
-        description: `Changes the name of the target player. (Example: ${commandOptions.delimiter}changename <new name> <player name (optional)>)`,
+        description: `Changes the name of the target player. Names must be alphanumeric with no spaces. (Example: ${commandOptions.delimiter}changename <new name> <player name (optional)>)`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -153,7 +157,7 @@ const chatCommands = {
                         brainGame.changePlayerName(players[i], args[0])
                     }
                     else {
-                        sendMessage(`No player found.`, true)
+                        sendMessage(`No player found. Name must have no spaces.`, true)
                     }
                 }
                 else {
@@ -183,7 +187,7 @@ const chatCommands = {
                     myPlayer.isAdmin = true
                     console.log(`${myPlayer.playerName} has logged in as an admin.`)
                     // Send message
-                    sendMessage(`${myPlayer.playerName} is now an admin`)
+                    sendMessage(`${chatEmphasis(myPlayer.playerName)} is now an admin`)
                 }
                 else sendMessage(`Wrong password`, true)
             }
@@ -224,7 +228,7 @@ const chatCommands = {
                     players[i].position = position
 
                     // Send message
-                    sendMessage(`${players[i].playerName} teleported to X: ${position.x} | Y: ${position.y} | Z: ${position.z}`)
+                    sendMessage(`${chatEmphasis(players[i].playerName)} teleported to X: ${position.x} | Y: ${position.y} | Z: ${position.z}`)
                 }
                 else {
                     sendMessage(`Can't find player.`, true)
@@ -271,7 +275,7 @@ const chatCommands = {
                         if (player) {
                             // Disconnect this player
                             player.disconnect()
-                            sendMessage(`${playerName} has been kicked from the game.`, true)
+                            sendMessage(`${chatEmphasis(playerName)} has been kicked from the game.`, true)
                         }
                         else {
                             sendMessage(`Can't find player named ${args[0]}.`, true)
@@ -299,10 +303,10 @@ const chatCommands = {
                         // Set admin
                         players[i].isAdmin = true
                         // Send message
-                        sendMessage(`${players[i].playerName} is now an admin`)
+                        sendMessage(`${chatEmphasis(players[i].playerName)} is now an admin`)
                     }
                     else {
-                        sendMessage(`${players[i].playerName} is already an admin`, true)
+                        sendMessage(`${chatEmphasis(players[i].playerName)} is already an admin`, true)
                     }                              
                 }
             }
@@ -324,10 +328,10 @@ const chatCommands = {
                         // Set admin
                         players[i].isAdmin = false
                         // Send message
-                        sendMessage(`${players[i].playerName} is no longer admin`)
+                        sendMessage(`${chatEmphasis(players[i].playerName)} is no longer admin`)
                     }
                     else {
-                        sendMessage(`${players[i].playerName} is already a commoner`, true)
+                        sendMessage(`${chatEmphasis(players[i].playerName)} is already a commoner`, true)
                     }                              
                 }
             }
@@ -344,7 +348,7 @@ const chatCommands = {
             const adminList = brainGame.players.filter( p => p.isAdmin)
             let adminsString = ''
             for (let i = 0; i < adminList.length; i++) {
-                adminsString += `${adminList[i].playerName}`
+                adminsString += `${chatEmphasis(adminList[i].playerName)}`
                 if (i === adminList.length-2) adminsString += ', and '
                 else if (i < adminList.length-2) adminsString += ', '
             }
@@ -374,7 +378,7 @@ const chatCommands = {
                             // Set game mode
                             players[i].gameMode = gm
                             // Send message
-                            sendMessage(`${players[i]?.playerName}'s game mode has changed to ${gm}`)
+                            sendMessage(`${chatEmphasis(players[i]?.playerName)}'s game mode has changed to ${chatEmphasis(gm)}`)
                             // end function here
                             found = true
                             return
@@ -413,7 +417,7 @@ const chatCommands = {
                     // Set all player's game modes to server game mode
                     for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
                     // Send message
-                    sendMessage(`The server game mode has changed to ${gm}`)
+                    sendMessage(`The server game mode has changed to ${chatEmphasis(gm)}`)
 
                     // end function here
                     found = true
@@ -435,7 +439,7 @@ const chatCommands = {
                 const newRate = parseFloat(args[0])
                 brainGame.changeGameLoopSpeed(newRate)
                 // Send message
-                sendMessage(`Server tick rate set to ${newRate}ms`)
+                sendMessage(`Server tick rate set to ${chatEmphasis(newRate)}ms`)
             }
             else {
                 // Send message
@@ -453,7 +457,7 @@ const chatCommands = {
                 const newScore = parseFloat(args[0])
                 brainGame.gameOptions.scoreLimit = newScore
                 // Send message
-                sendMessage(`The score limit has been changed to ${newScore}.`)
+                sendMessage(`The score limit has been changed to ${chatEmphasis(newScore)}.`)
             }
         }
     },
@@ -478,7 +482,7 @@ const chatCommands = {
                 const newVal = parseInt(args[0])
                 brainGame.gameOptions.commandBlockTriggerTime = newVal
                 // Send message
-                sendMessage(`The command trigger time has been changed to ${newVal}.`)
+                sendMessage(`The command trigger time has been changed to ${chatEmphasis(newVal)}.`)
             }
         }
     },
@@ -519,7 +523,7 @@ const chatCommands = {
     saveWorld: {
         commands: ["saveworld"],
         admin: true,
-        description: `Saves the current world on the server.`,
+        description: `Saves the current world on the server. (Example: "${commandOptions.delimiter}saveworld <world name>")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Get world name
             let newName = args[0] || ''

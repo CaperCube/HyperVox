@@ -4,7 +4,7 @@
 // Example: Blocks can exist in the form they do now, but the player should pick-up / place and Item()
 ////////////////////////////////////////////////////
 
-import { blockTypes } from "../../../../common/blockSystem.js"
+import { blockTypes, blockCats } from "../../../../common/blockSystem.js"
 import { boxIsIntersecting } from "../../../../common/positionUtils.js"
 import { tileScale } from "../../../../common/commonConstants.js"
 import { sounds } from "../../resources.js"
@@ -187,7 +187,7 @@ export const makeCreativeInventory = (hud = null) => {
     // Fill inv
     for (let i = 1; i < blockTypes.length; i++) {
         const b = blockTypes[i]
-        // if (b.categories.includes('green')) {
+        if (!b.categories.includes(blockCats.zone)) {
             const newItem = new Item({
                 itemName: b.name,
                 itemID: i,
@@ -198,7 +198,7 @@ export const makeCreativeInventory = (hud = null) => {
 
             // Add item to inv
             cInv.items.push(newItem)
-        // }
+        }
     }
 
     // Set length

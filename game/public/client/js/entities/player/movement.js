@@ -94,11 +94,10 @@ export function basicMovement(engine, player, movementVector) {
     // World bounds
     ///////////////////////////////////////////////////////
 
-    // Y Bound (Floor)
-    if (((player.position.y)) < 1) {
-        allowGrav = false
-        bounceY(player)
-        player.position.y = 1
+    // Y Bound (Kill Floor)
+    if (((player.position.y)) < -100) {
+        // Kill player
+        player.clientGame.clientComs.sendObituary(player.playerID, null)
     }
     else if (!player.spectateMode && allowGrav) {
         // Apply gravity

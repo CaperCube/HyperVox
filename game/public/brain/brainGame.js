@@ -6,7 +6,7 @@ import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
-import { gameModes, formatPlayerName } from '../common/commonConstants.js'
+import { gameModes, formatPlayerName, getRandomName } from '../common/commonConstants.js'
 import { checkForCommand } from "./chatCommands.js"
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
@@ -144,7 +144,7 @@ class BrainGame {
 
     saveWorld = (callback, wName) => {
         // Create a name for the file
-        let worldName = wName || 'server_world'
+        let worldName = wName || 'new_world'
 
         // Check if networked game
         if (this.brainComs.isNetworked) {
@@ -173,6 +173,7 @@ class BrainGame {
             } else {
                 if (!startedLoading) {
                     if (data) {
+                        // console.log(data)
                         startedLoading = true
                         this.loadWorld( JSON.parse(data) )
                     }
@@ -376,6 +377,7 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     changePlayerName = (player, newName, isQuiet = false) => {
         // Format player name
+        if (newName === "@r") newName = getRandomName()
         newName = formatPlayerName(newName)
 
         if (newName) {
@@ -391,7 +393,7 @@ class BrainGame {
             this.brainComs.sayWhosConnected()
 
             // Send message
-            this.sendChatMessage(`${oldName} changed their name to ${player.playerName}`)
+            this.sendChatMessage(`<span style="color: white;">${oldName}</span>'s has been renamed to <span style="color: white;">${player.playerName}</span>`)
         }
         else {
             // If name is invalid, tell the authoring player
@@ -520,57 +522,23 @@ class BrainGame {
     }
 }
 
-// ToDo: refactor this to get from local folder
 const getJSON = function(worldName, callback) {
-    if (typeof(XMLHttpRequest) == "undefined") {
-        const url = `/worlds/${worldName}.json`
+    if (typeof(FileSystem) == "undefined") {
+        const path = `./game/public/worlds/${worldName}.json`
 
-        import('http').then((pkg) => {
-            const httpPkg = pkg.default
+        import('fs').then((pkg) => {
+            const fs = pkg.default
 
-            // Request options
-            var options = {
-                hostname: 'localhost',
-                port: '3000',
-                path: url,
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            }
-
-            // Create request
-            let req = httpPkg.request(options, function(res) {
-                res.setEncoding('utf8')
-                let data = ''
-                res.on('data', (chunk) => {
-                    // Get data chunks
-                    data += chunk
-                })
-                res.on('end', () => {
-                    // Finished!
+            // Try to get file
+            fs.readFile(path, {encoding: 'utf-8'}, (err,data)=> {
+                if (!err) {
                     callback(null, data)
-                })
+                }
+                else {
+                    callback(`Cannot find file "./world/${worldName}.json"`)
+                }
             })
-            req.on('error', (e) => {
-                // Failed request
-                callback(e.message, null)
-            })
-            req.end()
         })
-    } else {
-        const url = `./worlds/${worldName}.json`
-
-        let xhr = new XMLHttpRequest()
-        xhr.open('GET', url, true)
-        xhr.responseType = 'json'
-        xhr.onload = function() {
-            let status = xhr.status
-        if (status === 200) {
-            callback(null, xhr.response)
-        } else {
-            callback(status, xhr.response)
-        }
-        }
-        xhr.send()
     }
 }
 

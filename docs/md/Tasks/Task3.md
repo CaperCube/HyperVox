@@ -38,7 +38,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [X] **Block to send chats as player**
     - [ ] **Add Zones (perform check on server)**
         - [ ] **Trigger zone (code and/or sound or resource link sound)**
-            - Probably just a chat message trigger zone
+            - Probably just use a chat message for trigger zone
             - Can change game mode if using chat messages
     - [X] **Chain worlds**
         - [X] **Add interactable world chain block**

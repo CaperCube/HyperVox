@@ -272,7 +272,7 @@ const blockTypes = [
     // 0x0020
     {
         name: 'death',
-        categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent],
+        categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent, blockCats.zone],
         // textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         damage: 1000
@@ -344,6 +344,13 @@ const blockTypes = [
         categories: [blockCats.color.red, blockCats.color.black, blockCats.color.grey, blockCats.damaging],
         textures: { top: 29, bottom: 29, front: 29, back: 29, left: 29, right: 29 },
         damage: 1000
+    },
+    // 0x002b
+    {
+        name: 'boundary-block',
+        categories: [blockCats.color.blue, blockCats.transparent, blockCats.zone],
+        // textures: { top: 256, bottom: 256, front: 256, back: 256, left: 256, right: 256 },
+        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 }
     },
 ]
 
