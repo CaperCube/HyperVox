@@ -454,7 +454,6 @@ class ClientPlayer {
         const blockLocation = getGlobalPos(block, cSize)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
-        // ToDo: This should be a request sent to the brain (in the case of command blocks, the server can then exicute them without the need for player permissions)
         // Call block's interaction function
         if (typeof blockTypes[blockID]?.interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
     }
