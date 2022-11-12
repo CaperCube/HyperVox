@@ -559,6 +559,10 @@ const chatCommands = {
         admin: true,
         description: `Loads a world from a URL (Example: "${commandOptions.delimiter}loadworld www.capercore.com/world.json")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (!brainGame.brainComs.isNetworked) {
+                sendMessage(`This feature is disabled for singleplayer games until we fix it.`, true)
+                return
+            }
             if (args[0]) {
                 // Load world
                 brainGame.loadWorldFromURL( args[0], sendMessage )

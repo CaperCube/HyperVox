@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 3000
 // const io = require('socket.io')(serv,{});
 const io = new Server(serv, {
     // ToDo: try to leave this at default and adjust the networking logic to send large messages in small chunks
-    maxHttpBufferSize: 1e10,
+    // maxHttpBufferSize: 1e10,
     cors: {
         origin: `*`,
         methods: ["GET", "POST"],
@@ -75,39 +75,9 @@ io.sockets.on('connection', (socket) => {
     console.log(`Welcome, ${socket.ID}`)
 
     ////////////////////////////////////////
-    // Move this to brain and use for single-player games too
-    ////////////////////////////////////////////////////////////////////////////////
     // Create new player
-    // gameServer.brain.players.push(socket.ID)
-    const myServerPlayer = gameServer.brain.addNewPlayer(socket.ID, socket)
-    // const myServerPlayer = new BrainPlayer(socket.ID)
-    // myServerPlayer.gameMode = gameServer.brain.gameOptions.gameMode
-
-    // // Add player to brain
-    // const isFirstPlayer = (gameServer.brain.players.length === 0)
-    // gameServer.brain.players.push(myServerPlayer)
-
-    // // Assign admin role
-    // if (gameServer.brain.gameOptions.adminAlwaysExists) {
-    //     if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
-    // }
-
-    // // Tell the new client what their ID is
-    // socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
-
-    // // Generate a new world
-    // // If a world doesn't already exist...
-    // if (!gameServer.brain.world) {
-    //     // gameServer.brain.createNewWorld(defaultWorldSize)
-    // }
-
-    // // Send the world to this player, if the world exists
-    // if (gameServer.brain.world) {
-    //     const data = { world: gameServer.brain.world } 
-    //     socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
-    // }
-    ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////
+    const myServerPlayer = gameServer.brain.addNewPlayer(socket.ID, socket)
 
     ////////////////////////////////////////
     // Message Handlers
