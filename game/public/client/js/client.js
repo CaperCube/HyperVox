@@ -18,7 +18,15 @@ Buttons.escape.onPress = () => { quitFullscreen() }
 const createWorldWithSize = (size) => {
     clientGame.menu.hide()
     if ($('#loading-basic')) $('#loading-basic').style.display = 'inline-block' // ToDo: replace this with a more robust loading indicator
-    setTimeout(() => { clientGame.clientComs.createNewWorld(size) }, 100)
+    setTimeout(() => { 
+        // clientGame.clientComs.createNewWorld(size)
+        if (clientGame._brain) {
+            clientGame._brain.addNewPlayer(0)
+            clientGame._brain.createNewWorld(size)
+            // brain.addNewPlayer(socket.ID, socket)
+            // this.createNewWorld(defaultWorldSize)
+        }
+    }, 100)
 }
 
 // Load world from file
@@ -42,8 +50,12 @@ function browseForWorldFile() {
         console.log(obj)
 
         // Send client message to brain to create a new world from json
-        clientGame.clientComs.loadWorld(obj)
-        clientGame.menu.hide()
+        if (clientGame._brain) {
+            // clientGame.clientComs.loadWorld(obj)
+            clientGame._brain.addNewPlayer(0)
+            clientGame._brain.loadWorld(obj)
+            clientGame.menu.hide()
+        }
     }
  
     fileBrowser.addEventListener('change', onChange)
@@ -82,7 +94,7 @@ clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorld
 // Pause menu
 clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { clientGame.saveWorld('world.json') }
 clientGame.menu.pauseMenu.selectableElements[2].pressButton = () => { clientGame.goOffline() }
-clientGame.menu.pauseMenu.selectableElements[5].pressButton = () => { clientGame.exportWorldMesh() }
+clientGame.menu.pauseMenu.selectableElements[4].pressButton = () => { clientGame.exportWorldMesh() }
 
 clientGame.menu.pauseMenu.selectableElements[0].pressButton = () => {
     clientGame.menu.hide()

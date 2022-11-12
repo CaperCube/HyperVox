@@ -64,20 +64,47 @@ class BrainGame {
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
-    addNewPlayer = () => { // ToDo: Move the player connected code from index.js to here
-        // Create a new player and return it
-
+    addNewPlayer = (newPlayerID, socket = null) => {
         // Create BrainPlayer
-        // Push to brain player array
+        const myBrainPlayer = new BrainPlayer(newPlayerID)
+
         // Set gameMode
+        myBrainPlayer.gameMode = this.gameOptions.gameMode
         // Assign admin if relevent
+        const isFirstPlayer = (this.players.length === 0)
+        if (this.gameOptions.adminAlwaysExists) {
+            if (isFirstPlayer) this.setAdmin(myBrainPlayer.playerID, true)
+        }
+
+        // Push to brain player array
+        this.players.push(myBrainPlayer)
 
         // Send welcome packet
+        const welcomData = {clientID: newPlayerID, playerName: myBrainPlayer.playerName}
+        if (this.brainComs.isNetworked) {
+            socket.emit( 'genericClientMessage', { type: 'welcomePacket', recipients: 'all', args: welcomData } )
+        }
+        else {
+            this.brainComs.genericToClient('welcomePacket', welcomData)
+        }
 
-        // Create world if needed
-        // Send world to player
+        // Generate a new world
+        if (!this.world) {
+            this.createNewWorld(defaultWorldSize)
+        }
+        // Send the world, if the world exists
+        else {
+            const data = { world: this.world }
+            if (this.brainComs.isNetworked) {
+                socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
+            }
+            else {
+                this.brainComs.genericToClient('loadSentWorld', data)
+            }
+        }
 
         // Return player
+        return myBrainPlayer
     }
 
     createNewWorld = ( size, pattern = 'basic' ) => {
@@ -493,9 +520,11 @@ class BrainGame {
     }
 }
 
-// ToDo: refactor this to allow different world sources (or to get from server)
+// ToDo: refactor this to get from local folder
 const getJSON = function(worldName, callback) {
     if (typeof(XMLHttpRequest) == "undefined") {
+        const url = `/worlds/${worldName}.json`
+
         import('http').then((pkg) => {
             const httpPkg = pkg.default
 
@@ -503,7 +532,7 @@ const getJSON = function(worldName, callback) {
             var options = {
                 hostname: 'localhost',
                 port: '3000',
-                path: `/worlds/${worldName}.json`,
+                path: url,
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             }
@@ -528,6 +557,8 @@ const getJSON = function(worldName, callback) {
             req.end()
         })
     } else {
+        const url = `./worlds/${worldName}.json`
+
         let xhr = new XMLHttpRequest()
         xhr.open('GET', url, true)
         xhr.responseType = 'json'

@@ -7,6 +7,7 @@
 // through here first to get to the client
 ////////////////////////////////////////////////////
 
+import { getGlobalPos } from '../../common/positionUtils.js'
 import { defaultWorldSize } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
@@ -47,6 +48,17 @@ class ClientComs {
         this.brainMessages = {
             testMessage: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Test message (client)', 'background: #142; color: #ced' )
+            },
+
+            welcomePacket: ( data, playerId ) => {
+                // if (this.messageDebug)
+                console.log( '%c Welcome new player! (client)', 'background: #142; color: #ced' )
+                // console.log(data)
+
+                // Set the client data that will be use when making a local player
+                this.clientGame.clientID = data.clientID
+                this.clientGame.clientName = data.playerName
+                console.log(this.clientGame.clientID, this.clientGame.clientName)
             },
 
             updateSingleBlock: ( data, playerId ) => {
@@ -96,6 +108,13 @@ class ClientComs {
                             this.clientGame.networkPlayers[p] = newPlayer
                         }
                     }
+                    // // This IS my local player...
+                    // else {
+                    //     // If I don't already exist...
+                    //     if (!this.clientGame.localPlayer) {
+                    //         //...
+                    //     }
+                    // }
                 }
 
                 // Remove non-existent players

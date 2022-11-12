@@ -79,32 +79,33 @@ io.sockets.on('connection', (socket) => {
     ////////////////////////////////////////////////////////////////////////////////
     // Create new player
     // gameServer.brain.players.push(socket.ID)
-    const myServerPlayer = new BrainPlayer(socket.ID)
-    myServerPlayer.gameMode = gameServer.brain.gameOptions.gameMode
+    const myServerPlayer = gameServer.brain.addNewPlayer(socket.ID, socket)
+    // const myServerPlayer = new BrainPlayer(socket.ID)
+    // myServerPlayer.gameMode = gameServer.brain.gameOptions.gameMode
 
-    // Add player to brain
-    const isFirstPlayer = (gameServer.brain.players.length === 0)
-    gameServer.brain.players.push(myServerPlayer)
+    // // Add player to brain
+    // const isFirstPlayer = (gameServer.brain.players.length === 0)
+    // gameServer.brain.players.push(myServerPlayer)
 
-    // Assign admin role
-    if (gameServer.brain.gameOptions.adminAlwaysExists) {
-        if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
-    }
+    // // Assign admin role
+    // if (gameServer.brain.gameOptions.adminAlwaysExists) {
+    //     if (isFirstPlayer) gameServer.brain.setAdmin(myServerPlayer.playerID, true)
+    // }
 
-    // Tell the new client what their ID is
-    socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
+    // // Tell the new client what their ID is
+    // socket.emit(`welcomePacket`, {clientID: socket.ID, playerName: myServerPlayer.playerName})
 
-    // Generate a new world
-    // If a world doesn't already exist...
-    if (!gameServer.brain.world) {
-        // gameServer.brain.createNewWorld(defaultWorldSize)
-    }
+    // // Generate a new world
+    // // If a world doesn't already exist...
+    // if (!gameServer.brain.world) {
+    //     // gameServer.brain.createNewWorld(defaultWorldSize)
+    // }
 
-    // Send the world to this player, if the world exists
-    if (gameServer.brain.world) {
-        const data = { world: gameServer.brain.world } 
-        socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
-    }
+    // // Send the world to this player, if the world exists
+    // if (gameServer.brain.world) {
+    //     const data = { world: gameServer.brain.world } 
+    //     socket.emit( 'genericClientMessage', { type: 'loadSentWorld', recipients: 'all', args: data } )
+    // }
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////
 

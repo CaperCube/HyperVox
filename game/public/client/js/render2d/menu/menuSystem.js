@@ -242,20 +242,17 @@ class MenuSystem extends TileRenderer {
         pauseOptionsButton.pressButton = () => { this.setScene(this.pauseOptions) }
         
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
-        const pauseNewWorldButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonMid], text: 'New World'})
-        pauseNewWorldButton.pressButton = () => { this.setScene(this.pausePlayMenu) }
-        const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
+        const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
+        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*5.5}, tiles: [buttonMid], text: 'Leave Game'})
         
-        const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*6.5}, tiles: [buttonMid], text: 'Leave Game'})
-        
-        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseNewWorldButton, pauseOptionsButton, pauseExportButton])
+        this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseOptionsButton, pauseExportButton])
 
         /////////////////////////////////////////////////////////
         // Pause Play Menu
         /////////////////////////////////////////////////////////
-        const pausePlayBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
-        pausePlayBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
-        this.pausePlayMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, pausePlayBackButton])
+        // const pausePlayBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
+        // pausePlayBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
+        // this.pausePlayMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, pausePlayBackButton])
 
         /////////////////////////////////////////////////////////
         // Pause Options

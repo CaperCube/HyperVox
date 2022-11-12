@@ -38,12 +38,12 @@ class BrainComs {
         this.clientMessages = {
 
             // This is used for offline / non-networked games and should only be needed once per session
-            offlineConnect: ( data, playerID ) => {
+            offlineConnect: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log('%c Connected to clientComs (brain)', 'background: #142; color: #ced')
                 this.clientCom = data.clientCom
             },
 
-            clientJoin: ( data, playerID ) => {
+            clientJoin: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log( 'Client joined game (brain)', data )
                 // ToDo: check blacklist for this player & kick them
                 // Store the client's player(s)
@@ -52,12 +52,12 @@ class BrainComs {
             },
 
             // This will happen when the client joins the world
-            createNewWorld: ( data, playerID ) => {
+            createNewWorld: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log( '%c Create new world (brain)', 'background: #142; color: #ced' )
                 this.brainGame.createNewWorld(data.size)
             },
 
-            loadWorld: ( data, playerID ) => {
+            loadWorld: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log( '%c Load world (brain)', 'background: #142; color: #ced' )
                 
                 // ToDo: check if the player is an admin, then load
@@ -69,7 +69,7 @@ class BrainComs {
                 
             },
 
-            updateSingleBlock: ( data, playerID ) => {
+            updateSingleBlock: ( data, playerID = 0 ) => {
                 let allowChange = false
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 // Check if player is in creative mode (or if the brainGame is, if offline)
@@ -92,7 +92,7 @@ class BrainComs {
                 }
             },
 
-            movePlayer: ( data, playerID ) => {
+            movePlayer: ( data, playerID = 0 ) => {
                 // updatePlayerPosition
                 // if (this.messageDebug) console.log( `%c Move player ${playerId} (brain)`, 'background: #142; color: #ced', data )
                 //...
@@ -119,12 +119,12 @@ class BrainComs {
                 // The server automatically sends this data to clients with "brainGame.gameTick()"
             },
 
-            askWhosConnected: ( data, playerID ) => {
+            askWhosConnected: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log( `%c Ask who's connected ${playerID} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
             },
 
-            sendChatMessage: ( data, playerID ) => {
+            sendChatMessage: ( data, playerID = 0 ) => {
                 // Sanitize message
                 const noContent = data.message.trim().length === 0
                 let messageIsInvalid = noContent
@@ -166,7 +166,7 @@ class BrainComs {
                 }
             },
             
-            startRace: ( data, playerID ) => {
+            startRace: ( data, playerID = 0 ) => {
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer && myBrainPlayer.gameMode === gameModes.parkour) {
                     // Log time for player's start time
@@ -176,7 +176,7 @@ class BrainComs {
                 }
             },
 
-            endRace: ( data, playerID ) => {
+            endRace: ( data, playerID = 0 ) => {
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 if (myBrainPlayer && myBrainPlayer.gameMode === gameModes.parkour) {
                     if (!!myBrainPlayer.startTime) {
@@ -201,7 +201,7 @@ class BrainComs {
                 }
             },
 
-            runBlockCommand: ( data, playerID ) => {
+            runBlockCommand: ( data, playerID = 0 ) => {
                 // Limit how often command blocks can be run
                 if (this.brainGame.commandBlockCanBeRun) {
                     // disallow further use for a time
@@ -222,7 +222,7 @@ class BrainComs {
             },
 
             // A player requested to fire a gun
-            shootGun: ( data, playerID ) => {
+            shootGun: ( data, playerID = 0 ) => {
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
                 // Check if player is in deathMatch mode (or if the brainGame is, if offline)
                 let allowShot = false
@@ -278,7 +278,7 @@ class BrainComs {
             },
 
             // ToDo: this should be removed from here, because this should not be a client-authored event
-            applyObituary: ( data, playerID ) => {
+            applyObituary: ( data, playerID = 0 ) => {
                 //{ deadPlayerID: deadPlayerID, killerPlayerID: killerPlayerID }
                 const killerPlayer = this.brainGame.players.filter( p => p.playerID === data.killerPlayerID )[0]
                 const deadPlayer = this.brainGame.players.filter( p => p.playerID === data.deadPlayerID )[0]

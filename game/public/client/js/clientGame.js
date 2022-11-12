@@ -491,6 +491,7 @@ class ClientGame {
 
     // Sets up the scene in which the game can be rendered and interacted
     startNewGameScene() {
+        console.log('Creating new scene...')
         ////////////////////////////////////////////////////
         // Restart / Start Scene & UI
         ////////////////////////////////////////////////////
@@ -602,14 +603,13 @@ class ClientGame {
         this.localPlayer.position = worldSpawnPos
         this.localPlayer.setPlayerSpawn(worldSpawnPos)
         this.localPlayer.worldDefualtSpawn = worldSpawnPos
-        // console.log("creating player with ID: ", this.clientID)
-        // this.localPlayer.playerID = this.clientID // ToDo: make this support local players as well
 
         // Request other players
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
         if (this.clientComs.isNetworked) {
             // Ask who's here
-            this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
+            this.clientComs.genericToBrain('askWhosConnected', {})
+            // this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
 
             // Send chat that I've joined
             this.clientComs.sendChatMessage(`I have joined!`, this.localPlayer.playerName, this.localPlayer.playerColor)
@@ -654,21 +654,8 @@ class ClientGame {
             // Update frame
             this.frame++
 
-            // Tell the brain my position
-            // if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
-
             // Update materials
             if (this.scene.transparentMaterial) this.scene.transparentMaterial.alpha = (Math.sin(this.frame/30) * 0.2) + 0.4
-
-            // Update player (change this to loop through all local machine players, if we do that)
-            // if (this.localPlayer) this.localPlayer.movementUpdate(this.engine)
-
-            // Update network players
-            // for (let p in this.networkPlayers) {
-            //     if (this.networkPlayers[p]) {
-            //         this.networkPlayers[p].updatePosition()
-            //     }
-            // }
 
             // render scene
             this.scene.render()
@@ -677,11 +664,13 @@ class ClientGame {
         // Create an update loop (for client-side collision and movement updates)
         this.updateLoop = setInterval(()=>{
 
-            // Tell the brain my position
-            if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
-
             // Update player (change this to loop through all local machine players, if we do that)
-            if (this.localPlayer) this.localPlayer.movementUpdate(this.engine)
+            if (this.localPlayer) {
+                // Tell the brain my position
+                if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
+                // Update my position
+                this.localPlayer.movementUpdate(this.engine)
+            }
 
             // Update network players
             for (let p in this.networkPlayers) {
@@ -748,14 +737,14 @@ class ClientGame {
             })
 
             // Setup incomming message listeners
-            socket.on(`welcomePacket`, (data) => {
-                console.log(`Welcome new player!`)
-                console.log(data)
+            // socket.on(`welcomePacket`, (data) => {
+            //     console.log(`Welcome new player!`)
+            //     console.log(data)
 
-                this.clientID = data.clientID
-                this.clientName = data.playerName
-                console.log(data.playerName)
-            })
+            //     this.clientID = data.clientID
+            //     this.clientName = data.playerName
+            //     console.log(data.playerName)
+            // })
 
             socket.on( 'genericClientMessage', ( data ) => {
                 // Only listen for messages if they're for me
@@ -781,7 +770,10 @@ class ClientGame {
 
     // Go offline / Disconnect
     goOffline = () => {
+        // If online...
         if (this.clientComs.network) this.clientComs.network.disconnect()
+        // If offline...
+        else this._brain.stopGameLoop()
         this.clientComs.network = null // This might not strictly be necessary
 
         // Stop current scene
