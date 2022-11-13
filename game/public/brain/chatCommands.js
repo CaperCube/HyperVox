@@ -142,7 +142,7 @@ const chatCommands = {
     changeName: {
         commands: ["changename", "cname"],
         admin: false,
-        description: `Changes the name of the target player. Names must be alphanumeric with no spaces. (Example: ${commandOptions.delimiter}changename <new name> <player name (optional)>)`,
+        description: `Changes the name of the target player. Names must be alphanumeric with no spaces. You can also use "@r" as the new name to generate a random name. (Example: "${commandOptions.delimiter}changename [new name] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -169,7 +169,7 @@ const chatCommands = {
     adminLogin: {
         commands: ["adminlogin", "al"],
         admin: false,
-        description: `Attempt an admin login with a passoword. (Example: ${commandOptions.delimiter}adminlogin <password>)`,
+        description: `Attempt an admin login with a passoword. (Example: "${commandOptions.delimiter}adminlogin [password]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Set the admin status of all matching players
             const myPlayer = brainGame.players.filter( p => p.playerID === playerID )?.[0]
@@ -197,7 +197,7 @@ const chatCommands = {
     teleport: {
         commands: ["teleport", "tp"],
         admin: true,
-        description: `Teleports a player to a specified location. (Example: ${commandOptions.delimiter}tp <X> <Y> <Z> <player name (optional)>)`,
+        description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [y] [Z] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get position
@@ -239,7 +239,7 @@ const chatCommands = {
     kill: {
         commands: ["kill"],
         admin: true,
-        description: `Kills the targeted player. (Example: ${commandOptions.delimiter}kill <player name (optional)>)`,
+        description: `Kills the targeted player. (Example: "${commandOptions.delimiter}kill [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -257,7 +257,7 @@ const chatCommands = {
     kick: {
         commands: ["kick"],
         admin: true,
-        description: `Kicks the desired player from the game. (Example: ${commandOptions.delimiter}kick <player name>`,
+        description: `Kicks the desired player from the game. (Example: "${commandOptions.delimiter}kick [player name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // This command should only work in an online game
             if (brainGame.brainComs.isNetworked) {
@@ -291,7 +291,7 @@ const chatCommands = {
     makeAdmin: {
         commands: ["admin", "op"],
         admin: true,
-        description: `Makes the targeted player an admin. (Example: ${commandOptions.delimiter}admin <player name>)`,
+        description: `Makes the targeted player an admin. (Example: "${commandOptions.delimiter}admin [player name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -316,7 +316,7 @@ const chatCommands = {
     removeAdmin: {
         commands: ["removeadmin", "deop"],
         admin: true,
-        description: `Removes admin from the targeted player. (Example: ${commandOptions.delimiter}removeadmin <player name>)`,
+        description: `Removes admin from the targeted player. (Example: "${commandOptions.delimiter}removeadmin [player name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -359,7 +359,7 @@ const chatCommands = {
     changeGameMode: {
         commands: ["gamemode", "gm"],
         admin: true,
-        description: `Changes your game mode. (Example: ${commandOptions.delimiter}gamemode <game mode> <player name (optional)>)`,
+        description: `Changes your game mode. (Example: "${commandOptions.delimiter}gamemode [game mode] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
 
             //////////////////////////////////////
@@ -407,7 +407,7 @@ const chatCommands = {
     changeServerGameMode: {
         commands: ["servergamemode", "sgm"],
         admin: true,
-        description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode <game mode>)`,
+        description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode [game mode])`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             let found = false
             Object.values(gameModes).forEach((gm)=>{
@@ -432,7 +432,7 @@ const chatCommands = {
     changeTickRate: {
         commands: ["tickrate", "tr"],
         admin: true,
-        description: `Sets the server's game update speed. (Example: ${commandOptions.delimiter}tickrate 30)`,
+        description: `Sets the server's game update speed (in milliseconds). Default is 30 (Example: ${commandOptions.delimiter}tickrate [time])`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set tick rate
@@ -450,7 +450,7 @@ const chatCommands = {
     setScoreLimit: {
         commands: ["scorelimit", "setscorelimit"],
         admin: true,
-        description: `Changes the game's score limit (Example: "${commandOptions.delimiter}scorelimit 20")`,
+        description: `Changes the game's score limit. Default is 20 (Example: "${commandOptions.delimiter}scorelimit [score]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set limit
@@ -475,7 +475,7 @@ const chatCommands = {
     setCommandTime: {
         commands: ["commandtime", "comtime"],
         admin: true,
-        description: `Changes the command block execution cooldown time (in milliseconds). (Example: "${commandOptions.delimiter}commandtime 1000")`,
+        description: `Changes the command block execution cooldown time (in milliseconds). Default is 1000 (Example: "${commandOptions.delimiter}commandtime [time]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set limit
@@ -523,7 +523,7 @@ const chatCommands = {
     saveWorld: {
         commands: ["saveworld"],
         admin: true,
-        description: `Saves the current world on the server. (Example: "${commandOptions.delimiter}saveworld <world name>")`,
+        description: `Saves the current world on the server. (Example: "${commandOptions.delimiter}saveworld [world name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // Get world name
             let newName = args[0] || ''
@@ -545,7 +545,7 @@ const chatCommands = {
     generateNewWorld: {
         commands: ["genworld"],
         admin: true,
-        description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld 8 lavaPlanet")`,
+        description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld [size] [world pattern]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Set generator props
@@ -558,13 +558,13 @@ const chatCommands = {
             }
         }
     },
-    loadWorldUrl: {
+    loadWorld: {
         commands: ["loadworld"],
         admin: true,
-        description: `Loads a world from a URL (Example: "${commandOptions.delimiter}loadworld www.capercore.com/world.json")`,
+        description: `Loads a world from the server's world folder (Example: "${commandOptions.delimiter}loadworld [world name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (!brainGame.brainComs.isNetworked) {
-                sendMessage(`This feature is disabled for singleplayer games until we fix it.`, true)
+                sendMessage(`This feature does not work for singleplayer games.`, true)
                 return
             }
             if (args[0]) {
@@ -581,7 +581,7 @@ const chatCommands = {
     setBlock: {
         commands: ["setblock", "sblock"],
         admin: true,
-        description: `Sets a block in the world to the given ID. (Example: "/setblock X Y Z ID")`,
+        description: `Sets a block in the world to the given ID. (Example: "${commandOptions.delimiter}setblock [X] [Y] [Z] [block ID]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
             {
@@ -599,7 +599,7 @@ const chatCommands = {
     toggleBlock: {
         commands: ["toggleblock", "tblock"],
         admin: true,
-        description: `Switches a block in the world to on of the two given IDs. (Example: "/toggleblock X Y Z ID1 ID2")`,
+        description: `Switches a block in the world to on of the two given IDs. (Example: "${commandOptions.delimiter}toggleblock [X] [Y] [Z] [block ID] [block ID]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
             {
