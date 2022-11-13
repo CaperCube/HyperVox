@@ -23,7 +23,7 @@ I don't have a demo link up yet, I'll set up a goal to reach before then soon.
 Here's some beginner / intermediate level instructions to get this bot up and running:
 
 1. Install an ide (integrated development environment) (I like VSCode).
-2. Install Node.js on your system.
+2. Install Node.js (v16 or newer) on your system.
 3. Create a directory on your system and put the contents of the project here.
 4. Open VSCode and use *File > Open Folder...* to open this folder.
 5. Click *Terminal > New Terminal*.
