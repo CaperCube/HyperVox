@@ -23,23 +23,16 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-import { defaultWorldSize } from './game/public/common/commonConstants.js'
-import { BrainPlayer } from './game/public/brain/brainGame.js'
 import GameServer from './game/server/gameServer.js'
 import { Server } from 'socket.io'
 import express from 'express'
 import { createServer } from 'http'
 const app = express()
 const serv = createServer(app)
-// const express = require('express')
-// const app = express()
-// const serv = require('http').Server(app)
 const PORT = process.env.PORT || 3000
 
-// const io = require('socket.io')(serv,{});
 const io = new Server(serv, {
-    // ToDo: try to leave this at default and adjust the networking logic to send large messages in small chunks
-    // maxHttpBufferSize: 1e10,
+    // maxHttpBufferSize: 1e10, // This is how to change the client message size limit
     cors: {
         origin: `*`,
         methods: ["GET", "POST"],
@@ -66,10 +59,21 @@ app.use(express.static(__dirname + '/game/public'))
 const gameServer = new GameServer(io.sockets)
 
 // The list of all socket connections
-// let SOCKET_LIST = {}
 io.sockets.SOCKET_LIST = {}
 io.sockets.on('connection', (socket) => {
+    ////////////////////////////////////////
+    // Connection limit
+    ////////////////////////////////////////
+    if (gameServer.brain.players.length >= gameServer.brain.gameOptions.maxPlayers) {
+        socket.emit('err', { message: 'Connection refused, this game is full.' })
+        socket.disconnect()
+        console.log('Disconnected new player becuase game is full.')
+        return
+    }
+
+    ////////////////////////////////////////
     // Create a client ID for this connection
+    ////////////////////////////////////////
     socket.ID = Math.random()
     io.sockets.SOCKET_LIST[socket.ID] = socket
     console.log(`Welcome, ${socket.ID}`)

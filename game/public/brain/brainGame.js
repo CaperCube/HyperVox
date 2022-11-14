@@ -18,6 +18,7 @@ class BrainGame {
         // Game vars
         ///////////////////////////////////////////////////////
         this.gameOptions = {
+            maxPlayers: 16, // A networked game will refuse new connections if this.players.length is >= this value
             adminAlwaysExists: false, // If true, the the brain will always try to have at least one admin in a game
             worldPath: './game/public/worlds/', // The folder in which the brain looks for world files
             gameTickSpeed: 30, // Time in ms between game ticks

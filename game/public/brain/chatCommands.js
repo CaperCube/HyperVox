@@ -513,6 +513,25 @@ const chatCommands = {
             }
         }
     },
+    setMaxPlayers: {
+        commands: ["maxplayers"],
+        admin: true,
+        description: `Sets the maximum number of players that can join. Default is 16 (Example: "${commandOptions.delimiter}maxplayers [player count]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Get new value
+                let newVal = parseInt(args[0])
+                // Set code filter
+                brainGame.gameOptions.maxPlayers = newVal
+                // Send message
+                sendMessage(`The maximum players changed to ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`The maximum players is currently ${chatEmphasis(brainGame.gameOptions.maxPlayers)}.`, true)
+            }
+        }
+    },
     
     //
     // World commands
