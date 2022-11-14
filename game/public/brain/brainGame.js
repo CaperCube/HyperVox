@@ -53,15 +53,6 @@ class BrainGame {
     }
 
     ///////////////////////////////////////////////////////
-    // Getters & Setters
-    ///////////////////////////////////////////////////////
-    //this.getTestVal = () => { return testVal }
-    //this.setTestVal = ( newVal ) => { testVal = newVal }
-
-    //this.getWorld = () => { return world }
-    //this.generateWorld = (seed) => { worldGenNormal(world) }
-
-    ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
     addNewPlayer = (newPlayerID, socket = null) => {
@@ -92,7 +83,6 @@ class BrainGame {
         if (!this.world) {
             // Generate a world of random size and pattern
             this.createNewWorld()
-            // this.createNewWorld(defaultWorldSize)
         }
         // Send the world, if the world exists
         else {
