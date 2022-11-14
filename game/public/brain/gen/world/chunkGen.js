@@ -104,7 +104,8 @@ class ChunkGenerator {
                     }
                 }
 
-                if (y===0) blockID = blockTypes.indexOf(getBlockByName('lava'))
+                if (y===1) blockID = blockTypes.indexOf(getBlockByName('lava'))
+                if (y===0) blockID = blockTypes.indexOf(getBlockByName('steel-riveted'))
             
                 return blockID
             },
@@ -182,6 +183,8 @@ class ChunkGenerator {
                         blockID = colors[i]
                     }
                 }
+
+                if (y===0) blockID = blockTypes.indexOf(getBlockByName('steel-riveted'))
             
                 return blockID
             },
