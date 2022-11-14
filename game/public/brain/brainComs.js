@@ -9,6 +9,7 @@
 
 import { gameModes } from "./brainGame.js"
 import { checkForCommand, commandOptions } from "./chatCommands.js"
+import { filterChatMessageCode } from "../common/dataUtils.js"
 
 class BrainComs {
     constructor(props = {
@@ -134,10 +135,6 @@ class BrainComs {
                 } else {
                     const maxLength = this.brainGame.gameOptions.chatOptions.maxChatSize
                     if (data.message.length > maxLength) data.message = data.message.substr(0, maxLength)
-
-                    // ToDo:
-                    // Check for HTML and/or js code and remove (based on server preferences)
-                    //...
                 }
                 // Check for chat commands
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
@@ -156,6 +153,9 @@ class BrainComs {
 
                 // If command not found AND no command delimiter
                 if (!commandFound && !data.message.startsWith(commandOptions.delimiter)) {
+                    // Check for HTML and/or js code and remove (based on server preferences)
+                    if (this.brainGame.gameOptions.chatOptions.filterChatHTML) data.message = filterChatMessageCode(data.message)
+
                     // Send message
                     this.genericToClient('receiveChatMessage', data)
 

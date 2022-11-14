@@ -3,7 +3,6 @@ import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
 import { tileScale, defaultChunkSize, defaultWorldSize } from '../common/commonConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
-import { getPropByString } from "../common/dataUtils.js"
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
 import { gameModes, formatPlayerName, getRandomName } from '../common/commonConstants.js'
@@ -27,6 +26,7 @@ class BrainGame {
             gameMode: gameModes.creative, // The brain's default game-mode
             chatOptions: {
                 maxChatSize: 40, // The maximum allowed characters in a chat message
+                filterChatHTML: true, // If true, player chat messages will be filtered to not allow executable HTML
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
@@ -161,12 +161,11 @@ class BrainGame {
         }
     }
 
-    // ToDo: refactor this to pull from server files
     loadWorldFromURL = ( worldName, msgCallback ) => {
         let startedLoading = false
 
         // Send request to load json
-        getJSON(worldName,
+        this.getJSON(worldName,
             (err, data) => {
             if (err !== null) {
                 msgCallback(`URL request failed:  ${err}`)
@@ -180,6 +179,28 @@ class BrainGame {
                 }
             }
         })
+    }
+
+    // Used by "loadWorldFromURL"
+    getJSON = (worldName, callback) => {
+        const worldPath = this.gameOptions.worldPath
+        if (typeof(FileSystem) == "undefined") {
+            const path = `${worldPath}${worldName}.json`
+    
+            import('fs').then((pkg) => {
+                const fs = pkg.default
+    
+                // Try to get file
+                fs.readFile(path, {encoding: 'utf-8'}, (err,data)=> {
+                    if (!err) {
+                        callback(null, data)
+                    }
+                    else {
+                        callback(`Cannot find file "${path}"`)
+                    }
+                })
+            })
+        }
     }
 
     updateSingleBlock = ( location, id ) => {
@@ -519,26 +540,6 @@ class BrainGame {
 
         this.brainComs.genericToClient('updateAllPlayers', data)
         // or 'gameUpdateTick'
-    }
-}
-
-const getJSON = function(worldName, callback) {
-    if (typeof(FileSystem) == "undefined") {
-        const path = `./game/public/worlds/${worldName}.json`
-
-        import('fs').then((pkg) => {
-            const fs = pkg.default
-
-            // Try to get file
-            fs.readFile(path, {encoding: 'utf-8'}, (err,data)=> {
-                if (!err) {
-                    callback(null, data)
-                }
-                else {
-                    callback(`Cannot find file "./world/${worldName}.json"`)
-                }
-            })
-        })
     }
 }
 

@@ -31,3 +31,8 @@ export function randomIndex(ar) {
 export function randomArray(arr) {
     return arr[randomIndex(arr)]
 }
+
+export const filterChatMessageCode = (myString) => {
+    // Replaces &, >, <, and " with their respective html char codes
+    return myString.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+}

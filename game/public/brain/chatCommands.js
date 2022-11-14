@@ -486,6 +486,33 @@ const chatCommands = {
             }
         }
     },
+    setChatCodeFilter: {
+        commands: ["chatcodefilter", "codefilter", "ccfilter"],
+        admin: true,
+        description: `Enables or disables the HTML code filter in player chat messages. Default is false (Example: "${commandOptions.delimiter}codefilter [true/false]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                let newVal = false
+
+                // Get new value
+                if (args[0].toLowerCase() === 'true') newVal = true
+                else if(args[0].toLowerCase() === 'false') newVal = false
+                else {
+                    sendMessage(`Invalid value. Value must be "true" or "false".`, true)
+                    return
+                }
+
+                // Set code filter
+                brainGame.gameOptions.chatOptions.filterChatHTML = newVal
+                // Send message
+                sendMessage(`The chat code filter changed to ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`The chat code filter is currently ${chatEmphasis(brainGame.gameOptions.chatOptions.allowChatHTML)}.`, true)
+            }
+        }
+    },
     
     //
     // World commands
