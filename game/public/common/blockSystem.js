@@ -38,7 +38,7 @@ const blockCats = { // ToDo: possibly rename this to "blockTags"
     // Functional categories
     checkpoint: 'checkpoint',
     damaging: 'damaging',
-    embed: 'embed',
+    embed: 'embed', // ToDo: Change this tag to "command"
     fluid: 'fluid',
     healing: 'healing',
     noncollidable: 'noncollidable',
@@ -135,7 +135,7 @@ const blockTypes = [
     },
     // 0x0009
     {
-        name: 'capercube',
+        name: 'caper-cube',
         categories: [blockCats.decorative, blockCats.color.blue],
         textures: { top: 10, bottom: 10, front: 10, back: 10, left: 10, right: 10 },
     },
@@ -172,61 +172,61 @@ const blockTypes = [
     },
     // 0x000f
     {
-        name: 'stone-block-white',
+        name: 'block-white',
         categories: [blockCats.color.white, blockCats.decorative],
         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
     },
     // 0x0010
     {
-        name: 'stone-block-grey',
+        name: 'block-grey',
         categories: [blockCats.color.grey, blockCats.decorative],
         textures: { top: 32, bottom: 32, front: 32, back: 32, left: 32, right: 32 },
     },
     // 0x0012
     {
-        name: 'stone-block-black',
+        name: 'block-black',
         categories: [blockCats.color.black, blockCats.decorative],
         textures: { top: 48, bottom: 48, front: 48, back: 48, left: 48, right: 48 },
     },
     // 0x0013
     {
-        name: 'stone-block-red',
+        name: 'block-red',
         categories: [blockCats.color.red, blockCats.decorative],
         textures: { top: 64, bottom: 64, front: 64, back: 64, left: 64, right: 64 },
     },
     // 0x0014
     {
-        name: 'stone-block-orange',
+        name: 'block-orange',
         categories: [blockCats.color.orange, blockCats.decorative],
         textures: { top: 80, bottom: 80, front: 80, back: 80, left: 80, right: 80 },
     },
     // 0x0015
     {
-        name: 'stone-block-yellow',
+        name: 'block-yellow',
         categories: [blockCats.color.yellow, blockCats.decorative],
         textures: { top: 96, bottom: 96, front: 96, back: 96, left: 96, right: 96 },
     },
     // 0x0016
     {
-        name: 'stone-block-green',
+        name: 'block-green',
         categories: [blockCats.color.green, blockCats.decorative],
         textures: { top: 112, bottom: 112, front: 112, back: 112, left: 112, right: 112 },
     },
     // 0x0017
     {
-        name: 'stone-block-blue',
+        name: 'block-blue',
         categories: [blockCats.color.blue, blockCats.decorative],
         textures: { top: 128, bottom: 128, front: 128, back: 128, left: 128, right: 128 },
     },
     // 0x0018
     {
-        name: 'stone-block-indigo',
+        name: 'block-indigo',
         categories: [blockCats.color.indigo, blockCats.decorative],
         textures: { top: 144, bottom: 144, front: 144, back: 144, left: 144, right: 144 },
     },
     // 0x0019
     {
-        name: 'stone-block-violet',
+        name: 'block-violet',
         categories: [blockCats.color.violet, blockCats.decorative],
         textures: { top: 160, bottom: 160, front: 160, back: 160, left: 160, right: 160 },
     },
@@ -271,7 +271,7 @@ const blockTypes = [
     },
     // 0x0020
     {
-        name: 'death',
+        name: 'death-zone',
         categories: [blockCats.color.red, blockCats.damaging, blockCats.transparent, blockCats.zone],
         // textures: { top: 255, bottom: 255, front: 255, back: 255, left: 255, right: 255 },
         textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
@@ -291,7 +291,7 @@ const blockTypes = [
     },
     // 0x0023
     {
-        name: 'respawn-point',
+        name: 'respawn-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.checkpoint],
         textures: { top: 238, bottom: 238, front: 238, back: 238, left: 238, right: 238 },
     },
@@ -305,7 +305,7 @@ const blockTypes = [
     },
     // 0x0025
     {
-        name: 'info-box',
+        name: 'command-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.embed],
         textures: { top: 236, bottom: 236, front: 236, back: 236, left: 236, right: 236 },
         // ToDo: BlockTypes should be expressable as json, change "interact" to a string (the string can then reference a function else-where)
@@ -327,7 +327,7 @@ const blockTypes = [
     },
     // 0x0028
     {
-        name: 'teleporter-box',
+        name: 'world-respawn-box',
         categories: [blockCats.color.grey, blockCats.color.green, blockCats.teleporter],
         textures: { top: 234, bottom: 234, front: 234, back: 234, left: 234, right: 234 },
         bounciness: 0.9,
@@ -340,14 +340,14 @@ const blockTypes = [
     },
     // 0x002a
     {
-        name: 'death-block',
+        name: 'death-box',
         categories: [blockCats.color.red, blockCats.color.black, blockCats.color.grey, blockCats.damaging],
         textures: { top: 29, bottom: 29, front: 29, back: 29, left: 29, right: 29 },
         damage: 1000
     },
     // 0x002b
     {
-        name: 'boundary-block',
+        name: 'boundary-zone',
         categories: [blockCats.color.blue, blockCats.transparent, blockCats.zone],
         // textures: { top: 256, bottom: 256, front: 256, back: 256, left: 256, right: 256 },
         textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 }

@@ -2,7 +2,7 @@
 import ChunkGenerator from "../../../brain/gen/world/chunkGen.js"
 import { blockTypes } from "../../../common/blockSystem.js"
 import World from "../../../brain/gen/world/world.js"
-import { getGlobalPos } from "../../../common/positionUtils.js"
+import { getGlobalPos, getArrayPos } from "../../../common/positionUtils.js"
 import { chatCommands } from "../../../brain/chatCommands.js"
 
 // Canvas vars
@@ -24,6 +24,7 @@ canvasTemp.width = canvasTemp.height = canvas.width
 
 // Noise vars
 const generator = new ChunkGenerator()
+const tileScale = 1
 let chunkSize = 8
 let worldSize = 4
 let desiredPixelSize = 8
@@ -31,10 +32,8 @@ let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
 let steps2D = 3
 let world = [[[]]] // ToDo: change to an actual world object
-let worldSpawn = {
-    chunk: { x: 0, y: 0, z: 0 },
-    block: { x: 0, y: 0, z: 0 }
-}
+let worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
+let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
 let blockData = {}
 let intervalCommands = {}
 
@@ -413,6 +412,10 @@ function DOMNoiseFnc() {
 
     // Update slider
     resetDepthSlider()
+
+    // Update world spawn
+    worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
+    worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8)
 
     // Update data sections
     blockData = {}

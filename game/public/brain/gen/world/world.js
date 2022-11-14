@@ -10,7 +10,7 @@ class World {
         this._wSeed = worldSeed || `${Math.random()}`
         
         const worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 16)
+        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8)
         this.blockData = {}
         // {
         //     "36_X_Y_Z": { 
