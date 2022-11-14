@@ -1,3 +1,4 @@
+![Image description](./repo_banner.png)
 # About
 CaperCore is a multiplayer creative voxel game that runs in your browser! The project is being built with customization and modding in mind, so we're actively creating tools to aid content creation.
 
