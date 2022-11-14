@@ -574,15 +574,13 @@ const chatCommands = {
         admin: true,
         description: `Generates a new world of custom size and pattern (Example: "${commandOptions.delimiter}genworld [size] [world pattern]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (args[0]) {
-                // Set generator props
-                const newSize = (args[0])? parseFloat(args[0]) : 4
-                const newPattern = (args[1])? args[1] : 'basic'
-                // Create new world
-                brainGame.createNewWorld( newSize, newPattern )
-                // Send message
-                sendMessage(`New ${newSize} sized world generated.`)
-            }
+            let newSize = (args[0])? parseFloat(args[0]) : null
+            let newPattern = (args[1])? args[1] : null
+
+            // Create new world
+            brainGame.createNewWorld( newSize, newPattern )
+            // Send message
+            sendMessage(`New ${newSize} sized world generated.`)
         }
     },
     loadWorld: {

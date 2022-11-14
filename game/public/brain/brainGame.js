@@ -1,11 +1,11 @@
 import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
-import { tileScale, defaultChunkSize, defaultWorldSize } from '../common/commonConstants.js'
+import { randomArray } from '../common/dataUtils.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, gameModes, formatPlayerName, getRandomName } from '../common/commonConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
-import { gameModes, formatPlayerName, getRandomName } from '../common/commonConstants.js'
 import { checkForCommand } from "./chatCommands.js"
 
 // This will be in charge of managing the flow of the game, be it singleplayer or multiplayer
@@ -90,7 +90,9 @@ class BrainGame {
 
         // Generate a new world
         if (!this.world) {
-            this.createNewWorld(defaultWorldSize)
+            // Generate a world of random size and pattern
+            this.createNewWorld()
+            // this.createNewWorld(defaultWorldSize)
         }
         // Send the world, if the world exists
         else {
@@ -107,7 +109,17 @@ class BrainGame {
         return myBrainPlayer
     }
 
-    createNewWorld = ( size, pattern = 'basic' ) => {
+    createNewWorld = ( size, pattern ) => {
+        // If no arguments, generate random props
+        if (!size) {
+            size = Math.floor((Math.random() * defaultWorldSize) + 1)
+        }
+
+        if (!pattern) {
+            const patterns = Object.keys(this.generator.noisePatterns)
+            pattern = randomArray(patterns)
+        }
+
         // Create new world object
         this.world = new World({worldSize: size || defaultWorldSize, chunkSize: defaultChunkSize})
 

@@ -185,12 +185,6 @@ class ChunkGenerator {
             
                 return blockID
             },
-            // Empty with kill blocks on floor
-            emptyDeath: ( x, y, z ) => {
-                let blockID = 0
-                if (y===0) blockID = blockTypes.indexOf(getBlockByName('death'))
-                return blockID
-            },
             // Empty with sett blocks on floor
             empty: ( x, y, z ) => {
                 let blockID = 0

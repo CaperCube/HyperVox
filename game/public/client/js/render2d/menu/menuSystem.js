@@ -226,11 +226,11 @@ class MenuSystem extends TileRenderer {
         const playLoadButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonMid], text: 'Load World'})
         const playSmallButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [button], text: 'Small'})
         const playMedButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [button], text: 'Medium'})
-        const playLargeButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Large'})
+        const playRandomButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Random'})
         const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
         
-        this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playLargeButton, playBackButton])
+        this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playRandomButton, playBackButton])
 
         /////////////////////////////////////////////////////////
         // Pause menu

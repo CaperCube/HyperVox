@@ -89,7 +89,7 @@ clientGame.menu.mainMenu.selectableElements[1].pressButton = () => { connectToCu
 clientGame.menu.playMenu.selectableElements[0].pressButton = () => { browseForWorldFile() }
 clientGame.menu.playMenu.selectableElements[1].pressButton = () => { createWorldWithSize(5) }
 clientGame.menu.playMenu.selectableElements[2].pressButton = () => { createWorldWithSize(10) }
-clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorldWithSize(16) }
+clientGame.menu.playMenu.selectableElements[3].pressButton = () => { createWorldWithSize() }
 
 // Pause menu
 clientGame.menu.pauseMenu.selectableElements[1].pressButton = () => { clientGame.saveWorld('world.json') }
