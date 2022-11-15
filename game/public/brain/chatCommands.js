@@ -532,6 +532,25 @@ const chatCommands = {
             }
         }
     },
+    listServerWorlds: {
+        commands: ["listworlds", "lw"],
+        admin: true,
+        description: `Sends a list of all the world names the server has. This will only be visible to you.`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (brainGame.brainComs.isNetworked) {
+                // Get world name list
+                brainGame.listWorlds((worldList) => {
+                    // Send message
+                    for (let i = 0; i < worldList.length; i++) {
+                        sendMessage(worldList[i], true)
+                    }
+                })
+            }
+            else {
+                sendMessage(`This command only works in multiplayer.`, true)
+            }
+        }
+    },
     
     //
     // World commands

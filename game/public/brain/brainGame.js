@@ -206,6 +206,19 @@ class BrainGame {
         }
     }
 
+    listWorlds = (callback) => {
+        const worldPath = this.gameOptions.worldPath
+        // Load fs
+        if (typeof(FileSystem) == "undefined") {
+            import('fs').then((pkg) => {
+                const fs = pkg.default
+
+                const jsonsInDir = fs.readdirSync(worldPath)
+                callback(jsonsInDir)
+            })
+        }
+    }
+
     updateSingleBlock = ( location, id ) => {
         if (this.world) {
             const locationExists = (!!this.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x])
