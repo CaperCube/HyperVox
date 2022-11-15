@@ -102,3 +102,15 @@ clientGame.menu.pauseMenu.selectableElements[0].pressButton = () => {
         clientGame.lockCursor()
     }, 100)
 }
+
+//////////////////////////////////////////////////////////
+// Query params
+//////////////////////////////////////////////////////////
+const urlParams = new URLSearchParams(window.location.search)
+
+// If page param exists onLoad, navigate to it
+const joinGameParam = urlParams.get("joingame")
+if (joinGameParam) {
+    // Join the provided game
+    clientGame.connectToNetworkGame(joinGameParam)
+}
