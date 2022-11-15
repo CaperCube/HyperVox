@@ -356,6 +356,7 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     worldSpawn = newWorld.worldSpawn
     blockData = newWorld.blockData || {}
     intervalCommands = newWorld.intervalCommands || {}
+    //$("#DOM_genList").value = newWorld.pattern // ToDo: save this data in world file
 
     canvasTemp.width = canvasTemp.height = canvas.width
 

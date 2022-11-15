@@ -160,17 +160,17 @@ class ChunkGenerator {
 
                 // Block ID's to use
                 const colors = [
-                    blockTypes.indexOf(getBlockByName('stone-block-white')),
-                    blockTypes.indexOf(getBlockByName('stone-block-white')),
-                    blockTypes.indexOf(getBlockByName('stone-block-yellow')),
-                    blockTypes.indexOf(getBlockByName('stone-block-orange')),
-                    blockTypes.indexOf(getBlockByName('stone-block-red')),
-                    blockTypes.indexOf(getBlockByName('stone-block-violet')),
-                    blockTypes.indexOf(getBlockByName('stone-block-indigo')),                    
-                    blockTypes.indexOf(getBlockByName('stone-block-blue')),
-                    blockTypes.indexOf(getBlockByName('stone-block-green')),
-                    blockTypes.indexOf(getBlockByName('stone-block-grey')),
-                    blockTypes.indexOf(getBlockByName('stone-block-black')),
+                    blockTypes.indexOf(getBlockByName('block-white')),
+                    blockTypes.indexOf(getBlockByName('block-white')),
+                    blockTypes.indexOf(getBlockByName('block-yellow')),
+                    blockTypes.indexOf(getBlockByName('block-orange')),
+                    blockTypes.indexOf(getBlockByName('block-red')),
+                    blockTypes.indexOf(getBlockByName('block-violet')),
+                    blockTypes.indexOf(getBlockByName('block-indigo')),                    
+                    blockTypes.indexOf(getBlockByName('block-blue')),
+                    blockTypes.indexOf(getBlockByName('block-green')),
+                    blockTypes.indexOf(getBlockByName('block-grey')),
+                    blockTypes.indexOf(getBlockByName('block-black')),
                 ]
             
                 // Set blockID

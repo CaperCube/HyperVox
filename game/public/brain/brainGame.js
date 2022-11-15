@@ -12,7 +12,8 @@ import { checkForCommand } from "./chatCommands.js"
 class BrainGame {
     constructor(props = {
         isNetworked: false,
-        network: null
+        network: null,
+        adminPassword: "admin",
     }) {    
         ///////////////////////////////////////////////////////
         // Game vars
@@ -47,7 +48,7 @@ class BrainGame {
         this.players = []
         this.whiteList = [] // list of playerIDs who have admin priv. (IDs in this list don't need to be connected players) (We should also change playerIDs to be unique only per user, not random every time)
         this.testVal = "null"
-        this.adminPassword = "admin" // Set to null for no login // ToDo: This should get stored elsewhere or loaded in
+        this.adminPassword = props.adminPassword // Set to null for no login // ToDo: This should get stored elsewhere or loaded in
 
         // Brain computation vars
         this.gameTickInterval = null
@@ -59,17 +60,22 @@ class BrainGame {
     addNewPlayer = (newPlayerID, socket = null) => {
         // Create BrainPlayer
         const myBrainPlayer = new BrainPlayer(newPlayerID)
+        const isFirstPlayer = (this.players.length === 0)
+
+        // Push to brain player array
+        this.players.push(myBrainPlayer)
 
         // Set gameMode
         myBrainPlayer.gameMode = this.gameOptions.gameMode
         // Assign admin if relevent
-        const isFirstPlayer = (this.players.length === 0)
-        if (this.gameOptions.adminAlwaysExists) {
-            if (isFirstPlayer) this.setAdmin(myBrainPlayer.playerID, true)
+        if (!this.brainComs.isNetworked) {
+            this.setAdmin(myBrainPlayer.playerID, true)
         }
-
-        // Push to brain player array
-        this.players.push(myBrainPlayer)
+        else {
+            if (this.gameOptions.adminAlwaysExists) {
+                if (isFirstPlayer) this.setAdmin(myBrainPlayer.playerID, true)
+            }
+        }
 
         // Send welcome packet
         const welcomData = {clientID: newPlayerID, playerName: myBrainPlayer.playerName}
@@ -275,6 +281,7 @@ class BrainGame {
             myPlayer.isAdmin = true
             // myPlayer.playerName += ' (admin)'
             // ToDo: tell all clients to change this player's name
+            console.log(`${myPlayer.playerName} is now an admin.`)
         }
         else {
             console.log('This player does not exist')

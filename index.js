@@ -30,6 +30,7 @@ import { createServer } from 'http'
 const app = express()
 const serv = createServer(app)
 const PORT = process.env.PORT || 3000
+const adminPassword = process.env.ADMINPASS || "admin"
 
 const io = new Server(serv, {
     // maxHttpBufferSize: 1e10, // This is how to change the client message size limit
@@ -56,7 +57,7 @@ app.use(express.static(__dirname + '/game/public'))
 ////////////////////////////////////////
 // Multiplayer server setup (Move this eventaully?)
 ////////////////////////////////////////
-const gameServer = new GameServer(io.sockets)
+const gameServer = new GameServer(io.sockets, adminPassword)
 
 // The list of all socket connections
 io.sockets.SOCKET_LIST = {}
