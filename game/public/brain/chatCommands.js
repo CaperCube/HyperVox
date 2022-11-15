@@ -509,7 +509,7 @@ const chatCommands = {
             }
             else {
                 // If no value set, just return the current value
-                sendMessage(`The chat code filter is currently ${chatEmphasis(brainGame.gameOptions.chatOptions.allowChatHTML)}.`, true)
+                sendMessage(`The chat code filter is currently ${chatEmphasis(brainGame.gameOptions.chatOptions.filterChatHTML)}.`, true)
             }
         }
     },
