@@ -60,8 +60,15 @@ const getPlayers = (arg, brainGame, playerID = null) => {
         if (arg === "@a") players = brainGame.players
         else if (arg === "@r") players[0] = randomArray(brainGame.players)
 
-        // Check for name
-        else players = brainGame.players.filter(p => p.playerName === arg)
+        // Check matches
+        else {
+            // Check for ID
+            const IDmatches = brainGame.players.filter(p => p.playerID === parseFloat(arg))[0]
+            if (IDmatches) players = [IDmatches]
+
+            // Check for all with name
+            else players = brainGame.players.filter(p => p.playerName === arg)
+        }
     }
     // Else get chat player
     else {
@@ -144,25 +151,30 @@ const chatCommands = {
         admin: false,
         description: `Changes the name of the target player. Names must be alphanumeric with no spaces. You can also use "@r" as the new name to generate a random name. (Example: "${commandOptions.delimiter}changename [new name] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            //////////////////////////////////////
-            // Get Player(s)
-            let players = getPlayers(args[1], brainGame, playerID)
-            const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
+            if (brainGame.gameOptions.chatOptions.allowPlayerNameChange || isAdmin) {
+                //////////////////////////////////////
+                // Get Player(s)
+                let players = getPlayers(args[1], brainGame, playerID)
+                const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
 
-            for (let i = 0; i < players.length; i++) {
-                if (isAdmin || players[i] === thisPlayer) {
-                    // Change name
-                    if (players[i]) {
-                        // Tell brain to change the name
-                        brainGame.changePlayerName(players[i], args[0])
+                for (let i = 0; i < players.length; i++) {
+                    if (isAdmin || players[i] === thisPlayer) {
+                        // Change name
+                        if (players[i]) {
+                            // Tell brain to change the name
+                            brainGame.changePlayerName(players[i], args[0])
+                        }
+                        else {
+                            sendMessage(`No player found. Name must have no spaces.`, true)
+                        }
                     }
                     else {
-                        sendMessage(`No player found. Name must have no spaces.`, true)
+                        sendMessage(`Only admins can change other player's names.`, true)
                     }
                 }
-                else {
-                    sendMessage(`Only admins can change other player's names.`, true)
-                }
+            }
+            else {
+                sendMessage(`Only admins can change player names.`, true)
             }
         }
     },
@@ -275,7 +287,7 @@ const chatCommands = {
                         if (player) {
                             // Disconnect this player
                             const msg = `Disconnected: You've been kicked from the game.`
-                            brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [playerID])
+                            brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [players[i]?.playerID])
                             player.disconnect()
                             sendMessage(`${chatEmphasis(playerName)} has been kicked from the game.`, true)
                         }
@@ -512,6 +524,33 @@ const chatCommands = {
             else {
                 // If no value set, just return the current value
                 sendMessage(`The chat code filter is currently ${chatEmphasis(brainGame.gameOptions.chatOptions.filterChatHTML)}.`, true)
+            }
+        }
+    },
+    setPlayerNameChange: {
+        commands: ["allowchangename", "allowcname"],
+        admin: true,
+        description: `Enables or disables the ability for players to change their names. Default is true (Example: "${commandOptions.delimiter}allowchangename [true/false]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                let newVal = false
+
+                // Get new value
+                if (args[0].toLowerCase() === 'true') newVal = true
+                else if(args[0].toLowerCase() === 'false') newVal = false
+                else {
+                    sendMessage(`Invalid value. Value must be "true" or "false".`, true)
+                    return
+                }
+
+                // Set value
+                brainGame.gameOptions.chatOptions.allowPlayerNameChange = newVal
+                // Send message
+                sendMessage(`Allow player name changes is now ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`Allow player name changes is currently ${chatEmphasis(brainGame.gameOptions.chatOptions.allowPlayerNameChange)}.`, true)
             }
         }
     },

@@ -442,6 +442,8 @@ Lobby
 
 	padding: 0 5px;
 
+	cursor: pointer;
+
 	overflow: hidden;
 }
 

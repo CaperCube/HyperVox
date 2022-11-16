@@ -798,6 +798,7 @@ class ClientGame {
 
         // Go back to main menu
         this.menu.setScene(this.menu.mainMenu)
+        this.menu.show()
         this.hud.hide()
 
 

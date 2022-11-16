@@ -49,6 +49,8 @@ export function CreateLobbyPlayerDOM(playerData) {
     const pName = document.createElement("span")
     pName.className = "player-name"
     pName.innerHTML = playerData.playerName
+    pName.setAttribute("title", "Copy this player's ID")
+    pName.onclick = ()=>{ CopyIDFromLobbyElem(pDOM) }
     pDOM.appendChild(pName)
 
     const pK = document.createElement("span")
@@ -108,4 +110,22 @@ export function UpdateLobbyPlayerData(playerData) {
             }
         }
     }
+}
+
+export function CopyIDFromLobbyElem(el) {
+    // Get ID from string
+    const elemName = el.getAttribute('id')
+    const filterText = `lobby_`
+    let playerIDStr = elemName.replace(filterText, "")
+
+    // Put period back in
+    playerIDStr = playerIDStr.slice(0, 1) + "." + playerIDStr.slice(1)
+
+    // Convert back to a number
+    const playerID = parseFloat(playerIDStr)
+    console.log(playerID)
+
+    // Put in clipboard
+    navigator.clipboard.writeText(playerID)
+    return playerID
 }

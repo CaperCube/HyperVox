@@ -29,6 +29,7 @@ class BrainGame {
             chatOptions: {
                 maxChatSize: 40, // The maximum allowed characters in a chat message
                 filterChatHTML: true, // If true, player chat messages will be filtered to not allow executable HTML
+                allowPlayerNameChange: true // If true, this allow's non-admins to change their own names
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset

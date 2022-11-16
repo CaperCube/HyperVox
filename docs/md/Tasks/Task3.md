@@ -5,10 +5,9 @@ This task should fix some useability issues and bugs, but more importantly it sh
 
 # Sub-Tasks
 - [X] Show connected players in menu (if online)
-- [ ] Chat improvements
-    - [ ] Whisper feature
-    - [ ] Server-side option to filter html / js code out of user messages
-        - [ ] Chat command to toggle this (Admin only)
+- [X] Chat improvements
+    - [X] Server-side option to filter html / js code out of user messages
+        - [X] Chat command to toggle this (Admin only)
     - [X] chat BG disapears when mouse is locked
     - [X] **Add / Remove blocks with chat command**
     - [X] **"Set world spawn" chat command (admins only)**
