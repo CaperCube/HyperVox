@@ -66,7 +66,9 @@ io.sockets.on('connection', (socket) => {
     // Connection limit
     ////////////////////////////////////////
     if (gameServer.brain.players.length >= gameServer.brain.gameOptions.maxPlayers) {
-        socket.emit('err', { message: 'Connection refused, this game is full.' })
+        const message = `Connection refused: This game is full. (${gameServer.brain.gameOptions.maxPlayers} max)`
+        socket.emit( `genericClientMessage`, { type: "disconnectMessage", recipients: 'all', args: { message: message } } )
+        // socket.emit('kickedPlayer', { reason: `Connection refused, this game is full. (${gameServer.brain.gameOptions.maxPlayers} players maximum)` })
         socket.disconnect()
         console.log('Disconnected new player becuase game is full.')
         return

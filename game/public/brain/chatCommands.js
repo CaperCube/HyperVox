@@ -274,6 +274,8 @@ const chatCommands = {
                         const playerName = players[i]?.playerName || '???'
                         if (player) {
                             // Disconnect this player
+                            const msg = `Disconnected: You've been kicked from the game.`
+                            brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [playerID])
                             player.disconnect()
                             sendMessage(`${chatEmphasis(playerName)} has been kicked from the game.`, true)
                         }

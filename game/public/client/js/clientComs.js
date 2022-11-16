@@ -53,12 +53,20 @@ class ClientComs {
             welcomePacket: ( data, playerId ) => {
                 // if (this.messageDebug)
                 console.log( '%c Welcome new player! (client)', 'background: #142; color: #ced' )
-                // console.log(data)
 
                 // Set the client data that will be use when making a local player
                 this.clientGame.clientID = data.clientID
                 this.clientGame.clientName = data.playerName
                 console.log(this.clientGame.clientID, this.clientGame.clientName)
+            },
+
+            disconnectMessage: ( data, playerId ) => {
+                // if (this.messageDebug)
+                console.log( '%c You have been disconnected (client)', 'background: #142; color: #ced' )
+                console.log(data.message)
+
+                // Show message
+                this.clientGame.displayPopupMessage(data.message)
             },
 
             updateSingleBlock: ( data, playerId ) => {

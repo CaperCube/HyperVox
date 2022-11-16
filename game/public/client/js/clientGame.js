@@ -410,6 +410,19 @@ class ClientGame {
     // Methods
     ///////////////////////////////////////////////////////
 
+    displayPopupMessage(message) {
+        const popup = $("#popup-top")
+
+        // Set message and open popup
+        popup.innerHTML = message
+        popup.classList.add("open")
+
+        // Set popup timer
+        setTimeout(() => { 
+            popup.classList.remove("open")
+        }, 5000)
+    }
+
     saveWorld(worldName) {
         // ToDo:
         // When saving worlds locally, we should request the brain's version of the world to save
@@ -723,11 +736,13 @@ class ClientGame {
                 // ToDo: Tell client there's a connection error
                 console.log(err)
                 this.goOffline()
+                this.displayPopupMessage(`Connection Error: ${err}`)
             })
             socket.on('connect_failed', (err) => {
                 // ToDo: Tell client there's a connection error
                 console.log(err)
                 this.goOffline()
+                this.displayPopupMessage(`Connection Error: ${err}`)
             })
             socket.on('disconnect', (err) => {
                 // ToDo: Tell client they've been disconnected
@@ -763,8 +778,9 @@ class ClientGame {
             })
         }
         else {
-            // ToDo: Tell client that they need to diconnect from the current game to join an online game
+            // ToDo: Tell client that they need to disconnect from the current game to join an online game
             console.log('You need to leave your current game before you can join')
+            this.displayPopupMessage(`You need to leave your current game first.`)
         }
     }
 

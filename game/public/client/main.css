@@ -17,6 +17,9 @@ Variables
 	--color-panel: rgba(125, 125, 125, 0.5);
 	--color-panel-light: rgba(186, 186, 186, 0.5);
 	--color-panel-dark: rgba(64, 64, 64, 0.5);
+
+	/* Sizes */
+	--popup-size: 80px;
 }
 
 /* ============================================
@@ -444,4 +447,34 @@ Lobby
 
 #lobby-labels {
 	color: rgba(255,255,255,0.5);
+}
+
+/* ============================================
+Pop-up message
+============================================ */
+
+#popup-top {
+	display: inline-block;
+	position: absolute;
+
+	padding: 0;
+
+	width: 100%;
+	height: var(--popup-size);
+
+	top: calc(var(--popup-size) * -1);
+	left: 0px;
+
+	background-color: var(--color-shadow);
+	color: white;
+	text-align: center;
+	font-size: 32px;
+	line-height: var(--popup-size);
+
+	z-index: 1000;
+	transition: 0.5s;
+}
+
+#popup-top.open {
+	top: 0px;
 }
