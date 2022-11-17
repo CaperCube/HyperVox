@@ -57,8 +57,12 @@ const getPlayers = (arg, brainGame, playerID = null) => {
     // Check for "@a" or "@r"
     if (arg) {
         // If all players targeted
+        // All
         if (arg === "@a") players = brainGame.players
+        // Random
         else if (arg === "@r") players[0] = randomArray(brainGame.players)
+        // All Other
+        else if (arg === "@o") players[0] = brainGame.players.filter(p => p.playerID !== playerID)
 
         // Check matches
         else {
@@ -277,24 +281,30 @@ const chatCommands = {
                 if (args[0]) {
                     //////////////////////////////////////
                     // Get Player(s)
-                    let players = getPlayers(args[0], brainGame)
+                    let players = getPlayers(args[0], brainGame, playerID)
+                    let playerIDs = []
+                    let allPlayerNames = ''
+
+                    players.forEach(p => { playerIDs.push(p.playerID) })
                     
                     //////////////////////////////////////
                     // Get player(s) by ID
-                    for (let i = 0; i < players.length; i++) {
-                        const player = brainGame.brainComs.network.SOCKET_LIST[players[i]?.playerID]
-                        const playerName = players[i]?.playerName || '???'
+                    for (let i = 0; i < playerIDs.length; i++) {
+                        const player = brainGame.brainComs.network.SOCKET_LIST[playerIDs[i]]
                         if (player) {
-                            // Disconnect this player
+                            // Put this name in a list
+                            allPlayerNames += players[i]?.playerName + " "
+                            
+                            // Tell the player they've been kicked
                             const msg = `Disconnected: You've been kicked from the game.`
-                            brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [players[i]?.playerID])
+                            brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [playerIDs[i]])
+
+                            // Disconnect this player
                             player.disconnect()
-                            sendMessage(`${chatEmphasis(playerName)} has been kicked from the game.`, true)
-                        }
-                        else {
-                            sendMessage(`Can't find player named ${args[0]}.`, true)
                         }
                     }
+                    const pluralHave = (playerIDs.length > 1)? 'have all' : 'has'
+                    sendMessage(`${chatEmphasis(allPlayerNames)} ${pluralHave} been kicked from the game.`)
                 }
                 else {
                     sendMessage(`You can't kick nobody.`, true)
@@ -309,7 +319,7 @@ const chatCommands = {
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
-            let players = getPlayers(args[0], brainGame)
+            let players = getPlayers(args[0], brainGame, playerID)
 
             if (players.length > 0) {
                 for (let i = 0; i < players.length; i++) {
@@ -334,7 +344,7 @@ const chatCommands = {
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
-            let players = getPlayers(args[0], brainGame)
+            let players = getPlayers(args[0], brainGame, playerID)
 
             if (players.length > 0) {
                 for (let i = 0; i < players.length; i++) {
@@ -379,7 +389,6 @@ const chatCommands = {
             //////////////////////////////////////
             // Get Player(s)
             let players = getPlayers(args[1], brainGame, playerID)
-            // const myBrainPlayer = brainGame.players.filter( p => p.playerID === playerID )[0]
             
             //////////////////////////////////////
             // Change game mode for all matching players

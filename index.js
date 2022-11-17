@@ -120,7 +120,29 @@ io.sockets.on('connection', (socket) => {
     })
 })
 
-// listen for socket requests
+///////////////////////////////////////
+// Server Data API
+///////////////////////////////////////
+// Handel request
+app.get('/info', (req, res) => {
+    // Get gameServer data
+    const connectedPlayers = gameServer.brain.players.length || 0
+    const maxPlayers = gameServer.brain.gameOptions.maxPlayers || 16
+
+    // Return info object
+    res.status(200).send({
+        players: [connectedPlayers, maxPlayers],
+        server: {
+            name: process.env.SVNAME || 'CaperCore Server',
+            description: process.env.SVDESC || 'CaperCore Server',
+            isModded: process.env.SVMODDED || false
+        }
+    })
+})
+
+///////////////////////////////////////
+// listen for requests
+///////////////////////////////////////
 serv.listen(PORT, () => {
     console.log(`Now listening for connections on port ${PORT}`)
 })
