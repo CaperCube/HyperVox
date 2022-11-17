@@ -349,8 +349,8 @@ const blockTypes = [
     {
         name: 'boundary-zone',
         categories: [blockCats.color.blue, blockCats.transparent, blockCats.zone],
-        textures: { top: 256, bottom: 256, front: 256, back: 256, left: 256, right: 256 },
-        // textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 }
+        // textures: { top: 256, bottom: 256, front: 256, back: 256, left: 256, right: 256 },
+        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 }
     },
 ]
 
