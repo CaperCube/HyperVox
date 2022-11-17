@@ -26,6 +26,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 import GameServer from './game/server/gameServer.js'
 import { Server } from 'socket.io'
 import express from 'express'
+import cors from 'cors'
 import { createServer } from 'http'
 const app = express()
 const serv = createServer(app)
@@ -124,7 +125,8 @@ io.sockets.on('connection', (socket) => {
 // Server Data API
 ///////////////////////////////////////
 // Handel request
-app.get('/info', (req, res) => {
+const allowedAPIOrigin = '*' // You can change this to only allow certian sites to access to the server info
+app.get('/info', cors({origin: allowedAPIOrigin}), (req, res) => {
     // Get gameServer data
     const connectedPlayers = gameServer.brain.players.length || 0
     const maxPlayers = gameServer.brain.gameOptions.maxPlayers || 16
