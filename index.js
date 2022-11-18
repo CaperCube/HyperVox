@@ -141,6 +141,13 @@ app.get('/info', cors({origin: allowedAPIOrigin}), (req, res) => {
         }
     })
 })
+//execute cmd as player
+app.get('/e/:cmd', cors({origin: allowedAPIOrigin}), (req, res) => {
+    cmd = req.params[0]
+    //todo
+148
+})
+})
 
 ///////////////////////////////////////
 // listen for requests
