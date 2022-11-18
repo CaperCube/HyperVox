@@ -213,7 +213,7 @@ class BrainGame {
         }
     }
 
-    listWorlds = (callback) => {
+    listWorlds = (callback = ()=>{}) => {
         const worldPath = this.gameOptions.worldPath
         // Load fs
         if (typeof(FileSystem) == "undefined") {
@@ -222,8 +222,33 @@ class BrainGame {
 
                 const jsonsInDir = fs.readdirSync(worldPath)
                 callback(jsonsInDir)
+                return jsonsInDir
             })
         }
+    }
+
+    getRandomWorldName = (callback = ()=>{}) => {
+        // Get list
+        let worlds = []
+        this.listWorlds((fileNames) => { 
+            worlds = fileNames
+            console.log(worlds)
+
+            // Trim off the file extension
+            if (worlds.length > 0) {
+                let formattedWorlds = []
+                for (let i = 0; i < worlds.length; i++) {
+                    formattedWorlds[i] = worlds[i].replace(/\.[^\/.]+$/, '')
+                }
+                // worlds.forEach(w => { w.replace(/\.[^\/.]+$/, '') })
+            
+                // Return
+                const rndWorld = randomArray(formattedWorlds)
+                console.log(rndWorld)
+                callback( rndWorld )
+            }
+            else callback('')
+        })
     }
 
     updateSingleBlock = ( location, id ) => {

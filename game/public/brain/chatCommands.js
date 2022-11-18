@@ -681,10 +681,13 @@ const chatCommands = {
                 return
             }
             if (args[0]) {
+                // Load random world
+                if (args[0] === '@r') {
+                    brainGame.getRandomWorldName((worldName)=>{ brainGame.loadWorldFromURL( worldName, sendMessage ) })
+                }
+
                 // Load world
-                brainGame.loadWorldFromURL( args[0], sendMessage )
-                // Send message
-                // sendMessage(`${message}`)
+                else brainGame.loadWorldFromURL( args[0], sendMessage )
             }
             else {
                 sendMessage(`You must provide a world name.`, true)
