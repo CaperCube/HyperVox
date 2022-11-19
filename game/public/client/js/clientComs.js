@@ -277,6 +277,14 @@ class ClientComs {
                     myPlayer.teleportPlayer(myPlayer.respawnPoint)
                 }
             },
+
+            receivePing: ( data, playerId ) => {
+                //if (this.messageDebug)
+                console.log( '%c Create ping (client)', 'background: #142; color: #ced' )
+                //...
+                // ToDo: create a Ping() class
+                // this.clientGame.pings.push(new Ping(data.position || data.entityId, data.type, data.time))
+            }
         }
     }
 

@@ -29,7 +29,8 @@ class BrainGame {
             chatOptions: {
                 maxChatSize: 40, // The maximum allowed characters in a chat message
                 filterChatHTML: true, // If true, player chat messages will be filtered to not allow executable HTML
-                allowPlayerNameChange: true // If true, this allow's non-admins to change their own names
+                allowPlayerNameChange: true, // If true, this allow's non-admins to change their own names
+                allowPings: true, // If true, players will be able to put pings in the world
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
@@ -440,6 +441,11 @@ class BrainGame {
 
         // Respawn player
         this.brainComs.genericToClient('respawn', {}, [deadPlayer.playerID])
+    }
+
+    createPing = (position, type) => {
+        // Send message to clients to create a ping
+        this.brainComs.genericToClient('receivePing', {position: position, type: type, entityId: null, time: 5000})
     }
 
     ///////////////////////////////////////////////////////

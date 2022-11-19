@@ -213,7 +213,7 @@ const chatCommands = {
     teleport: {
         commands: ["teleport", "tp"],
         admin: true,
-        description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [y] [Z] [player name (optional)]")`,
+        description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [Y] [Z] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get position
@@ -411,6 +411,45 @@ const chatCommands = {
                     // No matching game modes found
                     if (!found) sendMessage(`That is not a valid game mode`, true)
                 }
+            }
+        }
+    },
+    ping: {
+        commands: ["ping"],
+        admin: false,
+        description: `Puts a ping in the world at a specified location. (Example: "${commandOptions.delimiter}ping [X] [Y] [Z] [ping type (optional)]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (brainGame.gameOptions.chatOptions.allowPings || isAdmin) {
+                
+                // ToDo: move ping types to 
+                const pingTypes = {default: 'default'}
+                let position = null
+                let type = pingTypes.default
+
+                if (args[0] && args[1] && args[2]) {
+                    // Get position
+                    position = {
+                        x: parseFloat(args[0]),
+                        y: parseFloat(args[1]),
+                        z: parseFloat(args[2])
+                    }
+
+                    // Get ping type
+                    if (args[3]) {
+                        const pType = args[3].toLowerCase()
+                        if (Object.values(pingTypes).includes(pType)) { type = pType }
+                    }
+                }
+
+                // Create ping
+                if (position) {
+                    brainGame.createPing(position, type)
+                    sendMessage(`${name} placed a ping pinged at X: ${Math.round(position.x)} | Y: ${Math.round(position.y)} | Z: ${Math.round(position.z)}`)
+                }
+                else sendMessage(`No location specified.`, true)
+            }
+            else {
+                sendMessage(`You must be an admin to ping.`, true)  
             }
         }
     },
