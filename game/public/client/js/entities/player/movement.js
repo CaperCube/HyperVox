@@ -97,7 +97,8 @@ export function basicMovement(engine, player, movementVector) {
     // Y Bound (Kill Floor)
     if (((player.position.y)) < -100) {
         // Kill player
-        player.clientGame.clientComs.sendObituary(player.playerID, null)
+        player.takeDamage(9999, player.invincibleTime)
+        // player.clientGame.clientComs.sendObituary(player.playerID, null)
     }
     else if (!player.spectateMode && allowGrav) {
         // Apply gravity
