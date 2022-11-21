@@ -12,6 +12,7 @@ import { defaultWorldSize } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
 import { UpdateLobbyPlayerData, CreateLobbyPlayerList, ClearLobbyContent } from "./lobbyUtil.js"
+import Ping from './entities/ping.js'
 
 class ClientComs {
     constructor(props = {
@@ -278,12 +279,21 @@ class ClientComs {
                 }
             },
 
-            receivePing: ( data, playerId ) => {
+            createEffect: ( data, playerId ) => {
                 //if (this.messageDebug)
-                console.log( '%c Create ping (client)', 'background: #142; color: #ced' )
-                //...
-                // ToDo: create a Ping() class
-                // this.clientGame.pings.push(new Ping(data.position || data.entityId, data.type, data.time))
+                console.log( '%c Create effect (client)', 'background: #142; color: #ced' )
+
+                // ToDo: Check type and create an effect based on that
+                // Account for weapon and other brain-wide effects
+
+                // Create Ping object
+                // data.position, data.entityId, data.type, data.time
+                console.log(data.time)
+                const newPing = new Ping({
+                    position: data.position,
+                    lifetime: data.time,
+                    clientGame: this.clientGame
+                })
             }
         }
     }
