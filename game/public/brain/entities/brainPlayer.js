@@ -9,10 +9,10 @@ export default class BrainPlayer extends BrainEntity {
 
         // Player vars
         this.playerID = playerID
-        this.playerName = getRandomName()//'Player' // ToDo: use 'getRandomPlayerName()'
+        this.playerName = getRandomName()
 
         // Game vars
-        this.isAdmin = false // ToDo: set as true if this is the first player in the lobby
+        this.isAdmin = false
         this.gameMode = gameModes.creative // this overrides 'gameOptions.gameMode'
 
         this.respawmPoint = { x: 0, y: 0, z: 0 } // not yet implemented

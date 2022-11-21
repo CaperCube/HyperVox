@@ -126,19 +126,24 @@ class BrainComs {
             },
 
             sendChatMessage: ( data, playerID = 0 ) => {
+                // Get player
+                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                let commandFound = false
+
                 // Sanitize message
                 const noContent = data.message.trim().length === 0
                 let messageIsInvalid = noContent
                 if (messageIsInvalid) {
                     // Do nothing
                     return
-                } else {
+                }
+                // Only apply message limit if player is not an admin
+                else if (!myBrainPlayer.isAdmin) {
                     const maxLength = this.brainGame.gameOptions.chatOptions.maxChatSize
                     if (data.message.length > maxLength) data.message = data.message.substr(0, maxLength)
                 }
+
                 // Check for chat commands
-                const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
-                let commandFound = false
                 if (myBrainPlayer) {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName

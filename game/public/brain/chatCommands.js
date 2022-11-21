@@ -1,5 +1,5 @@
 import { getArrayPos } from "../common/positionUtils.js"
-import { randomArray } from "../common/dataUtils.js"
+import { randomArray, filterChatMessageCode } from "../common/dataUtils.js"
 import { gameModes } from "./brainGame.js"
 
 const commandOptions = {
@@ -672,6 +672,49 @@ const chatCommands = {
             }
             else {
                 sendMessage(`This command only works in multiplayer.`, true)
+            }
+        }
+    },
+    doWorldEvent: {
+        commands: ["doworldevent", "doevent", "dwe"],
+        admin: true,
+        description: `Triggers the designated event (Example: "${commandOptions.delimiter}doworldevent [event name]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Do world event
+                const eventName = brainGame.doWorldEvent(args[0])
+
+                // Send message
+                if (eventName) sendMessage(`Event ${chatEmphasis(eventName)}.`)
+                else sendMessage(`Cannot find event with name ${chatEmphasis(args[0])}.`, true)
+            }
+            else {
+                sendMessage(`No event specified.`, true)
+            }
+        }
+    },
+    setWorldEvent: {
+        commands: ["setworldevent", "setevent", "swe"],
+        admin: true,
+        description: `Sets the designated event's command (Example: "${commandOptions.delimiter}setworldevent [event name] [event command]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Compile arguments
+                let command = ''
+                if (args.length > 1) {
+                    for (let i = 1; i < args.length; i++) {
+                        command += `${args[i]} `
+                    }
+                }
+                // Set world event
+                const eventObj = brainGame.editWorldEvent(args[0], command || null)
+
+                // Send message
+                if (eventObj) sendMessage(`Event ${chatEmphasis(eventObj.name)} has a value of ${chatEmphasis(filterChatMessageCode(eventObj.command))}.`)
+                else sendMessage(`Cannot find event with name ${chatEmphasis(args[0])}.`, true)
+            }
+            else {
+                sendMessage(`No event specified.`, true)
             }
         }
     },

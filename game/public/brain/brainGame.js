@@ -109,6 +109,38 @@ class BrainGame {
         return myBrainPlayer
     }
 
+    sendChatMessage = ( message, recipients = "all") => {
+        const data = { message: message, messageName: 'Server', isServer: true }
+        this.brainComs.genericToClient('receiveChatMessage', data, recipients)
+    }
+
+    runCommandString = ( command ) => {
+        // Run multiple commands
+        // https://regexr.com/
+        let commandList = command?.split(/(;)/) // /(;+? )/
+
+        commandList?.forEach(cmd => {
+            // Remove (semicolons) or (spaces at the beginning of the string)
+            const formattedCommand = cmd.replace(/(;|^ )/, "")
+            
+            // Run command
+            if (formattedCommand.length > 0) {
+                    let commandFound = false
+                    commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
+                    // commandFound = true
+                    // Send message
+                    this.sendChatMessage(responseMessage)
+                })
+                if (!commandFound) {
+                    this.sendChatMessage(formattedCommand)
+                }
+            }
+        })
+    }
+
+    ///////////////////////////////////////////////////////
+    // World functions
+    ///////////////////////////////////////////////////////
     createNewWorld = ( size, pattern ) => {
         // If no arguments, generate random props
         if (!size) {
@@ -303,21 +335,7 @@ class BrainGame {
 
     }
 
-    setAdmin = ( playerID, newVal ) => {
-        const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
-        if (myPlayer) {
-            myPlayer.isAdmin = true
-            // myPlayer.playerName += ' (admin)'
-            // ToDo: tell all clients to change this player's name
-            console.log(`${myPlayer.playerName} is now an admin.`)
-        }
-        else {
-            console.log('This player does not exist')
-            // This player does not exist
-            // ToDo: send a chat message saying this player does not exist
-        }
-    }
-
+    // ToDo: This is old and needs updating before it can be used
     setBlockMetaData = ( location, data ) => {
         if (this.world) {
             // Check if this spot in the world exists
@@ -340,41 +358,100 @@ class BrainGame {
         }
     }
 
-    sendChatMessage = ( message, recipients = "all") => {
-        const data = { message: message, messageName: 'Server', isServer: true }
-        this.brainComs.genericToClient('receiveChatMessage', data, recipients)
-    }
-
-    runCommandString = ( command ) => {
-        // Run multiple commands
-        // https://regexr.com/
-        let commandList = command?.split(/(;)/) // /(;+? )/
-
-        commandList?.forEach(cmd => {
-            // Remove (semicolons) or (spaces at the beginning of the string)
-            const formattedCommand = cmd.replace(/(;|^ )/, "")
-            
-            // Run command
-            if (formattedCommand.length > 0) {
-                    let commandFound = false
-                    commandFound = checkForCommand(formattedCommand, "Server", 0, true, this, (responseMessage, isPrivate) => {
-                    // commandFound = true
-                    // Send message
-                    this.sendChatMessage(responseMessage)
-                })
-                if (!commandFound) {
-                    this.sendChatMessage(formattedCommand)
-                }
-            }
-        })
-    }
-
     changeWorldSpawn = ( location ) => {
         // Set world spawn
         this.world.worldSpawn = location
 
         // Tell others about this change
         this.brainComs.genericToClient('updateWorldSpawn', {location: location})
+    }
+
+    getWorldEventByName = (e) => {
+        if (this.world?.events) {
+            const eventKeys = Object.keys(this.world.events)
+            for (let i = 0; i < eventKeys.length; i++) {
+                if (eventKeys[i].toLowerCase() === e.toLowerCase()) {
+                    return eventKeys[i]
+                }
+            }
+            // If no match, return null
+            return null
+        }
+        else return null
+    }
+
+    doWorldEvent = (e) => {
+        // Get the event name
+        let event = this.getWorldEventByName(e)
+
+        // Trigger this event
+        if (event) {
+            this.runCommandString(this.world.events[event])
+            return event
+        }
+        else {
+            // No event to trigger
+            return null
+        }
+    }
+
+    editWorldEvent = (e, newVal) => {
+        // Get the event name
+        let event = this.getWorldEventByName(e)
+
+        // Set event command
+        if (event) {
+            if (newVal) this.world.events[event] = newVal
+            return {name: event, command: this.world.events[event]}
+        }
+        else {
+            // No event to set
+            return null
+        }
+    }
+
+    ///////////////////////////////////////////////////////
+    // Player Methods
+    ///////////////////////////////////////////////////////
+    changePlayerName = (player, newName, isQuiet = false) => {
+        // Format player name
+        if (newName === "@r") newName = getRandomName()
+        newName = formatPlayerName(newName)
+
+        if (newName) {
+            // Store old name
+            const oldName = player.playerName
+            
+            // Set new name on server
+            player.playerName = newName
+
+            // Update client players
+            const data = { targetPlayerID: player.playerID, newName: newName }
+            this.brainComs.genericToClient('playerNameChange', data)
+            this.brainComs.sayWhosConnected()
+
+            // Send message
+            this.sendChatMessage(`<span style="color: white;">${oldName}</span>'s has been renamed to <span style="color: white;">${player.playerName}</span>`)
+        }
+        else {
+            // If name is invalid, tell the authoring player
+            this.sendChatMessage(`That is an invalid name`, [player.playerID])
+        }
+    }
+
+    setAdmin = ( playerID, newVal ) => {
+        const myPlayer = this.players.filter(p => p.playerID === playerID)?.[0]
+        if (myPlayer) {
+            myPlayer.isAdmin = true
+            // myPlayer.playerName += ' (admin)'
+            // ToDo: tell all clients to change this player's name
+            console.log(`${myPlayer.playerName} is now an admin.`)
+        }
+        else {
+            console.log('This player does not exist')
+            // This player does not exist
+            // ToDo: send a chat message saying this player does not exist
+        }
     }
 
     resetScores = () => {
@@ -449,35 +526,6 @@ class BrainGame {
         this.brainComs.genericToClient('createEffect', {position: position, type: type, entityId: null, time: 10000})
     }
 
-    ///////////////////////////////////////////////////////
-    // Player Methods
-    ///////////////////////////////////////////////////////
-    changePlayerName = (player, newName, isQuiet = false) => {
-        // Format player name
-        if (newName === "@r") newName = getRandomName()
-        newName = formatPlayerName(newName)
-
-        if (newName) {
-            // Store old name
-            const oldName = player.playerName
-            
-            // Set new name on server
-            player.playerName = newName
-
-            // Update client players
-            const data = { targetPlayerID: player.playerID, newName: newName }
-            this.brainComs.genericToClient('playerNameChange', data)
-            this.brainComs.sayWhosConnected()
-
-            // Send message
-            this.sendChatMessage(`<span style="color: white;">${oldName}</span>'s has been renamed to <span style="color: white;">${player.playerName}</span>`)
-        }
-        else {
-            // If name is invalid, tell the authoring player
-            this.sendChatMessage(`That is an invalid name`, [player.playerID])
-        }
-    }
-
     // ToDo: this should check the player's position using a time stamp
     // Note: This function should only be used for "hitscan" guns, projectiles should move like entities
     checkIfShotHitAnyone = ( data, authorID ) => { 
@@ -496,6 +544,7 @@ class BrainGame {
             // Return null if no hit
         return null
     }
+
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////
@@ -505,8 +554,8 @@ class BrainGame {
             this.stopGameLoop()
         }
 
-        // Reset player data
-        //...
+        // Reset game-mode
+        this.gameOptions.gameMode = gameModes.creative
 
         // Create intervals
         if (this.world.intervalCommands) {
@@ -517,6 +566,20 @@ class BrainGame {
                     this.runCommandString(interval.command)
                 }, interval.time ) )
             })
+        }
+
+        // World Start Event
+        // if (this.world?.events?.worldStart) this.runCommandString(this.world.events.worldStart)
+        this.doWorldEvent("worldStart")
+
+        // Reset player data
+        for (let i = 0; i < this.players.length; i++) {
+            // ToDo: replace all this with a function (in the Player() class, that resets this data)
+            // Game mode
+            this.players[i].gameMode = this.gameOptions.gameMode
+            
+            // Stats
+            this.players[i].ResetStats()
         }
 
         // Start loop
@@ -540,6 +603,28 @@ class BrainGame {
         clearInterval(this.gameTickInterval)
         this.gameTickInterval = null
 
+        // Clear all interval commands
+        this.stopWorldIntervals()
+    }
+
+    // Run this on "startGameLoop" and when editing intervals via command
+    startWorldIntervals = () => {
+        // Stop current intervals
+        this.stopWorldIntervals()
+
+        // Create new intervals
+        if (this.world.intervalCommands) {
+            Object.values(this.world.intervalCommands).forEach( interval => {
+                // Create interval
+                this.intervalCommands.push( setInterval( () => { 
+                    // Run commands
+                    this.runCommandString(interval.command)
+                }, interval.time ) )
+            })
+        }
+    }
+
+    stopWorldIntervals = () => {
         // Clear all interval commands
         this.intervalCommands.forEach( interval => { clearInterval(interval) } )
         this.intervalCommands = []

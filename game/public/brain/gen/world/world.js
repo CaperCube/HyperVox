@@ -19,7 +19,6 @@ class World {
         //     }
         // }
 
-        // ToDo: Add this to World Tool
         this.intervalCommands = {}
         // this.intervalCommands = {
         //     short: {
@@ -27,6 +26,15 @@ class World {
         //         time: 1000
         //     }
         // }
+
+        // Events (these should all be strings to house chat commands)
+        this.events = {
+            worldStart: "",
+            gameStart: "",
+            gameEnd: "",
+            // playerDie: ""
+            // ...
+        }
 
         this.getWorldSeed = () => { return this._wSeed }
 
@@ -64,6 +72,7 @@ class World {
         this.worldSpawn = jsonObj.worldSpawn
         this.blockData = jsonObj.blockData
         this.intervalCommands = jsonObj.intervalCommands
+        this.events = jsonObj.events
         this._wSeed = jsonObj._wSeed
         this._tileScale = jsonObj._tileScale
         this._chunkSize = jsonObj._chunkSize

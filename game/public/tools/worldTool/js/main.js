@@ -36,6 +36,7 @@ let worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
 let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
 let blockData = {}
 let intervalCommands = {}
+let events = { worldStart: "", gameStart: "", gameEnd: "" }
 
 // Editor vars
 let tempLayer = [[]]
@@ -356,6 +357,7 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     worldSpawn = newWorld.worldSpawn
     blockData = newWorld.blockData || {}
     intervalCommands = newWorld.intervalCommands || {}
+    events = newWorld.events || { worldStart: "", gameStart: "", gameEnd: "" }
     //$("#DOM_genList").value = newWorld.pattern // ToDo: save this data in world file
 
     canvasTemp.width = canvasTemp.height = canvas.width
@@ -421,6 +423,7 @@ function DOMNoiseFnc() {
     // Update data sections
     blockData = {}
     intervalCommands = {}
+    events = { worldStart: "", gameStart: "", gameEnd: "" }
     populateDOMBlockData()
     populateDOMIntervalCommands()
 }
@@ -1189,6 +1192,7 @@ const saveWorld = (saveWorld) => {
     if (worldSpawn) w.worldSpawn = worldSpawn
     w.blockData = blockData
     w.intervalCommands = intervalCommands
+    w.events = events
 
     let element = document.createElement('a')
     element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( w ) ) )
