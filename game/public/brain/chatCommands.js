@@ -199,13 +199,32 @@ const chatCommands = {
 
                 // Check password
                 if (brainGame.adminPassword && argString === brainGame.adminPassword) {
+                    // Reset attempts
+                    myPlayer.passwordAttempts = 0
                     // Set admin
                     myPlayer.isAdmin = true
                     console.log(`${myPlayer.playerName} has logged in as an admin.`)
                     // Send message
                     sendMessage(`${chatEmphasis(myPlayer.playerName)} is now an admin`)
                 }
-                else sendMessage(`Wrong password`, true)
+                else {
+                    // log attempts
+                    myPlayer.passwordAttempts++
+
+                    // If too many attempts, kick them
+                    if (myPlayer.passwordAttempts >= brainGame.gameOptions.passwordAttempts) {
+                        // Tell the player they've been kicked
+                        const msg = `Disconnected: You have exceeded the maximum login attempts.`
+                        brainGame.brainComs.genericToClient('disconnectMessage', { message: msg }, [playerID])
+
+                        // Disconnect this player
+                        const player = brainGame.brainComs.network.SOCKET_LIST[playerID]
+                        player.disconnect()
+                    }
+
+                    // Tell them they're wrong!
+                    sendMessage(`Wrong password! ${brainGame.gameOptions.passwordAttempts - myPlayer.passwordAttempts} attempts left.`, true)
+                }
             }
             else sendMessage(`Player not found`, true)
         }
@@ -421,8 +440,7 @@ const chatCommands = {
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (brainGame.gameOptions.chatOptions.allowPings || isAdmin) {
                 
-                // ToDo: move ping types to 
-                const pingTypes = {default: 'default'}
+                const pingTypes = {default: 'default'} // ToDo: move ping types to 
                 let position = null
                 let type = pingTypes.default
 
@@ -437,6 +455,23 @@ const chatCommands = {
                     // Get ping type
                     if (args[3]) {
                         const pType = args[3].toLowerCase()
+                        if (Object.values(pingTypes).includes(pType)) { type = pType }
+                    }
+                }
+                else {
+                    // If no position, ping at the player's pos
+                    const players = getPlayers(args[0] || '', brainGame, playerID)
+
+                    // Get position
+                    position = {
+                        x: players[0]?.position?.x || 0,
+                        y: (players[0]?.position?.y || 0) + 3,
+                        z: players[0]?.position?.z || 0
+                    }
+
+                    // Get ping type
+                    if (args[1]) {
+                        const pType = args[1].toLowerCase()
                         if (Object.values(pingTypes).includes(pType)) { type = pType }
                     }
                 }

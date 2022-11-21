@@ -1,7 +1,5 @@
-import { IntersectionInfo } from "babylonjs"
-
 // Effect object
-export class Effect {
+class Effect {
     constructor({
         id,
         position = { x:0, y:0, z:0 },
@@ -9,16 +7,18 @@ export class Effect {
         type = 'sprite', // ToDo: move this to a constants file (const effectTypes...)
         clientGame
         }) {
-
         // Props
         this.effectId = id || Math.random()
         this._effectName = `effect_${this.effectId}`
         this._type = type
 
         this.position = position
+        this.offset = { x:0, y:0, z:0 }
+        this._size = 2
         this.lifetime = lifetime
         this.clientGame = clientGame
 
+        this.myFrames = 0
         this._lifetimer = null
 
         this.sceneEffect = null
@@ -30,37 +30,45 @@ export class Effect {
     init() {
         if (this.clientGame.scene) {
             // Add to scene
-            switch (this.type) {
+            switch (this._type) {
                 case 'sprite':
-                    //...
                     // Create mesh
-                    // this.nameMesh = BABYLON.Mesh.CreatePlane("nameTag", 1, this.scene, false)
-                    // // Create material
-                    // this.nameMesh.material = new BABYLON.StandardMaterial('nameMat')
-                    // this.nameMesh.useAlphaFromDiffuseTexture = true
-                    // this.nameMesh.material.specularColor = new BABYLON.Color3(0, 0, 0)
-                    // this.nameMesh.material.useAlphaFromDiffuseTexture = true
+                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', 177, this.clientGame.scene),
+                    this.sceneEffect.scaling = new BABYLON.Vector3(this._size, this._size, this._size)
+                    // this.sceneEffect = BABYLON.Mesh.CreatePlane(this._effectName, this._size, this.clientGame.scene, false)
 
-                    // // Bake rotation
-                    // this.nameMesh.rotation.z = Math.PI
-                    // this.nameMesh.rotation.y = Math.PI
-                    // this.nameMesh.bakeCurrentTransformIntoVertices()
+                    // Create material // ToDo: move to Material setup
+                    // this.sceneEffect.material = new BABYLON.StandardMaterial(`${this._effectName}_mat`)
+                    // this.sceneEffect.material.specularColor = new BABYLON.Color3(0, 0, 0)
 
-                    // // Parent mesh to player
-                    // this.nameMesh.setParent(this.avatar)
-                    // this.nameMesh.position = new BABYLON.Vector3(0, 1.5, 0)
+                    // this.sceneEffect.useAlphaFromDiffuseTexture = true
+                    // this.sceneEffect.material.useAlphaFromDiffuseTexture = true
 
-                    // this.nameMesh.material.backFaceCulling = false
-                    // this.nameMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+                    // Bake rotation
+                    // this.sceneEffect.rotation.z = -Math.PI
+                    // this.sceneEffect.rotation.y = -Math.PI
+                    // this.sceneEffect.bakeCurrentTransformIntoVertices()
+
+                    // Billboard Mode
+                    // this.sceneEffect.material.backFaceCulling = false
+                    this.sceneEffect.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+                    this.sceneEffect.renderingGroupId = 1 // Set to render on top
                     break
                 default:
-                    BABYLON.Mesh.CreatePlane("hoverText", 1, this.scene, false)
+                    // BABYLON.Mesh.CreatePlane(this._effectName, 1, this.clientGame.scene, false)
                     // this.sceneEffect = this.clientGame.meshGen //Mesh(this._effectName, this.position)
                     break
             }
 
+            // Set position
+            console.log(this._type)
+            this.sceneEffect.position = new BABYLON.Vector3(this.position.x, this.position.y, this.position.z)
+
             // Add reference to glientGame
-            this.clientGame.effects[this.effectId] = this
+            this.clientGame.effects.push(this)
+
+            // Play sound?
+            //...
 
             // Set destroy timer
             this._lifetimer = setTimeout(()=>{ this.destroy() }, this.lifetime)
@@ -75,6 +83,18 @@ export class Effect {
         delete this.clientGame.effects[this.effectId]
 
         // Delete self (is this needed if we're deleting from the clientGame.effects object?)
-        // delete this
+        delete this
+    }
+
+    update() {
+        if (this.sceneEffect) {
+            // Animate if applicable
+            this.myFrames++
+
+            // Update position
+            this.sceneEffect.position = new BABYLON.Vector3(this.position.x + this.offset.x, this.position.y + this.offset.y, this.position.z + this.offset.z)
+        }
     }
 }
+
+export default Effect

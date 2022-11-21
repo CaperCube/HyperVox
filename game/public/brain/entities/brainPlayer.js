@@ -21,6 +21,8 @@ export default class BrainPlayer extends BrainEntity {
         this.rotation = { x: 0, y: 0, z: 0 }
         this.health = 100 // not yet implemented
 
+        this.passwordAttempts = 0
+
         this.stats = {
             kills: 0,
             deaths: 0,

@@ -76,6 +76,11 @@ class ClientGame {
         this.networkPlayers = []
 
         ///////////////////////////////////////////////////////
+        // Entity vars
+        ///////////////////////////////////////////////////////
+        this.effects = []
+
+        ///////////////////////////////////////////////////////
         // Engin vars
         ///////////////////////////////////////////////////////
 
@@ -691,6 +696,16 @@ class ClientGame {
                     this.networkPlayers[p].updatePosition()
                 }
             }
+
+            // Update effect
+            for (let e in this.effects) {
+                if (this.effects[e]) {
+                    this.effects[e].update()
+                }
+            }
+
+            // Update entities
+            //...
 
         }, this.clientUpdateSpeed)
     }

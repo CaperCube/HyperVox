@@ -19,6 +19,7 @@ class BrainGame {
         // Game vars
         ///////////////////////////////////////////////////////
         this.gameOptions = {
+            passwordAttempts: 4,
             maxPlayers: 16, // A networked game will refuse new connections if this.players.length is >= this value
             adminAlwaysExists: false, // If true, the the brain will always try to have at least one admin in a game
             worldPath: './game/public/worlds/', // The folder in which the brain looks for world files
@@ -445,7 +446,7 @@ class BrainGame {
 
     createPing = (position, type) => {
         // Send message to clients to create a ping
-        this.brainComs.genericToClient('receivePing', {position: position, type: type, entityId: null, time: 5000})
+        this.brainComs.genericToClient('createEffect', {position: position, type: type, entityId: null, time: 10000})
     }
 
     ///////////////////////////////////////////////////////

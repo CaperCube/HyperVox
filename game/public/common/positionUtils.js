@@ -34,6 +34,7 @@ const getArrayPos = (position, chunkSize) => {
  * @returns bool
  */
 const boxIsIntersecting = (box1 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}, box2 = {x: 0, y: 0, z: 0, w: 1, h: 1, d: 1}) => {
+    // Box origin is in center
     var a = {
         minX : box1.x - (box1.w/2),
         maxX : box1.x + (box1.w/2),
