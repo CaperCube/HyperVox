@@ -100,6 +100,7 @@ function copyWorld( world ) {
     // Block Data
     newWorld.blockData = clone.blockData
     newWorld.intervalCommands = clone.intervalCommands
+    newWorld.events = clone.events
 
     return newWorld
 }

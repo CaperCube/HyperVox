@@ -484,6 +484,8 @@ class BrainGame {
                 this.gameOptions.gameMode = gameModes.spectator
                 for (let i = 0; i < this.players.length; i++) this.players[i].gameMode = this.gameOptions.gameMode
 
+                // Do world event
+                this.doWorldEvent('gameEnd')
             }
         }
 
