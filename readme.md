@@ -42,5 +42,6 @@ Contact me (CaperCube) about contributing to this project. I do hope to work wit
 [Information for contributors](docs/md/Contribution.md)
 
 # License Note
-We offer this project for free and encourage creators of all kinds to modify and share thier creations or derivative works!
-This project is listed as MIT and is considered open-source! Please see [the license](LICENSE.md) for details. Don't worry, it's short and easy to read.
+We offer this project for free and encourage creators to modify and share thier creations or derivative works! To qualify, any derivative work **must include credit to the author or original game** and this MIT lisense. This same lisense does not apply to packages included (Babylon.js, Socket.io, etc.)
+
+This project is listed as MIT and is considered open-source! Please see [the license](LICENSE.md) for details. Don't worry, it's a short one!
