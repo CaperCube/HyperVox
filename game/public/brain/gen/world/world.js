@@ -28,13 +28,12 @@ class World {
         // }
 
         // Events (these should all be strings to house chat commands)
-        this.events = {
-            worldStart: "",
-            gameStart: "",
-            gameEnd: "",
+        this.events = new Map()
+        this.events["worldStart"] = ""
+        this.events["gameStart"] = ""
+        this.events["gameEnd"] = ""
             // playerDie: ""
             // ...
-        }
 
         this.getWorldSeed = () => { return this._wSeed }
 
