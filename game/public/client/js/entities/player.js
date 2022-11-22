@@ -66,6 +66,8 @@ class ClientPlayer {
         this.usedJumps = 0
         this.playerVelocity = BABYLON.Vector3.Zero()
         this.moveForward, this.moveBackward, this.moveLeft, this.moveRight, this.moveUp, this.moveDown
+        this.zoneBlockId = 0 // Only trigger zone interaction if this Id is different
+        this.zoneBlock = null
 
         // Player controls
         this.controls = controls // The buttons
@@ -456,6 +458,17 @@ class ClientPlayer {
 
         // Call block's interaction function
         if (typeof blockTypes[blockID]?.interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
+    }
+
+    zoneInteract = (blockID, blockLocation) => {
+        // Only trigger if zoneBlockId is different
+        if (this.zoneBlockId !== blockID) {
+            this.zoneBlockId = blockID
+            
+            if (typeof blockTypes[blockID]?.interact === "function") {
+                blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
+            }
+        }
     }
 
     // ToDo: this is mostly redundant, merge this code with "setPlayerName"

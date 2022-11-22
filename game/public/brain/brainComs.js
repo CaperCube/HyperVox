@@ -221,7 +221,7 @@ class BrainComs {
                     if (this.brainGame?.world?.blockData?.[targetBlock] !== undefined) {
                         // Run command
                         blockCommand = this.brainGame.world.blockData[targetBlock].command
-                        if (blockCommand) this.brainGame.runCommandString(blockCommand)
+                        if (blockCommand) this.brainGame.runCommandString(blockCommand, playerID)
                     }
                 }
             },

@@ -3,7 +3,6 @@ import { getArrayPos, boxIsIntersecting } from '../../../../common/positionUtils
 import { blockCats, blockTypes } from '../../../../common/blockSystem.js'
 
 export function basicMovement(engine, player, movementVector) {
-
     ///////////////////////////////////////////////////////
     // Apply velocity
     ///////////////////////////////////////////////////////
@@ -48,6 +47,7 @@ export function basicMovement(engine, player, movementVector) {
     // Block checks
     if (!player.spectateMode && player.world) {
         player.isInFluid = false
+        player.zoneBlock = null
         // Check X
         for (let cy = -2; cy < 2; cy++) {
         for (let cx = -1; cx < 2; cx++) {
@@ -68,22 +68,25 @@ export function basicMovement(engine, player, movementVector) {
             let skipMid = (cy >= 0)
             if (skipMid && blockID > 0) {
                 // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
-                checkXCol(blockHere, blockID, player, playerBox)
+                checkXCol(blockHere, blockID, player, playerBox, { x: Math.floor(blockPos.x), y: Math.floor(blockPos.y), z: Math.floor(blockPos.z)})
             }
 
             // Check Z
             if (skipMid && blockID > 0) {
                 // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: 1, h: 1, d: 1}
-                checkZCol(blockHere, blockID, player, playerBox)
+                checkZCol(blockHere, blockID, player, playerBox, { x: Math.floor(blockPos.x), y: Math.floor(blockPos.y), z: Math.floor(blockPos.z)})
             }
 
             // Check Y
             skipMid = (cy < 0 || cy > 0)
             if (skipMid && blockID > 0) {
                 // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: 1, h: 1, d: 1}
-                checkYCol(blockHere, (cy > 0), blockID, player, playerBox, allowGrav)
+                checkYCol(blockHere, (cy > 0), blockID, player, playerBox, { x: Math.floor(blockPos.x), y: Math.floor(blockPos.y), z: Math.floor(blockPos.z)}, allowGrav)
             }
         }}}
+
+        if (player.zoneBlock) player.zoneInteract(player.zoneBlock.id, player.zoneBlock.location)
+        else if (player.zoneBlockId !== 0) player.zoneBlockId = 0
     }
 
     // Gravity changes
@@ -144,7 +147,7 @@ export function basicMovement(engine, player, movementVector) {
 // Collision checks
 ///////////////////////////////////////////////////////
 
-const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
+const checkYCol = (block, bOnly, blockID, player, playerBox, blockLoc, allowGrav) => {
 
     let bounceOnly = bOnly || false
     // Check Y
@@ -190,10 +193,12 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, allowGrav) => {
         if (blockTypes[blockID]?.categories.includes(blockCats.healing)) player.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
         // Fluid
         if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { player.fluidViscosity = blockTypes[blockID].viscosity || 1; player.isInFluid = true }
+        // Zone
+        if (blockTypes[blockID]?.categories.includes(blockCats.zone)) { player.zoneBlock = {id: blockID, location: blockLoc} }
     }
 }
 
-const checkXCol = (block, blockID, player, playerBox) => {
+const checkXCol = (block, blockID, player, playerBox, blockLoc) => {
     // Check X
     //let playerPosCheck = {x: (player.position.x - 0.5), y: player.position.y, z: (player.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
     // let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: 2, d: 0.5}
@@ -237,10 +242,12 @@ const checkXCol = (block, blockID, player, playerBox) => {
         if (blockTypes[blockID]?.categories.includes(blockCats.healing)) player.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
         // Fluid
         if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { player.fluidViscosity = blockTypes[blockID].viscosity || 1; player.isInFluid = true }
+        // Zone
+        if (blockTypes[blockID]?.categories.includes(blockCats.zone)) { player.zoneBlock = {id: blockID, location: blockLoc} }
     }
 }
 
-const checkZCol = (block, blockID, player, playerBox) => {
+const checkZCol = (block, blockID, player, playerBox, blockLoc) => {
     // Check Z
     // let playerPosCheck = {x: (player.position.x - 0.5), y: player.position.y, z: (player.position.z - 0.5), w: 0.5, h: 2, d: 0.5}
     // let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: 2, d: 0.5}
@@ -284,6 +291,8 @@ const checkZCol = (block, blockID, player, playerBox) => {
         if (blockTypes[blockID]?.categories.includes(blockCats.healing)) player.heal(blockTypes[blockID].healAmount, blockTypes[blockID].healDelay)
         // Fluid
         if (blockTypes[blockID]?.categories.includes(blockCats.fluid)) { player.fluidViscosity = blockTypes[blockID].viscosity || 1; player.isInFluid = true }
+        // Zone
+        if (blockTypes[blockID]?.categories.includes(blockCats.zone)) { player.zoneBlock = {id: blockID, location: blockLoc} }
     }
 }
 

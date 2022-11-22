@@ -187,7 +187,8 @@ export const makeCreativeInventory = (hud = null) => {
     // Fill inv
     for (let i = 1; i < blockTypes.length; i++) {
         const b = blockTypes[i]
-        if (!b.categories.includes(blockCats.zone)) {
+        // if (!b.categories.includes(blockCats.zone)) {
+        if (!b.name.includes("boundary-zone") && !b.name.includes("death-zone")) {
             const newItem = new Item({
                 itemName: b.name,
                 itemID: i,

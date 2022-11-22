@@ -314,9 +314,10 @@ const blockTypes = [
     },
     // 0x0026
     {
-        name: 'respawn-zone',
-        categories: [blockCats.checkpoint, blockCats.noncollidable, blockCats.transparent, blockCats.color.green],
+        name: 'command-zone', // Renamed from respawn-zone
+        categories: [blockCats.zone, blockCats.noncollidable, blockCats.transparent, blockCats.color.green],
         textures: { top: 254, bottom: 254, front: 254, back: 254, left: 254, right: 254 },
+        interact: (clientGame, blockLocation, blockID) => { clientGame.clientComs.genericToBrain( "runBlockCommand", { blockPos: blockLocation, blockID: blockID } ) }
     },
     // 0x0027
     {
