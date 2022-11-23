@@ -10,6 +10,7 @@
 import { gameModes } from "./brainGame.js"
 import { checkForCommand, commandOptions } from "./chatCommands.js"
 import { filterChatMessageCode } from "../common/dataUtils.js"
+import { teams } from '../common/commonConstants.js'
 
 class BrainComs {
     constructor(props = {
@@ -147,6 +148,7 @@ class BrainComs {
                 if (myBrainPlayer) {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
+                    data.nameColor = myBrainPlayer.stats.team
                     // Check message for commands
                     commandFound = checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage, isPrivate) => {
                         // Send message
@@ -228,11 +230,16 @@ class BrainComs {
 
             // A player requested to fire a gun
             shootGun: ( data, playerID = 0 ) => {
+                // ToDo: actually use "checkIfShotHitAnyone()"
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
+                const hitPlayerID = parseFloat(data.hitPlayerID)
+                const hitPlayer = this.brainGame.players.filter(p => parseFloat(p.playerID) === hitPlayerID)[0]
+                
                 // Check if player is in deathMatch mode (or if the brainGame is, if offline)
                 let allowShot = false
                 if ((this.isNetworked && myBrainPlayer?.gameMode === gameModes.deathMatch) || (this.brainGame.gameOptions.gameMode === gameModes.deathMatch)) {
-                    allowShot = true
+                    // Check if both players are on different teams OR on no team
+                    if (hitPlayer && (myBrainPlayer.stats.team === teams.none || myBrainPlayer.stats.team !== hitPlayer.stats.team)) allowShot = true
                 }
 
                 if (allowShot) {
@@ -253,31 +260,26 @@ class BrainComs {
                             gunDamage = 5
                             break
                     }
-                    // ToDo: actually use "checkIfShotHitAnyone()"
-                    const hitPlayerID = parseFloat(data.hitPlayerID) //this.brainGame.checkIfShotHitAnyone(data, playerID)                    
 
                     // Send message of successful shot
-                    if (hitPlayerID) {
-                        // Update player
-                        const hitPlayer = this.brainGame.players.filter(p => parseFloat(p.playerID) === hitPlayerID)[0]
-                        if (hitPlayer) {
-                            // hitPlayer.health -= gunDamage
-                            // if (hitPlayer.health <= 0) {
-                            //     // ToDo: Maybe move this to BrainPlayer class?
-                            //     // Respawn & reset hp
-                            //     // hitPlayer.position = JSON.parse(JSON.stringify(hitPlayer.respawmPoint)) // This clones the coordinates instead of pointing to them
-                            //     hitPlayer.health = 100
-                            // }
+                    if (hitPlayer) {
+                        // hitPlayer.health -= gunDamage
+                        // if (hitPlayer.health <= 0) {
+                        //     // ToDo: Maybe move this to BrainPlayer class?
+                        //     // Respawn & reset hp
+                        //     // hitPlayer.position = JSON.parse(JSON.stringify(hitPlayer.respawmPoint)) // This clones the coordinates instead of pointing to them
+                        //     hitPlayer.health = 100
+                        // }
 
-                            // Send network message to update player
-                            data = { hitPlayerID: hitPlayerID, damage: gunDamage, attackerPlayerID: myBrainPlayer.playerID }//, newHelth: hitPlayer.health, newPosition: hitPlayer.position }
-                            // data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
-                            if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['updateDamagedPlayer']( data ) }
-                            else if (this.isNetworked) {
-                                const recipients = "all"
-                                this.network.emit( 'genericClientMessage', { type: 'updateDamagedPlayer', recipients: recipients, args: data } )
-                            }
+                        // Send network message to update player
+                        data = { hitPlayerID: hitPlayerID, damage: gunDamage, attackerPlayerID: myBrainPlayer.playerID }//, newHelth: hitPlayer.health, newPosition: hitPlayer.position }
+                        // data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
+                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['updateDamagedPlayer']( data ) }
+                        else if (this.isNetworked) {
+                            const recipients = "all"
+                            this.network.emit( 'genericClientMessage', { type: 'updateDamagedPlayer', recipients: recipients, args: data } )
                         }
+                    
                     }
                 }
             },

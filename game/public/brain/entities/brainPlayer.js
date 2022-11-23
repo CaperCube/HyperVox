@@ -1,5 +1,4 @@
-import { getRandomName } from '../../common/commonConstants.js'
-import { gameModes } from '../../common/commonConstants.js'
+import { getRandomName, gameModes, teams } from '../../common/commonConstants.js'
 import BrainEntity, { entityTypes } from './brainEntity.js'
 
 export default class BrainPlayer extends BrainEntity {
@@ -27,6 +26,7 @@ export default class BrainPlayer extends BrainEntity {
             kills: 0,
             deaths: 0,
             score: 0,
+            team: teams.none,
             // startTime: 0,
         }
 
@@ -44,6 +44,7 @@ export default class BrainPlayer extends BrainEntity {
             kills: 0,
             deaths: 0,
             score: 0,
+            team: teams.none,
         }
     }
 }

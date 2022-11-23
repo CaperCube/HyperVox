@@ -1,5 +1,5 @@
 import { debug } from '../clientConstants.js'
-import { tileScale, defaultChunkSize } from '../../../common/commonConstants.js'
+import { tileScale, defaultChunkSize, teams } from '../../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
@@ -55,7 +55,8 @@ class ClientPlayer {
         this.stats = {
             kills: 0,
             deaths: 0,
-            score: 0
+            score: 0,
+            team: teams.none
         }
 
         // Private vars

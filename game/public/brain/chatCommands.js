@@ -1,6 +1,7 @@
 import { getArrayPos } from "../common/positionUtils.js"
 import { randomArray, filterChatMessageCode } from "../common/dataUtils.js"
 import { gameModes } from "./brainGame.js"
+import { teams } from "../common/commonConstants.js"
 
 const commandOptions = {
     delimiter: '/', // The character the server will look for to exicute a chat command
@@ -303,7 +304,7 @@ const chatCommands = {
                     brainGame.killPlayer(players[i])
                 }
             }
-            else sendMessage(`No player not found`, true)
+            else sendMessage(`No players found`, true)
         }
     },
     kick: {
@@ -370,7 +371,7 @@ const chatCommands = {
                     }                              
                 }
             }
-            else sendMessage(`No player not found`, true)
+            else sendMessage(`No players found`, true)
         }
     },
     removeAdmin: {
@@ -395,7 +396,7 @@ const chatCommands = {
                     }                              
                 }
             }
-            else sendMessage(`No player not found`, true)
+            else sendMessage(`No players found`, true)
         }
     },
     listAdmins: {
@@ -511,6 +512,40 @@ const chatCommands = {
             }
             else {
                 sendMessage(`You must be an admin to ping.`, true)  
+            }
+        }
+    },
+    changeTeam: {
+        commands: ["changeteam", "cteam"],
+        admin: false,
+        description: `Changes the team of the targeted player. (Example: "${commandOptions.delimiter}changeteam [team] [player name (optional)]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (Object.keys(teams).includes(args[0].toLowerCase())) {
+                //////////////////////////////////////
+                // Get Team
+                const newTeam = teams[args[0].toLowerCase()]
+
+                //////////////////////////////////////
+                // Get Player(s)
+                let players = getPlayers(args[1], brainGame, playerID)
+                const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
+
+                if (players.length > 0) {
+                    for (let i = 0; i < players.length; i++) {
+                        if (isAdmin || players[i] === thisPlayer) {
+                            // Change this player's team
+                            players[i].stats.team = newTeam
+                            sendMessage(`${chatEmphasis(players[i].playerName)}'s team changed to ${chatEmphasis(args[0])}`, true)
+                        }
+                        else {
+                            sendMessage(`Only admins can change other player's teams.`, true)
+                        }
+                    }
+                }
+                else sendMessage(`No players found`, true)
+            }
+            else {
+                sendMessage(`Can't find team with name of ${chatEmphasis(args[0])}`, true)
             }
         }
     },

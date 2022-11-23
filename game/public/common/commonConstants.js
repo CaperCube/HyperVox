@@ -9,6 +9,14 @@ const gameModes = {
     teamDeathMatch: 'teamdeathmatch',
 }
 
+const teams = { // The string values here are also used as colors
+    none: 'white',
+    blue: 'blue',
+    red: 'red',
+    green: 'green',
+    yellow: 'yellow'
+}
+
 // Consider including chunk scale in here as well
 const tileScale = 1 // Do not change this
 const defaultChunkSize = 8
@@ -74,6 +82,7 @@ const formatPlayerName = (playerName) => {
 
 export {
     gameModes,
+    teams,
     tileScale,
     defaultChunkSize,
     defaultWorldSize,

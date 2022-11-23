@@ -49,6 +49,7 @@ export function CreateLobbyPlayerDOM(playerData) {
     const pName = document.createElement("span")
     pName.className = "player-name"
     pName.innerHTML = playerData.playerName
+    pName.style.color = playerData.stats?.team
     pName.setAttribute("title", "Copy this player's ID")
     pName.onclick = ()=>{ CopyIDFromLobbyElem(pDOM) }
     pDOM.appendChild(pName)
@@ -101,6 +102,7 @@ export function UpdateLobbyPlayerData(playerData) {
             const playerDOM = GetLobbyDOMDataByID(pData.playerID)
             if (playerDOM) {
                 playerDOM.name.innerHTML = pData.playerName
+                playerDOM.name.style.color = pData.stats.team
                 playerDOM.kills.innerHTML = pData.stats.kills
                 playerDOM.deaths.innerHTML = pData.stats.deaths
                 playerDOM.score.innerHTML = pData.stats.score
