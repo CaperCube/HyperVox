@@ -234,6 +234,8 @@ const chatCommands = {
         admin: true,
         description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [Y] [Z] [player name (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            let players = []
+
             //////////////////////////////////////
             // Get position
             let position
@@ -243,16 +245,31 @@ const chatCommands = {
                     y: parseFloat(args[1]),
                     z: parseFloat(args[2])
                 }
+
+                // Get Player(s)
+                players = getPlayers(args[3], brainGame, playerID)
+            }
+            else if (args[0] && args[1]) {
+                // Get only one player here, because we need a single position
+                const playerPos = getPlayers(args[0], brainGame, playerID)[0]
+                if (playerPos) {
+                    // Deep copy the player's position
+                    position = JSON.parse(JSON.stringify(playerPos.position))
+
+                    // Get Player(s)
+                    players = getPlayers(args[1], brainGame, playerID)
+                }
+                else {
+                    // No player found, end function here
+                    sendMessage(`Can't find player.`, true)
+                    return
+                }
             }
             else {
                 // Invalid arguments
                 sendMessage(`Invalid arguments.`, true)
                 return
             }
-            
-            //////////////////////////////////////
-            // Get Player(s)
-            let players = getPlayers(args[3], brainGame, playerID)
 
             //////////////////////////////////////
             // Move this player if they exist
@@ -462,17 +479,26 @@ const chatCommands = {
                     // If no position, ping at the player's pos
                     const players = getPlayers(args[0] || '', brainGame, playerID)
 
-                    // Get position
-                    position = {
-                        x: players[0]?.position?.x || 0,
-                        y: (players[0]?.position?.y || 0) + 3,
-                        z: players[0]?.position?.z || 0
-                    }
-
                     // Get ping type
                     if (args[1]) {
                         const pType = args[1].toLowerCase()
                         if (Object.values(pingTypes).includes(pType)) { type = pType }
+                    }
+
+                    // Ping all players
+                    for (let i = 0; i < players.length; i++) {
+                        if (players[i]) {
+                            // Get position
+                            position = {
+                                x: players[i].position?.x || 0,
+                                y: (players[i].position?.y || 0) + 3,
+                                z: players[i].position?.z || 0
+                            }
+
+                            // Ping
+                            brainGame.createPing(position, type)
+                            sendMessage(`${name} placed a ping pinged at X: ${Math.round(position.x)} | Y: ${Math.round(position.y)} | Z: ${Math.round(position.z)}`)
+                        }
                     }
                 }
 
