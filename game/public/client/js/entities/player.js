@@ -536,7 +536,7 @@ class ClientPlayer {
     // ToDo: This should be stored per-player on the brain
     setPlayerSpawn = (newPos = {x:0, y:0, z:0}) => {
         // Set respawn location
-        this.respawnPoint = new BABYLON.Vector3(newPos.x-0.5, newPos.y-0.25, newPos.z-0.5)
+        this.respawnPoint = new BABYLON.Vector3(newPos.x, newPos.y, newPos.z)
 
         // Move graphic
         if (this.respawnMesh) this.respawnMesh.position = this.respawnPoint

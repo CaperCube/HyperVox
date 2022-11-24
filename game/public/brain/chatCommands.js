@@ -170,7 +170,7 @@ const chatCommands = {
                             brainGame.changePlayerName(players[i], args[0])
                         }
                         else {
-                            sendMessage(`No player found. Name must have no spaces.`, true)
+                            sendMessage(`No player found. Names must have no spaces.`, true)
                         }
                     }
                     else {
@@ -478,7 +478,7 @@ const chatCommands = {
                 }
                 else {
                     // If no position, ping at the player's pos
-                    const players = getPlayers(args[0] || '', brainGame, playerID)
+                    const players = getPlayers(args[0], brainGame, playerID)
 
                     // Get ping type
                     if (args[1]) {
@@ -546,6 +546,62 @@ const chatCommands = {
             }
             else {
                 sendMessage(`Can't find team with name of ${chatEmphasis(args[0])}`, true)
+            }
+        }
+    },
+    setSpawn: {
+        commands: ["setspawn"],
+        admin: true,
+        description: `Set's the designated player's respawn point. (Example: "${commandOptions.delimiter} [X] [Y] [Z] [player (optional)]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            let players = brainGame.players.filter(p => p.playerID === playerID)
+            let position = null
+
+            // If coordinates provided
+            if (args[0] && args[1] && args[2]) {
+                // Get position
+                position = {
+                    x: parseFloat(args[0]),
+                    y: parseFloat(args[1]),
+                    z: parseFloat(args[2])
+                }
+
+                // Get players
+                if (args[3]) {
+                    players = getPlayers(args[3], brainGame, playerID)
+                }
+            }
+            // Get position from designated player
+            else if (args[0]) {
+                // Get players
+                const targetPlayer = getPlayers(args[0], brainGame, playerID)[0]
+
+                if (targetPlayer) {
+                    // Get position
+                    position = targetPlayer.position
+
+                    // Get players
+                    if (args[1]) {
+                        players = getPlayers(args[1], brainGame, playerID)
+                    }
+                }
+                else {
+                    sendMessage(`No player found.`, true)
+                    return
+                }
+            }
+            // If coordinates are NOT provided
+            else {
+                // Get player position
+                position = players[0].position
+            }
+
+            if (position) {
+                for (let i = 0; i < players.length; i++) {
+                    // Set spawn
+                    brainGame.brainComs.genericToClient('setSpawn', { position: position }, [players[i].playerID])
+                    sendMessage(`${chatEmphasis(players[i].playerName)}'s spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+                }
             }
         }
     },
@@ -786,26 +842,40 @@ const chatCommands = {
     setWorldSpawn: {
         commands: ["setworldspawn", "setwspawn", "sws"],
         admin: true,
-        description: `Set's the player's current location as the world's default spawn point.`,
+        description: `Set's the default spawn point. (Example: "${commandOptions.delimiter} [X] [Y] [Z] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            let position = null
             // If coordinates provided
             if (args[0] && args[1] && args[2]) {
                 // Get position
-                const position = {
+                position = {
                     x: parseFloat(args[0]),
                     y: parseFloat(args[1]),
                     z: parseFloat(args[2])
                 }
-                const location = getArrayPos(position, brainGame.world._chunkSize)
-                brainGame.changeWorldSpawn(location)
-                sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
+            }
+            // Get position from designated player
+            else if (args[0]) {
+                // Get players
+                const targetPlayer = getPlayers(args[0], brainGame, playerID)[0]
+
+                if (targetPlayer) {
+                    // Get position
+                    position = targetPlayer.position
+                }
+                else {
+                    sendMessage(`No player found.`, true)
+                    return
+                }
             }
             // If coordinates are NOT provided
             else {
                 // Get player position
                 const player = brainGame.players.filter(p => p.playerID === playerID)[0]
-                const position = player.position
+                position = player.position
+            }
 
+            if (position) {
                 // Set spawn
                 const location = getArrayPos(position, brainGame.world._chunkSize)
                 brainGame.changeWorldSpawn(location)

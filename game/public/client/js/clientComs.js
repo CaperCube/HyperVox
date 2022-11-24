@@ -279,6 +279,18 @@ class ClientComs {
                 }
             },
 
+            // ToDo: Eventually the brain should do all respawn logic
+            setSpawn: ( data, playerId ) => {
+                // if (this.messageDebug) console.log( '%c Set player respawn from brain (client)', 'background: #142; color: #ced' )
+
+                // This message is only intended for the player who's respawn is meant to change
+                const myPlayer = this.clientGame.localPlayer
+                if (myPlayer) {
+                    // Set player's spawn
+                    myPlayer.setPlayerSpawn(data.position)
+                }
+            },
+
             createEffect: ( data, playerId ) => {
                 //if (this.messageDebug)
                 console.log( '%c Create effect (client)', 'background: #142; color: #ced' )

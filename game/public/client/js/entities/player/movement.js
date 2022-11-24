@@ -182,7 +182,7 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, blockLoc, allowGrav
         // Damage player if damaging block
         if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) player.takeDamage(blockTypes[blockID].damage || 0)
         // Set respawn point if respawn block
-        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)})
+        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x, y: block.y + player.playerHeight, z: block.z})
         // Teleporter block
         if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) player.teleportPlayer(player.worldDefualtSpawn)
         // Start race if starting line block
@@ -231,7 +231,7 @@ const checkXCol = (block, blockID, player, playerBox, blockLoc) => {
         // Damage player if damaging block
         if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) player.takeDamage(blockTypes[blockID].damage || 0)
         // Set respawn point if respawn block
-        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)})
+        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x, y: block.y + player.playerHeight, z: block.z})
         // Teleporter block
         if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) player.teleportPlayer(player.worldDefualtSpawn)
         // Start race if starting line block
@@ -280,7 +280,7 @@ const checkZCol = (block, blockID, player, playerBox, blockLoc) => {
         // Damage player if damaging block
         if (blockTypes[blockID]?.categories.includes(blockCats.damaging)) player.takeDamage(blockTypes[blockID].damage || 0)
         // Set respawn point if respawn block
-        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)})
+        if (blockTypes[blockID]?.categories.includes(blockCats.checkpoint) && {x: player.respawnPoint.x, y: player.respawnPoint.y, z: player.respawnPoint.z} !== {x: block.x + (block.h/2), y: block.y + player.playerHeight, z: block.z + (block.h/2)}) player.setPlayerSpawn({x: block.x, y: block.y + player.playerHeight, z: block.z})
         // Teleporter block
         if (blockTypes[blockID]?.categories.includes(blockCats.teleporter)) player.teleportPlayer(player.worldDefualtSpawn)
         // Start race if starting line block
