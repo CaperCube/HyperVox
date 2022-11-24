@@ -605,6 +605,29 @@ const chatCommands = {
             }
         }
     },
+    tell: {
+        commands: ["tell"],
+        admin: true,
+        description: `Sends only the targeted player(s) a message. (Example: "${commandOptions.delimiter}tell [player name] [message]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = getPlayers(args[0], brainGame, playerID)
+            const newMessage = message.replace(`${commandOptions.delimiter}tell ${args[0]}`, '')
+
+            if (newMessage) {
+                if (players.length > 0) {
+                    for (let i = 0; i < players.length; i++) {
+                        // Tells this player
+                        const data = { message: newMessage, nameColor: 'white', messageName: 'Server', isServer: true }
+                        brainGame.brainComs.genericToClient('receiveChatMessage', data, [players[i].playerID])
+                    }
+                }
+                else sendMessage(`No players found.`, true)
+            }
+            else sendMessage(`No message to send.`, true)
+        }
+    },
 
     //
     // Server commands
@@ -835,6 +858,7 @@ const chatCommands = {
             }
         }
     },
+    
     
     //
     // World commands
