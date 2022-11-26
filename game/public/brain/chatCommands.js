@@ -858,6 +858,46 @@ const chatCommands = {
             }
         }
     },
+    delayCommand: {
+        commands: ["delaycommand", "dcommand", "dcom"],
+        admin: true,
+        description: `Sets a time (in milliseconds) before a designated command. (Example: "${commandOptions.delimiter}delaycommand [time] [command]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0] && args[1]) {
+                // Remove first command & argument
+                const commandUsed = message.trim().split(" ")[0]
+                const commandStr = message.replace(`${commandUsed} ${args[0]} `, '')
+                console.log(commandStr)
+
+                // Set timeout
+                setTimeout(()=>{ brainGame.runCommandString(commandStr, playerID) }, parseInt(args[0]))
+
+                // Send message
+                // sendMessage(`Command timer started.`, true)
+            }
+            else {
+                sendMessage(`Incorrect arguments.`, true)
+            }
+        }
+    },
+    multiCommand: { // ToDo: Remove this and replace the brainCom "checkForCommand()" function with "runCommandString()"
+        commands: ["multicommand", "mcommand", "mcom"],
+        admin: true,
+        description: `Runs a designated command and allows for multiple commands. (Example: "${commandOptions.delimiter}multicommand [command(s)]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Remove first command
+                const commandUsed = message.trim().split(" ")[0]
+                const commandStr = message.replace(`${commandUsed} `, '')
+
+                // Run command
+                brainGame.runCommandString(commandStr, playerID)
+            }
+            else {
+                sendMessage(`No command given.`, true)
+            }
+        }
+    },
     
     
     //

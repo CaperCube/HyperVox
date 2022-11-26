@@ -149,6 +149,7 @@ class BrainComs {
                     // Use the player's name in the message
                     data.messageName = myBrainPlayer.playerName
                     data.nameColor = myBrainPlayer.stats.team
+
                     // Check message for commands
                     commandFound = checkForCommand(data.message, data.messageName, playerID, myBrainPlayer.isAdmin, this.brainGame, (responseMessage, isPrivate) => {
                         // Send message
