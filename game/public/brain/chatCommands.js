@@ -1049,7 +1049,98 @@ const chatCommands = {
                 sendMessage(`Invalid arguments`, true)
             }
         }
-    }
+    },
+    setBlockData: {
+        commands: ["setblockdata", "sblockdata", "sbd"],
+        admin: true,
+        description: `Sets data for a block in the world. (Example: "${commandOptions.delimiter}setblockdata [X] [Y] [Z] ["title" or "command"] [data]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0] && args[1] && args[2] && args[3] && args[4])
+            {
+                const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
+                const loc = getArrayPos(position, brainGame.world._chunkSize)
+                const blockID = brainGame?.world?.worldChunks?.[loc.chunk.y]?.[loc.chunk.x]?.[loc.chunk.z]?.[loc.block.y]?.[loc.block.x]?.[loc.block.z]
+
+                // ToDo: Move this logic to "brainGame.setBlockMetaData()"
+                if (blockID) {
+                    const targetBlock = `${blockID}_${position.x}_${position.y}_${position.z}`
+                    
+                    const dataType = args[3].toLowerCase()
+                    const commandUsed = message.trim().split(" ")[0]
+                    const dataStr = message.replace(`${commandUsed} ${args[0]} ${args[1]} ${args[2]} ${args[3]} `, '')
+
+                    switch (dataType) {
+                        case "title":
+                            // Set block data
+                            if (brainGame?.world?.blockData?.[targetBlock] !== undefined) {
+                                brainGame.world.blockData[targetBlock].title = dataStr
+                            }
+                            else {
+                                brainGame.world.blockData[targetBlock] = {title:'',command:''}
+                                brainGame.world.blockData[targetBlock].title = dataStr
+                            }
+                            // Tell clients about the new block data
+                            sendMessage(`Block title set`, true)
+                            brainGame.brainComs.genericToClient('updateBlockMetaData', { blockPropName: targetBlock, data: brainGame.world.blockData[targetBlock] })
+                            break
+                        case "command":
+                            // Set block data
+                            if (brainGame?.world?.blockData?.[targetBlock] !== undefined) {
+                                brainGame.world.blockData[targetBlock].command = dataStr
+                            }
+                            else {
+                                brainGame.world.blockData[targetBlock] = {title:'',command:''}
+                                brainGame.world.blockData[targetBlock].command = dataStr
+                            }
+                            // Tell clients about the new block data
+                            sendMessage(`Block command set`, true)
+                            brainGame.brainComs.genericToClient('updateBlockMetaData', { blockPropName: targetBlock, data: brainGame.world.blockData[targetBlock] })
+                            break
+                        default:
+                            sendMessage(`Data type must be "title" or "command"`, true)
+                            break
+                    }
+                }
+                else {
+                    sendMessage(`Invalid coordinate or no block here`, true)
+                }
+                // brainGame.updateSingleBlock(location, blockID)
+                // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
+            }
+            else {
+                sendMessage(`Invalid arguments`, true)
+            }
+        }
+    },
+    clearBlockData: {
+        commands: ["clearblockdata", "cblockdata", "cbd"],
+        admin: true,
+        description: `Clears all data for a block in the world. (Example: "${commandOptions.delimiter}clearblockdata [X] [Y] [Z]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0] && args[1] && args[2])
+            {
+                // Get block position
+                const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
+                const posStr = `${position.x}_${position.y}_${position.z}`
+
+                // Remove this data object
+                if (brainGame?.world?.blockData) {
+                    const keyMatches = Object.keys(brainGame.world.blockData).filter(k => k.includes(posStr))
+                    for (let i = 0; i < keyMatches.length; i++) {
+                        // Remove
+                        delete brainGame.world.blockData[keyMatches[i]]
+
+                        // Update clients
+                        sendMessage(`Data removed`, true)
+                        brainGame.brainComs.genericToClient('updateBlockMetaData', { blockPropName: keyMatches[i], data: null })
+                    }
+                }
+            }
+            else {
+                sendMessage(`Invalid arguments`, true)
+            }
+        }
+    },
 }
 
 export {
