@@ -429,22 +429,23 @@ class ClientGame {
     }
 
     saveWorld(worldName) {
-        // ToDo:
         // When saving worlds locally, we should request the brain's version of the world to save
+        this.clientComs.genericToBrain("requestWorldToSave", {})
+    }
 
-        // Set save version
-        this.clientWorld.saveVersion = '0.1'
-
+    downloadWorld(worldJSON, worldName = "world.json") {
         // Create download link
         let element = document.createElement('a')
-        element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( JSON.stringify( this.clientWorld ) ) )
+        element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( worldJSON ) )
         element.setAttribute( 'download', worldName || 'world.json' )
       
         element.style.display = 'none'
         document.body.appendChild(element)
-      
+
+        // Click self
         element.click()
-      
+
+        // Remove element
         document.body.removeChild(element)
     }
     

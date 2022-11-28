@@ -71,6 +71,15 @@ class BrainComs {
                 
             },
 
+            requestWorldToSave: ( data, playerID = 0 ) => {
+                if (this.messageDebug) console.log( '%c Client requested world (brain)', 'background: #142; color: #ced' )
+
+                if (this.brainGame.world) {
+                    // Send world
+                    this.genericToClient('loadWorldToSave', { world: this.brainGame.world }, [playerID])
+                }
+            },
+
             updateSingleBlock: ( data, playerID = 0 ) => {
                 let allowChange = false
                 const myBrainPlayer = this.brainGame.players.filter( p => p.playerID === playerID )[0]
@@ -314,7 +323,7 @@ class BrainComs {
         const data = { world: world }
 
         // Network message
-        this.genericToClient('loadSentWorld', data, 'all') // ToDo: only send this to newly connected players
+        this.genericToClient('loadSentWorld', data, 'all')
     }
 
     // Tell connected players to update the chunk containing the updated block

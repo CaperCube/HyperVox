@@ -100,6 +100,14 @@ class ClientComs {
                 this.clientGame.saveWorld(data.worldName)
             },
 
+            loadWorldToSave: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Save brain world (client)', 'background: #142; color: #ced' )
+
+                // Save world
+                this.clientGame.downloadWorld(JSON.stringify(data.world), data.worldName || 'world.json')
+                // this.clientGame.saveWorld(data.world)
+            },
+
             initOtherPlayers: ( data, playerId ) => { 
                 if (this.messageDebug) console.log( '%c Load other connected players from brain (client)', 'background: #142; color: #ced' )
 

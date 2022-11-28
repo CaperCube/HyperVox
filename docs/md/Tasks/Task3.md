@@ -31,7 +31,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [ ] Lowered air-friction
         - [ ] B-hopping
 - [ ] World improvements
-    - [ ] When saving worlds locally, we should request the brain's version of the world to save
+    - [X] When saving worlds locally, we should request the brain's version of the world to save
     - [X] Show title (& link if present) when cursor hovering over interactable blocks
     - [ ] Change file extention to ".ccw" (Caper Core World)
     - [X] **Block to send chats as player**
