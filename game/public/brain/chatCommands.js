@@ -64,6 +64,15 @@ const getPlayers = (arg, brainGame, playerID = null) => {
         else if (arg === "@r") players[0] = randomArray(brainGame.players)
         // All Other
         else if (arg === "@o") players[0] = brainGame.players.filter(p => p.playerID !== playerID)
+        // All on Team
+        else if (arg.startsWith("@t")) {
+            const teamStr = arg.replace("@t", "").toLowerCase()
+            const myTeam = teams[teamStr]
+
+            if (myTeam) {
+                players = brainGame.players.filter(p => p.stats.team === myTeam)
+            }
+        }
 
         // Check matches
         else {
@@ -644,7 +653,7 @@ const chatCommands = {
     changeServerGameMode: {
         commands: ["servergamemode", "sgm"],
         admin: true,
-        description: `Changes the game mode for the server and all players. (Example: ${commandOptions.delimiter}servergamemode [game mode])`,
+        description: `Changes the game mode for the server. (Example: ${commandOptions.delimiter}servergamemode [game mode])`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             let found = false
             Object.values(gameModes).forEach((gm)=>{
@@ -652,7 +661,7 @@ const chatCommands = {
                     // Set game mode
                     brainGame.gameOptions.gameMode = gm
                     // Set all player's game modes to server game mode
-                    for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
+                    // for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
                     // Send message
                     sendMessage(`The server game mode has changed to ${chatEmphasis(gm)}`)
 

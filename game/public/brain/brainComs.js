@@ -247,7 +247,11 @@ class BrainComs {
                 
                 // Check if player is in deathMatch mode (or if the brainGame is, if offline)
                 let allowShot = false
-                if ((this.isNetworked && myBrainPlayer?.gameMode === gameModes.deathMatch) || (this.brainGame.gameOptions.gameMode === gameModes.deathMatch)) {
+                const playerAndBrainIsNotSpectator = (myBrainPlayer?.gameMode !== gameModes.spectator && this.brainGame.gameOptions.gameMode !== gameModes.spectator)
+                const playerIsDMOrTDM = (myBrainPlayer?.gameMode === gameModes.deathMatch || myBrainPlayer?.gameMode === gameModes.teamDeathMatch)
+                const brainIsDMOrTDM = (this.brainGame.gameOptions.gameMode === gameModes.deathMatch || this.brainGame.gameOptions.gameMode === gameModes.teamDeathMatch)
+
+                if (playerAndBrainIsNotSpectator && (playerIsDMOrTDM || brainIsDMOrTDM)) {
                     // Check if both players are on different teams OR on no team
                     if (hitPlayer && (myBrainPlayer.stats.team === teams.none || myBrainPlayer.stats.team !== hitPlayer.stats.team)) allowShot = true
                 }

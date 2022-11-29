@@ -2,7 +2,7 @@ import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
 import { randomArray } from '../common/dataUtils.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, gameModes, formatPlayerName, getRandomName } from '../common/commonConstants.js'
+import { tileScale, defaultChunkSize, defaultWorldSize, gameModes, formatPlayerName, getRandomName, teams } from '../common/commonConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
@@ -456,13 +456,18 @@ class BrainGame {
 
     resetScores = () => {
         for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i]) this.players[i].ResetStats()
+            if (this.players[i]) {
+                const oldTeam = this.players[i].stats.team
+                this.players[i].ResetStats()
+                this.players[i].stats.team = oldTeam
+            }
         }
     }
 
     killPlayer = (deadPlayer, killerPlayer = null) => {
         let serverData = {}
         let playerWon = false
+        let teamWon = false
 
         // ToDo: Move these colors to a constans file?
         const deadPlayerColor = '#ff0000'
@@ -474,18 +479,32 @@ class BrainGame {
         if (killerPlayer) {
             killerPlayer.stats.kills++
 
-            // Check score limit
+            // Check score limit (Deathmatch)
             if (this.gameOptions.gameMode === gameModes.deathMatch &&
                 killerPlayer.stats.kills >= this.gameOptions.scoreLimit) {
                 // Decalre winner
                 playerWon = true
 
-                // Set server game more to spectator
-                this.gameOptions.gameMode = gameModes.spectator
-                for (let i = 0; i < this.players.length; i++) this.players[i].gameMode = this.gameOptions.gameMode
-
                 // Do world event
                 this.doWorldEvent('gameEnd')
+            }
+            // Check score limit (Team Deathmatch)
+            else if (this.gameOptions.gameMode === gameModes.teamDeathMatch) {
+                // Check the killer player's team
+                const killerTeam = killerPlayer.stats.team
+
+                // Check if team score is => score limit
+                const killerTeamMembers = this.players.filter(p => p.stats.team === killerTeam)
+                let teamScore = 0
+                killerTeamMembers.forEach(p => teamScore += p.stats.kills)
+
+                if (teamScore >= this.gameOptions.scoreLimit) {
+                    // Decalre winner
+                    teamWon = true
+
+                    // Do world event
+                    this.doWorldEvent('gameEnd')
+                }
             }
         }
 
@@ -498,6 +517,19 @@ class BrainGame {
                     ${killerPlayer?.playerName}
                 </span>
                 has won!
+            </span>
+            <br>Game mode changed to ${this.gameOptions.gameMode}.`,
+            messageName: 'Server',
+            isServer: true
+        }
+        // If a team won the game
+        else if (teamWon) serverData = {
+            message: `
+            <span class="msg-title">
+                <span style="color: ${killerPlayer?.stats.team}; font-size: 10vh;">
+                    ${killerPlayer?.stats.team}
+                </span>
+                team has won!
             </span>
             <br>Game mode changed to ${this.gameOptions.gameMode}.`,
             messageName: 'Server',
