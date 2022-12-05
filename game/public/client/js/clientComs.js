@@ -191,7 +191,7 @@ class ClientComs {
                             // Update position & rotation
                             thisPlayer.position = dataPlayer.position
                             // ToDo: Update this when we start using the PlayerAvatar() class
-                            if (thisPlayer.avatar) thisPlayer.head.rotation = dataPlayer.rotation
+                            if (thisPlayer.avatar && thisPlayer.head) thisPlayer.head.rotation = dataPlayer.rotation
                         }
                     }
                     // Update local player(s)

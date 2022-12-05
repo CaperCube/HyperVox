@@ -25,6 +25,8 @@
   "author": "CaperCube",
   "license": "ISC",
   "dependencies": {
+    "@babylonjs/core": "^5.35.0",
+    "@babylonjs/loaders": "^5.35.0",
     "babylonjs": "^5.13.3",
     "babylonjs-serializers": "^5.13.3",
     "cors": "^2.8.5",

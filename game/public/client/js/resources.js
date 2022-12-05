@@ -29,7 +29,8 @@ const imageSRC = {
     Skybox1: `${TEXTURE_PATH}skybox/skybox1/edited/`,
     Skybox2: `${TEXTURE_PATH}skybox/skybox2/edited/`,
     Atlas: `${TEXTURE_PATH}atlas.png`,
-    Tiles: `${TEXTURE_PATH}textures.png`
+    Tiles: `${TEXTURE_PATH}textures.png`,
+    Character: `${TEXTURE_PATH}char_tex1.png`,
 }
 
 ///////////////////////////////////////

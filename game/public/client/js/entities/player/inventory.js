@@ -75,6 +75,25 @@ export class Item {
     }
 }
 
+export class GunItem extends Item {
+    constructor({
+        itemName = 'gun',
+        itemID,
+        itemType = 'gun',
+        stackSize,
+        maxStackSize, // 0 = infinate
+        useTime, // time in ms between uses
+        useAuto, // if true, the user and hold down the action button to use repeatedly
+        recoilMult = {x: 0, y: 0}, // determins the amount of recoil this gun has
+        recoilLean = {x: 1, y: 0} // Leans the recoil to one side or the other (min: -1, max: 1)
+    }) {
+        super({itemName, itemID, itemType, stackSize, maxStackSize, useTime, useAuto})
+        // Identifiers
+        this.recoilMult = recoilMult
+        this.recoilLean = recoilLean
+    }
+}
+
 export class Inventory { // This specifically is a local player's hud-viewable inv
     constructor(hud) {
         this.hud = hud
@@ -161,25 +180,30 @@ export const makeCreativeInventory = (hud = null) => {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
     // Temp gun item    
-    const gun = new Item({
+    const gun = new GunItem({
         itemName: "SMG",
-        itemID: 193, // maybe 191 or 193
+        itemID: 193,
         itemType: 'gun',
         stackSize: 1,
         maxStackSize: 0,
-        useTime: 120
+        useTime: 120,
+        useAuto: true,
+        recoilMult: {x: 0.03, y: 0.015},
+        recoilLean: {x: 1, y: 0} // values -1 to 1
     })
     cInv.items.push(gun)
 
     // Temp gun 2    
-    const gun2 = new Item({
+    const gun2 = new GunItem({
         itemName: "Rail Gun",
-        itemID: 194, // maybe 191 or 193
+        itemID: 194,
         itemType: 'gun',
         stackSize: 1,
         maxStackSize: 0,
         useTime: 1200,
-        useAuto: false
+        useAuto: false,
+        recoilMult: {x: 0.2, y: 0.015},
+        recoilLean: {x: 1, y: 0} // values -1 to 1
     })
     cInv.items.push(gun2)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -288,5 +312,17 @@ function shoot(clientGame, player, item) {
         }
     }
 
+    // Recoil
+    const mult = item.recoilMult //|| {x:0, y:0}
+    const lean = item.recoilLean //|| {x:0, y:0}
+    const xOffset = (((Math.random() * 2) - 1) + lean.x) * mult.x
+    const yOffset = (((Math.random() * 2) - 1) + lean.y) * mult.y
+    player.avatar.rotation.x -= xOffset
+    player.avatar.rotation.y += yOffset
+
+    // Animate back
+    // BABYLON.Animation.CreateAndStartAnimation("recoil", player.avatar, "rotation.x", 60, 15, player.avatar.rotation.x, player.avatar.rotation.x + xOffset, BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE)
+
+    // Brain message
     clientGame.clientComs.sendShootRequest(origin, item, hitPlayerID)
 }
