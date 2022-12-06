@@ -18,6 +18,8 @@ export default class BrainPlayer extends BrainEntity {
         this.override = false // When enabled, the server has control of this player's position
         this.position = { x: 0, y: 0, z: 0 }
         this.rotation = { x: 0, y: 0, z: 0 }
+        this.animation = "idle"
+        this.heldItem = null
         this.health = 100 // not yet implemented
 
         this.passwordAttempts = 0

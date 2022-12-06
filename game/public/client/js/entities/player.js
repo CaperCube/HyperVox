@@ -48,10 +48,16 @@ class ClientPlayer {
 
     // Init player
     constructor(controls, avatar = null, playerID = 0, clientGame) {
+        //////////////////////////////////////////////////
+        // Player IDs
+        //////////////////////////////////////////////////
         this.playerID = playerID
         this.playerName = 'Player'
         this.playerColor = `rgb(${55+Math.random()*200},${55+Math.random()*200},${55+Math.random()*200})`
 
+        //////////////////////////////////////////////////
+        // Player stats
+        //////////////////////////////////////////////////
         this.stats = {
             kills: 0,
             deaths: 0,
@@ -59,7 +65,9 @@ class ClientPlayer {
             team: teams.none
         }
 
+        //////////////////////////////////////////////////
         // Private vars
+        //////////////////////////////////////////////////
         this.groundFric = 0.75
         this.gravity = -0.0085//-0.0125
         this.defaultBounce = 0.05
@@ -73,7 +81,9 @@ class ClientPlayer {
         // Player controls
         this.controls = controls // The buttons
 
-        // Health vars
+        //////////////////////////////////////////////////
+        // Health & Inv vars
+        //////////////////////////////////////////////////
         this.health = 100
         this.isInvincible = false
         this.canHeal = true
@@ -85,7 +95,9 @@ class ClientPlayer {
         // Don't allow use until next interval
         this.itemUseIsBlocked = false
 
+        //////////////////////////////////////////////////
         // System vars
+        //////////////////////////////////////////////////
         this.clientGame = clientGame
         this.meshGen = clientGame.meshGen
         this.scene = clientGame.scene
@@ -96,7 +108,9 @@ class ClientPlayer {
         const worldMax = (this.worldSize * this.chunkSize * tileScale)
         this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
 
+        //////////////////////////////////////////////////
         // Player vars
+        //////////////////////////////////////////////////
         this.playerHeight = tileScale * 1.75
         // The object in the scene the player will be controlling
         this.avatar = avatar? avatar : new BABYLON.TransformNode("player_root")
@@ -114,7 +128,7 @@ class ClientPlayer {
         //////////////////////////////////////////////////
         // console.log(clientGame.scene.playerRig, clientGame.scene.playerSkeleton)
         // this.body = avatar? null : clientGame.meshGen.createBlockWithUV({x: 0, y: -0.875, z: 0}, getBlockByName('steel-riveted').textures.front, clientGame.scene)
-        console.log(clientGame.scene.characterSystem)
+        // console.log(clientGame.scene.characterSystem)
 
         // This is the skeleton transform node (we can translate these to modify bone offsets)
         this.avatarNode = null
@@ -124,18 +138,40 @@ class ClientPlayer {
 
         this.body = null //clientGame.scene.playerMesh.clone().makeGeometryUnique()
         this.head = null
+        this.arm = null
+        this.hand = null
+
+        this.currentAnimation = "idle"
+        this.nextAnimation = "idle"
+        this.animations = {
+            "idle": null,
+            "run": null
+        }
 
         if (!avatar && this.avatar) {
             // Clone player skeleton and mesh
-            // clientGame.scene.characterSystem.addAllToScene()
             clientGame.scene.characterSystem.instantiateModelsToScene(name => "" + name)
 
+            // Rename nodes so we can instantiate another one
             this.skeleton = clientGame.scene.getSkeletonByName("Char_Rig")
             this.avatarNode = clientGame.scene.getNodeByName("Char_Rig")
             this.avatarMesh = clientGame.scene.getMeshByName("Char_Model")
             this.skeleton.name = "player_skeleton"
             this.avatarNode.name = "player_rig"
             this.avatarMesh.name = "player_mesh"
+            clientGame.scene.getNodeByName("__root__").name = "player_model_root"
+
+            // Get animations
+            this.animations["idle"] = clientGame.scene.getAnimationGroupByName("Idle")//clientGame.scene.animationGroups[0]
+            this.animations["run"] = clientGame.scene.getAnimationGroupByName("Run")//clientGame.scene.animationGroups[1]
+            this.animations["jump"] = clientGame.scene.getAnimationGroupByName("Jump")
+            this.animations["idle"].name = "playerAnim_idle"
+            this.animations["run"].name = "playerAnim_run"
+            this.animations["jump"].name = "playerAnim_jump"
+            // this.animations["idle"].isAdditive = true
+            // this.animations["run"].isAdditive = true
+            
+            console.log(this.animations["run"])
 
             // Assign material
             // ToDo: Create this material in the default scene, and use that
@@ -143,36 +179,28 @@ class ClientPlayer {
 
             // Orient mesh
             this.avatarMesh.makeGeometryUnique()
-            this.avatarMesh.rotation = new BABYLON.Vector3(0, -Math.PI/2, 0)
-            this.avatarMesh.position = new BABYLON.Vector3(0, -1, 0)
-            this.avatarMesh.bakeCurrentTransformIntoVertices()
-            this.avatarMesh.position = new BABYLON.Vector3(0, -0.875, 0)
-
-            // No camera is present
             this.avatarNode.parent = this.avatar
-            this.body = this.avatarMesh//this.avatarNode.getChildren()[0]
-            // this.body.setEnabled(true)
-            // this.body.rotation = new BABYLON.Vector3(0, -Math.PI/2, 0)
+            this.avatarNode.rotation = new BABYLON.Vector3(0, -Math.PI/2, 0)
+            this.avatarNode.position = new BABYLON.Vector3(0, -0.875, 0)
 
+            // Set important references
+            this.body = this.avatarMesh
             this.head = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[0]
-            // this.head.rotation = new BABYLON.Vector3(0, -Math.PI/2, 0)
-            console.log(this.head)
-
-            // this.body.parent = this.avatar //0.125 - 1 //0.625 //0.875
-            // this.head.parent = this.avatar //-0.375
+            this.arm = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[1]
+            this.hand = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[1].getChildren()[0].getChildren()[0]
 
             // Set mesh names
             this.body.name = `body_player-${this.playerID}`
             // this.head.name = `head_player-${this.playerID}`
 
-            // // Set overlay color
+            // Set overlay color
             this.body.overlayColor = new BABYLON.Color3.Red()
             this.head.overlayColor = new BABYLON.Color3.Red()
             this.body.renderOverlay = false
             this.head.renderOverlay = false
 
             // Remove empty root node and material
-            clientGame.scene.getNodeByName("__root__").dispose()
+            // clientGame.scene.getNodeByName("__root__").dispose()
             // clientGame.scene.getMaterialByName("__GLTFLoader._default").dispose()
         }
         else {
@@ -182,6 +210,7 @@ class ClientPlayer {
             this.createItemMesh(startItem, startItem.itemType)
             this.createMuzzleFlash(209)
         }
+
         //this.playerCamera = camera
 
         //////////////////////////////////////////////////
@@ -196,6 +225,7 @@ class ClientPlayer {
         // Position vars
         //////////////////////////////////////////////////
         this.position = BABYLON.Vector3.Zero() // (This is the value that changes)
+        this.lookDir = { x: 0, y: 0, z: 0 } // ToDo: make this also control the camera
         this.avatarOffset = { x: 0, y: 1, z: 0 } // This value offsets the player's avatar
         this.cameraOffset = { x: 0, y: 0, z: 0 } // Not yet implemented
 
@@ -331,23 +361,34 @@ class ClientPlayer {
     // Held Item Mesh
     ///////////////////////////////////////////////////////
 
-    createItemMesh(item, itemType = "item") {
+    createItemMesh(item, itemType = "item", isMyPlayer = true) {
         if (this.itemMesh) this.itemMesh.dispose()
         const img = item.getItemImage()
         switch (itemType) {
             case "block":
-                const leftFace = img.textures.left
-                const topFace = img.textures.top
-                const backFace = img.textures.back
-                
-                let cubeFaces = []
-                const posBlock = {x: 1, y: -1.5, z: 1.75}
-                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", leftFace, this.clientGame.scene) )
-                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", topFace, this.clientGame.scene) )
-                cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", backFace, this.clientGame.scene) )
-                this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
-                
-                this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.25
+                if (isMyPlayer) {
+                    let cubeFaces = []
+                    const posBlock = {x: 1, y: -1.5, z: 1.75}
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
+                    this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
+                    
+                    this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.25
+                }
+                else {
+                    let cubeFaces = []
+                    const posBlock = {x: 0, y: 0, z: 0} // const posBlock = {x: 0.5, y: -1.5, z: -1.75}
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "right", img.textures.right, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "bottom", img.textures.bottom, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "front", img.textures.front, this.clientGame.scene) )
+                    this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
+                    
+                    this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.5
+                }
                 // this.itemMesh.setScale(new BABYLON.Vector3(0.25, 0.25, 0.25))
                 break
             default:
@@ -360,8 +401,8 @@ class ClientPlayer {
         // Disable raycasting for this mesh
         this.itemMesh.isPickable = false
         // Render above other items
-        this.itemMesh.renderingGroupId = 1
-        this.itemMesh.parent = this.avatar
+        this.itemMesh.renderingGroupId = isMyPlayer? 1 : 0
+        this.itemMesh.parent = this.avatar //isMyPlayer? this.avatar : this.hand
     }
 
     createMuzzleFlash(texID) {
@@ -724,6 +765,13 @@ class ClientPlayer {
         basicMovement(engine, this, movementVector)
 
         /////////////////////////////////////////////////
+        // Set animation (this only happens on the local player, we then tell the brain which will update the other players)
+        /////////////////////////////////////////////////
+        if (this.usedJumps > 0) this.nextAnimation = "jump"
+        else if (movementVector.length() > 0) this.nextAnimation = "run"
+        else this.nextAnimation = "idle"
+
+        /////////////////////////////////////////////////
         // Apply positions
         /////////////////////////////////////////////////
 
@@ -747,12 +795,42 @@ class ClientPlayer {
     ///////////////////////////////////////////////////////
 
     updatePosition() {
+        // Animate
+        if (this.nextAnimation !== this.currentAnimation) {
+            // Set animation
+            this.currentAnimation = this.nextAnimation
+
+            // Stop all animations
+            const allKeys = Object.keys(this.animations)
+            for (let i = 0; i < allKeys.length; i++) {
+                if (this.animations[allKeys[i]]) this.animations[allKeys[i]].stop()
+            }
+
+            // Start new animation
+            if (this.animations[this.currentAnimation]) this.animations[this.currentAnimation].play(true)
+        }
+
+        // Set position
         this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
         
         // Update body rotation
-        // if (this.body && this.head) {
-        //     this.body.rotation.y = this.head.rotation.y //(this.head.rotation.z % (Math.PI/2)) * (Math.PI/2)
-        // }
+        if (this.body && this.head && this.arm) {
+            // Get angle snap
+            const angleSnap = (Math.PI/4) //(Math.PI/2)
+            const roundedAngle = Math.round(this.lookDir.y / angleSnap) * angleSnap
+
+            // Rotate Body
+            this.body.rotation.y = roundedAngle
+
+            // Rotate Head
+            this.head.rotation = new BABYLON.Vector3(this.lookDir.z, this.lookDir.y - roundedAngle, -this.lookDir.x)
+            
+            // Rotate Arm
+            this.arm.rotation = BABYLON.Vector3.Zero()
+            this.arm.rotate(BABYLON.Axis.Z, -(this.lookDir.x) + (Math.PI/2), BABYLON.Space.LOCAL)
+            this.arm.rotate(BABYLON.Axis.X, (this.lookDir.y - roundedAngle) + (Math.PI), BABYLON.Space.LOCAL)
+            this.arm.rotate(BABYLON.Axis.Y, -(Math.PI/2), BABYLON.Space.LOCAL)
+        }
     }
 }
 

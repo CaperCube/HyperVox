@@ -686,7 +686,7 @@ class ClientGame {
             // Update player (change this to loop through all local machine players, if we do that)
             if (this.localPlayer) {
                 // Tell the brain my position
-                if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z })
+                if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z }, this.localPlayer.nextAnimation, this.localPlayer.inventory?.selectedIndex || null)
                 // Update my position
                 this.localPlayer.movementUpdate(this.engine)
             }

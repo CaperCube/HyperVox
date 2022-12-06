@@ -125,6 +125,12 @@ class BrainComs {
 
                     // Rotation
                     myBrainPlayer.rotation = data.rotation
+
+                    // Animation
+                    myBrainPlayer.animation = data.animation
+
+                    // Item
+                    myBrainPlayer.heldItem = data.heldItem
                 }
 
                 // The server automatically sends this data to clients with "brainGame.gameTick()"

@@ -694,6 +694,8 @@ class BrainGame {
                     override: myBrainPlayer.override,
                     position: myBrainPlayer.position,
                     rotation: myBrainPlayer.rotation,
+                    animation: myBrainPlayer.animation,
+                    heldItem: myBrainPlayer.heldItem,
                     health: myBrainPlayer.health,
                     stats: myBrainPlayer.stats
                 }

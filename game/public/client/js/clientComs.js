@@ -191,7 +191,19 @@ class ClientComs {
                             // Update position & rotation
                             thisPlayer.position = dataPlayer.position
                             // ToDo: Update this when we start using the PlayerAvatar() class
-                            if (thisPlayer.avatar && thisPlayer.head) thisPlayer.head.rotation = dataPlayer.rotation
+                            // if (thisPlayer.avatar && thisPlayer.head) thisPlayer.head.rotation = dataPlayer.rotation
+                            thisPlayer.lookDir = dataPlayer.rotation
+
+                            // Update animtion
+                            thisPlayer.nextAnimation = dataPlayer.animation
+
+                            // Update held item
+                            if (thisPlayer.inventory.selectedIndex !== dataPlayer.heldItem) {
+                                thisPlayer.inventory.selectedIndex = dataPlayer.heldItem
+                                // ToDo: Once we can fix items acting weird when parented to the hand, we can un-comment this
+                                // if (thisPlayer.inventory.selectedIndex) thisPlayer.createItemMesh(thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex], thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex].itemType, false)
+                                // else if (thisPlayer.itemMesh) thisPlayer.itemMesh.dispose()
+                            }
                         }
                     }
                     // Update local player(s)
@@ -380,9 +392,9 @@ class ClientComs {
         this.genericToBrain( 'updateSingleBlock', data )
     }
 
-    updateMyGamePosition(position, rotation) {
+    updateMyGamePosition(position, rotation, animation = "idle", heldItem = null) {
         // console.log('%c Sending my position... (client)', 'background: #124; color: #cde')
-        const data = { position: position, rotation: rotation }
+        const data = { position: position, rotation: rotation, animation: animation, heldItem: heldItem }
 
         // Network message
         this.genericToBrain( 'movePlayer', data )
