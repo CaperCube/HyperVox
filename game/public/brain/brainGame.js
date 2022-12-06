@@ -367,17 +367,10 @@ class BrainGame {
     }
 
     getWorldEventByName = (e) => {
-        if (this.world?.events) {
-            const eventKeys = Object.keys(this.world.events)
-            for (let i = 0; i < eventKeys.length; i++) {
-                if (eventKeys[i].toLowerCase() === e.toLowerCase()) {
-                    return eventKeys[i]
-                }
-            }
-            // If no match, return null
-            return null
+        if (this.world?.events.has(e)) {
+            return this.world.events[e]
         }
-        else return null
+        return null
     }
 
     doWorldEvent = (e) => {
