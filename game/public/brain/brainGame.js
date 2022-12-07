@@ -114,7 +114,7 @@ class BrainGame {
         this.brainComs.genericToClient('receiveChatMessage', data, recipients)
     }
 
-    runCommandString = ( command, targetPlayer ) => {
+    runCommandString = ( command, targetPlayerId ) => {
         // Run multiple commands
         // https://regexr.com/
         let commandList = command?.split(/(;)/) // /(;+? )/
@@ -126,7 +126,7 @@ class BrainGame {
             // Run command
             if (formattedCommand.length > 0) {
                     let commandFound = false
-                    commandFound = checkForCommand(formattedCommand, "Server", targetPlayer, true, this, (responseMessage, isPrivate) => {
+                    commandFound = checkForCommand(formattedCommand, "Server", targetPlayerId, true, this, (responseMessage, isPrivate) => {
                     // commandFound = true
                     // Send message
                     this.sendChatMessage(responseMessage)
@@ -380,13 +380,13 @@ class BrainGame {
         else return null
     }
 
-    doWorldEvent = (e) => {
+    doWorldEvent = (e, targetPlayerId = null) => {
         // Get the event name
         let event = this.getWorldEventByName(e)
 
         // Trigger this event
         if (event) {
-            this.runCommandString(this.world.events[event])
+            this.runCommandString(this.world.events[event], targetPlayerId)
             return event
         }
         else {

@@ -4,7 +4,8 @@ import { gameModes } from "./brainGame.js"
 import { teams } from "../common/commonConstants.js"
 
 const commandOptions = {
-    delimiter: '/', // The character the server will look for to exicute a chat command
+    delimiter: '/', // The character the brain will look for to exicute a chat command
+    comment: '~', // The character the brain will look for to ignore the message
     maxLength: 2000, // The maximum allowed characters in a single server message
 }
 
@@ -44,6 +45,10 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
         if (!commandFound) {
             sendMessage(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`, true)
         }
+    }
+    else if (message.startsWith(commandOptions.comment)) {
+        // Say a command was found to avoid printing the message in chat
+        commandFound = true
     }
     return commandFound
 }

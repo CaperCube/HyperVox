@@ -139,6 +139,9 @@ class BrainComs {
             askWhosConnected: ( data, playerID = 0 ) => {
                 if (this.messageDebug) console.log( `%c Ask who's connected ${playerID} (brain)`, 'background: #142; color: #ced', data )
                 this.sayWhosConnected()
+
+                // Do player join event
+                if (data.isNewPlayer) this.brainGame.doWorldEvent("playerJoin", playerID)
             },
 
             sendChatMessage: ( data, playerID = 0 ) => {

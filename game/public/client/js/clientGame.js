@@ -627,7 +627,7 @@ class ClientGame {
         // ToDo: DON'T send a network message here, this could be a single player game! (Consider sending a message to brain that the scene is created)
         if (this.clientComs.isNetworked) {
             // Ask who's here
-            this.clientComs.genericToBrain('askWhosConnected', {})
+            this.clientComs.genericToBrain('askWhosConnected', { isNewPlayer: true })
             // this.clientComs.network.emit( 'genericClientMessage', { type: 'askWhosConnected', args: {} } )
 
             // Send chat that I've joined

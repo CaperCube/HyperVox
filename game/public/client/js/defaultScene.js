@@ -12,6 +12,22 @@ const DefaultScene = (engine) => {
     scene.clearColor = new BABYLON.Color3.Black()
 
     ////////////////////////////////////////////////////
+    // Load models
+    // ToDo: Put this in a seperate file in charge of setting up default assets (models, materials, sounds, etc.)
+    ////////////////////////////////////////////////////
+    // Player Mat
+    scene.playerMaterial = new BABYLON.StandardMaterial('mat')
+    scene.playerMaterial.diffuseTexture = new BABYLON.Texture(imageSRC.Character, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+    scene.playerMaterial.specularColor = new BABYLON.Color3(0, 0, 0)
+
+    console.log("Loading models...")
+    // BABYLON.SceneLoader.Append("./client/src/", "CC_Char1_v1_rigged.gltf", scene, (importedScene) => {
+    BABYLON.SceneLoader.LoadAssetContainer("./client/src/models/char/", "CC_Char1_v1_rigged.gltf", scene, (container) => {
+        scene.characterSystem = container
+        // container.addAllToScene()
+    })
+
+    ////////////////////////////////////////////////////
     // Materials
     ////////////////////////////////////////////////////
 
@@ -121,22 +137,6 @@ const DefaultScene = (engine) => {
     scene.fogEnd = 128
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP//BABYLON.Scene.FOGMODE_LINEAR
     scene.fogColor = new BABYLON.Color3(0, 0, 0)
-
-    ////////////////////////////////////////////////////
-    // Load models
-    // ToDo: Put this in a seperate file in charge of setting up default assets (models, materials, sounds, etc.)
-    ////////////////////////////////////////////////////
-    // Player Mat
-    scene.playerMaterial = new BABYLON.StandardMaterial('mat')
-    scene.playerMaterial.diffuseTexture = new BABYLON.Texture(imageSRC.Character, scene, false, false, BABYLON.Texture.NEAREST_SAMPLINGMODE)
-    scene.playerMaterial.specularColor = new BABYLON.Color3(0, 0, 0)
-
-    console.log("Loading models...")
-    // BABYLON.SceneLoader.Append("./client/src/", "CC_Char1_v1_rigged.gltf", scene, (importedScene) => {
-    BABYLON.SceneLoader.LoadAssetContainer("./client/src/models/char/", "CC_Char1_v1_rigged.gltf", scene, (container) => {
-        scene.characterSystem = container
-        // container.addAllToScene()
-    })
 
     ////////////////////////////////////////////////////
     // Return scene
