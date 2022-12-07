@@ -8,7 +8,7 @@ The steps to setup the environment for development and to host a multiplayer gam
 > If you're hosting on your own computer, you'll need to port-forward (default is port 3000) and other players will need your IP address to join. If you don't already know, be careful with who you give your IP to if you care about doxing.
 
 Here's some beginner / intermediate level instructions to get a server up and running:
-Once you've done steps `1 - 8`, you'll only need steps `8 - 11` to host again.
+Once you've done steps `1 - 8`, you'll only need steps `9 - 11` to host again.
 
 1. Install an ide (integrated development environment) (I like VSCode).
 2. Install Node.js (v16 or newer) on your system.
