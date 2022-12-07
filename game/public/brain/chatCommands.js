@@ -170,7 +170,7 @@ const chatCommands = {
     changeName: {
         commands: ["changename", "cname"],
         admin: false,
-        description: `Changes the name of the target player. Names must be alphanumeric with no spaces. You can also use "@r" as the new name to generate a random name. (Example: "${commandOptions.delimiter}changename [new name] [player name (optional)]")`,
+        description: `Changes the name of the target player. Names must be alphanumeric with no spaces. You can also use "@r" as the new name to generate a random name. (Example: "${commandOptions.delimiter}changename [new name] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (brainGame.gameOptions.chatOptions.allowPlayerNameChange || isAdmin) {
                 //////////////////////////////////////
@@ -249,7 +249,7 @@ const chatCommands = {
     teleport: {
         commands: ["teleport", "tp"],
         admin: true,
-        description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [Y] [Z] [player name (optional)]")`,
+        description: `Teleports a player to a specified location. (Example: "${commandOptions.delimiter}tp [X] [Y] [Z] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             let players = []
 
@@ -308,7 +308,7 @@ const chatCommands = {
     kill: {
         commands: ["kill"],
         admin: true,
-        description: `Kills the targeted player. (Example: "${commandOptions.delimiter}kill [player name (optional)]")`,
+        description: `Kills the targeted player. (Example: "${commandOptions.delimiter}kill [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -326,7 +326,7 @@ const chatCommands = {
     kick: {
         commands: ["kick"],
         admin: true,
-        description: `Kicks the desired player from the game. (Example: "${commandOptions.delimiter}kick [player name]")`,
+        description: `Kicks the desired player from the game. (Example: "${commandOptions.delimiter}kick [player]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             // This command should only work in an online game
             if (brainGame.brainComs.isNetworked) {
@@ -368,7 +368,7 @@ const chatCommands = {
     makeAdmin: {
         commands: ["admin", "op"],
         admin: true,
-        description: `Makes the targeted player an admin. (Example: "${commandOptions.delimiter}admin [player name]")`,
+        description: `Makes the targeted player an admin. (Example: "${commandOptions.delimiter}admin [player]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -393,7 +393,7 @@ const chatCommands = {
     removeAdmin: {
         commands: ["removeadmin", "deop"],
         admin: true,
-        description: `Removes admin from the targeted player. (Example: "${commandOptions.delimiter}removeadmin [player name]")`,
+        description: `Removes admin from the targeted player. (Example: "${commandOptions.delimiter}removeadmin [player]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
@@ -436,7 +436,7 @@ const chatCommands = {
     changeGameMode: {
         commands: ["gamemode", "gm"],
         admin: true,
-        description: `Changes your game mode. (Example: "${commandOptions.delimiter}gamemode [game mode] [player name (optional)]")`,
+        description: `Changes your game mode. (Example: "${commandOptions.delimiter}gamemode [game mode] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
 
             //////////////////////////////////////
@@ -534,7 +534,7 @@ const chatCommands = {
     changeTeam: {
         commands: ["changeteam", "cteam"],
         admin: false,
-        description: `Changes the team of the targeted player. (Example: "${commandOptions.delimiter}changeteam [team] [player name (optional)]")`,
+        description: `Changes the team of the targeted player. (Example: "${commandOptions.delimiter}changeteam [team] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (Object.keys(teams).includes(args[0].toLowerCase())) {
                 //////////////////////////////////////
@@ -624,7 +624,7 @@ const chatCommands = {
     tell: {
         commands: ["tell"],
         admin: true,
-        description: `Sends only the targeted player(s) a message. (Example: "${commandOptions.delimiter}tell [player name] [message]")`,
+        description: `Sends only the targeted player(s) a message. (Example: "${commandOptions.delimiter}tell [player] [message]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //////////////////////////////////////
             // Get Player(s)
