@@ -69,7 +69,7 @@ class ClientPlayer {
         // Private vars
         //////////////////////////////////////////////////
         this.groundFric = 0.75
-        this.gravity = -0.0085//-0.0125
+        this.gravity = 8.5 //-0.0085//-0.0125
         this.defaultBounce = 0.05
         this.bounce = this.defaultBounce
         this.usedJumps = 0

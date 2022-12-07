@@ -34,7 +34,7 @@ export function basicMovement(engine, player, movementVector) {
     // const deltaTime = 16 // ToDo: MAKE SURE this and "clientGame.clientUpdateSpeed" are the same
     // const frameRateMult = 1000/60 // ToDo: 
     // let frameGrav = ((player.gravity/frameRateMult) * deltaTime)
-    let frameGrav = player.gravity
+    let frameGrav = player.gravity/(-1000)
 
     // Collision vars
     let playerBox = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: player.playerHeight, d: 0.5}

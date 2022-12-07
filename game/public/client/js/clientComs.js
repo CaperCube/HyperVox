@@ -312,8 +312,7 @@ class ClientComs {
             },
 
             createEffect: ( data, playerId ) => {
-                //if (this.messageDebug)
-                console.log( '%c Create effect (client)', 'background: #142; color: #ced' )
+                if (this.messageDebug) console.log( '%c Create effect (client)', 'background: #142; color: #ced' )
 
                 // ToDo: Check type and create an effect based on that
                 // Account for weapon and other brain-wide effects
@@ -326,7 +325,17 @@ class ClientComs {
                     lifetime: data.time,
                     clientGame: this.clientGame
                 })
-            }
+            },
+
+            setGravity: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Set client gravity from brain (client)', 'background: #142; color: #ced' )
+                if (data.value !== null && data.value !== undefined) this.clientGame.localPlayer.gravity = data.value
+            },
+
+            setJumpsAllowed: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Set client allowed number of jumps from brain (client)', 'background: #142; color: #ced' )
+                if (data.value !== null && data.value !== undefined) this.clientGame.localPlayer.allowedJumps = data.value
+            },
         }
     }
 

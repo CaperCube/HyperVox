@@ -30,9 +30,9 @@ class World {
         // Events (these should all be strings to house chat commands)
         this.events = {
             worldStart: "~ This command triggers after a world is loaded or generated",
-            gameStart: "~ This command only triggers when a command tells it to",
+            gameStart: "~ This command only triggers after a command tells it to",
             gameEnd: "~ This command triggers after the score limit is reached",
-            playerJoin: "~ This command triggers when a player joins. The joining player is targeted by default.",
+            playerJoin: "~ This command triggers after a player joins. The joining player is targeted by default.",
             // playerDie: ""
             // ...
         }

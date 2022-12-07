@@ -1,5 +1,5 @@
 import { getArrayPos } from "../common/positionUtils.js"
-import { randomArray, filterChatMessageCode } from "../common/dataUtils.js"
+import { randomArray, filterChatMessageCode, clamp } from "../common/dataUtils.js"
 import { gameModes } from "./brainGame.js"
 import { teams } from "../common/commonConstants.js"
 
@@ -657,32 +657,38 @@ const chatCommands = {
             sendMessage(`Sadly, this does not work yet :(`, true)
         }
     },
-    changeServerGameMode: {
+    setServerGameMode: {
         commands: ["servergamemode", "sgm"],
         admin: true,
         description: `Changes the game mode for the server. (Example: ${commandOptions.delimiter}servergamemode [game mode])`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            let found = false
-            Object.values(gameModes).forEach((gm)=>{
-                if (args[0].toLowerCase() === gm.toLowerCase()) {
-                    // Set game mode
-                    brainGame.gameOptions.gameMode = gm
-                    // Set all player's game modes to server game mode
-                    // for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
-                    // Send message
-                    sendMessage(`The server game mode has changed to ${chatEmphasis(gm)}`)
+            if (args[0]) {
+                let found = false
+                Object.values(gameModes).forEach((gm)=>{
+                    if (args[0].toLowerCase() === gm.toLowerCase()) {
+                        // Set game mode
+                        brainGame.gameOptions.gameMode = gm
+                        // Set all player's game modes to server game mode
+                        // for (let i = 0; i < brainGame.players.length; i++) brainGame.players[i].gameMode = gm
+                        // Send message
+                        sendMessage(`The server game mode has changed to ${chatEmphasis(gm)}`)
 
-                    // end function here
-                    found = true
-                    return
-                }
-            })
+                        // end function here
+                        found = true
+                        return
+                    }
+                })
 
-            // No matching game modes found
-            if (!found) sendMessage(`That is not a valid game mode`, true)
+                // No matching game modes found
+                if (!found) sendMessage(`That is not a valid game mode`, true)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`The server game mode is currently ${chatEmphasis(brainGame.gameOptions.gameMode)}.`, true)
+            }
         }
     },
-    changeTickRate: {
+    setTickRate: {
         commands: ["tickrate", "tr"],
         admin: true,
         description: `Sets the server's game update speed (in milliseconds). Default is 30 (Example: ${commandOptions.delimiter}tickrate [time])`,
@@ -695,8 +701,8 @@ const chatCommands = {
                 sendMessage(`Server tick rate set to ${chatEmphasis(newRate)}ms`)
             }
             else {
-                // Send message
-                sendMessage(`You must type a value. Try something like: "${commandOptions.delimiter}tickrate 30"`, true)
+                // If no value set, just return the current value
+                sendMessage(`The server tick rate is currently ${chatEmphasis(brainGame.gameOptions.gameTickSpeed)}.`, true)
             }
         }
     },
@@ -712,6 +718,10 @@ const chatCommands = {
                 // Send message
                 sendMessage(`The score limit has been changed to ${chatEmphasis(newScore)}.`)
             }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`The score limit is currently ${chatEmphasis(brainGame.gameOptions.scoreLimit)}.`, true)
+            }
         }
     },
     resetScores: {
@@ -725,6 +735,50 @@ const chatCommands = {
             sendMessage(`All player scores have been reset.`)
         }
     },
+    setGravity: {
+        commands: ["setgravity", "gravity", "grav"],
+        admin: true,
+        description: `Changes the gravity of the game. Default is 8.5 (Example: "${commandOptions.delimiter}setgravity [value]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set limit
+                const newVal = clamp(parseFloat(args[0]), 0, 100)
+                brainGame.gameOptions.gravity = newVal
+
+                // Set all connected player's gravity
+                brainGame.brainComs.genericToClient("setGravity", {value: newVal})
+
+                // Send message
+                sendMessage(`Gravity has been changed to ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`Gravity is currently ${chatEmphasis(brainGame.gameOptions.gravity)}.`, true)
+            }
+        }
+    },
+    setJumps: {
+        commands: ["setjumps", "jumps"],
+        admin: true,
+        description: `Changes the max number of jumps the player can before before touching the ground. Default is 2 (Example: "${commandOptions.delimiter}setjumps [value]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Set limit
+                const newVal = clamp(parseInt(args[0]), 0, 1000)
+                brainGame.gameOptions.jumps = newVal
+
+                // Set all connected player's max jumps
+                brainGame.brainComs.genericToClient("setJumpsAllowed", {value: newVal})
+
+                // Send message
+                sendMessage(`Max jumps has been changed to ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`Max jumps is currently ${chatEmphasis(brainGame.gameOptions.jumps)}.`, true)
+            }
+        }
+    },
     setCommandTime: {
         commands: ["commandtime", "comtime"],
         admin: true,
@@ -736,6 +790,10 @@ const chatCommands = {
                 brainGame.gameOptions.commandBlockTriggerTime = newVal
                 // Send message
                 sendMessage(`The command trigger time has been changed to ${chatEmphasis(newVal)}.`)
+            }
+            else {
+                // If no value set, just return the current value
+                sendMessage(`The command trigger time is currently ${chatEmphasis(brainGame.gameOptions.commandBlockTriggerTime)}.`, true)
             }
         }
     },
@@ -935,7 +993,6 @@ const chatCommands = {
             }
         }
     },
-    
     
     //
     // World commands

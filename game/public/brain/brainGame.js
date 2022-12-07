@@ -35,7 +35,9 @@ class BrainGame {
             },
             // ToDo: Make game rules their own object, we don't want to clutter gameOptions with rules
             scoreLimit: 20, // The max player score before a winner is decalred and the game is reset
-            commandBlockTriggerTime: 1000 // Time in ms between valid command block triggers
+            commandBlockTriggerTime: 1000, // Time in ms between valid command block triggers
+            gravity: 8.5, // This value gets sent to new clients and set's their gravity constant
+            jumps: 2, // This value sets the maximum number of jumps a player can perform before touching the ground
         }
         
         this.brainComs = new BrainComs({

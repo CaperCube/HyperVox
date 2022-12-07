@@ -141,7 +141,13 @@ class BrainComs {
                 this.sayWhosConnected()
 
                 // Do player join event
-                if (data.isNewPlayer) this.brainGame.doWorldEvent("playerJoin", playerID)
+                if (data.isNewPlayer) {
+                    this.brainGame.doWorldEvent("playerJoin", playerID)
+
+                    // Set some default values
+                    this.genericToClient("setGravity", {value: this.brainGame.gameOptions.gravity})
+                    this.genericToClient("setJumpsAllowed", {value: this.brainGame.gameOptions.jumps})
+                }
             },
 
             sendChatMessage: ( data, playerID = 0 ) => {
