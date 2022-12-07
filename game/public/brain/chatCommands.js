@@ -29,7 +29,7 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
                         if (isAdmin) chatCommands[key].action(message, name, playerID, isAdmin, brainGame, args, sendMessage)
                         else {
                             // Tell them they need better priv to do this
-                            sendMessage(`Sorry ${name}, you need to have admin privileges to do this.`)
+                            sendMessage(`Sorry ${name}, you need to have admin privileges to do this.`, true)
                         }
                     }
                     // If admin is not required
@@ -64,34 +64,36 @@ const getPlayers = (arg, brainGame, playerID = null) => {
     if (arg) {
         // If all players targeted
         // All
-        if (arg === "@a") players = brainGame.players
-        // Random
-        else if (arg === "@r") players[0] = randomArray(brainGame.players)
-        // All Other
-        else if (arg === "@o") players[0] = brainGame.players.filter(p => p.playerID !== playerID)
+        if (arg === "@a") return brainGame.players
+        // One Random
+        else if (arg === "@r") return [randomArray(brainGame.players)]
+        // All Others
+        else if (arg === "@o") return brainGame.players.filter(p => p.playerID !== playerID)
         // All on Team
         else if (arg.startsWith("@t")) {
             const teamStr = arg.replace("@t", "").toLowerCase()
             const myTeam = teams[teamStr]
 
             if (myTeam) {
-                players = brainGame.players.filter(p => p.stats.team === myTeam)
+                return brainGame.players.filter(p => p.stats.team === myTeam)
             }
         }
+        // Self (if applicable)
+        else if (arg === "@s") return brainGame.players.filter(p => p.playerID === playerID)
 
         // Check matches
         else {
             // Check for ID
-            const IDmatches = brainGame.players.filter(p => p.playerID === parseFloat(arg))[0]
-            if (IDmatches) players = [IDmatches]
+            const IDmatches = brainGame.players.filter(p => p.playerID === parseFloat(arg))
+            if (IDmatches.length > 0) return IDmatches
 
             // Check for all with name
-            else players = brainGame.players.filter(p => p.playerName === arg)
+            else return brainGame.players.filter(p => p.playerName === arg)
         }
     }
     // Else get chat player
     else {
-        players[0] = brainGame.players.filter(p => p.playerID === playerID)[0]
+        return brainGame.players.filter(p => p.playerID === playerID)
     }
 
     return players
@@ -633,7 +635,7 @@ const chatCommands = {
                 if (players.length > 0) {
                     for (let i = 0; i < players.length; i++) {
                         // Tells this player
-                        const data = { message: newMessage, nameColor: 'white', messageName: 'Server', isServer: true }
+                        const data = { message: chatEmphasis(newMessage), nameColor: 'white', messageName: 'Server', isServer: true }
                         brainGame.brainComs.genericToClient('receiveChatMessage', data, [players[i].playerID])
                     }
                 }
@@ -854,18 +856,39 @@ const chatCommands = {
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (args[0]) {
                 // Compile arguments
-                let command = ''
-                if (args.length > 1) {
-                    for (let i = 1; i < args.length; i++) {
-                        command += `${args[i]} `
-                    }
-                }
+                const commandUsed = message.trim().split(" ")[0]
+                const firstArg = message.trim().split(" ")[1]
+                const command = message.replace(`${commandUsed} ${firstArg} `, '')
+
                 // Set world event
                 const eventObj = brainGame.editWorldEvent(args[0], command || null)
 
                 // Send message
                 if (eventObj) sendMessage(`Event ${chatEmphasis(eventObj.name)} has a value of ${chatEmphasis(filterChatMessageCode(eventObj.command))}.`)
                 else sendMessage(`Cannot find event with name ${chatEmphasis(args[0])}.`, true)
+            }
+            else {
+                sendMessage(`No event specified.`, true)
+            }
+        }
+    },
+    createWorldEvent: {
+        commands: ["createworldevent", "createevent", "cwe"],
+        admin: true,
+        description: `Creates an event with the designated command (Example: "${commandOptions.delimiter}createworldevent [event name] [event command]")`,
+        action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
+            if (args[0]) {
+                // Compile arguments
+                const commandUsed = message.trim().split(" ")[0]
+                const firstArg = message.trim().split(" ")[1]
+                const command = message.replace(`${commandUsed} ${firstArg} `, '')
+
+                // Create world event
+                const eventObj = brainGame.createWorldEvent(args[0], command || null)
+
+                // Send message
+                if (eventObj) sendMessage(`Event ${chatEmphasis(eventObj.name)} has a value of ${chatEmphasis(filterChatMessageCode(eventObj.command))}.`)
+                else sendMessage(`An event with name ${chatEmphasis(args[0])} already exists.`, true)
             }
             else {
                 sendMessage(`No event specified.`, true)

@@ -132,7 +132,7 @@ class BrainGame {
                     this.sendChatMessage(responseMessage)
                 })
                 if (!commandFound) {
-                    this.sendChatMessage(formattedCommand)
+                    this.sendChatMessage(`<span style="color: white;">${formattedCommand}</span>`)
                 }
             }
         })
@@ -407,6 +407,21 @@ class BrainGame {
         else {
             // No event to set
             return null
+        }
+    }
+
+    createWorldEvent = (e, newVal) => {
+        // Get the event name
+        let event = this.getWorldEventByName(e)
+
+        // Set event command
+        if (event) {
+            // This event already exists
+            return null
+        }
+        else {
+            this.world.events[e] = newVal
+            return {name: e, command: this.world.events[e]}
         }
     }
 
