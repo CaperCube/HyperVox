@@ -91,7 +91,7 @@ export function basicMovement(engine, player, movementVector) {
 
     // Gravity changes
     // if (player.isInFluid) frameGrav = (((player.gravity / player.fluidViscosity)/frameRateMult) * deltaTime)
-    if (player.isInFluid) frameGrav = (player.gravity / player.fluidViscosity)
+    if (player.isInFluid) frameGrav = ((player.gravity/(-1000)) / player.fluidViscosity)
 
     ///////////////////////////////////////////////////////
     // World bounds
