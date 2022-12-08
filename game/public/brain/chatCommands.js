@@ -536,22 +536,53 @@ const chatCommands = {
         admin: false,
         description: `Changes the team of the targeted player. (Example: "${commandOptions.delimiter}changeteam [team] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
-            if (Object.keys(teams).includes(args[0].toLowerCase())) {
-                //////////////////////////////////////
-                // Get Team
-                const newTeam = teams[args[0].toLowerCase()]
+            //////////////////////////////////////
+            // Get Player(s)
+            let players = null
+            const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
 
-                //////////////////////////////////////
-                // Get Player(s)
-                let players = getPlayers(args[1], brainGame, playerID)
-                const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
+            //////////////////////////////////////
+            // Get Team
+            let newTeam = teams["none"]
+            
+            //////////////////////////////////////
+            // If we want a random team
+            if (args[0] === "@r") {
+                // Set to a random team
+                // /cteam @r blue|red|yellow|green
 
+                if (args[1]) {
+                    // Get team
+                    const teamList = args[1].toLowerCase().split("|")
+                    newTeam = randomArray(teamList)
+
+                    // Get players
+                    players = getPlayers(args[2], brainGame, playerID)
+                }
+                else {
+                    // You need to specify which teams could be selected
+                    sendMessage(`No possible teams specified. Try something like: "${commandOptions.delimiter}changeteam @r blue|red [player]"`, true)
+                }
+            }
+            //////////////////////////////////////
+            // Else a pre-defined team
+            else {
+                // Get team
+                newTeam = args[0]
+
+                // Get players
+                players = getPlayers(args[1], brainGame, playerID)
+            }
+
+            //////////////////////////////////////
+            // Set the player's teams
+            if (Object.keys(teams).includes(newTeam.toLowerCase())) {
                 if (players.length > 0) {
                     for (let i = 0; i < players.length; i++) {
                         if (isAdmin || players[i] === thisPlayer) {
                             // Change this player's team
-                            players[i].stats.team = newTeam
-                            sendMessage(`${chatEmphasis(players[i].playerName)}'s team changed to ${chatEmphasis(args[0])}`, true)
+                            players[i].stats.team = teams[newTeam]
+                            sendMessage(`${chatEmphasis(players[i].playerName)}'s team changed to ${chatEmphasis(newTeam)}`, true)
                         }
                         else {
                             sendMessage(`Only admins can change other player's teams.`, true)
@@ -561,7 +592,7 @@ const chatCommands = {
                 else sendMessage(`No players found`, true)
             }
             else {
-                sendMessage(`Can't find team with name of ${chatEmphasis(args[0])}`, true)
+                sendMessage(`Can't find a matching team named ${newTeam}.`, true)
             }
         }
     },
