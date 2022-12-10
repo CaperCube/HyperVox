@@ -30,17 +30,18 @@ let worldSize = 4
 let desiredPixelSize = 8
 let _resolution = (chunkSize * worldSize)
 let pixelSize = canvas.width/_resolution
-let steps2D = 3
+let steps2D = 3 // How many layers you can see at a time
 let world = [[[]]] // ToDo: change to an actual world object
 let worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
 let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
 let blockData = {}
 let intervalCommands = {}
-let events = { worldStart: "", gameStart: "", gameEnd: "" }
+let events = { worldStart: "", gameStart: "", gameEnd: "", playerJoin: "", playerDie: "" }
 
 // Editor vars
 let tempLayer = [[]]
-for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+// Setup temp layer
+initTempLayer()
 
 let viewDirection = 2 // 0 = X, 1 = Y, 2 = Z
 let selectedBlock = blockTypes[0]
@@ -74,6 +75,7 @@ const getWorldPos = (pos, normalize = true) => {
 
     return { chunk: chunk, block: block } 
 }
+
 let mouseGridStart = {x: 0, y: 0}
 let mouseGridPos = {x: 0, y: 0}
 let mouseWolrdPos = getWorldPos({ x: 0, y: 0 })
@@ -83,6 +85,7 @@ let altHeld = false
 ////////////////////////////////////////////////////////
 // DOM function
 ////////////////////////////////////////////////////////
+
 $("#DOM_generateBttn").onclick = DOMNoiseFnc
 $("#DOM_xaxis").onclick = () => { updateViewDirection(0) }
 $("#DOM_Yaxis").onclick = () => { updateViewDirection(1) }
@@ -317,7 +320,10 @@ function setDataForIntervalCommand(intervalName = null, newData = { command: nul
     if (newData.time) intervalCommands[intervalName].time = newData.time
 }
 
+////////////////////////////////////////////////////////
 // View & World
+////////////////////////////////////////////////////////
+
 function updateViewDirection(newVal) {
     // Set value
     viewDirection = newVal
@@ -357,10 +363,12 @@ function updateWorld(newWorld) { // ToDo: create a World() object
     worldSpawn = newWorld.worldSpawn
     blockData = newWorld.blockData || {}
     intervalCommands = newWorld.intervalCommands || {}
-    events = newWorld.events || { worldStart: "", gameStart: "", gameEnd: "" }
+    events = newWorld.events || { worldStart: "", gameStart: "", gameEnd: "", playerJoin: "", playerDie: "" }
     //$("#DOM_genList").value = newWorld.pattern // ToDo: save this data in world file
 
+    // Update temp layer
     canvasTemp.width = canvasTemp.height = canvas.width
+    initTempLayer()
 
     // Update DOM
     $('#DOM_seed').value = newWorld._wSeed
@@ -403,7 +411,9 @@ function DOMNoiseFnc() {
     _resolution = chunkSize * worldSize
     pixelSize = canvas.width/_resolution
 
+    // Update temp layer
     canvasTemp.width = canvasTemp.height = canvas.width
+    initTempLayer()
 
     // Get depth based on slider selection
     let steps = canvas.width / pixelSize
@@ -423,7 +433,7 @@ function DOMNoiseFnc() {
     // Update data sections
     blockData = {}
     intervalCommands = {}
-    events = { worldStart: "", gameStart: "", gameEnd: "" }
+    events = { worldStart: "", gameStart: "", gameEnd: "", playerJoin: "", playerDie: "" }
     populateDOMBlockData()
     populateDOMIntervalCommands()
 }
@@ -436,25 +446,10 @@ function updateDepth(el) {
     drawWorld(world, el.value)
 }
 
-// Tool Setting
-function setEditorTool(newTool) {
-    // Selecat tool
-    editorTool = newTool
-
-    // Remove all selected classes
-    for (const key in tools) {
-        const btn = $(`#DOM_${tools[key]}btn`)
-        btn?.classList?.remove('selected')
-    }
-
-    // Add selected class
-    const btn = $(`#DOM_${newTool}btn`)
-    btn?.classList?.add('selected')
-}
-
 ////////////////////////////////////////////////////////
 // Events
 ////////////////////////////////////////////////////////
+
 const getViewPos = (depth, pos = mouseWolrdPos, viewD = viewDirection) => {
     let viewPos = { chunk: { x:0, y:0, z:0 }, block: { x:0, y:0, z:0 } }
     switch (viewD) {
@@ -620,6 +615,7 @@ $("#canvas-holder-main").addEventListener('wheel', (e) => {
 })
 
 // Key commands
+// ToDo: Only perform shortcut commands when NOT focused on a input element
 document.addEventListener('keydown', (e) => {
     // console.log(e.key)
     // Select block
@@ -683,8 +679,36 @@ document.addEventListener('keyup', (e) => {
 })
 
 ////////////////////////////////////////////////////////
-// Tool actions
+// Tool functions
 ////////////////////////////////////////////////////////
+
+function setEditorTool(newTool) {
+    // Selecat tool
+    editorTool = newTool
+
+    // Remove all selected classes
+    for (const key in tools) {
+        const btn = $(`#DOM_${tools[key]}btn`)
+        btn?.classList?.remove('selected')
+    }
+
+    // Add selected class
+    const btn = $(`#DOM_${newTool}btn`)
+    btn?.classList?.add('selected')
+}
+
+function initTempLayer() {
+    // Clear and resize the tempLayer to match the world size
+    tempLayer = [[]]
+
+    for (let y = 0; y < (worldSize*chunkSize); y++) {
+        tempLayer[y] = [];
+        for (let x = 0; x < (worldSize*chunkSize); x++) {
+            tempLayer[y][x] = 0
+        }
+    }
+}
+
 function drawToolPreview(position = {x:0,y:0}, tileIndex = 0, opacity = 1, context = ctxTemp) {
     // Set Opacity
     context.globalAlpha = opacity
@@ -706,7 +730,7 @@ function drawPencil(erase = false) {
     // Draw
     drawBlockWithDepth(depth, viewPos, erase? 0 : blockTypes.indexOf(selectedBlock))
     // world[viewPos.chunk.y][viewPos.chunk.x][viewPos.chunk.z][viewPos.block.y][viewPos.block.x][viewPos.block.z] = erase? 0 : blockTypes.indexOf(selectedBlock)
-    tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
+    if (tempLayer[mouseGridPos.y]?.[mouseGridPos.x] !== undefined) tempLayer[mouseGridPos.y][mouseGridPos.x] = erase? 'erase' : blockTypes.indexOf(selectedBlock) || 'erase'
 
     // Draw edit preview
     drawLayer(tempLayer, ctxTemp)
@@ -715,7 +739,12 @@ function drawPencil(erase = false) {
 function drawRect(erase = false) {
     // clear
     ctxTemp.clearRect(0, 0, canvasTemp.width, canvasTemp.height)
-    for (let y = 0; y < (worldSize*chunkSize); y++) { tempLayer[y] = []; for (let x = 0; x < (worldSize*chunkSize); x++) { tempLayer[y][x] = 0 }}
+    for (let y = 0; y < (worldSize*chunkSize); y++) {
+        tempLayer[y] = []
+        for (let x = 0; x < (worldSize*chunkSize); x++) {
+            tempLayer[y][x] = 0
+        }
+    }
 
     // Draw
     const deltaX = mouseGridPos.x - mouseGridStart.x
@@ -805,10 +834,9 @@ function fillFromTempLayer() {
     for (let x = 0; x < tempLayer[y].length; x++) {
         if (tempLayer[y][x]) {
             // Get world position
-            const cellSize = canvas.clientWidth/_resolution
-            const yPos = canvas.clientWidth - ((y+1)*cellSize)
-            const xPos = (viewDirection !== 0) ? x*cellSize : canvas.clientWidth - ((x+1)*cellSize)
-            const worldPos = getWorldPos({ x: xPos, y: yPos })
+            const yPos = (tempLayer.length-1) - y
+            const xPos = (viewDirection !== 0) ? x : (tempLayer[y].length-1) - x
+            const worldPos = getWorldPos({ x: xPos, y: yPos }, false)
             const depth = $("#DOM_depthslider").value
             let viewPos = getViewPos(depth, worldPos)
 

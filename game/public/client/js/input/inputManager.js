@@ -398,7 +398,7 @@ var Controls = {
         invDown: [Buttons.scrollDown, Buttons.equals],
         interact: [Buttons.e],
         eyedrop: [Buttons.q],
-        noclip: [Buttons.r]
+        noclip: [Buttons.n]
     },
     Player2: {
         upAxis1: [Buttons.up],
