@@ -26,11 +26,11 @@ function SwitchSideMenuTab(element) {
     // Loop through all side menu tabs and hide them
     const helpTab = $("#help-tab")
     const lobbyTab = $("#lobby-tab")
-    const contTab = $("#controls-tab")
+    const commandsTab = $("#commands-tab")
 
     helpTab.classList.add('hidden')
-    contTab.classList.add('hidden')
     lobbyTab.classList.add('hidden')
+    commandsTab.classList.add('hidden')
 
     if (element) element.classList.remove('hidden')
 }

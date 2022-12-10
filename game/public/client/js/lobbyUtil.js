@@ -128,6 +128,7 @@ export function CopyIDFromLobbyElem(el) {
     console.log(playerID)
 
     // Put in clipboard
-    navigator.clipboard.writeText(playerID)
+    // navigator.clipboard.writeText(playerID)
+    $("#chat-input-text").value += `${playerID}`
     return playerID
 }

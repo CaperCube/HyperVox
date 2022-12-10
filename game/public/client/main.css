@@ -366,7 +366,7 @@ Side Menu & Tabs
 
 	height: 40px;
 	padding: 0 10px;
-	margin: 0;
+	margin: 0 0 5px 0;
 
 	background-color: var(--color-shadow);
 	text-align: center;

@@ -80,8 +80,8 @@
     <span id="side-menu" class="closed">
         <span id="side-menu-button" onclick="$('#side-menu').classList.toggle('closed')">?</span>
         <span id="help-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#help-tab'))">Help</span>
-        <span id="controls-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#controls-tab'))">Controls</span>
         <span id="lobby-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#lobby-tab'))">Lobby</span>
+        <span id="commands-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#commands-tab'))">Commands</span>
         <span id="side-menu-tabs">
     <!--
     ////////////////////////////////////////////////////////
@@ -99,8 +99,6 @@
                     <br>
                     <span style="color: #88aaff">To play multiplayer</span>, click "Join Online" and then "Submit" without typing anything. If you don't load load into the game, a multiplayer game hasn't been created yet, so you can then use "Start Game" to create one.
                 </p>
-            </span>
-            <span id="controls-tab" class="side-tab hidden">
                 <p>
                     <h1>Controls</h1>
                     <u>Caution:</u> Please avoid <span style="color: #ff9900">pressing "Ctrl" while playing</span>! "Ctrl" has many functions, some of which <span style="color: #ff9900">will close or change tabs.</span><br>
@@ -118,7 +116,7 @@
                 </p>
                 <p>
                     <h1>Noclip Mode</h1>
-                    <span style="color: #88aaff">R</span> = Toggle noclip<br>
+                    <span style="color: #88aaff">N</span> = Toggle noclip<br>
                     <span style="color: #88aaff">Space</span> = Fly up<br>
                     <span style="color: #88aaff">Shift</span> = Fly down<br>
                 </p>
@@ -147,6 +145,19 @@
                 <button id="lobby-set-creative">Creative</button><br>
                 <button id="lobby-set-deathmatch">Deathmatch</button><br>
                 <button id="lobby-set-parkour">Parkour</button>
+            </span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                 Command List                   ////
+    ////////////////////////////////////////////////////////
+    -->
+            <span id="commands-tab" class="side-tab hidden">
+                <h1>Commands</h1>
+                <span id="command-list">
+                </span>
+                <h1>Player Filters</h1>
+                <span id="filter-list">
+                </span>
             </span>
         </span>
     </span>
