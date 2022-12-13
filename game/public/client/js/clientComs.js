@@ -123,6 +123,7 @@ class ClientComs {
                             // Add new ClientPlayer() to scene
                             const newPlayer = new ClientPlayer(null, null, data.players[p].playerID, this.clientGame)
                             newPlayer.setPlayerName(data.players[p].playerName)
+                            newPlayer.inventory.selectedIndex = null
                             // Push this player to array
                             this.clientGame.networkPlayers[p] = newPlayer
                         }
@@ -143,6 +144,7 @@ class ClientComs {
                     const iDMatchedPlayers = data.players.filter(dp => dp.playerID === thisPlayer?.playerID)
                     if (thisPlayer && iDMatchedPlayers.length === 0) {
                         if (thisPlayer.avatar) thisPlayer.avatar.dispose()
+                        thisPlayer.clearIntervals()
                         delete this.clientGame.networkPlayers[p]
                     }
                 }
@@ -460,7 +462,7 @@ class ClientComs {
         const distance = 1.5
         const effectPos = {
             x: player.position.x + (lookDir.x * distance) + 0.25,
-            y: player.position.y + (lookDir.y * distance) + 0.65,
+            y: player.position.y + (lookDir.y * distance) + 0.75,
             z: player.position.z + (lookDir.z * distance)
         }
 

@@ -468,8 +468,11 @@ class ClientGame {
 
     removeScene() {
         // Remove local player
-        delete this.localPlayer
-        this.localPlayer = null
+        if (this.localPlayer) {
+            this.localPlayer.clearIntervals()
+            delete this.localPlayer
+            this.localPlayer = null
+        }
 
         // Stop rendering and remove scene
         clearInterval(this.updateLoop)
@@ -484,6 +487,9 @@ class ClientGame {
 
         // Remove other players and camera
         this.mainCamera = null
+        this.networkPlayers.forEach(p=>{
+            p.clearIntervals()
+        })
         this.networkPlayers = []
 
         // Remove UI functions / styles
@@ -686,7 +692,7 @@ class ClientGame {
             // Update player (change this to loop through all local machine players, if we do that)
             if (this.localPlayer) {
                 // Tell the brain my position
-                if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z }, this.localPlayer.nextAnimation, this.localPlayer.inventory?.selectedIndex || null)
+                if (this.frame % 100) this.clientComs.updateMyGamePosition({ x: this.localPlayer.position.x, y: this.localPlayer.position.y, z: this.localPlayer.position.z }, { x: this.localPlayer.avatar.rotation.x, y: this.localPlayer.avatar.rotation.y, z: this.localPlayer.avatar.rotation.z }, this.localPlayer.nextAnimation, this.localPlayer.inventory?.selectedIndex || 0)
                 // Update my position
                 this.localPlayer.movementUpdate(this.engine)
             }

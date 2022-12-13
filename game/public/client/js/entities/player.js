@@ -135,6 +135,9 @@ class ClientPlayer {
         // This is the actual skeleton for animating the player
         this.skeleton = null
         this.avatarMesh = null
+        this.faceEmoteNode = null
+        this.faceEmoteMesh = null
+        this.blinkInterval = null
 
         this.body = null //clientGame.scene.playerMesh.clone().makeGeometryUnique()
         this.head = null
@@ -194,15 +197,25 @@ class ClientPlayer {
             this.handNode.position = this.hand.position
             this.handNode.parent = this.hand
 
+            // Face emote
+            this.faceEmoteNode = new BABYLON.TransformNode("face_root")
+            this.faceEmoteNode.position = new BABYLON.Vector3(-0.4999, -0.5, 0.5)
+            this.faceEmoteNode.rotation.y = (Math.PI/2)
+            this.faceEmoteNode.parent = this.head
+
+            // Face animation
+            this.blinkInterval = setInterval(()=>{
+                this.setFaceEmote("blink")
+                setTimeout(()=>{this.setFaceEmote("normal")}, 175)
+            }, 5000)
+
             // Set mesh names
             this.body.name = `body_player-${this.playerID}`
             // this.head.name = `head_player-${this.playerID}`
 
             // Set overlay color
             this.body.overlayColor = new BABYLON.Color3.Red()
-            this.head.overlayColor = new BABYLON.Color3.Red()
             this.body.renderOverlay = false
-            this.head.renderOverlay = false
 
             // Remove empty root node and material
             // clientGame.scene.getNodeByName("__root__").dispose()
@@ -355,7 +368,7 @@ class ClientPlayer {
             const rnd = Math.floor((Math.random() * walkingSounds.length) - 0.0001)
             walkingSounds[rnd]?.play()
         }
-        setInterval( ()=>{
+        this.walkingSoundsInterval = setInterval( ()=>{
             if (this.isGrounded && (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight)) {
                 this.playStepSound()
             }
@@ -443,6 +456,35 @@ class ClientPlayer {
     }
 
     ///////////////////////////////////////////////////////
+    // Face animations
+    ///////////////////////////////////////////////////////
+
+    setFaceEmote(frame) {
+        const faces = {
+            "normal": 2,
+            "pain": 5,
+            "blink": 6,
+            "talk": 9,
+            "happy": 10
+        }
+        if (this.head && this.faceEmoteNode) {
+            // Remove the old mesh
+            if (this.faceEmoteMesh) this.faceEmoteMesh.dispose()
+
+            // Create mesh
+            const meshIndex = faces[frame] || "normal"
+            this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, {rows: 4, cols: 4})
+            this.faceEmoteMesh.material = this.clientGame.scene.playerMaterial
+            this.faceEmoteMesh.parent = this.faceEmoteNode
+            this.faceEmoteMesh.isPickable = false
+
+            // Set overlay color
+            this.faceEmoteMesh.overlayColor = new BABYLON.Color3.Red()
+            this.faceEmoteMesh.renderOverlay = false
+        }
+    }
+
+    ///////////////////////////////////////////////////////
     // Player functions (ToDo: move some of these)
     ///////////////////////////////////////////////////////
 
@@ -527,17 +569,17 @@ class ClientPlayer {
             else {
                 // If other player, just bob
                 this.avatarOffset.y += 0.15
-                if (this.body && this.head) {
-                    this.body.renderOverlay = true
-                    this.head.renderOverlay = true
-                }
+                if (this.body) this.body.renderOverlay = true
+                if (this.faceEmoteMesh) this.faceEmoteMesh.renderOverlay = true
                 setTimeout( ()=>{
                     this.avatarOffset.y -= 0.15
-                    if (this.body && this.head) {
-                        this.body.renderOverlay = false
-                        this.head.renderOverlay = false
-                    }
+                    if (this.body) this.body.renderOverlay = false
+                    if (this.faceEmoteMesh) this.faceEmoteMesh.renderOverlay = false
                 }, iTime/6 )
+
+                // Set pain face
+                this.setFaceEmote("pain")
+                setTimeout(()=>{this.setFaceEmote("normal")}, iTime)
             }
         }
     }
@@ -801,7 +843,6 @@ class ClientPlayer {
         /////////////////////////////////////////////////
         // Bob camera
         /////////////////////////////////////////////////
-
         // ...
     }
 
@@ -846,6 +887,15 @@ class ClientPlayer {
             this.arm.rotate(BABYLON.Axis.X, (this.lookDir.y - roundedAngle) + (Math.PI), BABYLON.Space.LOCAL)
             this.arm.rotate(BABYLON.Axis.Y, -(Math.PI/2), BABYLON.Space.LOCAL)
         }
+    }
+
+    ///////////////////////////////////////////////////////
+    // Cleanup (for resetting / removing players)
+    ///////////////////////////////////////////////////////
+
+    clearIntervals() {
+        if (this.walkingSoundsInterval) clearInterval(this.walkingSoundsInterval)
+        if (this.blinkInterval) clearInterval(this.blinkInterval)
     }
 }
 

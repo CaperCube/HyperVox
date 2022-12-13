@@ -21,10 +21,10 @@ class MeshGenerator {
     // y = Vbottom
     // z = Utop
     // w = Vtop
-    getQuadUVByIndex(idx) {
+    getQuadUVByIndex(idx, row = 16, col = 16) {
         // Calculate ID offset
-        const rows = 16
-        const columns = 16
+        const rows = row
+        const columns = col
         let c = (idx-1) % columns
         let r = Math.floor((idx-1) / columns)
     
@@ -84,13 +84,13 @@ class MeshGenerator {
     
     // Get the tile index UVs and create a quad 
     // Returns new Mesh
-    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene) {
+    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, UVSize = {rows: 16, cols: 16}) {
         // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
         // Create quad
         const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
             size: tileScale,
-            frontUVs: this.getQuadUVByIndex(idx),
-            backUVs: this.getQuadUVByIndex(idx),
+            frontUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols),
+            backUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols),
             sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
         }, scene)
     
