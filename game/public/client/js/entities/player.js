@@ -140,6 +140,7 @@ class ClientPlayer {
         this.head = null
         this.arm = null
         this.hand = null
+        this.handNode = null
 
         this.currentAnimation = "idle"
         this.nextAnimation = "idle"
@@ -188,6 +189,10 @@ class ClientPlayer {
             this.head = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[0]
             this.arm = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[1]
             this.hand = this.avatarNode.getChildren()[1].getChildren()[0].getChildren()[1].getChildren()[0].getChildren()[0]
+
+            this.handNode = new BABYLON.TransformNode("hand_root")
+            this.handNode.position = this.hand.position
+            this.handNode.parent = this.hand
 
             // Set mesh names
             this.body.name = `body_player-${this.playerID}`
@@ -388,6 +393,10 @@ class ClientPlayer {
                     this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
                     
                     this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.5
+
+                    // Rotate if not my player
+                    this.itemMesh.rotation.x = -(Math.PI/2)
+                    this.itemMesh.position = new BABYLON.Vector3(0,-0.125,0.25)
                 }
                 // this.itemMesh.setScale(new BABYLON.Vector3(0.25, 0.25, 0.25))
                 break
@@ -396,13 +405,19 @@ class ClientPlayer {
                 const posItem = {x: 0.75, y: -0.9, z: 0.5}//{x: 0.25, y: -0.75, z: -0.125}
                 this.itemMesh = this.clientGame.meshGen.createQuadWithUVs(posItem, "left", texID, this.clientGame.scene)
                 this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.75//0.25
+
+                // Rotate if not my player
+                if (!isMyPlayer) {
+                    this.itemMesh.rotation.z = (-Math.PI/2)
+                    this.itemMesh.position = new BABYLON.Vector3(0,0.125,-0.25)
+                }
                 break
         }
         // Disable raycasting for this mesh
         this.itemMesh.isPickable = false
         // Render above other items
         this.itemMesh.renderingGroupId = isMyPlayer? 1 : 0
-        this.itemMesh.parent = this.avatar //isMyPlayer? this.avatar : this.hand
+        this.itemMesh.parent = isMyPlayer? this.avatar : this.handNode
     }
 
     createMuzzleFlash(texID) {
@@ -814,13 +829,13 @@ class ClientPlayer {
         this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
         
         // Update body rotation
-        if (this.body && this.head && this.arm) {
+        if (this.avatarNode && this.head && this.arm) {
             // Get angle snap
             const angleSnap = (Math.PI/4) //(Math.PI/2)
             const roundedAngle = Math.round(this.lookDir.y / angleSnap) * angleSnap
 
-            // Rotate Body
-            this.body.rotation.y = roundedAngle
+            // Rotate Rig
+            this.avatarNode.rotation.y = roundedAngle - (Math.PI/2) // Offset rotation by 90*
 
             // Rotate Head
             this.head.rotation = new BABYLON.Vector3(this.lookDir.z, this.lookDir.y - roundedAngle, -this.lookDir.x)

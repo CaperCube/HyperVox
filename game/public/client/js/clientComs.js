@@ -201,8 +201,8 @@ class ClientComs {
                             if (thisPlayer.inventory.selectedIndex !== dataPlayer.heldItem) {
                                 thisPlayer.inventory.selectedIndex = dataPlayer.heldItem
                                 // ToDo: Once we can fix items acting weird when parented to the hand, we can un-comment this
-                                // if (thisPlayer.inventory.selectedIndex) thisPlayer.createItemMesh(thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex], thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex].itemType, false)
-                                // else if (thisPlayer.itemMesh) thisPlayer.itemMesh.dispose()
+                                if (thisPlayer.inventory.selectedIndex !== undefined) thisPlayer.createItemMesh(thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex], thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex].itemType, false)
+                                else if (thisPlayer.itemMesh) thisPlayer.itemMesh.dispose()
                             }
                         }
                     }
