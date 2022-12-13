@@ -12,7 +12,9 @@ import { defaultWorldSize } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
 import { UpdateLobbyPlayerData, CreateLobbyPlayerList, ClearLobbyContent } from "./lobbyUtil.js"
+import { sounds } from "./resources.js"
 import Ping from './entities/ping.js'
+import Effect from './entities/effect.js'
 
 class ClientComs {
     constructor(props = {
@@ -200,8 +202,9 @@ class ClientComs {
                             // Update held item
                             if (thisPlayer.inventory.selectedIndex !== dataPlayer.heldItem) {
                                 thisPlayer.inventory.selectedIndex = dataPlayer.heldItem
-                                // ToDo: Once we can fix items acting weird when parented to the hand, we can un-comment this
-                                if (thisPlayer.inventory.selectedIndex !== undefined) thisPlayer.createItemMesh(thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex], thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex].itemType, false)
+                                
+                                const heldItem = thisPlayer.inventory.items[thisPlayer.inventory.selectedIndex]
+                                if (heldItem) thisPlayer.createItemMesh(heldItem, heldItem.itemType, false)
                                 else if (thisPlayer.itemMesh) thisPlayer.itemMesh.dispose()
                             }
                         }
@@ -313,18 +316,51 @@ class ClientComs {
 
             createEffect: ( data, playerId ) => {
                 if (this.messageDebug) console.log( '%c Create effect (client)', 'background: #142; color: #ced' )
-
-                // ToDo: Check type and create an effect based on that
-                // Account for weapon and other brain-wide effects
-
-                // Create Ping object
                 // data.position, data.entityId, data.type, data.time
-                console.log(data.time)
-                const newPing = new Ping({
-                    position: data.position,
-                    lifetime: data.time,
-                    clientGame: this.clientGame
-                })
+
+                // Create Effect object
+                switch (data.type) {
+                    case 'ping':
+                        const newPing = new Ping({
+                            position: data.position,
+                            lifetime: data.time,
+                            clientGame: this.clientGame
+                        })
+                        break
+                    default:
+                        const newEffect = new Effect({
+                            type: data.type,
+                            position: data.position,
+                            size: data.size || 1,
+                            lifetime: data.time,
+                            clientGame: this.clientGame
+                        })
+                        break
+                }
+            },
+
+            playSound: ( data, playerId ) => {
+                if (this.messageDebug) console.log( '%c Play sound (client)', 'background: #142; color: #ced' )
+                // playSound
+
+                // ToDo: change the position of the sound or change volume basde on dist to player
+                // data.position
+
+                switch (data.name) {
+                    case "Rail Gun":
+                        if (sounds.RAILGUN_SHOOT_1) {
+                            sounds.RAILGUN_SHOOT_1.play()
+                        }
+                        break
+                    case "SMG":
+                        if (sounds.LASERGUN_SHOOT_1) {
+                            sounds.LASERGUN_SHOOT_1.play()
+                        }
+                        break
+                    default:
+                        // no sound
+                        break
+                }
             },
 
             setGravity: ( data, playerId ) => {
@@ -419,8 +455,17 @@ class ClientComs {
     sendShootRequest(origin, itemUsed, hitPlayerID) {
         // ToDo: Change this to support time-stamps (later we'll move this so the server checks the player's position at this time-stamp)
         // Server needs to know: player, origin, itemUsed
+        const player = this.clientGame.localPlayer
+        const lookDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+        const distance = 1.5
+        const effectPos = {
+            x: player.position.x + (lookDir.x * distance) + 0.25,
+            y: player.position.y + (lookDir.y * distance) + 0.65,
+            z: player.position.z + (lookDir.z * distance)
+        }
 
-        const data = { origin: origin, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
+
+        const data = { origin: origin, gunPos: effectPos, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
 
         // Network message
         this.genericToBrain( 'shootGun', data )

@@ -271,6 +271,21 @@ class BrainComs {
                     if (hitPlayer && (myBrainPlayer.stats.team === teams.none || myBrainPlayer.stats.team !== hitPlayer.stats.team)) allowShot = true
                 }
 
+                // Do muzzle effect
+                const effectPos = data.gunPos
+                const effectData = {position: effectPos, type: 'muzzleflash', entityId: Math.random(), time: 50, size: 5}
+
+                // Who get's the effect?
+                const effectRecipients = this.brainGame.players.filter( p => p.playerID !== playerID )
+                let effectRecipientsIds = []
+                effectRecipients.forEach(r => { effectRecipientsIds.push(r.playerID) })
+                this.genericToClient('createEffect', effectData, effectRecipientsIds)
+
+                // Play sound
+                // ToDo: implement a network sound function like so:
+                const soundName = data.item.itemName
+                this.genericToClient('playSound', {name: soundName, position: myBrainPlayer.position}, effectRecipientsIds)
+
                 if (allowShot) {
                     // Tell brain to validate & update this shot
                     // if (this.messageDebug) console.log( '%c Shot validated (brain)', 'background: #142; color: #ced', data )
@@ -303,11 +318,13 @@ class BrainComs {
                         // Send network message to update player
                         data = { hitPlayerID: hitPlayerID, damage: gunDamage, attackerPlayerID: myBrainPlayer.playerID }//, newHelth: hitPlayer.health, newPosition: hitPlayer.position }
                         // data = { message: `Player shot ${hitPlayerID}, damage for ${gunDamage}`, messageName: `Server`, isServer: true }
-                        if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['updateDamagedPlayer']( data ) }
-                        else if (this.isNetworked) {
-                            const recipients = "all"
-                            this.network.emit( 'genericClientMessage', { type: 'updateDamagedPlayer', recipients: recipients, args: data } )
-                        }
+
+                        this.genericToClient('updateDamagedPlayer', data)
+                        // if (!this.isNetworked && this.clientCom) { this.clientCom.brainMessages['updateDamagedPlayer']( data ) }
+                        // else if (this.isNetworked) {
+                        //     const recipients = "all"
+                        //     this.network.emit( 'genericClientMessage', { type: 'updateDamagedPlayer', recipients: recipients, args: data } )
+                        // }
                     
                     }
                 }

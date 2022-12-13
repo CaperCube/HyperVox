@@ -54,6 +54,11 @@ class Effect {
                     this.sceneEffect.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
                     this.sceneEffect.renderingGroupId = 1 // Set to render on top
                     break
+                case 'muzzleflash':
+                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
+                    this.sceneEffect.scaling = new BABYLON.Vector3(this._size, this._size, this._size)
+                    this.sceneEffect.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+                    break
                 default:
                     // BABYLON.Mesh.CreatePlane(this._effectName, 1, this.clientGame.scene, false)
                     // this.sceneEffect = this.clientGame.meshGen //Mesh(this._effectName, this.position)
