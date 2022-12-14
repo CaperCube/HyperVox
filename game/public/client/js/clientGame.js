@@ -3,7 +3,7 @@ import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { fogDistance, renderScale, chatMessageTime, lsKeys } from './clientConstants.js'
-import { getRandomName, tileScale } from '../../common/commonConstants.js'
+import { getRandomName } from '../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import { clamp } from '../../common/dataUtils.js'
 import ClientPlayer from './entities/player.js'
@@ -300,7 +300,7 @@ class ClientGame {
 
             // Tell the chunk worker to load the chunk
             const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: chunkLocation.x, y: chunkLocation.y, z: chunkLocation.z })
-            this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
+            this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only', tileScale: this.clientWorld._tileScale })
         }
     }
 
@@ -606,11 +606,10 @@ class ClientGame {
         ////////////////////////////////////////////////////
 
         // Create new camera in scene
-        //const worldMax = defaultWorldSize * defaultChunkSize * tileScale
-        const worldSpawn = getGlobalPos(this.clientWorld.worldSpawn, this.clientWorld._chunkSize)
+        const worldSpawn = getGlobalPos(this.clientWorld.worldSpawn, this.clientWorld._chunkSize, this.clientWorld._tileScale)
         const worldSpawnPos = new BABYLON.Vector3(worldSpawn.x, worldSpawn.y, worldSpawn.z)
         this.mainCamera = new BABYLON.UniversalCamera('playerCamera', worldSpawnPos, this.scene)
-        this.mainCamera.minZ = tileScale/10
+        this.mainCamera.minZ = this.clientWorld._tileScale/10
         // this.mainCamera.maxZ = fogDistance
         this.mainCamera.maxZ = (this.settings.chunkDist + 1) * this.clientWorld._chunkSize
 

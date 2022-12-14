@@ -9,10 +9,10 @@ const scene = new BABYLON.Scene(engine)
 const meshGen = new MeshGenerator()
 
 // Generate a mesh data for the given chunk
-function workerGenChunkMesh( chunkGroup, isPartOfBatch = false ) {
+function workerGenChunkMesh( chunkGroup, isPartOfBatch = false, tileScale = 1) {
     if (chunkGroup?.thisChunk) {
 
-        const myChunkMeshes = meshGen.createChunkMesh(chunkGroup, scene)
+        const myChunkMeshes = meshGen.createChunkMesh(chunkGroup, scene, tileScale)
 
         if (myChunkMeshes !== null) {
             const chunkMesh = BABYLON.Mesh.MergeMeshes(myChunkMeshes, true)
@@ -42,7 +42,7 @@ function workerGenChunkMesh( chunkGroup, isPartOfBatch = false ) {
 onmessage = function(event) {
     switch (event.data.type) {
         case 'chunk-only':
-            workerGenChunkMesh(event.data.chunkGroup, false)
+            workerGenChunkMesh(event.data.chunkGroup, false, event.data.tileScale || 1)
         default:
             postMessage("doneLoadingChunks")
     }

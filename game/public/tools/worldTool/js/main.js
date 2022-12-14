@@ -578,7 +578,7 @@ canvas.addEventListener('pointermove', (e) => {
     const viewPos = getViewPos(depth)
     // Get global position
     const gPos = getWorldPositionAtMouse(depth, viewPos)
-    const blockPos = getGlobalPos(gPos, chunkSize)
+    const blockPos = getGlobalPos(gPos, chunkSize, tileScale)
     // Show the value somehere
     $("#DOM_blockposition").innerHTML = `X: ${blockPos.x} Y: ${blockPos.y} Z: ${blockPos.z}`
 }, { passive: false })
@@ -937,7 +937,7 @@ function createDataForBlock(remove = false, blockName = null, blockID = null) {
     // Get world position
     const viewPos = getViewPos(depth)
     // Get global position
-    const gPos = getGlobalPos(viewPos, chunkSize)
+    const gPos = getGlobalPos(viewPos, chunkSize, tileScale)
     // Get block ID
     const mPos = getWorldPositionAtMouse(depth, viewPos)
     const blockAtMouse = world[mPos.chunk.y]?.[mPos.chunk.x]?.[mPos.chunk.z]?.[mPos.block.y]?.[mPos.block.x]?.[mPos.block.z]

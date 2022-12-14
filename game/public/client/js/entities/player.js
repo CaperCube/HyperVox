@@ -1,5 +1,5 @@
 import { debug } from '../clientConstants.js'
-import { tileScale, defaultChunkSize, teams, faceEmotes } from '../../../common/commonConstants.js'
+import { defaultChunkSize, teams, faceEmotes } from '../../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
@@ -105,13 +105,13 @@ class ClientPlayer {
         this.chunkSize = this.world.getChunkSize() || 16
         this.worldSize = this.world.getWorldSize() || 1
         
-        const worldMax = (this.worldSize * this.chunkSize * tileScale)
+        const worldMax = (this.worldSize * this.chunkSize * this.world._tileScale)
         this.worldDefualtSpawn = new BABYLON.Vector3(worldMax/2, worldMax, worldMax/2)
 
         //////////////////////////////////////////////////
         // Player vars
         //////////////////////////////////////////////////
-        this.playerHeight = tileScale * 1.75
+        this.playerHeight = 1.75
         // The object in the scene the player will be controlling
         this.avatar = avatar? avatar : new BABYLON.TransformNode("player_root")
         this.itemMesh = null
@@ -278,7 +278,7 @@ class ClientPlayer {
         // Movement vars
         //////////////////////////////////////////////////
         this.spectateMode = false
-        this.moveSpeed = 0.018//0.025 //tileScale/40
+        this.moveSpeed = 0.018 //0.025 /40
         this.flySpeed = 0.05
         this.jumpStength = 0.15//0.2
         this.allowedJumps = 2
@@ -467,7 +467,7 @@ class ClientPlayer {
 
             // Create mesh
             const meshIndex = frame || this.restingFace
-            this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, {rows: 4, cols: 4})
+            this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, 1, {rows: 4, cols: 4})
             this.faceEmoteMesh.material = this.clientGame.scene.playerMaterial
             this.faceEmoteMesh.parent = this.faceEmoteNode
             this.faceEmoteMesh.isPickable = false
@@ -602,7 +602,7 @@ class ClientPlayer {
         // Get block & blockID at this.cursor's location
         const cSize = this.world.getChunkSize()
         const block = getArrayPos(this.interactSelectCursor, cSize)
-        const blockLocation = getGlobalPos(block, cSize)
+        const blockLocation = getGlobalPos(block, cSize, this.world._tileScale)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
         // Call block's interaction function

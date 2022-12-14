@@ -1,4 +1,3 @@
-import { tileScale } from '../../../../common/commonConstants.js'
 import { getArrayPos } from '../../../../common/positionUtils.js'
 
 export function updatePlayerCursor(player) {
@@ -7,14 +6,16 @@ export function updatePlayerCursor(player) {
     /////////////////////////////////////////////////
 
     // Vars
+    const blockScale = player.world._tileScale
+    const halfBlock = blockScale/2
     const avForward = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
     const direction = avForward
 
     // Default cursor location if no ray collision
     player.selectCursor = player.interactSelectCursor = {
-        x: Math.floor( player.avatar.position.x + (avForward.x * player.blockReach) ) + 0.5,
-        y: Math.floor( player.avatar.position.y + (avForward.y * player.blockReach) ) + 0.5,
-        z: Math.floor( player.avatar.position.z + (avForward.z * player.blockReach) ) + 0.5
+        x: Math.floor( player.avatar.position.x + (avForward.x * player.blockReach) ) + halfBlock,
+        y: Math.floor( player.avatar.position.y + (avForward.y * player.blockReach) ) + halfBlock,
+        z: Math.floor( player.avatar.position.z + (avForward.z * player.blockReach) ) + halfBlock
     }
 
     // Raycast
@@ -34,7 +35,7 @@ export function updatePlayerCursor(player) {
     if (pick?.hit) {
         const newCursorPos = pick.pickedPoint
         const normal = pick.getNormal()
-        const selTolerance = 0.25
+        const selTolerance = halfBlock/2
         const tolerancePos = {
             x: newCursorPos.x - (normal.x * selTolerance),
             y: newCursorPos.y - (normal.y * selTolerance),
@@ -42,15 +43,15 @@ export function updatePlayerCursor(player) {
         }
         // Place block cursor
         player.selectCursor = {
-            x: Math.floor( tolerancePos.x + (normal.x * tileScale) ) + 0.5,
-            y: Math.floor( tolerancePos.y + (normal.y * tileScale) ) + 0.5,
-            z: Math.floor( tolerancePos.z + (normal.z * tileScale) ) + 0.5
+            x: Math.floor( tolerancePos.x + (normal.x * blockScale) ) + halfBlock,
+            y: Math.floor( tolerancePos.y + (normal.y * blockScale) ) + halfBlock,
+            z: Math.floor( tolerancePos.z + (normal.z * blockScale) ) + halfBlock
         }
         // Place interaction cursor
         player.interactSelectCursor = {
-            x: Math.floor( tolerancePos.x ) + 0.5,
-            y: Math.floor( tolerancePos.y ) + 0.5,
-            z: Math.floor( tolerancePos.z ) + 0.5
+            x: Math.floor( tolerancePos.x ) + halfBlock,
+            y: Math.floor( tolerancePos.y ) + halfBlock,
+            z: Math.floor( tolerancePos.z ) + halfBlock
         }
     }
     else {

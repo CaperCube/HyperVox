@@ -1,5 +1,5 @@
 import '../dist/babylon.js'
-import { tileScale } from '../../../common/commonConstants.js'
+// import { tileScale } from '../../../common/commonConstants.js'
 import { blockTypes, blockCats, getBlocksByCat } from '../../../common/blockSystem.js'
 
 class MeshGenerator {
@@ -84,7 +84,7 @@ class MeshGenerator {
     
     // Get the tile index UVs and create a quad 
     // Returns new Mesh
-    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, UVSize = {rows: 16, cols: 16}) {
+    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}) {
         // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
         // Create quad
         const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
@@ -192,7 +192,7 @@ class MeshGenerator {
 
     // Create chunk block
     // Returns new Mesh[]
-    createChunkBlock(chunkGroup, blockLocation, blockID, scene) {
+    createChunkBlock(chunkGroup, blockLocation, blockID, scene, tileScale = 1) {
         // const transparentTiles = getBlocksByCat(blockCats.transparent)//[0,10,255,256]
         let meshArray = []
 
@@ -202,7 +202,7 @@ class MeshGenerator {
             const chunk = chunkGroup.thisChunk
             const chunkSize = chunk[0].length // Get chunk size from y length of first chunk
             const offset = { x: chunkGroup.chunkLocation.x*chunkSize, y: chunkGroup.chunkLocation.y*chunkSize, z: chunkGroup.chunkLocation.z*chunkSize }
-            const globalPos = { x: (blockLocation.x+offset.x)*tileScale, y: (blockLocation.y+offset.y)*tileScale, z: (blockLocation.z+offset.z)*tileScale }
+            const globalPos = { x: (blockLocation.x+offset.x)*tileScale, y: (blockLocation.y+offset.y)*tileScale, z: (blockLocation.z+offset.z)*this.tileScale }
 
             // Get block type
             const thisBlockType = blockTypes[blockID] // ToDo: use this: getBlockType(blockID)
@@ -274,7 +274,7 @@ class MeshGenerator {
 
     // Create a hollow mesh from chunk
     // Returns new Mesh[]
-    createChunkMesh(chunkGroup, scene) {  
+    createChunkMesh(chunkGroup, scene, tileScale = 1) {  
         // We'll store our quads here
         let meshArray = []
         let chunkIsEmpty = true
@@ -288,7 +288,7 @@ class MeshGenerator {
             let blockID = chunk[y][x][z]
 
             // Create the visible sides of this block
-            const newblock = this.createChunkBlock(chunkGroup, {x:x,y:y,z:z}, blockID, scene)
+            const newblock = this.createChunkBlock(chunkGroup, {x:x,y:y,z:z}, blockID, scene, tileScale)
 
             // If new meshes were created, add them to the mesh array
             if (newblock) {
@@ -303,6 +303,7 @@ class MeshGenerator {
     // Create world borders
     createWorldBorders(world, scene) {
         let worldBorders = []
+        const tileScale = world._tileScale
         const wallSize = tileScale * world.getChunkSize() * world.getWorldSize()
         const borderOffset = (tileScale * world.getChunkSize() * world.getWorldSize())
         const borderOffsetHalf = ((tileScale * world.getChunkSize() * world.getWorldSize())/2)

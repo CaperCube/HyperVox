@@ -18,11 +18,11 @@ const getArrayPos = (position, chunkSize) => {
  * @param chunkSize: number
  * @returns position: { x, y, z }
  */
- const getGlobalPos = (location, chunkSize) => {
+ const getGlobalPos = (location, chunkSize, tileScale = 1) => {
     const position = {
-        x: ((location.block.x) + (location.chunk.x * chunkSize)),
-        y: ((location.block.y) + (location.chunk.y * chunkSize)),
-        z: ((location.block.z) + (location.chunk.z * chunkSize))
+        x: ((location.block.x) + ((location.chunk.x * chunkSize) * tileScale)),
+        y: ((location.block.y) + ((location.chunk.y * chunkSize) * tileScale)),
+        z: ((location.block.z) + ((location.chunk.z * chunkSize) * tileScale))
     }
     return position
 }

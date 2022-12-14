@@ -1,4 +1,3 @@
-import { tileScale } from '../../../../common/commonConstants.js'
 import { getArrayPos, boxIsIntersecting } from '../../../../common/positionUtils.js'
 import { blockCats, blockTypes } from '../../../../common/blockSystem.js'
 
@@ -31,6 +30,7 @@ export function basicMovement(engine, player, movementVector) {
     ///////////////////////////////////////////////////////
 
     // Motion vars
+    const blockScale = player.world._tileScale
     // const deltaTime = 16 // ToDo: MAKE SURE this and "clientGame.clientUpdateSpeed" are the same
     // const frameRateMult = 1000/60 // ToDo: 
     // let frameGrav = ((player.gravity/frameRateMult) * deltaTime)
@@ -115,16 +115,16 @@ export function basicMovement(engine, player, movementVector) {
         if (player.position.x < 0) {
             player.position.x = 0.05
         }
-        else if (player.position.x > (player.worldSize * player.chunkSize * tileScale)) {
-            player.position.x = (player.worldSize * player.chunkSize * tileScale) - 0.05
+        else if (player.position.x > (player.worldSize * player.chunkSize * blockScale)) {
+            player.position.x = (player.worldSize * player.chunkSize * blockScale) - 0.05
         }
 
         // World Z bounds
         if (player.position.z < 0) {
             player.position.z = 0.05
         }
-        else if (player.position.z > (player.worldSize * player.chunkSize * tileScale)) {
-            player.position.z = (player.worldSize * player.chunkSize * tileScale) - 0.05
+        else if (player.position.z > (player.worldSize * player.chunkSize * blockScale)) {
+            player.position.z = (player.worldSize * player.chunkSize * blockScale) - 0.05
         }
     }
 
