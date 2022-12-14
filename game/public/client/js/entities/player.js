@@ -200,7 +200,7 @@ class ClientPlayer {
 
             // Face emote
             this.faceEmoteNode = new BABYLON.TransformNode("face_root")
-            this.faceEmoteNode.position = new BABYLON.Vector3(-0.4999, -0.5, 0.5)
+            this.faceEmoteNode.position = new BABYLON.Vector3(-0.499, -0.5, 0.5)
             this.faceEmoteNode.rotation.y = (Math.PI/2)
             this.faceEmoteNode.parent = this.head
 

@@ -359,6 +359,18 @@ const blockTypes = [
         categories: [blockCats.color.orange, blockCats.decorative],
         textures: { top: 38, bottom: 39, front: 37, back: 37, left: 37, right: 37 },
     },
+    // 0x002d
+    {
+        name: 'bricks',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 30, bottom: 30, front: 30, back: 30, left: 30, right: 30 },
+    },
+    // 0x002e
+    {
+        name: 'bricks-dark',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 31, bottom: 31, front: 31, back: 31, left: 31, right: 31 },
+    },
 ]
 
 export {
