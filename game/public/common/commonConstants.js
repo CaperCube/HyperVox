@@ -67,6 +67,15 @@ const playerNames = {
     ]
 }
 
+// Face frames
+const faceEmotes = {
+    normal: 2,
+    pain: 5,
+    blink: 6,
+    talk: 9,
+    happy: 10
+}
+
 const getRandomName = () => {
     var phrase = randomArray(playerNames.adjective) + " " + randomArray(playerNames.nouns)
     return formatPlayerName(phrase)
@@ -86,6 +95,7 @@ export {
     tileScale,
     defaultChunkSize,
     defaultWorldSize,
+    faceEmotes,
     getRandomName,
     formatPlayerName
 }

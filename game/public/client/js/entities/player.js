@@ -1,5 +1,5 @@
 import { debug } from '../clientConstants.js'
-import { tileScale, defaultChunkSize, teams } from '../../../common/commonConstants.js'
+import { tileScale, defaultChunkSize, teams, faceEmotes } from '../../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos, boxIsIntersecting } from '../../../common/positionUtils.js'
 import { blockCats, blockTypes, getBlockByName } from '../../../common/blockSystem.js'
 import { makeCreativeInventory, Inventory } from './player/inventory.js'
@@ -145,6 +145,7 @@ class ClientPlayer {
         this.hand = null
         this.handNode = null
 
+        this.restingFace = faceEmotes.normal
         this.currentAnimation = "idle"
         this.nextAnimation = "idle"
         this.animations = {
@@ -205,8 +206,8 @@ class ClientPlayer {
 
             // Face animation
             this.blinkInterval = setInterval(()=>{
-                this.setFaceEmote("blink")
-                setTimeout(()=>{this.setFaceEmote("normal")}, 175)
+                this.setFaceEmote(faceEmotes.blink)
+                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, 175)
             }, 5000)
 
             // Set mesh names
@@ -460,19 +461,12 @@ class ClientPlayer {
     ///////////////////////////////////////////////////////
 
     setFaceEmote(frame) {
-        const faces = {
-            "normal": 2,
-            "pain": 5,
-            "blink": 6,
-            "talk": 9,
-            "happy": 10
-        }
         if (this.head && this.faceEmoteNode) {
             // Remove the old mesh
             if (this.faceEmoteMesh) this.faceEmoteMesh.dispose()
 
             // Create mesh
-            const meshIndex = faces[frame] || "normal"
+            const meshIndex = frame || this.restingFace
             this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, {rows: 4, cols: 4})
             this.faceEmoteMesh.material = this.clientGame.scene.playerMaterial
             this.faceEmoteMesh.parent = this.faceEmoteNode
@@ -578,8 +572,8 @@ class ClientPlayer {
                 }, iTime/6 )
 
                 // Set pain face
-                this.setFaceEmote("pain")
-                setTimeout(()=>{this.setFaceEmote("normal")}, iTime)
+                this.setFaceEmote(faceEmotes.pain)
+                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, iTime)
             }
         }
     }
