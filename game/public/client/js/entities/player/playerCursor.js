@@ -43,15 +43,18 @@ export function updatePlayerCursor(player) {
         }
         // Place block cursor
         player.selectCursor = {
-            x: Math.floor( tolerancePos.x + (normal.x * blockScale) ) + halfBlock,
-            y: Math.floor( tolerancePos.y + (normal.y * blockScale) ) + halfBlock,
-            z: Math.floor( tolerancePos.z + (normal.z * blockScale) ) + halfBlock
+            // x: (Math.floor( (tolerancePos.x + (normal.x)) / blockScale ) * blockScale) + halfBlock,
+            // y: (Math.floor( (tolerancePos.y + (normal.y)) / blockScale ) * blockScale) + halfBlock,
+            // z: (Math.floor( (tolerancePos.z + (normal.z)) / blockScale ) * blockScale) + halfBlock
+            x: (Math.floor( (tolerancePos.x + (normal.x * blockScale)) / blockScale ) * blockScale) + halfBlock,
+            y: (Math.floor( (tolerancePos.y + (normal.y * blockScale)) / blockScale ) * blockScale) + halfBlock,
+            z: (Math.floor( (tolerancePos.z + (normal.z * blockScale)) / blockScale ) * blockScale) + halfBlock
         }
         // Place interaction cursor
         player.interactSelectCursor = {
-            x: Math.floor( tolerancePos.x ) + halfBlock,
-            y: Math.floor( tolerancePos.y ) + halfBlock,
-            z: Math.floor( tolerancePos.z ) + halfBlock
+            x: (Math.floor( tolerancePos.x / blockScale ) * blockScale) + halfBlock,
+            y: (Math.floor( tolerancePos.y / blockScale ) * blockScale) + halfBlock,
+            z: (Math.floor( tolerancePos.z / blockScale ) * blockScale) + halfBlock
         }
     }
     else {
@@ -65,7 +68,7 @@ export function updatePlayerCursor(player) {
 
     // Get blockID at this.cursor's location
     const cSize = player.world.getChunkSize()
-    const block = getArrayPos(player.interactSelectCursor, cSize)
+    const block = getArrayPos(player.interactSelectCursor, cSize, blockScale)
     let blockID = block? player.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
     const targetPos = player.interactSelectCursor
     const targetBlock = `${blockID}_${Math.floor(targetPos.x)}_${Math.floor(targetPos.y)}_${Math.floor(targetPos.z)}`

@@ -310,7 +310,7 @@ class ClientGame {
             // Get adjusted position from global position
             const cSize = this.clientWorld.getChunkSize()
             const wSize = this.clientWorld.getWorldSize()
-            const worldPos = getArrayPos(location, cSize)
+            const worldPos = getArrayPos(location, cSize, this.clientWorld._tileScale)
             
             // Check if block is within the world
             const isWithinExsitingChunk = (

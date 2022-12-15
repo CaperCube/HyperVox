@@ -68,10 +68,10 @@ class MeshGenerator {
     
     // Get the tile index UVs and create a box
     // Returns new Mesh
-    createBlockWithUV({x, y, z}, idx, scene) {
+    createBlockWithUV({x, y, z}, idx, scene, tileScale = 1) {
         // Create box
         const block = BABYLON.MeshBuilder.CreateBox("Block", {
-            size: 1,
+            size: tileScale,
             faceUV: this.getBlockUVByIndex(idx),
             wrap: true
         }, scene)
@@ -202,7 +202,7 @@ class MeshGenerator {
             const chunk = chunkGroup.thisChunk
             const chunkSize = chunk[0].length // Get chunk size from y length of first chunk
             const offset = { x: chunkGroup.chunkLocation.x*chunkSize, y: chunkGroup.chunkLocation.y*chunkSize, z: chunkGroup.chunkLocation.z*chunkSize }
-            const globalPos = { x: (blockLocation.x+offset.x)*tileScale, y: (blockLocation.y+offset.y)*tileScale, z: (blockLocation.z+offset.z)*this.tileScale }
+            const globalPos = { x: (blockLocation.x+offset.x)*tileScale, y: (blockLocation.y+offset.y)*tileScale, z: (blockLocation.z+offset.z)*tileScale }
 
             // Get block type
             const thisBlockType = blockTypes[blockID] // ToDo: use this: getBlockType(blockID)
@@ -215,7 +215,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'right'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
 
             // Left
@@ -225,7 +225,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'left'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
 
             // Front
@@ -235,7 +235,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'front'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
 
             // Back
@@ -245,7 +245,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'back'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
 
             // Top
@@ -255,7 +255,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'top'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
 
             // Bottom
@@ -265,7 +265,7 @@ class MeshGenerator {
             if (!blockHere || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'bottom'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene) )}
+                if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale) )}
             }
         }
 

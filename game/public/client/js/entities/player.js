@@ -265,11 +265,11 @@ class ClientPlayer {
             this.respawnMesh.scaling = new BABYLON.Vector3(0.5,0.5,0.5)
             BABYLON.Animation.CreateAndStartAnimation("spawnPointAnimation", this.respawnMesh, "rotation.y", 30, 120, 0, Math.PI, 1)
 
-            this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene)
+            this.selectMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 251, this.scene, this.world._tileScale)
             this.selectMesh.material = this.scene.transparentMaterial
             this.selectMesh.isPickable = false
 
-            this.removeMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, this.scene)
+            this.removeMesh = this.meshGen.createBlockWithUV({x: this.position.x, y: this.position.y, z: this.position.z}, 252, this.scene, this.world._tileScale)
             this.removeMesh.material = this.scene.transparentMaterial
             this.removeMesh.isPickable = false
         }
@@ -601,7 +601,7 @@ class ClientPlayer {
     interact = () => {
         // Get block & blockID at this.cursor's location
         const cSize = this.world.getChunkSize()
-        const block = getArrayPos(this.interactSelectCursor, cSize)
+        const block = getArrayPos(this.interactSelectCursor, cSize, this.world._tileScale)
         const blockLocation = getGlobalPos(block, cSize, this.world._tileScale)
         let blockID = block? this.world.worldChunks[block.chunk.y]?.[block.chunk.x]?.[block.chunk.z]?.[block.block.y]?.[block.block.x]?.[block.block.z] : 0
 
@@ -730,7 +730,7 @@ class ClientPlayer {
                 clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
-                const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.clientGame?.clientWorld?.worldChunks?.[0]?.[0]?.[0]?.length || defaultChunkSize)
+                const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.world?._chunkSize || defaultChunkSize, this.world?._tileScale)
                 const cursorBlock = this.clientGame?.clientWorld?.worldChunks?.[thisBlockPos.chunk.y]?.[thisBlockPos.chunk.x]?.[thisBlockPos.chunk.z]?.[thisBlockPos.block.y]?.[thisBlockPos.block.x]?.[thisBlockPos.block.z] || null
                 if (cursorBlock) {
                     const matches = this.inventory.items.filter(item => {
@@ -813,7 +813,7 @@ class ClientPlayer {
         // Movement
         /////////////////////////////////////////////////
 
-        basicMovement(engine, this, movementVector)
+        basicMovement(this, movementVector)
 
         /////////////////////////////////////////////////
         // Set animation (this only happens on the local player, we then tell the brain which will update the other players)
