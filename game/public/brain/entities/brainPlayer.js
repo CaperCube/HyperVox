@@ -1,4 +1,4 @@
-import { getRandomName, gameModes, teams } from '../../common/commonConstants.js'
+import { getRandomName, gameModes, teams, faceEmotes } from '../../common/commonConstants.js'
 import BrainEntity, { entityTypes } from './brainEntity.js'
 
 export default class BrainPlayer extends BrainEntity {
@@ -19,6 +19,7 @@ export default class BrainPlayer extends BrainEntity {
         this.position = { x: 0, y: 0, z: 0 }
         this.rotation = { x: 0, y: 0, z: 0 }
         this.animation = "idle"
+        this.currentFace = faceEmotes.normal
         this.heldItem = null
         this.health = 100 // not yet implemented
 

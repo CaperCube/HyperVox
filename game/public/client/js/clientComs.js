@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////
 
 import { getGlobalPos } from '../../common/positionUtils.js'
-import { defaultWorldSize } from "../../common/commonConstants.js"
+import { defaultWorldSize, faceEmotes } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
 import { UpdateLobbyPlayerData, CreateLobbyPlayerList, ClearLobbyContent } from "./lobbyUtil.js"
@@ -200,6 +200,9 @@ class ClientComs {
 
                             // Update animtion
                             thisPlayer.nextAnimation = dataPlayer.animation
+
+                            // Update Face
+                            thisPlayer.setFaceEmote(dataPlayer.currentFace)
 
                             // Update held item
                             if (thisPlayer.inventory.selectedIndex !== dataPlayer.heldItem) {
@@ -439,9 +442,9 @@ class ClientComs {
         this.genericToBrain( 'updateSingleBlock', data )
     }
 
-    updateMyGamePosition(position, rotation, animation = "idle", heldItem = null) {
+    updateMyGamePosition(position, rotation, animation = "idle", heldItem = null, currentFace = faceEmotes.normal) {
         // console.log('%c Sending my position... (client)', 'background: #124; color: #cde')
-        const data = { position: position, rotation: rotation, animation: animation, heldItem: heldItem }
+        const data = { position: position, rotation: rotation, animation: animation, heldItem: heldItem, currentFace: currentFace }
 
         // Network message
         this.genericToBrain( 'movePlayer', data )
