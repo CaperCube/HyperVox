@@ -7,7 +7,6 @@
 // through here first to get to the client
 ////////////////////////////////////////////////////
 
-import { getGlobalPos } from '../../common/positionUtils.js'
 import { defaultWorldSize, faceEmotes } from "../../common/commonConstants.js"
 import ClientPlayer from "./entities/player.js"
 import { copyWorld } from "../../brain/gen/world/world.js"
