@@ -10,7 +10,7 @@ class World {
         this._wSeed = worldSeed || `${Math.random()}`
         
         const worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8)
+        this.worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8, tileScale || 1)
         this.blockData = {}
         // {
         //     "36_X_Y_Z": { 
@@ -96,7 +96,7 @@ function copyWorld( world ) {
     newWorld.worldChunks = clone.worldChunks
     // Spawn
     const worldMax = newWorld._worldSize * newWorld._chunkSize * newWorld._tileScale
-    const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, newWorld._chunkSize)
+    const defaultWorldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, newWorld._chunkSize, newWorld._tileScale)
     newWorld.worldSpawn = clone.worldSpawn || defaultWorldSpawn
     // Block Data
     newWorld.blockData = clone.blockData

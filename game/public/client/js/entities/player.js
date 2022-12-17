@@ -730,7 +730,7 @@ class ClientPlayer {
                 clearInterval(this.useInterval) // Makes sure we can't glitch the fire-rate
             }, ()=>{})
             assignFunctionToInput(c.eyedrop, ()=>{
-                const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.world?._chunkSize || defaultChunkSize, this.world?._tileScale)
+                const thisBlockPos = getArrayPos({x: this.interactSelectCursor.x, y: this.interactSelectCursor.y, z: this.interactSelectCursor.z}, this.world?._chunkSize || defaultChunkSize, this.world?._tileScale || 1)
                 const cursorBlock = this.clientGame?.clientWorld?.worldChunks?.[thisBlockPos.chunk.y]?.[thisBlockPos.chunk.x]?.[thisBlockPos.chunk.z]?.[thisBlockPos.block.y]?.[thisBlockPos.block.x]?.[thisBlockPos.block.z] || null
                 if (cursorBlock) {
                     const matches = this.inventory.items.filter(item => {
@@ -861,7 +861,7 @@ class ClientPlayer {
         }
 
         // Set position
-        this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, this.position.y + this.avatarOffset.y, this.position.z + this.avatarOffset.z )
+        this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, (this.position.y + this.avatarOffset.y) - 0.5, this.position.z + this.avatarOffset.z )
         
         // Update body rotation
         if (this.avatarNode && this.head && this.arm) {

@@ -33,7 +33,7 @@ let pixelSize = canvas.width/_resolution
 let steps2D = 3 // How many layers you can see at a time
 let world = [[[]]] // ToDo: change to an actual world object
 let worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
+let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8, tileScale || 1) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
 let blockData = {}
 let intervalCommands = {}
 let events = { worldStart: "", gameStart: "", gameEnd: "", playerJoin: "", playerDie: "" }
@@ -428,7 +428,7 @@ function DOMNoiseFnc() {
 
     // Update world spawn
     worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-    worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8)
+    worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8, tileScale || 1)
 
     // Update data sections
     blockData = {}

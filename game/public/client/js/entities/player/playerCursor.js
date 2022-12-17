@@ -8,18 +8,20 @@ export function updatePlayerCursor(player) {
     // Vars
     const blockScale = player.world._tileScale
     const halfBlock = blockScale/2
+
+    const blockReach = (blockScale > 1)? player.blockReach * blockScale : player.blockReach
     const avForward = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
     const direction = avForward
 
     // Default cursor location if no ray collision
     player.selectCursor = player.interactSelectCursor = {
-        x: Math.floor( player.avatar.position.x + (avForward.x * player.blockReach) ) + halfBlock,
-        y: Math.floor( player.avatar.position.y + (avForward.y * player.blockReach) ) + halfBlock,
-        z: Math.floor( player.avatar.position.z + (avForward.z * player.blockReach) ) + halfBlock
+        x: (Math.floor( (player.avatar.position.x + (avForward.x * blockReach)) / blockScale ) * blockScale) + halfBlock,
+        y: (Math.floor( (player.avatar.position.y + (avForward.y * blockReach)) / blockScale ) * blockScale) + halfBlock,
+        z: (Math.floor( (player.avatar.position.z + (avForward.z * blockReach)) / blockScale ) * blockScale) + halfBlock
     }
 
     // Raycast
-    const ray = new BABYLON.Ray(player.avatar.position, direction, player.blockReach)
+    const ray = new BABYLON.Ray(player.avatar.position, direction, blockReach)
 
     // Ray helper (this renders the ray to the scene)
     // const rayHelper = new BABYLON.RayHelper(ray)

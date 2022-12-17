@@ -371,6 +371,27 @@ const blockTypes = [
         categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
         textures: { top: 31, bottom: 31, front: 31, back: 31, left: 31, right: 31 },
     },
+    // 0x002f
+    {
+        name: 'step-test',
+        categories: [blockCats.decorative],
+        textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
+        shape: { x: 0, y: -0.25, z: 0, w: 1, h: 0.5, d: 1 }
+    },
+    // 0x002f
+    {
+        name: 'pole-test',
+        categories: [blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0, z: 0, w: 0.25, h: 1, d: 0.25 }
+    },
+    // 0x002f
+    {
+        name: 'dot-test',
+        categories: [blockCats.decorative],
+        textures: { top: 36, bottom: 36, front: 36, back: 36, left: 36, right: 36 },
+        shape: { x: 0, y: 0, z: 0, w: 0.5, h: 0.5, d: 0.5 }
+    },
 ]
 
 export {

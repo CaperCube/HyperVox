@@ -1066,7 +1066,7 @@ const chatCommands = {
 
             if (position) {
                 // Set spawn
-                const location = getArrayPos(position, brainGame.world._chunkSize)
+                const location = getArrayPos(position, brainGame.world._chunkSize, brainGame.world._tileScale)
                 brainGame.changeWorldSpawn(location)
                 sendMessage(`World spawn changed to: X ${position.x} | Y ${position.y} | Z ${position.z}`)
             }
@@ -1139,7 +1139,7 @@ const chatCommands = {
             if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
             {
                 const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
-                const location = getArrayPos(position, brainGame.world._chunkSize)
+                const location = getArrayPos(position, brainGame.world._chunkSize, brainGame.world._tileScale)
                 const blockID = parseInt(args[3])
                 brainGame.updateSingleBlock(location, blockID)
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
@@ -1157,7 +1157,7 @@ const chatCommands = {
             if (args[0] != undefined && args[1] != undefined && args[2] != undefined && args[3] != undefined)
             {
                 const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
-                const location = getArrayPos(position, brainGame.world._chunkSize)
+                const location = getArrayPos(position, brainGame.world._chunkSize, brainGame.world._tileScale)
                 const blockID1 = parseInt(args[3])
                 const blockID2 = parseInt(args[4] || 0)
 
@@ -1183,7 +1183,7 @@ const chatCommands = {
             if (args[0] && args[1] && args[2] && args[3] && args[4])
             {
                 const position = {x: parseInt(args[0]), y: parseInt(args[1]), z: parseInt(args[2])}
-                const loc = getArrayPos(position, brainGame.world._chunkSize)
+                const loc = getArrayPos(position, brainGame.world._chunkSize, brainGame.world._tileScale)
                 const blockID = brainGame?.world?.worldChunks?.[loc.chunk.y]?.[loc.chunk.x]?.[loc.chunk.z]?.[loc.block.y]?.[loc.block.x]?.[loc.block.z]
 
                 // ToDo: Move this logic to "brainGame.setBlockMetaData()"

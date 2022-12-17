@@ -70,25 +70,20 @@ export function basicMovement(player, movementVector) {
 
             let blockID = player.world?.worldChunks?.[worldPos.y]?.[worldPos.x]?.[worldPos.z]?.[chunkPos.y]?.[chunkPos.x]?.[chunkPos.z]
             const blockShape = { x: blockTypes[blockID]?.shape?.x || 0, y: blockTypes[blockID]?.shape?.y || 0, z: blockTypes[blockID]?.shape?.z || 0, w: blockTypes[blockID]?.shape?.w || 1, h: blockTypes[blockID]?.shape?.h|| 1, d: blockTypes[blockID]?.shape?.d || 1 }
-            // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
-            // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5 + blockShape.x, y: chunkPos.y+(worldPos.y*player.chunkSize) + blockShape.y, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5 + blockShape.z, w: blockShape.w, h: blockShape.h, d: blockShape.d} // ToDo: replace size values with "tileSize"
 
             // blockScale
             let blockHere = getGlobalPos(arrayPos, player.chunkSize, blockScale)
             blockHere.x += (0.5 + blockShape.x) * blockScale
+            blockHere.y += (0.5 + blockShape.y) * blockScale
             blockHere.z += (0.5 + blockShape.z) * blockScale
-            blockHere.w = blockScale
-            blockHere.h = blockScale
-            blockHere.d = blockScale
-            // blockHere = {
-            //     x: (chunkPos.x + (worldPos.x * player.chunkSize) + 0.5 + blockShape.x) * blockScale,
-            //     y: (chunkPos.y + (worldPos.y * player.chunkSize) + blockShape.y) * blockScale,
-            //     z: (chunkPos.z + (worldPos.z * player.chunkSize) + 0.5 + blockShape.z) * blockScale,
-            //     w: blockScale, h: blockScale, d: blockScale
-            // }
+            blockHere.w = blockShape.w * blockScale
+            blockHere.h = blockShape.h * blockScale
+            blockHere.d = blockShape.d * blockScale
+            blockHere.offset = { x: blockShape.x, y: blockShape.y, z: blockShape.z }
 
             // Check X
-            let skipMid = (cy >= 0)
+            // let skipMid = (cy >= 0)
+            let skipMid = ((playerBox.y) - (blockHere.y) <= halfBlockScale)
             if (skipMid && blockID > 0) {
                 // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: 1, h: 1, d: 1} // ToDo: replace size values with "tileSize"
                 checkXCol(blockHere, blockID, player, playerBox, { x: Math.floor(blockPos.x), y: Math.floor(blockPos.y), z: Math.floor(blockPos.z)})
@@ -101,7 +96,7 @@ export function basicMovement(player, movementVector) {
             }
 
             // Check Y
-            skipMid = (cy < 0 || cy > 0)
+            skipMid = (cy <= 0 || cy > 0)
             if (skipMid && blockID > 0) {
                 // let blockHere = {x: chunkPos.x+(worldPos.x*player.chunkSize)+0.5, y: chunkPos.y+(worldPos.y*player.chunkSize)+0.5, z: chunkPos.z+(worldPos.z*player.chunkSize)+0.5, w: 1, h: 1, d: 1}
                 checkYCol(blockHere, (cy > 0), blockID, player, playerBox, { x: Math.floor(blockPos.x), y: Math.floor(blockPos.y), z: Math.floor(blockPos.z)}, allowGrav)
@@ -132,7 +127,7 @@ export function basicMovement(player, movementVector) {
     }
     keepMovingY(player)//, deltaTime, frameRateMult)
 
-    // X & Y Bounds
+    // X & Z Bounds
     if (!player.spectateMode) {
         // World X bounds
         if (player.position.x < 0) {
@@ -178,7 +173,7 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, blockLoc, allowGrav
     // let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: 2, d: 0.5}
 
     let playerPosCheck = {x: playerBox.x, y: playerBox.y, z: playerBox.z, w: playerBox.w, h: playerBox.h, d: playerBox.d}
-    playerPosCheck.y += player.playerVelocity.y //+ 0.01
+    playerPosCheck.y += player.playerVelocity.y//+ 0.01
     // block.y += 0
     
     if (boxIsIntersecting(playerPosCheck, block)) {
@@ -190,7 +185,7 @@ const checkYCol = (block, bOnly, blockID, player, playerBox, blockLoc, allowGrav
         if (!blockTypes[blockID]?.categories.includes(blockCats.noncollidable) && !blockTypes[blockID]?.categories.includes(blockCats.fluid)) {
             // Bounce
             if (!bounceOnly) {
-                player.position.y = ((block.y + (block.h/2)) + (playerBox.h/2)) //+ 0.001 //+ player.moveSpeed
+                player.position.y = (((block.y) + (block.h/2)) + (playerBox.h/2)) //+ 0.001 //+ player.moveSpeed
                 allowGrav = false
             }
             else {
