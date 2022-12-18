@@ -29,7 +29,7 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
                         if (isAdmin) chatCommands[key].action(message, name, playerID, isAdmin, brainGame, args, sendMessage)
                         else {
                             // Tell them they need better priv to do this
-                            sendMessage(`Sorry ${name}, you need to have admin privileges to do this.`, true)
+                            sendMessage(chatError(`Sorry ${name}, you need to have admin privileges to do this.`), true)
                         }
                     }
                     // If admin is not required
@@ -43,7 +43,7 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
             if (commandFound) break
         }
         if (!commandFound) {
-            sendMessage(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`, true)
+            sendMessage(chatError(`"${commandOptions.delimiter}${commandText}" is not a valid command. Type "${commandOptions.delimiter}${chatCommands.help.commands[0]}" for a the list of all commands.`), true)
         }
     }
     else if (message.startsWith(commandOptions.comment)) {
@@ -55,6 +55,10 @@ const checkForCommand = (message, name, playerID, isAdmin, brainGame, sendMessag
 
 const chatEmphasis = (text) => {
     return `<span style="color: white;">${text}</span>`
+}
+
+const chatError = (text) => {
+    return `<span style="color: red;">${text}</span>`
 }
 
 const getPlayers = (arg, brainGame, playerID = null) => {
@@ -163,7 +167,7 @@ const chatCommands = {
                 sendMessage(mes)
             }
             else {
-                sendMessage(`Can't find player.`, true)
+                sendMessage(chatError(`Can't find player.`), true)
             }
         }
     },
@@ -173,29 +177,34 @@ const chatCommands = {
         description: `Changes the name of the target player. Names must be alphanumeric with no spaces. You can also use "@r" as the new name to generate a random name. (Example: "${commandOptions.delimiter}changename [new name] [player (optional)]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (brainGame.gameOptions.chatOptions.allowPlayerNameChange || isAdmin) {
-                //////////////////////////////////////
-                // Get Player(s)
-                let players = getPlayers(args[1], brainGame, playerID)
-                const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
+                if (args[0]) {
+                    //////////////////////////////////////
+                    // Get Player(s)
+                    let players = getPlayers(args[1], brainGame, playerID)
+                    const thisPlayer = brainGame.players.filter(p => p.playerID === playerID)[0]
 
-                for (let i = 0; i < players.length; i++) {
-                    if (isAdmin || players[i] === thisPlayer) {
-                        // Change name
-                        if (players[i]) {
-                            // Tell brain to change the name
-                            brainGame.changePlayerName(players[i], args[0])
+                    for (let i = 0; i < players.length; i++) {
+                        if (isAdmin || players[i] === thisPlayer) {
+                            // Change name
+                            if (players[i]) {
+                                // Tell brain to change the name
+                                brainGame.changePlayerName(players[i], args[0])
+                            }
+                            else {
+                                sendMessage(chatError(`No player found. Names must have no spaces.`), true)
+                            }
                         }
                         else {
-                            sendMessage(`No player found. Names must have no spaces.`, true)
+                            sendMessage(chatError(`Only admins can change other player's names.`), true)
                         }
                     }
-                    else {
-                        sendMessage(`Only admins can change other player's names.`, true)
-                    }
+                }
+                else {
+                    sendMessage(chatError(`Invalid arguments`), true)
                 }
             }
             else {
-                sendMessage(`Only admins can change player names.`, true)
+                sendMessage(chatError(`Only admins can change player names.`), true)
             }
         }
     },
@@ -240,10 +249,10 @@ const chatCommands = {
                     }
 
                     // Tell them they're wrong!
-                    sendMessage(`Wrong password! ${brainGame.gameOptions.passwordAttempts - myPlayer.passwordAttempts} attempts left.`, true)
+                    sendMessage(`${chatError(`Wrong password!`)} ${chatEmphasis(brainGame.gameOptions.passwordAttempts - myPlayer.passwordAttempts)} attempts left.`, true)
                 }
             }
-            else sendMessage(`Player not found`, true)
+            else sendMessage(chatError(`Player not found`), true)
         }
     },
     teleport: {
@@ -278,13 +287,13 @@ const chatCommands = {
                 }
                 else {
                     // No player found, end function here
-                    sendMessage(`Can't find player.`, true)
+                    sendMessage(chatError(`Can't find player.`), true)
                     return
                 }
             }
             else {
                 // Invalid arguments
-                sendMessage(`Invalid arguments.`, true)
+                sendMessage(chatError(`Invalid arguments.`), true)
                 return
             }
 
@@ -300,7 +309,7 @@ const chatCommands = {
                     sendMessage(`${chatEmphasis(players[i].playerName)} teleported to X: ${position.x} | Y: ${position.y} | Z: ${position.z}`)
                 }
                 else {
-                    sendMessage(`Can't find player.`, true)
+                    sendMessage(chatError(`Can't find player.`), true)
                 }
             }
         }
@@ -320,7 +329,7 @@ const chatCommands = {
                     brainGame.killPlayer(players[i])
                 }
             }
-            else sendMessage(`No players found`, true)
+            else sendMessage(chatError(`No players found`), true)
         }
     },
     kick: {
@@ -360,7 +369,7 @@ const chatCommands = {
                     sendMessage(`${chatEmphasis(allPlayerNames)} ${pluralHave} been kicked from the game.`)
                 }
                 else {
-                    sendMessage(`You can't kick nobody.`, true)
+                    sendMessage(chatError(`You can't kick nobody.`), true)
                 }
             }
         }
@@ -387,7 +396,7 @@ const chatCommands = {
                     }                              
                 }
             }
-            else sendMessage(`No players found`, true)
+            else sendMessage(chatError(`No players found`), true)
         }
     },
     removeAdmin: {
@@ -412,7 +421,7 @@ const chatCommands = {
                     }                              
                 }
             }
-            else sendMessage(`No players found`, true)
+            else sendMessage(chatError(`No players found`), true)
         }
     },
     listAdmins: {
@@ -462,7 +471,7 @@ const chatCommands = {
                     })
 
                     // No matching game modes found
-                    if (!found) sendMessage(`That is not a valid game mode`, true)
+                    if (!found) sendMessage(chatError(`That is not a valid game mode`), true)
                 }
             }
         }
@@ -524,10 +533,10 @@ const chatCommands = {
                     brainGame.createPing(position, type)
                     sendMessage(`${name} placed a ping pinged at X: ${Math.round(position.x)} | Y: ${Math.round(position.y)} | Z: ${Math.round(position.z)}`)
                 }
-                else sendMessage(`No location specified.`, true)
+                else sendMessage(chatError(`No location specified.`), true)
             }
             else {
-                sendMessage(`You must be an admin to ping.`, true)  
+                sendMessage(chatError(`You must be an admin to ping.`), true)  
             }
         }
     },
@@ -561,7 +570,7 @@ const chatCommands = {
                 }
                 else {
                     // You need to specify which teams could be selected
-                    sendMessage(`No possible teams specified. Try something like: "${commandOptions.delimiter}changeteam @r blue|red [player]"`, true)
+                    sendMessage(chatError(`No possible teams specified. Try something like: "${commandOptions.delimiter}changeteam @r blue|red [player]"`), true)
                 }
             }
             //////////////////////////////////////
@@ -585,14 +594,14 @@ const chatCommands = {
                             sendMessage(`${chatEmphasis(players[i].playerName)}'s team changed to ${chatEmphasis(newTeam)}`, true)
                         }
                         else {
-                            sendMessage(`Only admins can change other player's teams.`, true)
+                            sendMessage(chatError(`Only admins can change other player's teams.`), true)
                         }
                     }
                 }
-                else sendMessage(`No players found`, true)
+                else sendMessage(chatError(`No players found`), true)
             }
             else {
-                sendMessage(`Can't find a matching team named ${newTeam}.`, true)
+                sendMessage(chatError(`Can't find a matching team named ${newTeam}.`), true)
             }
         }
     },
@@ -633,7 +642,7 @@ const chatCommands = {
                     }
                 }
                 else {
-                    sendMessage(`No player found.`, true)
+                    sendMessage(chatError(`No player found.`), true)
                     return
                 }
             }
@@ -670,11 +679,12 @@ const chatCommands = {
                         brainGame.brainComs.genericToClient('receiveChatMessage', data, [players[i].playerID])
                     }
                 }
-                else sendMessage(`No players found.`, true)
+                else sendMessage(chatError(`No players found.`), true)
             }
-            else sendMessage(`No message to send.`, true)
+            else sendMessage(chatError(`No message to send.`), true)
         }
     },
+    //tts: {...}
 
     //
     // Server commands
@@ -685,7 +695,7 @@ const chatCommands = {
         description: `Ends the current race for you only.`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             //...
-            sendMessage(`Sadly, this does not work yet :(`, true)
+            sendMessage(chatError(`Sadly, this does not work yet :(`), true)
         }
     },
     setServerGameMode: {
@@ -711,7 +721,7 @@ const chatCommands = {
                 })
 
                 // No matching game modes found
-                if (!found) sendMessage(`That is not a valid game mode`, true)
+                if (!found) sendMessage(chatError(`That is not a valid game mode`), true)
             }
             else {
                 // If no value set, just return the current value
@@ -840,7 +850,7 @@ const chatCommands = {
                 if (args[0].toLowerCase() === 'true') newVal = true
                 else if(args[0].toLowerCase() === 'false') newVal = false
                 else {
-                    sendMessage(`Invalid value. Value must be "true" or "false".`, true)
+                    sendMessage(chatError(`Invalid value. Value must be "true" or "false".`), true)
                     return
                 }
 
@@ -867,7 +877,7 @@ const chatCommands = {
                 if (args[0].toLowerCase() === 'true') newVal = true
                 else if(args[0].toLowerCase() === 'false') newVal = false
                 else {
-                    sendMessage(`Invalid value. Value must be "true" or "false".`, true)
+                    sendMessage(chatError(`Invalid value. Value must be "true" or "false".`), true)
                     return
                 }
 
@@ -916,7 +926,7 @@ const chatCommands = {
                 })
             }
             else {
-                sendMessage(`This command only works in multiplayer.`, true)
+                sendMessage(chatError(`This command only works in multiplayer.`), true)
             }
         }
     },
@@ -931,10 +941,10 @@ const chatCommands = {
 
                 // Send message
                 if (eventName) sendMessage(`Event ${chatEmphasis(eventName)}.`)
-                else sendMessage(`Cannot find event with name ${chatEmphasis(args[0])}.`, true)
+                else sendMessage(`${chatError(`Cannot find event with name`)} ${chatEmphasis(args[0])}.`, true)
             }
             else {
-                sendMessage(`No event specified.`, true)
+                sendMessage(chatError(`No event specified.`), true)
             }
         }
     },
@@ -954,10 +964,10 @@ const chatCommands = {
 
                 // Send message
                 if (eventObj) sendMessage(`Event ${chatEmphasis(eventObj.name)} has a value of ${chatEmphasis(filterChatMessageCode(eventObj.command))}.`)
-                else sendMessage(`Cannot find event with name ${chatEmphasis(args[0])}.`, true)
+                else sendMessage(`${chatError(`Cannot find event with name`)} ${chatEmphasis(args[0])}.`, true)
             }
             else {
-                sendMessage(`No event specified.`, true)
+                sendMessage(chatError(`No event specified.`), true)
             }
         }
     },
@@ -977,10 +987,10 @@ const chatCommands = {
 
                 // Send message
                 if (eventObj) sendMessage(`Event ${chatEmphasis(eventObj.name)} has a value of ${chatEmphasis(filterChatMessageCode(eventObj.command))}.`)
-                else sendMessage(`An event with name ${chatEmphasis(args[0])} already exists.`, true)
+                else sendMessage(`${chatError(`An event with name`)} ${chatEmphasis(args[0])} ${chatError(`already exists.`)}`, true)
             }
             else {
-                sendMessage(`No event specified.`, true)
+                sendMessage(chatError(`No event specified.`), true)
             }
         }
     },
@@ -1002,7 +1012,7 @@ const chatCommands = {
                 // sendMessage(`Command timer started.`, true)
             }
             else {
-                sendMessage(`Incorrect arguments.`, true)
+                sendMessage(chatError(`Incorrect arguments.`), true)
             }
         }
     },
@@ -1020,7 +1030,7 @@ const chatCommands = {
                 brainGame.runCommandString(commandStr, playerID)
             }
             else {
-                sendMessage(`No command given.`, true)
+                sendMessage(chatError(`No commands given.`), true)
             }
         }
     },
@@ -1053,7 +1063,7 @@ const chatCommands = {
                     position = targetPlayer.position
                 }
                 else {
-                    sendMessage(`No player found.`, true)
+                    sendMessage(chatError(`No player found.`), true)
                     return
                 }
             }
@@ -1114,7 +1124,7 @@ const chatCommands = {
         description: `Loads a world from the server's world folder (Example: "${commandOptions.delimiter}loadworld [world name]")`,
         action: function(message, name, playerID, isAdmin, brainGame, args, sendMessage = () => {}) {
             if (!brainGame.brainComs.isNetworked) {
-                sendMessage(`This feature does not work for singleplayer games.`, true)
+                sendMessage(chatError(`This feature does not work for singleplayer games yet.`), true)
                 return
             }
             if (args[0]) {
@@ -1127,7 +1137,7 @@ const chatCommands = {
                 else brainGame.loadWorldFromURL( args[0], sendMessage )
             }
             else {
-                sendMessage(`You must provide a world name.`, true)
+                sendMessage(chatError(`You must provide a world name.`), true)
             }
         }
     },
@@ -1145,7 +1155,7 @@ const chatCommands = {
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
             }
             else {
-                sendMessage(`Invalid arguments`, true)
+                sendMessage(chatError(`Invalid arguments`), true)
             }
         }
     },
@@ -1171,7 +1181,7 @@ const chatCommands = {
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID1} or ${blockID2}`)
             }
             else {
-                sendMessage(`Invalid arguments`, true)
+                sendMessage(chatError(`Invalid arguments`), true)
             }
         }
     },
@@ -1222,18 +1232,18 @@ const chatCommands = {
                             brainGame.brainComs.genericToClient('updateBlockMetaData', { blockPropName: targetBlock, data: brainGame.world.blockData[targetBlock] })
                             break
                         default:
-                            sendMessage(`Data type must be "title" or "command"`, true)
+                            sendMessage(chatError(`Data type must be "title" or "command"`), true)
                             break
                     }
                 }
                 else {
-                    sendMessage(`Invalid coordinate or no block here`, true)
+                    sendMessage(chatError(`Invalid coordinate or no block here`), true)
                 }
                 // brainGame.updateSingleBlock(location, blockID)
                 // sendMessage(`Block { X ${position.x} | Y ${position.y} | Z ${position.z} } set to ${blockID}`)
             }
             else {
-                sendMessage(`Invalid arguments`, true)
+                sendMessage(chatError(`Invalid arguments`), true)
             }
         }
     },
@@ -1262,7 +1272,7 @@ const chatCommands = {
                 }
             }
             else {
-                sendMessage(`Invalid arguments`, true)
+                sendMessage(chatError(`Invalid arguments`), true)
             }
         }
     },
