@@ -108,27 +108,27 @@ class MeshGenerator {
         switch (face) {
             case 'front':
                 // offset.z = offsetAmmount
-                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount - shapeWidth }
+                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount - shapeDepth }
                 rot.y = Math.PI
                 quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
                 break
             case 'back':
                 // offset.z = 0//-offsetAmmount
-                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 + shapeWidth }
+                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 + shapeDepth }
                 rot.y = 0
                 quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
                 break
             case 'left':
                 // offset.x = 0//-offsetAmmount
-                offset = {x: 0 + shapeDepth, y: halfOffsetAmmount, z:halfOffsetAmmount }
+                offset = {x: 0 + shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
                 rot.y = Math.PI/2
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                quad.scaling = new BABYLON.Vector3(shape.d, shape.h, shape.w)
                 break
             case 'right':
                 // offset.x = offsetAmmount
-                offset = {x: offsetAmmount - shapeDepth, y: halfOffsetAmmount, z:halfOffsetAmmount }
+                offset = {x: offsetAmmount - shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
                 rot.y = -Math.PI/2
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                quad.scaling = new BABYLON.Vector3(shape.d, shape.h, shape.w)
                 break
             case 'top':
                 // offset.y = offsetAmmount
@@ -225,7 +225,7 @@ class MeshGenerator {
             let blockTypeHere = blockTypes[blockHere]
             let otherShape = blockTypeHere?.shape || null
             // if (!blockHere || transparentTiles.includes(blockHere))
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'right'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}
@@ -236,7 +236,7 @@ class MeshGenerator {
             if ((blockLocation.x-1) < 0) blockHere = chunkGroup.leftChunk?.[blockLocation.y]?.[chunkSize-1]?.[blockLocation.z]
             blockTypeHere = blockTypes[blockHere]
             otherShape = blockTypeHere?.shape || null
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'left'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}
@@ -247,7 +247,7 @@ class MeshGenerator {
             if ((blockLocation.z+1) >= chunkSize) blockHere = chunkGroup.frontChunk?.[blockLocation.y]?.[blockLocation.x]?.[0]
             blockTypeHere = blockTypes[blockHere]
             otherShape = blockTypeHere?.shape || null
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'front'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}
@@ -258,7 +258,7 @@ class MeshGenerator {
             if ((blockLocation.z-1) < 0) blockHere = chunkGroup.backChunk?.[blockLocation.y]?.[blockLocation.x]?.[chunkSize-1]
             blockTypeHere = blockTypes[blockHere]
             otherShape = blockTypeHere?.shape || null
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'back'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}
@@ -269,7 +269,7 @@ class MeshGenerator {
             if ((blockLocation.y+1) >= chunkSize) blockHere = chunkGroup.upChunk?.[0]?.[blockLocation.x]?.[blockLocation.z]
             blockTypeHere = blockTypes[blockHere]
             otherShape = blockTypeHere?.shape || null
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'top'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}
@@ -280,7 +280,7 @@ class MeshGenerator {
             if ((blockLocation.y-1) < 0) blockHere = chunkGroup.downChunk?.[chunkSize-1]?.[blockLocation.x]?.[blockLocation.z]
             blockTypeHere = blockTypes[blockHere]
             otherShape = blockTypeHere?.shape || null
-            if ((!blockHere && !shape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
+            if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'bottom'
                 const textureID = thisBlockType?.textures[face] || 0
                 if (textureID > 0) meshArray.push( this.createQuadWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape) )}

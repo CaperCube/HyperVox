@@ -387,10 +387,17 @@ const blockTypes = [
     },
     // 0x002f
     {
-        name: 'dot-test',
+        name: 'pole-horz',
         categories: [blockCats.decorative],
-        textures: { top: 36, bottom: 36, front: 36, back: 36, left: 36, right: 36 },
-        shape: { x: 0, y: 0, z: 0, w: 0.5, h: 0.5, d: 0.5 }
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0.35, z: 0, w: 0.25, h: 0.25, d: 1.75 }
+    },
+    // 0x002f
+    {
+        name: 'pole-horz-2',
+        categories: [blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0.35, z: 0, w: 1.75, h: 0.25, d: 0.25 }
     },
 ]
 
