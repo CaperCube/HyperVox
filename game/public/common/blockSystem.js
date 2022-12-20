@@ -407,22 +407,22 @@ const blockTypes = [
         shape: { x: 0, y: 0, z: 0, w: 1, h: 0.25, d: 0.25 }
     },
     // 0x0034
-    // {
-    //     name: 'complex-test',
-    //     categories: [blockCats.decorative],
-    //     textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
-    //     shape: { x: 0, y: -0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 45, ry: 0, rz: 0 },
-    //     details: [
-    //         {
-    //             textures: { top: 19, bottom: 19, front: 19, back: 19, left: 19, right: 19 },
-    //             shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.5, d: 0.25, rx: 0, ry: 0, rz: 45 },
-    //         },
-    //         {
-    //             textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
-    //             shape: { x: 0, y: 0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 0, rz: -45 },
-    //         },
-    //     ]
-    // },
+    {
+        name: 'complex-test',
+        categories: [blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: -0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 45, rz: 0 },
+        details: [
+            {
+                textures: { top: 19, bottom: 19, front: 19, back: 19, left: 19, right: 19 },
+                shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.5, d: 0.25, rx: 0, ry: 0, rz: 0 },
+            },
+            {
+                textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
+                shape: { x: 0, y: 0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 0, rz: 0 },
+            },
+        ]
+    },
 ]
 
 export {

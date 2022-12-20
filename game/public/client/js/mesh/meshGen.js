@@ -84,7 +84,7 @@ class MeshGenerator {
     
     // Get the tile index UVs and create a quad 
     // Returns new Mesh
-    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1 }) {
+    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz:0 }) {
         // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
         // Create quad
         const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
@@ -134,6 +134,7 @@ class MeshGenerator {
                 // offset.y = offsetAmmount
                 offset = {x: halfOffsetAmmount, y: offsetAmmount - shapeHeight, z:halfOffsetAmmount }
                 rot.x = Math.PI/2
+                //rot.y = (shape.ry * (Math.PI/180))
                 quad.scaling = new BABYLON.Vector3(shape.w, shape.d, shape.h)
                 break
             case 'bottom':
@@ -145,8 +146,22 @@ class MeshGenerator {
             default:
                 break
         }
-        quad.position = new BABYLON.Vector3((pos.x + offset.x) + (shape.x * offsetAmmount), (pos.y + offset.y) + (shape.y * offsetAmmount), (pos.z + offset.z) + (shape.z * offsetAmmount))
+
+        const offsetTotal = new BABYLON.Vector3( (offset.x) + (shape.x * offsetAmmount), (offset.y) + (shape.y * offsetAmmount), (offset.z) + (shape.z * offsetAmmount) )
+        quad.position = offsetTotal
         quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
+        quad.bakeCurrentTransformIntoVertices()
+        
+        quad.setPivotPoint(new BABYLON.Vector3(offset.x, offset.y, offset.z))
+        quad.rotation = new BABYLON.Vector3((shape.rx * (Math.PI/180)), (shape.ry * (Math.PI/180)), (shape.rz * (Math.PI/180)))
+        
+        
+        quad.position = new BABYLON.Vector3((pos.x), (pos.y), (pos.z))
+
+        // quad.position = new BABYLON.Vector3((pos.x + offset.x) + (shape.x * offsetAmmount), (pos.y + offset.y) + (shape.y * offsetAmmount), (pos.z + offset.z) + (shape.z * offsetAmmount))
+        // quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
+
+        // quad.rotation = new BABYLON.Vector3((shape.rx * (Math.PI/180)), (shape.ry * (Math.PI/180)), (shape.rz * (Math.PI/180)))
     
         return quad
     }
@@ -160,8 +175,17 @@ class MeshGenerator {
         if (mainQuad) detailQuads.push(mainQuad)
 
         for (let i = 0; i < details.length; i++) {
-            detailQuads.push(this.createQuadWithUVs(pos, face, details[i]?.textures?.[face] || 0, scene, tileScale, UVSize, details[i]?.shape || null))
+            const quad = this.createQuadWithUVs(pos, face, details[i]?.textures?.[face] || 0, scene, tileScale, UVSize, details[i]?.shape || null)
+            // const oldPos = new BABYLON.Vector3(quad.position.x, quad.position.y, quad.position.z)
+            // quad.position = new BABYLON.Vector3.Zero()
+            // quad.bakeCurrentTransformIntoVertices()
+            // quad.position = oldPos
+
+            // quad.rotation.x += ((details[i].shape.rx || 0) * (Math.PI/180))
+            // quad.rotation.y += ((details[i].shape.ry || 0) * (Math.PI/180))
+            // quad.rotation.z += ((details[i].shape.rz || 0) * (Math.PI/180))
             // if (details[i]?.shape) detailQuads[detailQuads.length - 1].rotation = new BABYLON.Vector3(((details[i].shape.rx || 0) * (Math.PI/180)), ((details[i].shape.ry || 0) * (Math.PI/180)), ((details[i].shape.rz || 0) * (Math.PI/180)))
+            detailQuads.push(quad)
         }
 
         // Merge meshes
