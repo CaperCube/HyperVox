@@ -373,32 +373,56 @@ const blockTypes = [
     },
     // 0x002f
     {
-        name: 'step-test',
-        categories: [blockCats.decorative],
-        textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
+        name: 'bricks-dark-step',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 31, bottom: 31, front: 31, back: 31, left: 31, right: 31 },
         shape: { x: 0, y: -0.25, z: 0, w: 1, h: 0.5, d: 1 }
     },
-    // 0x002f
+    // 0x0030
     {
-        name: 'pole-test',
-        categories: [blockCats.decorative],
+        name: 'bricks-step',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 30, bottom: 30, front: 30, back: 30, left: 30, right: 30 },
+        shape: { x: 0, y: -0.25, z: 0, w: 1, h: 0.5, d: 1 }
+    },
+    // 0x0031
+    {
+        name: 'pole-up-white',
+        categories: [blockCats.color.white, blockCats.decorative],
         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
         shape: { x: 0, y: 0, z: 0, w: 0.25, h: 1, d: 0.25 }
     },
-    // 0x002f
+    // 0x0032
     {
-        name: 'pole-horz',
-        categories: [blockCats.decorative],
+        name: 'pole-front-white',
+        categories: [blockCats.color.white, blockCats.decorative],
         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
-        shape: { x: 0, y: 0.35, z: 0, w: 0.25, h: 0.25, d: 1.75 }
+        shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.25, d: 1 }
     },
-    // 0x002f
+    // 0x0033
     {
-        name: 'pole-horz-2',
-        categories: [blockCats.decorative],
+        name: 'pole-right-white',
+        categories: [blockCats.color.white, blockCats.decorative],
         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
-        shape: { x: 0, y: 0.35, z: 0, w: 1.75, h: 0.25, d: 0.25 }
+        shape: { x: 0, y: 0, z: 0, w: 1, h: 0.25, d: 0.25 }
     },
+    // 0x0034
+    // {
+    //     name: 'complex-test',
+    //     categories: [blockCats.decorative],
+    //     textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+    //     shape: { x: 0, y: -0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 45, ry: 0, rz: 0 },
+    //     details: [
+    //         {
+    //             textures: { top: 19, bottom: 19, front: 19, back: 19, left: 19, right: 19 },
+    //             shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.5, d: 0.25, rx: 0, ry: 0, rz: 45 },
+    //         },
+    //         {
+    //             textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
+    //             shape: { x: 0, y: 0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 0, rz: -45 },
+    //         },
+    //     ]
+    // },
 ]
 
 export {
