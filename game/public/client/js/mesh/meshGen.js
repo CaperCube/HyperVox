@@ -21,18 +21,20 @@ class MeshGenerator {
     // y = Vbottom
     // z = Utop
     // w = Vtop
-    getQuadUVByIndex(idx, row = 16, col = 16) {
+    getQuadUVByIndex(idx, row = 16, col = 16, scale = { x: 1, y: 1 }) {
         // Calculate ID offset
         const rows = row
         const columns = col
-        let c = (idx-1) % columns
-        let r = Math.floor((idx-1) / columns)
+        let c = ((idx-1) % col)
+        let r = (Math.floor((idx-1) / col))
     
         // Set UV
         let faceUV = new BABYLON.Vector4(
             c / columns,        // U1
-            (r + 1) / rows,     // V1
-            (c + 1) / columns,  // U2
+            // (r + 1) / rows,     // V1
+            // (c + 1) / columns,  // U2
+            (r + scale.y) / rows,     // V1
+            (c + scale.x) / columns,  // U2
             r / rows            // V2
         )
     
@@ -85,21 +87,18 @@ class MeshGenerator {
     // Get the tile index UVs and create a quad 
     // Returns new Mesh
     createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz:0 }) {
-        // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
-        // Create quad
-        const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
-            size: tileScale,
-            frontUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols),
-            backUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols),
-            sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
-        }, scene)
+
+        shape.rx = shape.rx || 0
+        shape.ry = shape.ry || 0
+        shape.rz = shape.rz || 0
     
-        // Set material, position, and rotation
-        quad.material = scene.defaultMaterial
+        // Position, rotation, and scale vars
         const offsetAmmount = tileScale
         const halfOffsetAmmount = offsetAmmount/2
+        let scale = new BABYLON.Vector3.Zero()
         let offset = {x: 0, y: 0, z: 0}
         let rot = {x: 0, y: 0, z: 0}
+        let UVScale = {x: 1, y: 1}
 
         const shapeWidth = (((1 - shape.w) / 2) * offsetAmmount)
         const shapeDepth = (((1 - shape.d) / 2) * offsetAmmount)
@@ -110,43 +109,61 @@ class MeshGenerator {
                 // offset.z = offsetAmmount
                 offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount - shapeDepth }
                 rot.y = Math.PI
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                UVScale = {x: shape.w, y: shape.h}
                 break
             case 'back':
                 // offset.z = 0//-offsetAmmount
                 offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 + shapeDepth }
                 rot.y = 0
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                UVScale = {x: shape.w, y: shape.h}
                 break
             case 'left':
                 // offset.x = 0//-offsetAmmount
                 offset = {x: 0 + shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
                 rot.y = Math.PI/2
-                quad.scaling = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                UVScale = {x: shape.d, y: shape.h}
                 break
             case 'right':
                 // offset.x = offsetAmmount
                 offset = {x: offsetAmmount - shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
                 rot.y = -Math.PI/2
-                quad.scaling = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                UVScale = {x: shape.d, y: shape.h}
                 break
             case 'top':
                 // offset.y = offsetAmmount
                 offset = {x: halfOffsetAmmount, y: offsetAmmount - shapeHeight, z:halfOffsetAmmount }
                 rot.x = Math.PI/2
                 //rot.y = (shape.ry * (Math.PI/180))
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                UVScale = {x: shape.w, y: shape.d}
                 break
             case 'bottom':
                 // offset.y = 0//-offsetAmmount
                 offset = {x: halfOffsetAmmount, y: 0 + shapeHeight, z:halfOffsetAmmount }
                 rot.x = -Math.PI/2
-                quad.scaling = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                UVScale = {x: shape.w, y: shape.d}
                 break
             default:
                 break
         }
 
+        // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
+        // Create quad
+        const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
+            size: tileScale,
+            frontUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols, UVScale),
+            backUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols, UVScale),
+            sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
+        }, scene)
+        quad.material = scene.defaultMaterial
+
+        // Offset, Position, Rotation, Scale
+        quad.scaling = scale
         const offsetTotal = new BABYLON.Vector3( (offset.x) + (shape.x * offsetAmmount), (offset.y) + (shape.y * offsetAmmount), (offset.z) + (shape.z * offsetAmmount) )
         quad.position = offsetTotal
         quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
