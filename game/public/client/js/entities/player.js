@@ -388,9 +388,17 @@ class ClientPlayer {
                 if (isMyPlayer) {
                     let cubeFaces = []
                     const posBlock = {x: 1, y: -1.5, z: 1.75}
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
+                    const shape = blockTypes[item.itemID]?.shape
+                    const details = blockTypes[item.itemID]?.details
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "right", img.textures.right, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "bottom", img.textures.bottom, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "front", img.textures.front, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
                     this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
                     
                     this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.25
@@ -398,12 +406,20 @@ class ClientPlayer {
                 else {
                     let cubeFaces = []
                     const posBlock = {x: 0, y: 0, z: 0} // const posBlock = {x: 0.5, y: -1.5, z: -1.75}
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "right", img.textures.right, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "bottom", img.textures.bottom, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
-                    cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "front", img.textures.front, this.clientGame.scene) )
+                    const shape = blockTypes[item.itemID]?.shape
+                    const details = blockTypes[item.itemID]?.details
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "right", img.textures.right, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "bottom", img.textures.bottom, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene) )
+                    // cubeFaces.push( this.clientGame.meshGen.createQuadWithUVs(posBlock, "front", img.textures.front, this.clientGame.scene) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "left", img.textures.left, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "right", img.textures.right, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "top", img.textures.top, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "bottom", img.textures.bottom, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "back", img.textures.back, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
+                    cubeFaces.push( this.clientGame.meshGen.createComplexQuadsWithUVs(posBlock, "front", img.textures.front, this.clientGame.scene, this.world._tileScale, {rows: 16, cols: 16}, shape, details) )
                     this.itemMesh = BABYLON.Mesh.MergeMeshes(cubeFaces, true)
                     
                     this.itemMesh.scaling.x = this.itemMesh.scaling.y = this.itemMesh.scaling.z = 0.5
@@ -422,8 +438,8 @@ class ClientPlayer {
 
                 // Rotate if not my player
                 if (!isMyPlayer) {
-                    this.itemMesh.rotation.z = (-Math.PI/2)
-                    this.itemMesh.position = new BABYLON.Vector3(0,0.125,-0.25)
+                    this.itemMesh.rotation.x = (-Math.PI/2)
+                    this.itemMesh.position = new BABYLON.Vector3(0, -0.325, -0.75)
                 }
                 break
         }

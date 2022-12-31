@@ -33,7 +33,9 @@ class Effect {
             switch (this._type) {
                 case 'sprite':
                     // Create mesh
-                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.375, z: -0.5}, 'front', 177, this.clientGame.scene),
+                    const texId = 177
+                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.5, z: -0.5}, 'front', texId, this.clientGame.scene),
+                    this.sceneEffect.bakeCurrentTransformIntoVertices()
                     this.sceneEffect.scaling = new BABYLON.Vector3(this._size, this._size, this._size)
                     // this.sceneEffect = BABYLON.Mesh.CreatePlane(this._effectName, this._size, this.clientGame.scene, false)
 
@@ -55,7 +57,8 @@ class Effect {
                     this.sceneEffect.renderingGroupId = 1 // Set to render on top
                     break
                 case 'muzzleflash':
-                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
+                    this.sceneEffect = this.clientGame.meshGen.createQuadWithUVs({x: -0.5, y: -0.5, z: -0.5}, 'front', 211, this.clientGame.scene)
+                    this.sceneEffect.bakeCurrentTransformIntoVertices()
                     this.sceneEffect.scaling = new BABYLON.Vector3(this._size, this._size, this._size)
                     this.sceneEffect.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
                     break

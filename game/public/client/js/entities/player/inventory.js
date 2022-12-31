@@ -256,7 +256,7 @@ function shoot(clientGame, player, item) {
         // Knockback
         const fps = 60
         const frames = fps * (item.useTime / 1000) // Set the length of animation to the item's useTime
-        BABYLON.Animation.CreateAndStartAnimation("ItemZPosition", player.itemMesh, "position.z", fps, frames, 0.75, 1, 0)
+        BABYLON.Animation.CreateAndStartAnimation("ItemZPosition", player.itemMesh, "position.z", fps, frames, 0.25, 0.5, 0)
 
         // Muzzle Flash
         if (player.muzzleFlashMesh)

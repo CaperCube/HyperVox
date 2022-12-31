@@ -476,7 +476,7 @@ const chatCommands = {
                 
                 const pingTypes = {default: 'default'} // ToDo: move ping types to 
                 let position = null
-                let type = pingTypes.default
+                let type = `ping_${pingTypes.default}`
 
                 if (args[0] && args[1] && args[2]) {
                     // Get position
