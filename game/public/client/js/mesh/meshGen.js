@@ -169,11 +169,13 @@ class MeshGenerator {
         quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
         quad.bakeCurrentTransformIntoVertices()
         
-        quad.setPivotPoint(new BABYLON.Vector3(offset.x, offset.y, offset.z))
-        quad.rotation = new BABYLON.Vector3((shape.rx * (Math.PI/180)), (shape.ry * (Math.PI/180)), (shape.rz * (Math.PI/180)))
+        // quad.setPivotPoint(new BABYLON.Vector3(offset.x, offset.y, offset.z))
+        quad.setPivotPoint(new BABYLON.Vector3(offsetTotal.x, offsetTotal.y, offsetTotal.z))
+        const angle = { x: (shape.rx * (Math.PI/180)), y: (shape.ry * (Math.PI/180)), z: (shape.rz * (Math.PI/180)) }
+        quad.rotation = new BABYLON.Vector3(angle.x, angle.y, angle.z)
         
-        
-        quad.position = new BABYLON.Vector3((pos.x), (pos.y), (pos.z))
+        // quad.position = new BABYLON.Vector3( (pos.x) + Math.sin(angle.y), (pos.y) + Math.cos(angle.y), (pos.z) )
+        quad.position = new BABYLON.Vector3( (pos.x), (pos.y), (pos.z) )
 
         // quad.position = new BABYLON.Vector3((pos.x + offset.x) + (shape.x * offsetAmmount), (pos.y + offset.y) + (shape.y * offsetAmmount), (pos.z + offset.z) + (shape.z * offsetAmmount))
         // quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
