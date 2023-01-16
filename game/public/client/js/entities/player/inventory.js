@@ -321,9 +321,24 @@ function shoot(clientGame, player, item) {
     player.avatar.rotation.y += yOffset
 
     // Knockback
-    // const power = item.recoilMult * 10
-    // const knockback = new BABYLON.Vector3((direction.x * power * (-1)), (direction.y * power * (-1)), (direction.z * power * (-1)))
-    // player.velocity = new BABYLON.Vector3(player.velocity.x + knockback.x, player.velocity.y + knockback.y, player.velocity.z + knockback.z)
+    if (player.playerVelocity) {
+        const mult = 1
+        const power = Math.abs(item.recoilMult.x || 0.1) + Math.abs(item.recoilMult.y || 0.1)
+        const knockDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, -1))
+
+        // console.log(item.recoilMult.x, power)
+        // console.log(direction, player.velocity)
+        // const knockback = new BABYLON.Vector3((knockDir.x * power), (knockDir.y * power), (knockDir.z * power))
+        const knockback = {
+            x: knockDir.x * power * mult,
+            y: knockDir.y * power * mult,
+            z: knockDir.z * power * mult
+        }
+        // player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x + knockback.x, player.playerVelocity.y + knockback.y, player.playerVelocity.z + knockback.z)
+        player.playerVelocity.x += knockback.x
+        player.playerVelocity.y += knockback.y
+        player.playerVelocity.z += knockback.z
+}
 
     // Animate back
     // BABYLON.Animation.CreateAndStartAnimation("recoil", player.avatar, "rotation.x", 60, 15, player.avatar.rotation.x, player.avatar.rotation.x + xOffset, BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE)
