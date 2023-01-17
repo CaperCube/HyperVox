@@ -464,11 +464,10 @@ class ClientComs {
         const lookDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         const distance = 1.5
         const effectPos = {
-            x: player.position.x + (lookDir.x * distance) + 0.5,
-            y: player.position.y + (lookDir.y * distance) + 0.75,
+            x: player.position.x + (lookDir.x * distance),
+            y: player.position.y + (lookDir.y * distance) + 0.25,
             z: player.position.z + (lookDir.z * distance)
         }
-
 
         const data = { origin: origin, gunPos: effectPos, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
 
