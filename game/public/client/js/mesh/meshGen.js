@@ -83,106 +83,108 @@ class MeshGenerator {
     
         return block
     }
-    
-    // Get the tile index UVs and create a quad 
-    // Returns new Mesh
-    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz:0 }) {
 
-        shape.rx = shape.rx || 0
-        shape.ry = shape.ry || 0
-        shape.rz = shape.rz || 0
-    
-        // Position, rotation, and scale vars
-        const offsetAmmount = tileScale
-        const halfOffsetAmmount = offsetAmmount/2
-        let scale = new BABYLON.Vector3.Zero()
-        let offset = {x: 0, y: 0, z: 0}
-        let rot = {x: 0, y: 0, z: 0}
-        let UVScale = {x: 1, y: 1}
-
-        const shapeWidth = (((1 - shape.w) / 2) * offsetAmmount)
-        const shapeDepth = (((1 - shape.d) / 2) * offsetAmmount)
-        const shapeHeight = (((1 - shape.h) / 2) * offsetAmmount)
-
-        switch (face) {
-            case 'front':
-                // offset.z = offsetAmmount
-                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount - shapeDepth }
-                rot.y = Math.PI
-                scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
-                UVScale = {x: shape.w, y: shape.h}
-                break
-            case 'back':
-                // offset.z = 0//-offsetAmmount
-                offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 + shapeDepth }
-                rot.y = 0
-                scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
-                UVScale = {x: shape.w, y: shape.h}
-                break
-            case 'left':
-                // offset.x = 0//-offsetAmmount
-                offset = {x: 0 + shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
-                rot.y = Math.PI/2
-                scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
-                UVScale = {x: shape.d, y: shape.h}
-                break
-            case 'right':
-                // offset.x = offsetAmmount
-                offset = {x: offsetAmmount - shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
-                rot.y = -Math.PI/2
-                scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
-                UVScale = {x: shape.d, y: shape.h}
-                break
-            case 'top':
-                // offset.y = offsetAmmount
-                offset = {x: halfOffsetAmmount, y: offsetAmmount - shapeHeight, z:halfOffsetAmmount }
-                rot.x = Math.PI/2
-                //rot.y = (shape.ry * (Math.PI/180))
-                scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
-                UVScale = {x: shape.w, y: shape.d}
-                break
-            case 'bottom':
-                // offset.y = 0//-offsetAmmount
-                offset = {x: halfOffsetAmmount, y: 0 + shapeHeight, z:halfOffsetAmmount }
-                rot.x = -Math.PI/2
-                scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
-                UVScale = {x: shape.w, y: shape.d}
-                break
-            default:
-                break
-        }
-
+    createPlaneWithUVs(scene, idx, material, tileScale = 1, UVSize = {rows: 16, cols: 16}, UVScale = { x: 1, y: 1 }) {
         // TODO: Use this method: https://babylonjsguide.github.io/advanced/Custom
-        // Create quad
-        const quad = BABYLON.MeshBuilder.CreatePlane("BlockSide", {
+        const quad = BABYLON.MeshBuilder.CreatePlane("Plane", {
             size: tileScale,
             frontUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols, UVScale),
             backUVs: this.getQuadUVByIndex(idx, UVSize.rows, UVSize.cols, UVScale),
             sideOrientation: BABYLON.Mesh.DOUBLESIDE // quad.sideOrientation = BABYLON.Mesh.DEFAULTSIDE
         }, scene)
-        quad.material = scene.defaultMaterial
+        quad.material = material
 
-        // Offset, Position, Rotation, Scale
-        quad.scaling = scale
-        const offsetTotal = new BABYLON.Vector3( (offset.x) + (shape.x * offsetAmmount), (offset.y) + (shape.y * offsetAmmount), (offset.z) + (shape.z * offsetAmmount) )
-        quad.position = offsetTotal
-        quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
-        quad.bakeCurrentTransformIntoVertices()
-        
-        // quad.setPivotPoint(new BABYLON.Vector3(offset.x, offset.y, offset.z))
-        quad.setPivotPoint(new BABYLON.Vector3(offsetTotal.x, offsetTotal.y, offsetTotal.z))
-        const angle = { x: (shape.rx * (Math.PI/180)), y: (shape.ry * (Math.PI/180)), z: (shape.rz * (Math.PI/180)) }
-        quad.rotation = new BABYLON.Vector3(angle.x, angle.y, angle.z)
-        
-        // quad.position = new BABYLON.Vector3( (pos.x) + Math.sin(angle.y), (pos.y) + Math.cos(angle.y), (pos.z) )
-        quad.position = new BABYLON.Vector3( (pos.x), (pos.y), (pos.z) )
-
-        // quad.position = new BABYLON.Vector3((pos.x + offset.x) + (shape.x * offsetAmmount), (pos.y + offset.y) + (shape.y * offsetAmmount), (pos.z + offset.z) + (shape.z * offsetAmmount))
-        // quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
-
-        // quad.rotation = new BABYLON.Vector3((shape.rx * (Math.PI/180)), (shape.ry * (Math.PI/180)), (shape.rz * (Math.PI/180)))
-    
         return quad
+    }
+
+    
+    // Get the tile index UVs and create a quad 
+    // Returns new Mesh
+    createQuadWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz:0 }) {
+        if (idx > 0) {
+            shape.rx = shape.rx || 0
+            shape.ry = shape.ry || 0
+            shape.rz = shape.rz || 0
+        
+            // Position, rotation, and scale vars
+            const offsetAmmount = tileScale
+            const halfOffsetAmmount = offsetAmmount/2
+            let scale = new BABYLON.Vector3.Zero()
+            let offset = {x: 0, y: 0, z: 0}
+            let rot = {x: 0, y: 0, z: 0}
+            let UVScale = {x: 1, y: 1}
+
+            const shapeWidth = (((1 - shape.w) / 2) * offsetAmmount)
+            const shapeDepth = (((1 - shape.d) / 2) * offsetAmmount)
+            const shapeHeight = (((1 - shape.h) / 2) * offsetAmmount)
+
+            switch (face) {
+                case 'front':
+                    // offset.z = offsetAmmount
+                    offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:offsetAmmount - shapeDepth }
+                    rot.y = Math.PI
+                    scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                    UVScale = {x: shape.w, y: shape.h}
+                    break
+                case 'back':
+                    // offset.z = 0//-offsetAmmount
+                    offset = {x: halfOffsetAmmount, y: halfOffsetAmmount, z:0 + shapeDepth }
+                    rot.y = 0
+                    scale = new BABYLON.Vector3(shape.w, shape.h, shape.d)
+                    UVScale = {x: shape.w, y: shape.h}
+                    break
+                case 'left':
+                    // offset.x = 0//-offsetAmmount
+                    offset = {x: 0 + shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
+                    rot.y = Math.PI/2
+                    scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                    UVScale = {x: shape.d, y: shape.h}
+                    break
+                case 'right':
+                    // offset.x = offsetAmmount
+                    offset = {x: offsetAmmount - shapeWidth, y: halfOffsetAmmount, z:halfOffsetAmmount }
+                    rot.y = -Math.PI/2
+                    scale = new BABYLON.Vector3(shape.d, shape.h, shape.w)
+                    UVScale = {x: shape.d, y: shape.h}
+                    break
+                case 'top':
+                    // offset.y = offsetAmmount
+                    offset = {x: halfOffsetAmmount, y: offsetAmmount - shapeHeight, z:halfOffsetAmmount }
+                    rot.x = Math.PI/2
+                    //rot.y = (shape.ry * (Math.PI/180))
+                    scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                    UVScale = {x: shape.w, y: shape.d}
+                    break
+                case 'bottom':
+                    // offset.y = 0//-offsetAmmount
+                    offset = {x: halfOffsetAmmount, y: 0 + shapeHeight, z:halfOffsetAmmount }
+                    rot.x = -Math.PI/2
+                    scale = new BABYLON.Vector3(shape.w, shape.d, shape.h)
+                    UVScale = {x: shape.w, y: shape.d}
+                    break
+                default:
+                    break
+            }
+
+            // Create quad
+            const quad = this.createPlaneWithUVs(scene, idx, scene.defaultMaterial, tileScale, UVSize, UVScale)
+
+            // Offset, Position, Rotation, Scale
+            quad.scaling = scale
+            const offsetTotal = new BABYLON.Vector3( (offset.x) + (shape.x * offsetAmmount), (offset.y) + (shape.y * offsetAmmount), (offset.z) + (shape.z * offsetAmmount) )
+            quad.position = offsetTotal
+            quad.rotation = new BABYLON.Vector3(rot.x, rot.y, rot.z)
+            quad.bakeCurrentTransformIntoVertices()
+            
+            // Shape rotation
+            quad.setPivotPoint(new BABYLON.Vector3(offsetTotal.x + halfOffsetAmmount, offsetTotal.y + halfOffsetAmmount, offsetTotal.z + halfOffsetAmmount))
+            const angle = { x: (shape.rx * (Math.PI/180)), y: (shape.ry * (Math.PI/180)), z: (shape.rz * (Math.PI/180)) }
+            quad.rotation = new BABYLON.Vector3(angle.x, angle.y, angle.z)
+            
+            quad.position = new BABYLON.Vector3( (pos.x), (pos.y), (pos.z) )
+        
+            return quad
+        }
     }
 
     createComplexQuadsWithUVs(pos = {x: 0, y: 0, z: 0}, face = 'front', idx, scene, tileScale = 1, UVSize = {rows: 16, cols: 16}, shape = { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1 , rx: 0, ry: 0, rz: 0}, details = []) {
@@ -195,23 +197,11 @@ class MeshGenerator {
 
         for (let i = 0; i < details.length; i++) {
             const quad = this.createQuadWithUVs(pos, face, details[i]?.textures?.[face] || 0, scene, tileScale, UVSize, details[i]?.shape || null)
-            // const oldPos = new BABYLON.Vector3(quad.position.x, quad.position.y, quad.position.z)
-            // quad.position = new BABYLON.Vector3.Zero()
-            // quad.bakeCurrentTransformIntoVertices()
-            // quad.position = oldPos
-
-            // quad.rotation.x += ((details[i].shape.rx || 0) * (Math.PI/180))
-            // quad.rotation.y += ((details[i].shape.ry || 0) * (Math.PI/180))
-            // quad.rotation.z += ((details[i].shape.rz || 0) * (Math.PI/180))
-            // if (details[i]?.shape) detailQuads[detailQuads.length - 1].rotation = new BABYLON.Vector3(((details[i].shape.rx || 0) * (Math.PI/180)), ((details[i].shape.ry || 0) * (Math.PI/180)), ((details[i].shape.rz || 0) * (Math.PI/180)))
             detailQuads.push(quad)
         }
 
         // Merge meshes
         const merged = BABYLON.Mesh.MergeMeshes(detailQuads, true)
-        // merged.rotation.x += (shape.rx * (Math.PI/180))
-        // merged.rotation.y += (shape.ry * (Math.PI/180))
-        // merged.rotation.z += (shape.rz * (Math.PI/180))
 
         // Return
         return merged
@@ -296,7 +286,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'right'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
 
             // Left
@@ -307,7 +297,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'left'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
 
             // Front
@@ -318,7 +308,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'front'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
 
             // Back
@@ -329,7 +319,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'back'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
 
             // Top
@@ -340,7 +330,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'top'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
 
             // Bottom
@@ -351,7 +341,7 @@ class MeshGenerator {
             if ((!blockHere) || (!!shape || !!otherShape) || (blockTypeHere?.categories?.includes(blockCats.transparent) && !thisBlockType?.categories?.includes(blockCats.transparent))){
                 {const face = 'bottom'
                 const textureID = thisBlockType?.textures[face] || 0
-                if (textureID > 0) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
+                if (textureID > 0 || !!details) meshArray.push( this.createComplexQuadsWithUVs(globalPos, face, textureID, scene, tileScale, {rows: 16, cols: 16}, shape, details) )}
             }
         }
 

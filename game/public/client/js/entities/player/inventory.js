@@ -322,17 +322,17 @@ function shoot(clientGame, player, item) {
 
     // Knockback
     if (player.playerVelocity) {
-        const mult = 1
-        const power = Math.abs(item.recoilMult.x || 0.1) + Math.abs(item.recoilMult.y || 0.1)
+        const knockbackPower = 1
+        const gunPower = Math.abs(item.recoilMult.x || 0.1) + Math.abs(item.recoilMult.y || 0.1)
         const knockDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, -1))
 
         // console.log(item.recoilMult.x, power)
         // console.log(direction, player.velocity)
         // const knockback = new BABYLON.Vector3((knockDir.x * power), (knockDir.y * power), (knockDir.z * power))
         const knockback = {
-            x: knockDir.x * power * mult,
-            y: knockDir.y * power * mult,
-            z: knockDir.z * power * mult
+            x: knockDir.x * gunPower * knockbackPower,
+            y: knockDir.y * gunPower * knockbackPower,
+            z: knockDir.z * gunPower * knockbackPower
         }
         // player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x + knockback.x, player.playerVelocity.y + knockback.y, player.playerVelocity.z + knockback.z)
         player.playerVelocity.x += knockback.x

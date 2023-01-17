@@ -118,7 +118,8 @@ class ClientPlayer {
         this.muzzleFlashMesh = null
         this.muzzleFlashLight = null
         // Impact Mesh
-        this.impactMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
+        this.impactMesh =this.clientGame.meshGen.createPlaneWithUVs(this.clientGame.scene, 211, this.clientGame.scene.defaultMaterial)
+        // this.impactMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
         this.impactMesh.scaling.x = this.impactMesh.scaling.y = this.impactMesh.scaling.z = 0.75
         this.impactMesh.setEnabled(false)
         this.impactMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
@@ -440,6 +441,7 @@ class ClientPlayer {
                 if (!isMyPlayer) {
                     this.itemMesh.rotation.x = (-Math.PI/2)
                     this.itemMesh.position = new BABYLON.Vector3(0, -0.325, -0.75)
+                    // this.itemMesh.position = new BABYLON.Vector3(0, -0.25, 0.0625)
                 }
                 break
         }

@@ -358,6 +358,24 @@ const blockTypes = [
         name: 'beer',
         categories: [blockCats.color.orange, blockCats.decorative],
         textures: { top: 38, bottom: 39, front: 37, back: 37, left: 37, right: 37 },
+        // shape: { x: -0.375, y: 0, z: 0.375, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz: 0 },
+        // details: [
+        //     // Z = Blue (Forward)
+        //     {
+        //         textures: { top: 16, bottom: 16, front: 0, back: 0, left: 16, right: 16 },
+        //         shape: { x: -0.375, y: -0.375, z: -0.1875, w: 0.25, h: 0.25, d: 0.125, rx: 0, ry: 0, rz: 0 },
+        //     },
+        //     // Z = Blue (Forward)
+        //     {
+        //         textures: { top: 16, bottom: 16, front: 0, back: 0, left: 16, right: 16 },
+        //         shape: { x: -0.375, y: 0.375, z: -0.1875, w: 0.25, h: 0.25, d: 0.125, rx: 0, ry: 0, rz: 0 },
+        //     },
+        //     // Y = Green (Up)
+        //     {
+        //         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        //         shape: { x: -0.375, y: 0, z: -0.375, w: 0.25, h: 1, d: 0.25, rx: 0, ry: 0, rz: 0 },
+        //     },
+        // ]
     },
     // 0x002d
     {
@@ -408,18 +426,26 @@ const blockTypes = [
     },
     // 0x0034
     {
-        name: 'complex-test',
+        name: 'gimbal',
         categories: [blockCats.decorative],
-        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
-        shape: { x: 0, y: -0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 45, rz: 0 },
+        // textures: { top: 253, bottom: 253, front: 253, back: 253, left: 253, right: 253 },
+        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        shape: { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz: 0 },
         details: [
+            // X = Red (Right)
             {
-                textures: { top: 19, bottom: 19, front: 19, back: 19, left: 19, right: 19 },
-                shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.5, d: 0.25, rx: 0, ry: 0, rz: 0 },
+                textures: { top: 64, bottom: 64, front: 64, back: 64, left: 0, right: 64 },
+                shape: { x: 0.125, y: -0.375, z: -0.375, w: 0.75, h: 0.25, d: 0.25, rx: 0, ry: 0, rz: 0 },
             },
+            // Z = Blue (Forward)
             {
-                textures: { top: 20, bottom: 20, front: 20, back: 20, left: 20, right: 20 },
-                shape: { x: 0, y: 0.375, z: 0, w: 1, h: 0.25, d: 1, rx: 0, ry: 0, rz: 0 },
+                textures: { top: 128, bottom: 128, front: 128, back: 0, left: 128, right: 128 },
+                shape: { x: -0.375, y: -0.375, z: 0.125, w: 0.25, h: 0.25, d: 0.75, rx: 0, ry: 0, rz: 0 },
+            },
+            // Y = Green (Up)
+            {
+                textures: { top: 112, bottom: 112, front: 112, back: 112, left: 112, right: 112 },
+                shape: { x: -0.375, y: 0, z: -0.375, w: 0.25, h: 1, d: 0.25, rx: 0, ry: 0, rz: 0 },
             },
         ]
     },
