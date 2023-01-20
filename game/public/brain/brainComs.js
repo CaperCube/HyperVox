@@ -275,19 +275,21 @@ class BrainComs {
                 }
 
                 // Do muzzle effect
-                const effectPos = data.gunPos
-                const effectData = {position: effectPos, type: 'muzzleflash', entityId: Math.random(), time: 50, size: 5}
+                if (this.isNetworked) {
+                    const effectPos = data.gunPos
+                    const effectData = {position: effectPos, type: 'muzzleflash', entityId: Math.random(), time: 50, size: 5}
 
-                // Who get's the effect?
-                const effectRecipients = this.brainGame.players.filter( p => p.playerID !== playerID )
-                let effectRecipientsIds = []
-                effectRecipients.forEach(r => { effectRecipientsIds.push(r.playerID) })
-                this.genericToClient('createEffect', effectData, effectRecipientsIds)
+                    // Who get's the effect?
+                    const effectRecipients = this.brainGame.players.filter( p => p.playerID !== playerID )
+                    let effectRecipientsIds = []
+                    effectRecipients.forEach(r => { effectRecipientsIds.push(r.playerID) })
+                    this.genericToClient('createEffect', effectData, effectRecipientsIds)
 
-                // Play sound
-                // ToDo: implement a network sound function like so:
-                const soundName = data.item.itemName
-                this.genericToClient('playSound', {name: soundName, position: myBrainPlayer.position}, effectRecipientsIds)
+                    // Play sound
+                    // ToDo: implement a network sound function like so:
+                    const soundName = data.item.itemName
+                    this.genericToClient('playSound', {name: soundName, position: myBrainPlayer.position}, effectRecipientsIds)
+                }
 
                 if (allowShot) {
                     // Tell brain to validate & update this shot

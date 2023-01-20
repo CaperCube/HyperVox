@@ -3,7 +3,7 @@ import { io } from "./dist/socket.io.esm.min.js"
 import BrainGame from '../../brain/brainGame.js'
 import ClientComs from './clientComs.js'
 import { fogDistance, renderScale, chatMessageTime, lsKeys } from './clientConstants.js'
-import { getRandomName, tileScale } from '../../common/commonConstants.js'
+import { getRandomName } from '../../common/commonConstants.js'
 import { getArrayPos, getGlobalPos } from '../../common/positionUtils.js'
 import { clamp } from '../../common/dataUtils.js'
 import ClientPlayer from './entities/player.js'
@@ -153,9 +153,9 @@ class ClientGame {
 
         // Chunk distance
         this.menu.optionsMenu.selectableElements[3].valueUpdateFunction = (val)=>{
-            this.settings.chunkDist = val;
-            if (this.mainCamera && this.clientWorld) this.mainCamera.maxZ = (this.settings.chunkDist + 1) * (this.clientWorld?._chunkSize || 8)
-            this.updateSettings();
+            this.settings.chunkDist = val
+            if (this.mainCamera && this.clientWorld) this.mainCamera.maxZ = (this.settings.chunkDist + 1) * (this.clientWorld?._chunkSize || 8) * (this.clientWorld._tileScale || 1)
+            this.updateSettings()
         }
 
         // Defaults
@@ -246,7 +246,7 @@ class ClientGame {
 
             // Get array coordinates of camera
             const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
-            const camLocation = getArrayPos(camPos, this.clientWorld._chunkSize)
+            const camLocation = getArrayPos(camPos, this.clientWorld._chunkSize, this.clientWorld._tileScale)
 
             // Loop thorough chunks near us
             const camLowerY = clamp((camLocation.chunk.y - this.settings.chunkDist), 0, this.clientWorld._worldSize)
@@ -300,7 +300,7 @@ class ClientGame {
 
             // Tell the chunk worker to load the chunk
             const chunkGroup = this.meshGen.getChunkGroup(this.clientWorld.worldChunks, { x: chunkLocation.x, y: chunkLocation.y, z: chunkLocation.z })
-            this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only' })
+            this.chunkWorker.postMessage({ chunkGroup: chunkGroup, type: 'chunk-only', tileScale: this.clientWorld._tileScale })
         }
     }
 
@@ -310,7 +310,7 @@ class ClientGame {
             // Get adjusted position from global position
             const cSize = this.clientWorld.getChunkSize()
             const wSize = this.clientWorld.getWorldSize()
-            const worldPos = getArrayPos(location, cSize)
+            const worldPos = getArrayPos(location, cSize, this.clientWorld._tileScale)
             
             // Check if block is within the world
             const isWithinExsitingChunk = (
@@ -357,7 +357,7 @@ class ClientGame {
 
         // Get array coordinates of camera
         const camPos = { x: this.mainCamera.position.x, y: this.mainCamera.position.y, z: this.mainCamera.position.z }
-        const camLocation = getArrayPos(camPos, cSize)
+        const camLocation = getArrayPos(camPos, cSize, this.clientWorld._tileScale)
 
         // Start generating chunk meshes
         if (this.isChunkInRange(camLocation, location.chunk, this.settings.chunkDist)) this.queueChunkMeshGen(location.chunk, true)
@@ -606,13 +606,12 @@ class ClientGame {
         ////////////////////////////////////////////////////
 
         // Create new camera in scene
-        //const worldMax = defaultWorldSize * defaultChunkSize * tileScale
-        const worldSpawn = getGlobalPos(this.clientWorld.worldSpawn, this.clientWorld._chunkSize)
+        const worldSpawn = getGlobalPos(this.clientWorld.worldSpawn, this.clientWorld._chunkSize, this.clientWorld._tileScale)
         const worldSpawnPos = new BABYLON.Vector3(worldSpawn.x, worldSpawn.y, worldSpawn.z)
         this.mainCamera = new BABYLON.UniversalCamera('playerCamera', worldSpawnPos, this.scene)
-        this.mainCamera.minZ = tileScale/10
+        this.mainCamera.minZ = 0.1 //this.clientWorld._tileScale/10
         // this.mainCamera.maxZ = fogDistance
-        this.mainCamera.maxZ = (this.settings.chunkDist + 1) * this.clientWorld._chunkSize
+        this.mainCamera.maxZ = (this.settings.chunkDist + 1) * this.clientWorld._chunkSize * this.clientWorld._tileScale
 
         this.mainCamera.attachControl(this.canvas, true)
         this.mainCamera.inputs.attached.keyboard.detachControl()

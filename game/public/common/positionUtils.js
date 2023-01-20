@@ -4,10 +4,15 @@
  * @param chunkSize: number
  * @returns location: chunk: { x, y, z }, block: { x, y, z }
  */
-const getArrayPos = (position, chunkSize) => {
+const getArrayPos = (position, chunkSize, tileScale = 1) => {
+    const p = {
+        x: position.x / tileScale,
+        y: position.y / tileScale,
+        z: position.z / tileScale
+    }
     const location = {
-        chunk: {x: Math.floor(position.x / chunkSize), y: Math.floor(position.y / chunkSize), z: Math.floor(position.z / chunkSize) },
-        block: {x: Math.floor(position.x % chunkSize), y: Math.floor(position.y % chunkSize), z: Math.floor(position.z % chunkSize) }
+        chunk: {x: Math.floor(p.x / chunkSize), y: Math.floor(p.y / chunkSize), z: Math.floor(p.z / chunkSize) },
+        block: {x: Math.floor(p.x % chunkSize), y: Math.floor(p.y % chunkSize), z: Math.floor(p.z % chunkSize) }
     }
     return location
 }
@@ -18,11 +23,11 @@ const getArrayPos = (position, chunkSize) => {
  * @param chunkSize: number
  * @returns position: { x, y, z }
  */
- const getGlobalPos = (location, chunkSize) => {
+ const getGlobalPos = (location, chunkSize, tileScale = 1) => {
     const position = {
-        x: ((location.block.x) + (location.chunk.x * chunkSize)),
-        y: ((location.block.y) + (location.chunk.y * chunkSize)),
-        z: ((location.block.z) + (location.chunk.z * chunkSize))
+        x: ((location.block.x) + (location.chunk.x * chunkSize)) * tileScale,
+        y: ((location.block.y) + (location.chunk.y * chunkSize)) * tileScale,
+        z: ((location.block.z) + (location.chunk.z * chunkSize)) * tileScale
     }
     return position
 }

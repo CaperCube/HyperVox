@@ -2,7 +2,7 @@ import World from "./gen/world/world.js"
 import ChunkGenerator from "./gen/world/chunkGen.js"
 import BrainComs from "./brainComs.js"
 import { randomArray } from '../common/dataUtils.js'
-import { tileScale, defaultChunkSize, defaultWorldSize, gameModes, formatPlayerName, getRandomName, teams } from '../common/commonConstants.js'
+import { defaultChunkSize, defaultWorldSize, gameModes, formatPlayerName, getRandomName, teams } from '../common/commonConstants.js'
 import { blockTypes, getBlockByName } from '../common/blockSystem.js'
 import { getGlobalPos } from "../common/positionUtils.js"
 import BrainPlayer from "./entities/brainPlayer.js"
@@ -344,7 +344,7 @@ class BrainGame {
             const locationExists = (!!this.world.worldChunks?.[location.chunk.y]?.[location.chunk.x]?.[location.chunk.z]?.[location.block.y]?.[location.block.x])
             if (locationExists) {
                 // Get block and prop name
-                const blockPosition = getGlobalPos(location, this.world._chunkSize)
+                const blockPosition = getGlobalPos(location, this.world._chunkSize, this.world._tileScale)
                 const blockPropName = `${blockPosition.x}_${blockPosition.y}_${blockPosition.z}`
 
                 // If the blockData object doesn't exist, create it

@@ -6,7 +6,6 @@
 
 import { blockTypes, blockCats } from "../../../../common/blockSystem.js"
 import { boxIsIntersecting } from "../../../../common/positionUtils.js"
-import { tileScale } from "../../../../common/commonConstants.js"
 import { sounds } from "../../resources.js"
 
 export class ItemPickup {
@@ -149,8 +148,9 @@ export class Inventory { // This specifically is a local player's hud-viewable i
             switch (useItem.itemType) {
                 case "block":
                     // Place block
+                    const blockSize = clientGame.clientWorld._tileScale || 1
                     let playerPosCheck = {x: player.position.x, y: player.position.y, z: player.position.z, w: 0.5, h: player.playerHeight - 0.25, d: 0.5}
-                    let cursor = {x: cursorLocation.x, y: cursorLocation.y - 0.5, z: cursorLocation.z, w: tileScale, h: tileScale, d: tileScale}
+                    let cursor = {x: cursorLocation.x, y: cursorLocation.y - 0.5, z: cursorLocation.z, w: blockSize, h: blockSize, d: blockSize}
                     
                     if (!boxIsIntersecting(playerPosCheck, cursor)) clientGame.updateSingleBlock(cursorLocation, useItem.itemID)
                     break
@@ -276,7 +276,7 @@ function shoot(clientGame, player, item) {
         // Knockback
         const fps = 60
         const frames = fps * (item.useTime / 1000) // Set the length of animation to the item's useTime
-        BABYLON.Animation.CreateAndStartAnimation("ItemZPosition", player.itemMesh, "position.z", fps, frames, 0.75, 1, 0)
+        BABYLON.Animation.CreateAndStartAnimation("ItemZPosition", player.itemMesh, "position.z", fps, frames, 0.25, 0.5, 0)
 
         // Muzzle Flash
         if (player.muzzleFlashMesh)
@@ -339,6 +339,26 @@ function shoot(clientGame, player, item) {
     const yOffset = (((Math.random() * 2) - 1) + lean.y) * mult.y
     player.avatar.rotation.x -= xOffset
     player.avatar.rotation.y += yOffset
+
+    // Knockback
+    if (player.playerVelocity) {
+        const knockbackPower = 1
+        const gunPower = Math.abs(item.recoilMult.x || 0.1) + Math.abs(item.recoilMult.y || 0.1)
+        const knockDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, -1))
+
+        // console.log(item.recoilMult.x, power)
+        // console.log(direction, player.velocity)
+        // const knockback = new BABYLON.Vector3((knockDir.x * power), (knockDir.y * power), (knockDir.z * power))
+        const knockback = {
+            x: knockDir.x * gunPower * knockbackPower,
+            y: knockDir.y * gunPower * knockbackPower,
+            z: knockDir.z * gunPower * knockbackPower
+        }
+        // player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x + knockback.x, player.playerVelocity.y + knockback.y, player.playerVelocity.z + knockback.z)
+        player.playerVelocity.x += knockback.x
+        player.playerVelocity.y += knockback.y
+        player.playerVelocity.z += knockback.z
+}
 
     // Animate back
     // BABYLON.Animation.CreateAndStartAnimation("recoil", player.avatar, "rotation.x", 60, 15, player.avatar.rotation.x, player.avatar.rotation.x + xOffset, BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE)

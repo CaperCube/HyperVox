@@ -371,6 +371,65 @@ const blockTypes = [
         categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
         textures: { top: 31, bottom: 31, front: 31, back: 31, left: 31, right: 31 },
     },
+    // 0x002f
+    {
+        name: 'bricks-dark-step',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 31, bottom: 31, front: 31, back: 31, left: 31, right: 31 },
+        shape: { x: 0, y: -0.25, z: 0, w: 1, h: 0.5, d: 1 }
+    },
+    // 0x0030
+    {
+        name: 'bricks-step',
+        categories: [blockCats.color.orange, blockCats.color.red, blockCats.decorative],
+        textures: { top: 30, bottom: 30, front: 30, back: 30, left: 30, right: 30 },
+        shape: { x: 0, y: -0.25, z: 0, w: 1, h: 0.5, d: 1 }
+    },
+    // 0x0031
+    {
+        name: 'pole-up-white',
+        categories: [blockCats.color.white, blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0, z: 0, w: 0.25, h: 1, d: 0.25 }
+    },
+    // 0x0032
+    {
+        name: 'pole-front-white',
+        categories: [blockCats.color.white, blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0, z: 0, w: 0.25, h: 0.25, d: 1 }
+    },
+    // 0x0033
+    {
+        name: 'pole-right-white',
+        categories: [blockCats.color.white, blockCats.decorative],
+        textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
+        shape: { x: 0, y: 0, z: 0, w: 1, h: 0.25, d: 0.25 }
+    },
+    // 0x0034
+    {
+        name: 'gimbal',
+        categories: [blockCats.decorative],
+        textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
+        shape: { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz: 0 },
+        details: [
+            // X = Red (Right)
+            {
+                textures: { top: 64, bottom: 64, front: 64, back: 64, left: 0, right: 64 },
+                shape: { x: 0.125, y: -0.375, z: -0.375, w: 0.75, h: 0.25, d: 0.25, rx: 0, ry: 0, rz: 0 },
+            },
+            // Z = Blue (Forward)
+            {
+                textures: { top: 128, bottom: 128, front: 128, back: 0, left: 128, right: 128 },
+                shape: { x: -0.375, y: -0.375, z: 0.125, w: 0.25, h: 0.25, d: 0.75, rx: 0, ry: 0, rz: 0 },
+            },
+            // Y = Green (Up)
+            {
+                textures: { top: 112, bottom: 112, front: 112, back: 112, left: 112, right: 112 },
+                shape: { x: -0.375, y: 0, z: -0.375, w: 0.25, h: 1, d: 0.25, rx: 0, ry: 0, rz: 0 },
+            },
+        ]
+    },
 ]
 
 export {

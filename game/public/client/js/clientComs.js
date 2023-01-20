@@ -322,8 +322,12 @@ class ClientComs {
                 if (this.messageDebug) console.log( '%c Create effect (client)', 'background: #142; color: #ced' )
                 // data.position, data.entityId, data.type, data.time
 
+                const type = data.type.split("_")?.[0]
+                const subType = data.type.split("_")?.[1] || null
+                console.log(data.type.split("_"))
+
                 // Create Effect object
-                switch (data.type) {
+                switch (type) {
                     case 'ping':
                         const newPing = new Ping({
                             position: data.position,
@@ -463,11 +467,10 @@ class ClientComs {
         const lookDir = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
         const distance = 1.5
         const effectPos = {
-            x: player.position.x + (lookDir.x * distance) + 0.25,
-            y: player.position.y + (lookDir.y * distance) + 0.75,
+            x: player.position.x + (lookDir.x * distance),
+            y: player.position.y + (lookDir.y * distance) + 0.25,
             z: player.position.z + (lookDir.z * distance)
         }
-
 
         const data = { origin: origin, gunPos: effectPos, item: itemUsed, hitPlayerID: hitPlayerID } // ToDo: Remove hitPlayerID, this check should be performed on the server
 

@@ -33,7 +33,7 @@ let pixelSize = canvas.width/_resolution
 let steps2D = 3 // How many layers you can see at a time
 let world = [[[]]] // ToDo: change to an actual world object
 let worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
+let worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8, tileScale || 1) // { chunk: { x: 0, y: 0, z: 0 }, block: { x: 0, y: 0, z: 0 } }
 let blockData = {}
 let intervalCommands = {}
 let events = { worldStart: "", gameStart: "", gameEnd: "", playerJoin: "", playerDie: "" }
@@ -428,7 +428,7 @@ function DOMNoiseFnc() {
 
     // Update world spawn
     worldMax = (worldSize || 4) * (chunkSize || 8) * (tileScale || 1)
-    worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8)
+    worldSpawn = getArrayPos({ x: worldMax/2, y: worldMax, z: worldMax/2 }, chunkSize || 8, tileScale || 1)
 
     // Update data sections
     blockData = {}
@@ -578,7 +578,7 @@ canvas.addEventListener('pointermove', (e) => {
     const viewPos = getViewPos(depth)
     // Get global position
     const gPos = getWorldPositionAtMouse(depth, viewPos)
-    const blockPos = getGlobalPos(gPos, chunkSize)
+    const blockPos = getGlobalPos(gPos, chunkSize, tileScale)
     // Show the value somehere
     $("#DOM_blockposition").innerHTML = `X: ${blockPos.x} Y: ${blockPos.y} Z: ${blockPos.z}`
 }, { passive: false })
@@ -937,7 +937,7 @@ function createDataForBlock(remove = false, blockName = null, blockID = null) {
     // Get world position
     const viewPos = getViewPos(depth)
     // Get global position
-    const gPos = getGlobalPos(viewPos, chunkSize)
+    const gPos = getGlobalPos(viewPos, chunkSize, tileScale)
     // Get block ID
     const mPos = getWorldPositionAtMouse(depth, viewPos)
     const blockAtMouse = world[mPos.chunk.y]?.[mPos.chunk.x]?.[mPos.chunk.z]?.[mPos.block.y]?.[mPos.block.x]?.[mPos.block.z]
