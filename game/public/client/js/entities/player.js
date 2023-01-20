@@ -146,6 +146,7 @@ class ClientPlayer {
         this.hand = null
         this.handNode = null
 
+        this.currentFace = faceEmotes.normal
         this.restingFace = faceEmotes.normal
         this.currentAnimation = "idle"
         this.nextAnimation = "idle"
@@ -205,12 +206,6 @@ class ClientPlayer {
             this.faceEmoteNode.rotation.y = (Math.PI/2)
             this.faceEmoteNode.parent = this.head
 
-            // Face animation
-            this.blinkInterval = setInterval(()=>{
-                this.setFaceEmote(faceEmotes.blink)
-                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, 175)
-            }, 5000)
-
             // Set mesh names
             this.body.name = `body_player-${this.playerID}`
             // this.head.name = `head_player-${this.playerID}`
@@ -229,6 +224,12 @@ class ClientPlayer {
             const startItem = this.inventory.items[this.inventory.selectedIndex]
             this.createItemMesh(startItem, startItem.itemType)
             this.createMuzzleFlash(209)
+
+            // Face blink animation
+            this.blinkInterval = setInterval(()=>{
+                this.setFaceEmote(faceEmotes.blink)
+                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, 175)
+            }, 5000)
         }
 
         //this.playerCamera = camera
@@ -375,6 +376,13 @@ class ClientPlayer {
                 this.playStepSound()
             }
         }, 300 )
+
+        ///////////////////////////////////////////////////////
+        // User Mic vars
+        ///////////////////////////////////////////////////////
+
+        this.wasTalking = false
+        this.audioStream = null
     }
 
     ///////////////////////////////////////////////////////
@@ -479,20 +487,87 @@ class ClientPlayer {
     ///////////////////////////////////////////////////////
 
     setFaceEmote(frame) {
-        if (this.head && this.faceEmoteNode) {
-            // Remove the old mesh
-            if (this.faceEmoteMesh) this.faceEmoteMesh.dispose()
-
-            // Create mesh
+        if (this.currentFace !== frame) {
             const meshIndex = frame || this.restingFace
-            this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, 1, {rows: 4, cols: 4})
-            this.faceEmoteMesh.material = this.clientGame.scene.playerMaterial
-            this.faceEmoteMesh.parent = this.faceEmoteNode
-            this.faceEmoteMesh.isPickable = false
+            
+            if (this.head && this.faceEmoteNode) {
+                // Remove the old mesh
+                if (this.faceEmoteMesh) this.faceEmoteMesh.dispose()
 
-            // Set overlay color
-            this.faceEmoteMesh.overlayColor = new BABYLON.Color3.Red()
-            this.faceEmoteMesh.renderOverlay = false
+                // Create mesh
+                this.faceEmoteMesh = this.clientGame.meshGen.createQuadWithUVs(this.head.position, "front", meshIndex, this.clientGame.scene, 1, {rows: 4, cols: 4})
+                this.faceEmoteMesh.material = this.clientGame.scene.playerMaterial
+                this.faceEmoteMesh.parent = this.faceEmoteNode
+                this.faceEmoteMesh.isPickable = false
+
+                // Set overlay color
+                this.faceEmoteMesh.overlayColor = new BABYLON.Color3.Red()
+                this.faceEmoteMesh.renderOverlay = false
+            }
+            // Set the current face value
+            this.currentFace = meshIndex
+        }
+    }
+
+    TurnOnMicFaceControl = () => {
+        this.setupMicInput((vol)=>{
+                if (vol > 10) {
+                    this.wasTalking = true
+                    this.setFaceEmote(faceEmotes.pain)
+                    if (vol > 15) {
+                        this.setFaceEmote(faceEmotes.talk)
+                    }
+                    if (vol > 30) {
+                        this.setFaceEmote(faceEmotes.happy)
+                    }
+                }
+                else if (this.wasTalking) {
+                    this.setFaceEmote(this.restingFace)
+                    this.wasTalking = false
+                }
+            })
+    }
+
+    setupMicInput(callback = ()=>{}) {
+        navigator.mediaDevices.getUserMedia({ audio: true, /*video: true*/ })
+        .then((stream) => {
+            // store audio stream
+            this.audioStream = stream
+
+            // Setup analyser
+            const audioContext = new AudioContext()
+            const analyser = audioContext.createAnalyser()
+            const microphone = audioContext.createMediaStreamSource(stream)
+            const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1)
+
+            analyser.smoothingTimeConstant = 0.1//0.8
+            analyser.fftSize = 1024
+
+            // Process audio stream
+            microphone.connect(analyser);
+            analyser.connect(scriptProcessor);
+            scriptProcessor.connect(audioContext.destination)
+
+            scriptProcessor.onaudioprocess = function() {
+                const array = new Uint8Array(analyser.frequencyBinCount)
+                analyser.getByteFrequencyData(array)
+                const arraySum = array.reduce((a, value) => a + value, 0);
+                const average = arraySum / array.length
+
+                // Do something with this audio level
+                callback(average)
+            }
+        })
+        .catch(function(err) {
+            /* handle the error */
+            console.error(err)
+        })
+    }
+
+    stopMicInput() {
+        if (this.audioStream?.active) {
+            this.audioStream.getTracks().forEach(track => track.stop())
+            this.audioStream = null
         }
     }
 
@@ -562,6 +637,10 @@ class ClientPlayer {
                 this.isInvincible = true
                 this.invincibilityTimer = setTimeout( ()=>{this.isInvincible = false}, iTime )
 
+                // Set pain face
+                this.setFaceEmote(faceEmotes.pain)
+                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, iTime*2)
+
                 if (this.health > 0) {
                     // Bob player's view
                     this.avatarOffset.y += 0.15
@@ -588,10 +667,6 @@ class ClientPlayer {
                     if (this.body) this.body.renderOverlay = false
                     if (this.faceEmoteMesh) this.faceEmoteMesh.renderOverlay = false
                 }, iTime/6 )
-
-                // Set pain face
-                this.setFaceEmote(faceEmotes.pain)
-                setTimeout(()=>{this.setFaceEmote(this.restingFace)}, iTime)
             }
         }
     }
@@ -877,6 +952,9 @@ class ClientPlayer {
             // Start new animation
             if (this.animations[this.currentAnimation]) this.animations[this.currentAnimation].play(true)
         }
+
+        // Update face
+        this.setFaceEmote(this.currentFace)
 
         // Set position
         this.avatar.position = new BABYLON.Vector3( this.position.x + this.avatarOffset.x, (this.position.y + this.avatarOffset.y) - 0.5, this.position.z + this.avatarOffset.z )

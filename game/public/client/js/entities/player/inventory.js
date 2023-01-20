@@ -72,6 +72,8 @@ export class Item {
                 }
         }
     }
+
+    action = () => {}
 }
 
 export class GunItem extends Item {
@@ -155,6 +157,7 @@ export class Inventory { // This specifically is a local player's hud-viewable i
                 case "item":
                     // Use item
                     // ToDo: Do some action here
+                    if (useItem.action) useItem.action(useItem, player, clientGame)
                     console.log("Use item")
                     break
                 case "gun":
@@ -177,6 +180,23 @@ export class Inventory { // This specifically is a local player's hud-viewable i
 
 export const makeCreativeInventory = (hud = null) => {
     const cInv = new Inventory(hud)
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Temp command item
+    const wand = new Item({
+        itemName: "Command-Wand",
+        itemID: 240,
+        itemType: 'item',
+        stackSize: 1,
+        maxStackSize: 0,
+        useTime: 120,
+        useAuto: false,
+    })
+    wand.action = (item, player, clientGame) => {
+        clientGame.clientComs.sendChatMessage(`/mcom /sblock ${Math.floor(player.position.x - 1)} ${Math.floor(player.position.y)} ${Math.floor(player.position.z + 1)} 1; /sblock ${Math.floor(player.position.x + 1)} ${Math.floor(player.position.y)} ${Math.floor(player.position.z + 1)} 1; /sblock ${Math.floor(player.position.x - 1)} ${Math.floor(player.position.y)} ${Math.floor(player.position.z - 1)} 1; /sblock ${Math.floor(player.position.x + 1)} ${Math.floor(player.position.y)} ${Math.floor(player.position.z - 1)} 1
+        `, player.playerName)
+    }
+    // cInv.items.push(wand)
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
     // Temp gun item    

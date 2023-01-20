@@ -712,6 +712,7 @@ class BrainGame {
                     position: myBrainPlayer.position,
                     rotation: myBrainPlayer.rotation,
                     animation: myBrainPlayer.animation,
+                    currentFace: myBrainPlayer.currentFace,
                     heldItem: myBrainPlayer.heldItem,
                     health: myBrainPlayer.health,
                     stats: myBrainPlayer.stats

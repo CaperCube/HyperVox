@@ -129,6 +129,9 @@ class BrainComs {
                     // Animation
                     myBrainPlayer.animation = data.animation
 
+                    // Face
+                    myBrainPlayer.currentFace = data.currentFace
+
                     // Item
                     myBrainPlayer.heldItem = data.heldItem
                 }

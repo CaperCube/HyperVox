@@ -114,3 +114,10 @@ if (joinGameParam) {
     // Join the provided game
     clientGame.connectToNetworkGame(joinGameParam)
 }
+
+//////////////////////////////////////////////////////////
+// Experimental buttons
+//////////////////////////////////////////////////////////
+
+$('#facemic-on').onclick = () => { if (clientGame?.localPlayer) clientGame.localPlayer.TurnOnMicFaceControl() }
+$('#facemic-off').onclick = () => { if (clientGame?.localPlayer) clientGame.localPlayer.stopMicInput() }
