@@ -71,7 +71,7 @@ class Effect {
             }
 
             // Set position
-            console.log(this._type)
+            // console.log(this._type)
             this.sceneEffect.position = new BABYLON.Vector3(this.position.x, this.position.y, this.position.z)
 
             // Add reference to glientGame

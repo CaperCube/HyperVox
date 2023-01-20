@@ -85,11 +85,13 @@ export class GunItem extends Item {
         maxStackSize, // 0 = infinate
         useTime, // time in ms between uses
         useAuto, // if true, the user and hold down the action button to use repeatedly
+        sprayMult = 0.015,
         recoilMult = {x: 0, y: 0}, // determins the amount of recoil this gun has
         recoilLean = {x: 1, y: 0} // Leans the recoil to one side or the other (min: -1, max: 1)
     }) {
         super({itemName, itemID, itemType, stackSize, maxStackSize, useTime, useAuto})
         // Identifiers
+        this.sprayMult = sprayMult
         this.recoilMult = recoilMult
         this.recoilLean = recoilLean
     }
@@ -208,8 +210,9 @@ export const makeCreativeInventory = (hud = null) => {
         maxStackSize: 0,
         useTime: 120,
         useAuto: true,
-        recoilMult: {x: 0.03, y: 0.015},
-        recoilLean: {x: 1, y: 0} // values -1 to 1
+        sprayMult: 0.2,
+        recoilMult: {x: 0.015, y: 0.03},
+        recoilLean: {x: 0, y: 1} // values -1 to 1
     })
     cInv.items.push(gun)
 
@@ -222,8 +225,9 @@ export const makeCreativeInventory = (hud = null) => {
         maxStackSize: 0,
         useTime: 1200,
         useAuto: false,
-        recoilMult: {x: 0.2, y: 0.015},
-        recoilLean: {x: 1, y: 0} // values -1 to 1
+        sprayMult: 0.025,
+        recoilMult: {x: 0.015, y: 0.2},
+        recoilLean: {x: 0, y: 1} // values -1 to 1
     })
     cInv.items.push(gun2)
     // ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,9 +302,14 @@ function shoot(clientGame, player, item) {
         rotation: { x: player.avatar.rotation.x, y: player.avatar.rotation.y, z: player.avatar.rotation.z }
     }
 
+    // Spray
+    const sMult = item?.sprayMult || 0
+    const xSpray = (((Math.random() * 2) - 1) * 0.25) * sMult
+    const ySpray = (((Math.random() * 2) - 1) * 0.25) * sMult
+
     // Check if player is hit (ToDo: Move this to server)
     let hitPlayerID = null
-    const direction = player.avatar.getDirection(new BABYLON.Vector3(0, 0, 1))
+    const direction = player.avatar.getDirection(new BABYLON.Vector3(0 + xSpray, 0 + ySpray, 1 + xSpray))
     const ray = new BABYLON.Ray(player.avatar.position, direction, 100)
     // const rayHelper = new BABYLON.RayHelper(ray)
     // rayHelper.show(clientGame.scene, new BABYLON.Color3(1, 0, 0))
@@ -332,13 +341,27 @@ function shoot(clientGame, player, item) {
         }
     }
 
+    // Tracer
+    let distance = BABYLON.Vector3.Distance(player.avatar.position, player.impactMesh.position)
+    if (!!distance || distance > 10) distance = 10
+    player.bulletTracerMesh.setEnabled(true)
+    player.bulletTracerMesh.scaling.y = 0.015
+    player.bulletTracerMesh.scaling.z = 2
+    player.bulletTracerMesh.rotation = new BABYLON.Vector3(0, xSpray, ySpray)
+
+    const fps = 60
+    const frames = fps * (50 / 1000)
+    // BABYLON.Animation.CreateAndStartAnimation("tracerZPosition", player.bulletTracerMesh, "position.z", fps, frames, 0.4, distance, 0)
+    BABYLON.Animation.CreateAndStartAnimation("tracerZPosition", player.bulletTracerMesh, "scaling.z", fps, frames, 0.5, distance, 0)
+    setTimeout(()=>{player.bulletTracerMesh.setEnabled(false)}, 30)
+
     // Recoil
-    const mult = item.recoilMult //|| {x:0, y:0}
-    const lean = item.recoilLean //|| {x:0, y:0}
+    const mult = item?.recoilMult || {x:0, y:0}
+    const lean = item?.recoilLean || {x:0, y:0}
     const xOffset = (((Math.random() * 2) - 1) + lean.x) * mult.x
     const yOffset = (((Math.random() * 2) - 1) + lean.y) * mult.y
-    player.avatar.rotation.x -= xOffset
-    player.avatar.rotation.y += yOffset
+    player.avatar.rotation.x -= yOffset
+    player.avatar.rotation.y += xOffset
 
     // Knockback
     if (player.playerVelocity) {

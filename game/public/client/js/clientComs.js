@@ -324,7 +324,7 @@ class ClientComs {
 
                 const type = data.type.split("_")?.[0]
                 const subType = data.type.split("_")?.[1] || null
-                console.log(data.type.split("_"))
+                // console.log(data.type.split("_"))
 
                 // Create Effect object
                 switch (type) {

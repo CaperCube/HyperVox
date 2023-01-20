@@ -118,12 +118,31 @@ class ClientPlayer {
         this.itemMesh = null
         this.muzzleFlashMesh = null
         this.muzzleFlashLight = null
+        
         // Impact Mesh
-        this.impactMesh =this.clientGame.meshGen.createPlaneWithUVs(this.clientGame.scene, 211, this.clientGame.scene.defaultMaterial)
+        this.impactMesh = this.clientGame.meshGen.createPlaneWithUVs(this.clientGame.scene, 211, this.clientGame.scene.defaultMaterial)
         // this.impactMesh = this.clientGame.meshGen.createQuadWithUVs({x: 0, y: 0, z: 0}, 'front', 211, this.clientGame.scene)
         this.impactMesh.scaling.x = this.impactMesh.scaling.y = this.impactMesh.scaling.z = 0.75
         this.impactMesh.setEnabled(false)
         this.impactMesh.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL
+
+        // Bullet tracer
+        const unlitMat = new BABYLON.StandardMaterial('unlit', this.clientGame.scene)
+        unlitMat.disableLighting = true
+        unlitMat.emissiveColor = new BABYLON.Color3(1, 0.5, 0)
+
+        this.bulletTracerMesh = BABYLON.MeshBuilder.CreatePlane("Tracer", { sideOrientation: BABYLON.Mesh.DOUBLESIDE } ,this.clientGame.scene)
+        this.bulletTracerMesh.position.z = 0.5
+        this.bulletTracerMesh.rotation.y = (Math.PI/2)
+        this.bulletTracerMesh.bakeCurrentTransformIntoVertices()
+        this.bulletTracerMesh.position.x = 0.25
+        this.bulletTracerMesh.position.y = -0.11
+        this.bulletTracerMesh.position.z = 0.4//0.25
+
+        this.bulletTracerMesh.material = unlitMat
+        this.bulletTracerMesh.setEnabled(false)
+        this.bulletTracerMesh.isPickable = false
+        this.bulletTracerMesh.parent = this.avatar
 
         //////////////////////////////////////////////////
         // Avatar
