@@ -358,24 +358,6 @@ const blockTypes = [
         name: 'beer',
         categories: [blockCats.color.orange, blockCats.decorative],
         textures: { top: 38, bottom: 39, front: 37, back: 37, left: 37, right: 37 },
-        // shape: { x: -0.375, y: 0, z: 0.375, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz: 0 },
-        // details: [
-        //     // Z = Blue (Forward)
-        //     {
-        //         textures: { top: 16, bottom: 16, front: 0, back: 0, left: 16, right: 16 },
-        //         shape: { x: -0.375, y: -0.375, z: -0.1875, w: 0.25, h: 0.25, d: 0.125, rx: 0, ry: 0, rz: 0 },
-        //     },
-        //     // Z = Blue (Forward)
-        //     {
-        //         textures: { top: 16, bottom: 16, front: 0, back: 0, left: 16, right: 16 },
-        //         shape: { x: -0.375, y: 0.375, z: -0.1875, w: 0.25, h: 0.25, d: 0.125, rx: 0, ry: 0, rz: 0 },
-        //     },
-        //     // Y = Green (Up)
-        //     {
-        //         textures: { top: 16, bottom: 16, front: 16, back: 16, left: 16, right: 16 },
-        //         shape: { x: -0.375, y: 0, z: -0.375, w: 0.25, h: 1, d: 0.25, rx: 0, ry: 0, rz: 0 },
-        //     },
-        // ]
     },
     // 0x002d
     {
@@ -428,7 +410,6 @@ const blockTypes = [
     {
         name: 'gimbal',
         categories: [blockCats.decorative],
-        // textures: { top: 253, bottom: 253, front: 253, back: 253, left: 253, right: 253 },
         textures: { top: 0, bottom: 0, front: 0, back: 0, left: 0, right: 0 },
         shape: { x: 0, y: 0, z: 0, w: 1, h: 1, d: 1, rx: 0, ry: 0, rz: 0 },
         details: [
