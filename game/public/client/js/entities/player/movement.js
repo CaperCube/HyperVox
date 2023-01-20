@@ -154,7 +154,7 @@ export function basicMovement(player, movementVector) {
     ///////////////////////////////////////////////////////
 
     if (player.spectateMode) player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x * player.groundFric, player.playerVelocity.y * player.groundFric, player.playerVelocity.z * player.groundFric)
-    player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x * player.groundFric, player.playerVelocity.y, player.playerVelocity.z * player.groundFric)
+    else player.playerVelocity = new BABYLON.Vector3(player.playerVelocity.x * player.groundFric, player.playerVelocity.y, player.playerVelocity.z * player.groundFric)
 
     ///////////////////////////////////////////////////////
     // End, now perform position update

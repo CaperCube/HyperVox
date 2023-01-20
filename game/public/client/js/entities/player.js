@@ -68,8 +68,9 @@ class ClientPlayer {
         //////////////////////////////////////////////////
         // Private vars
         //////////////////////////////////////////////////
+        // this.airFric = 0.95
         this.groundFric = 0.75
-        this.gravity = 8.5 //-0.0085//-0.0125
+        this.gravity = 8.5
         this.defaultBounce = 0.05
         this.bounce = this.defaultBounce
         this.usedJumps = 0
@@ -280,9 +281,9 @@ class ClientPlayer {
         // Movement vars
         //////////////////////////////////////////////////
         this.spectateMode = false
-        this.moveSpeed = 0.018 //0.025 /40
-        this.flySpeed = 0.05
-        this.jumpStength = 0.15//0.2
+        this.moveSpeed = 0.018
+        this.flySpeed = 0.03
+        this.jumpStength = 0.15
         this.allowedJumps = 2
         this.isInFluid = false
         this.fluidViscosity = 1
