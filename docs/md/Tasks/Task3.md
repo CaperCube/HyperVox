@@ -43,6 +43,8 @@ This task should fix some useability issues and bugs, but more importantly it sh
         - [X] **Add interactable world chain block**
         - [X] Option to generate new world
         - [X] Option to load existing world via world name (grabs from server / local folder)
+    - [X] Custom block shapes
+    - [X] Ability to change block-size per world
 - [X] Better chunking
     - [X] Render meshes base on distance from main camera
 - [ ] Skybox editor
@@ -51,6 +53,7 @@ This task should fix some useability issues and bugs, but more importantly it sh
     - [ ] Save patterns for use in new worlds
     - [ ] Possibly add some procedural structure tools?
 - [ ] Item & gun improvements
+    - [X] Guns has knockback (position recoil)
     - [ ] Ammo does things now
     - [ ] Item pick-ups
     - [ ] Guns can use projectiles or hitscan
