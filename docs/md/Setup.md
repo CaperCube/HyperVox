@@ -12,7 +12,7 @@ Once you've done steps `1 - 8`, you'll only need steps `9 - 11` to host again.
 
 1. Install an ide (integrated development environment) (I like [VSCode](https://code.visualstudio.com/download)).
 2. Install [Node.js](https://nodejs.org/en/download/) (v16 or newer) on your system.
-3. Create a directory on your system and put the [contents of the project](https://github.com/CaperCube/CaperCore/archive/refs/heads/master.zip) there. (If you download the project with this link, make sure you unzip it in this folder)
+3. Create a directory on your system and put the [contents of the project](https://github.com/CaperCube/CaperCore/archive/refs/heads/master.zip) there. (If you download the project with this link, make sure you put the **contents** of `CaperCore-master.zip/CaperCore-master/` in this folder)
 4. Open VSCode and use *File > Open Folder...* to open this folder.
 5. Click *Terminal > New Terminal*.
 6. Run the command `npm install` or `npm i` in the terminal to install the project's node packages.
