@@ -1,5 +1,5 @@
 {
-  "name": "battlekour",
+  "name": "hypervox",
   "version": "0.0.1",
   "description": "A multiplayer action sandbox parkour game",
   "main": "index.js",
@@ -8,12 +8,11 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CaperCube/Battlekour"
+    "url": "https://github.com/CaperCube/HyperVox"
   },
   "keywords": [
     "game",
