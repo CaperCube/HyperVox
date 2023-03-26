@@ -195,7 +195,7 @@ export const makeCreativeInventory = (hud = null) => {
         useAuto: false,
     })
     wand.action = (item, player, clientGame) => {
-        clientGame.clientComs.sendChatMessage(`/mcom /sblock ${Math.floor(player.selectCursor.x - 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z + 1)} 1; /sblock ${Math.floor(player.selectCursor.x + 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z + 1)} 1; /sblock ${Math.floor(player.selectCursor.x - 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z - 1)} 1; /sblock ${Math.floor(player.selectCursor.x + 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z - 1)} 1
+        clientGame.clientComs.sendChatMessage(`/mcom /tblock ${Math.floor(player.selectCursor.x - 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z + 1)} 1 0; /tblock ${Math.floor(player.selectCursor.x + 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z + 1)} 1 0; /tblock ${Math.floor(player.selectCursor.x - 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z - 1)} 1 0; /tblock ${Math.floor(player.selectCursor.x + 1)} ${Math.floor(player.selectCursor.y)} ${Math.floor(player.selectCursor.z - 1)} 1 0
         `, player.playerName)
     }
     // cInv.items.push(wand)

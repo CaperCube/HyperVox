@@ -19,6 +19,7 @@ const staticImageSRC = { // Static paths are needed when loading resources from 
     Stars: `${STATIC_TEXTURE_PATH}skybox/stars.png`,
     Skybox1: `${STATIC_TEXTURE_PATH}skybox/skybox1/edited/`,
     Skybox2: `${STATIC_TEXTURE_PATH}skybox/skybox2/edited/`,
+    SkyboxTest: `${STATIC_TEXTURE_PATH}skybox/skybox3/edited/`,
     Atlas: `${STATIC_TEXTURE_PATH}atlas.png`,
     Tiles: `${STATIC_TEXTURE_PATH}textures.png`
 }
@@ -28,6 +29,7 @@ const imageSRC = {
     Stars: `${TEXTURE_PATH}skybox/stars.png`,
     Skybox1: `${TEXTURE_PATH}skybox/skybox1/edited/`,
     Skybox2: `${TEXTURE_PATH}skybox/skybox2/edited/`,
+    SkyboxTest: `${TEXTURE_PATH}skybox/skybox3/edited/`,
     Atlas: `${TEXTURE_PATH}atlas.png`,
     Tiles: `${TEXTURE_PATH}textures.png`,
     Character: `${TEXTURE_PATH}char_tex1.png`,

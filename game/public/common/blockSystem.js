@@ -430,6 +430,35 @@ const blockTypes = [
             },
         ]
     },
+    // 0x0035
+    // {
+    //     name: 'car',
+    //     categories: [blockCats.decorative],
+    //     textures: { top: 128, bottom: 128, front: 128, back: 128, left: 128, right: 128 },
+    //     shape: { x: 0, y: -0.125, z: 0, w: 0.75, h: 0.375, d: 1, rx: 0, ry: 0, rz: 0 },
+    //     details: [
+    //         {
+    //             textures: { top: 48, bottom: 48, front: 48, back: 48, left: 48, right: 48 },
+    //             shape: { x: 0.4375, y: -0.3125, z: 0.25, w: 0.125, h: 0.375, d: 0.375, rx: 0, ry: 0, rz: 0 },
+    //         },
+    //         {
+    //             textures: { top: 48, bottom: 48, front: 48, back: 48, left: 48, right: 48 },
+    //             shape: { x: 0.4375, y: -0.3125, z: -0.25, w: 0.125, h: 0.375, d: 0.375, rx: 0, ry: 0, rz: 0 },
+    //         },
+    //         {
+    //             textures: { top: 48, bottom: 48, front: 48, back: 48, left: 48, right: 48 },
+    //             shape: { x: -0.4375, y: -0.3125, z: 0.25, w: 0.125, h: 0.375, d: 0.375, rx: 0, ry: 0, rz: 0 },
+    //         },
+    //         {
+    //             textures: { top: 48, bottom: 48, front: 48, back: 48, left: 48, right: 48 },
+    //             shape: { x: -0.4375, y: -0.3125, z: -0.25, w: 0.125, h: 0.375, d: 0.375, rx: 0, ry: 0, rz: 0 },
+    //         },
+    //         {
+    //             textures: { top: 128, bottom: 0, front: 128, back: 128, left: 128, right: 128 },
+    //             shape: { x: 0, y: 0.25, z: -0.125, w: 0.75, h: 0.375, d: 0.75, rx: 0, ry: 0, rz: 0 },
+    //         },
+    //     ]
+    // },
 ]
 
 export {
