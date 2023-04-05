@@ -24,7 +24,6 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 import GameServer from './game/server/gameServer.js'
-import { Server } from 'socket.io'
 import express from 'express'
 import cors from 'cors'
 import { createServer } from 'http'
@@ -33,22 +32,6 @@ const serv = createServer(app)
 const PORT = process.env.PORT || 3000
 const adminPassword = process.env.ADMINPASS || "admin"
 
-const io = new Server(serv, {
-    // maxHttpBufferSize: 1e10, // This is how to change the client message size limit
-    cors: {
-        origin: `*`,
-        methods: ["GET", "POST"],
-        transports: ['websockets', 'polling'],    
-        handelPreFlightRequest: (req, res) => {
-            res.writeHead(200, {
-                "Access-Control-Allow-Origin": `*`,
-                "Access-Control-Allow-Methods": "GET,POST",
-            })
-        }
-      },
-      allowEIO3: true,
-})
-
 ////////////////////////////////////////
 // Server setup
 ////////////////////////////////////////
@@ -56,75 +39,14 @@ const io = new Server(serv, {
 app.use(express.static(__dirname + '/game/public'))
 
 ////////////////////////////////////////
-// Multiplayer server setup (Move this eventaully?)
+// Multiplayer server setup
 ////////////////////////////////////////
-const gameServer = new GameServer(io.sockets, adminPassword)
-
-// The list of all socket connections
-io.sockets.SOCKET_LIST = {}
-io.sockets.on('connection', (socket) => {
-    ////////////////////////////////////////
-    // Connection limit
-    ////////////////////////////////////////
-    if (gameServer.brain.players.length >= gameServer.brain.gameOptions.maxPlayers) {
-        const message = `Connection refused: This game is full. (${gameServer.brain.gameOptions.maxPlayers} max)`
-        socket.emit( `genericClientMessage`, { type: "disconnectMessage", recipients: 'all', args: { message: message } } )
-        // socket.emit('kickedPlayer', { reason: `Connection refused, this game is full. (${gameServer.brain.gameOptions.maxPlayers} players maximum)` })
-        socket.disconnect()
-        console.log('Disconnected new player becuase game is full.')
-        return
-    }
-
-    ////////////////////////////////////////
-    // Create a client ID for this connection
-    ////////////////////////////////////////
-    socket.ID = Math.random()
-    io.sockets.SOCKET_LIST[socket.ID] = socket
-    console.log(`Welcome, ${socket.ID}`)
-
-    ////////////////////////////////////////
-    // Create new player
-    ////////////////////////////////////////
-    const myServerPlayer = gameServer.brain.addNewPlayer(socket.ID, socket)
-
-    ////////////////////////////////////////
-    // Message Handlers
-    ////////////////////////////////////////
-    // Handle all generic messages
-    socket.on( 'genericClientMessage', ( data ) => {
-        const playerID = socket.ID // This does not support multiple players per client in networked games
-        gameServer.brain.brainComs.clientMessages[data.type]( data.args, playerID )
-    })
-
-    // Handle players disconnecting
-    socket.on( 'disconnect', ( data ) => {
-        console.log(`Player ${socket.ID} disconnected`)
-
-        // Remove from player list
-        const iDMatchedPlayers = gameServer?.brain?.players?.filter(p => p.playerID === socket.ID)
-        const playerName = iDMatchedPlayers[0]?.playerName || "Player"
-        if (iDMatchedPlayers?.length > 0) {
-            // Remove player
-            gameServer.brain.players.splice(gameServer.brain.players.indexOf(iDMatchedPlayers[0]), 1)
-        }
-        //delete io.sockets.SOCKET_LIST[socket.ID]
-
-        // If no admin exists, assign a new one
-        if (gameServer.brain.gameOptions.adminAlwaysExists) {
-            const listOfAdmins = gameServer?.brain?.players?.filter(p => p.isAdmin)
-            if (listOfAdmins.length === 0 && gameServer.brain.players.length > 0) gameServer.brain.setAdmin(gameServer.brain.players[0].playerID, true)
-        }
-
-        // Send message
-        io.sockets.emit( `genericClientMessage`, { type: "receiveChatMessage", recipients: 'all', args: { message: `${playerName} has left the game.`, messageName: "Server", nameColor: "#888888", isServer: true } } )
-        io.sockets.emit( `genericClientMessage`, { type: "initOtherPlayers", recipients: 'all', args: { players: gameServer.brain.players } } )
-    })
-})
+const gameServer = new GameServer(serv, adminPassword)
 
 ///////////////////////////////////////
 // Server Data API
 ///////////////////////////////////////
-// Handel request
+// Handel requests
 const allowedAPIOrigin = '*' // You can change this to only allow certian sites to access to the server info
 app.get('/info', cors({origin: allowedAPIOrigin}), (req, res) => {
     // Get gameServer data
