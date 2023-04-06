@@ -1,13 +1,13 @@
 ![Image description](./repo_banner.png)
 # About
-CaperCore is a multiplayer creative voxel game that runs in your browser! The project is being built with customization and modding in mind, so we're actively creating tools to aid content creation.
+HyperVox is a multiplayer creative voxel game that runs in your browser! The project is being built with customization and modding in mind, so we're actively creating tools to aid content creation.
 
 Read more here:
 [Game concept / description](docs/md/Concept.md)
 
 # Play Game
 We currently have a public version of the game available to play, though you will still need to find a server or host one yourself if you want to player multiplayer.
-[Play Here](http://capercube.com/capercore/)
+[Play Here](http://capercube.com/hypervox/)
 
 # Goals
 - Fun, more than anything!
