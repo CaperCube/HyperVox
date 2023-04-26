@@ -459,6 +459,12 @@ const blockTypes = [
     //         },
     //     ]
     // },
+    //...
+    {
+        name: 'gun-block',
+        categories: [blockCats.color.grey, blockCats.decorative],
+        textures: { top: 45, bottom: 44, front: 41, back: 43, left: 42, right: 40 },
+    },
 ]
 
 export {
