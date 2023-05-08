@@ -8,7 +8,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "npm run build && npm run start"
   },
   "repository": {
     "type": "git",
@@ -33,5 +35,9 @@
     "express": "^4.17.2",
     "perlin-noise-3d": "^0.5.4",
     "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.0",
+    "typescript": "^5.0.4"
   }
 }

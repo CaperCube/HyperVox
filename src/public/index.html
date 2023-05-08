@@ -1,0 +1,161 @@
+<!--                                                              
+////////////////////////////////////////////////////////
+////                     Head HTML                  ////
+////////////////////////////////////////////////////////
+-->
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>HyperVox</title>
+    <meta name="author" content="CaperCube">
+    <link rel='icon' type='image/png' href='./client/src/textures/game_logo3.png'>
+    <link rel="stylesheet" href="./client/main.css">
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                     Scripts                    ////
+    ////////////////////////////////////////////////////////
+    -->
+    <!-- //////////////// Version Number /////////////////// -->
+    <script>const versionNumber = `0.03.81`;</script>
+    <!-- ///////////////////// Game //////////////////////// -->
+    <script defer type="module" src="./client/js/index.js"></script>
+</head>
+<body>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                    Canvas                      ////
+    ////////////////////////////////////////////////////////
+    -->
+    <span id="background"></span>
+    <canvas id="main-canvas"></canvas>
+    <canvas id="hud-canvas"></canvas>
+    <canvas id="menu-canvas"></canvas>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                   UI & Chat                    ////
+    ////////////////////////////////////////////////////////
+    -->
+    <span id="loading-basic"></span>
+    <span id="chat-window" class="noBG"></span>
+    <form id="chat-input" class="noBG"><input id="chat-input-text" type="text"></input></form>
+    <span id="popup-top">Disconnected: Opps, sorry!</span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                  Value Input                   ////
+    ////////////////////////////////////////////////////////
+    -->
+    <form onclick="this.style.display='none'" id="focus-input">
+        <h1 id="focus-input-title">Null</h1>
+        <input onclick="event.stopPropagation();" id="focus-input-text" type="text" placeholder="Leave blank for default"></input><br>
+        <input type="submit" style="display: none" /> <!-- This allows the user to submit with "Enter" without moving the cancel button -->
+        <button onclick="event.preventDefault(); this.parentElement.style.display='none'">Cancel</button>
+        <button onclick="event.stopPropagation();" type="submit" form="focus-input" value="Submit">Submit</button>
+    </form>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                Embeded Content                 ////
+    ////////////////////////////////////////////////////////
+    -->
+    <span id="embedded_content">
+        <button onclick="event.stopPropagation(); SetEmbed()" id="close-embed">Close</button>
+        <iframe id="embed_frame" src="" allowtransparency="true" title="Embedded Content"></iframe>
+    </span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                   Side Menu                    ////
+    ////////////////////////////////////////////////////////
+    -->
+    <span id="side-menu" class="closed">
+        <span id="side-menu-button" onclick="$('#side-menu').classList.toggle('closed')">?</span>
+        <span id="help-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#help-tab'))">Help</span>
+        <span id="lobby-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#lobby-tab'))">Lobby</span>
+        <span id="commands-tab-button" class="tab-button" onclick="SwitchSideMenuTab($('#commands-tab'))">Commands</span>
+        <span id="side-menu-tabs">
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                  How To Play                   ////
+    ////////////////////////////////////////////////////////
+    -->
+            <span id="help-tab" class="side-tab">
+                <p>
+                    <h1>Compatibility</h1>
+                    <span style="color: #ff9900">The game will currently only load when using <span style="color: #44dd22">Chrome, Edge,</span> or other <span style="color: #44dd22">Chromium-based browsers</span>.</span><br>
+                </p>
+                <p>
+                    <h1>How to Play</h1>
+                    <span style="color: #ff9900">This is an early version</span> of the project, so many features may not work fully as expected.<br>
+                    <br>
+                    <span style="color: #88aaff">To play multiplayer</span>, click "Join Online" and then "Submit" without typing anything. If you don't load load into the game, a multiplayer game hasn't been created yet, so you can then use "Start Game" to create one.
+                </p>
+                <p>
+                    <h1>Controls</h1>
+                    <u>Caution:</u> Please avoid <span style="color: #ff9900">pressing "Ctrl" while playing</span>! "Ctrl" has many functions, some of which <span style="color: #ff9900">will close or change tabs.</span><br>
+                    <br>
+                    <span style="color: #88aaff">Tab</span> = Open menu<br>
+                    <br>
+                    <span style="color: #88aaff">WASD</span> = Move player<br>
+                    <span style="color: #88aaff">Space</span> = Jump<br>
+                    <span style="color: #88aaff">Mouse</span> = Look<br>
+                    <br>
+                    <span style="color: #88aaff">Left Click</span> = Place block<br>
+                    <span style="color: #88aaff">Right Click</span> = Remove block<br>
+                    <span style="color: #88aaff">Mouse Scroll</span> or <span style="color: #88aaff">-+</span> = Change selected block<br>
+                    <span style="color: #88aaff">E</span> = Eye-drop block<br>
+                </p>
+                <p>
+                    <h1>Noclip Mode</h1>
+                    <span style="color: #88aaff">N</span> = Toggle noclip<br>
+                    <span style="color: #88aaff">Space</span> = Fly up<br>
+                    <span style="color: #88aaff">Shift</span> = Fly down<br>
+                </p>
+            </span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                  Player List                   ////
+    ////////////////////////////////////////////////////////
+    -->
+            <span id="lobby-tab" class="side-tab hidden">
+                <h1>Lobby</h1>
+                <button id="lobby-reset-scores">Reset Scores</button>
+                <br><br>
+                <span id="player-list">
+                    <span id="lobby-labels" class="player-row">
+                        <span class="player-name">Name</span>
+                        <span class="player-k">Kills</span>
+                        <span class="player-d">Deaths</span>
+                        <span class="player-score">Score</span>
+                    </span>
+                    <span id="player-list-content">
+                    </span>
+                </span>
+                <h1>Server Game Modes</h1>
+                <button id="lobby-set-spectator">Spectator</button><br>
+                <button id="lobby-set-creative">Creative</button><br>
+                <button id="lobby-set-deathmatch">Deathmatch</button><br>
+                <button id="lobby-set-parkour">Parkour</button>
+            </span>
+    <!--
+    ////////////////////////////////////////////////////////
+    ////                 Command List                   ////
+    ////////////////////////////////////////////////////////
+    -->
+            <span id="commands-tab" class="side-tab hidden">
+                <h1>Commands</h1>
+                <span id="command-list">
+                </span>
+                <h1>Player Filters</h1>
+                <span id="filter-list">
+                </span>
+                <h1>Experimental</h1>
+                <span id="experimental-list">
+                    <p>
+                        <span style="color: #88aaff">Animate face with mic Input</span><br>
+                        <button id="facemic-on">On</button>
+                        <button id="facemic-off">Off</button>
+                    </p>
+                </span>
+            </span>
+        </span>
+    </span>
+</body>
