@@ -16,8 +16,8 @@ function createScene(): Scene {
     return scene
 }
 
-const newScene: Scene = createScene()
+const scene: Scene = createScene()
 
 engine.runRenderLoop(()=>{
-    newScene.render()
+    scene.render()
 })

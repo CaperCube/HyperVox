@@ -17,7 +17,7 @@ const adminPassword = process.env.ADMINPASS || "admin"
 // Server setup
 ////////////////////////////////////////
 // the __dirname is the current directory from where the script is running
-app.use(express.static(__dirname + '/dist/public'))
+app.use(express.static(__dirname + '/public'))
 
 ////////////////////////////////////////
 // Multiplayer server setup
