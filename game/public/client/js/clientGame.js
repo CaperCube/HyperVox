@@ -93,7 +93,7 @@ class ClientGame {
 
         // mesh helper object
         this.meshGen = new MeshGenerator()
-        
+
         this.chunkWorker = new Worker('./client/js/mesh/chunkMeshWorker.js', {type: 'module'})
         this.chunkWorker.onmessage = (event) => {
             if (this.scene) {
@@ -117,7 +117,7 @@ class ClientGame {
 
                     // Create new mesh with same name
                     const customMesh = new BABYLON.Mesh(chunkName, this.scene)
-                            
+
                     let vertexData = new BABYLON.VertexData()
                     vertexData.indices = event.data.indices
                     vertexData.normals = event.data.normal
@@ -170,7 +170,7 @@ class ClientGame {
             // Unlock cursor (without pressing escape)
             document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock
             document.exitPointerLock()
-            
+
             Buttons.isInputFocused = false
             releaseAllButtons()
 
@@ -199,6 +199,24 @@ class ClientGame {
             // Show menu
             this.menu.selectedScene = this.menu.pauseMenu
             this.menu.toggleVisibility()
+
+            // Focus chat input
+            $("#chat-input-text").focus()
+        }
+
+        Buttons.slash.onPress = (e) => {
+            e.preventDefault()
+
+            // Unlock cursor
+            this.unlockCursor()
+
+            // Show menu
+            this.menu.selectedScene = this.menu.pauseMenu
+            this.menu.show()
+
+            // Focus chat input
+            $("#chat-input-text").focus()
+            $("#chat-input-text").value = "/"
         }
 
         assignFunctionToInput([Buttons.comma], () => { this.settings.fov -= .1; this.updateSettings()}, ()=>{});
@@ -275,7 +293,7 @@ class ClientGame {
                 const chunkName = allChunkMeshes[i].name
                 const terms = chunkName.split('_')[1].split('-')
                 const chunkLocation = { x: parseInt(terms[0]), y: parseInt(terms[1]), z: parseInt(terms[2]) }
-                
+
                 if (!this.isChunkInRange(camLocation, chunkLocation, this.settings.chunkDist)) {
                     // Unqueue it
                     this.chunkQueue[chunkName] = false
@@ -311,7 +329,7 @@ class ClientGame {
             const cSize = this.clientWorld.getChunkSize()
             const wSize = this.clientWorld.getWorldSize()
             const worldPos = getArrayPos(location, cSize, this.clientWorld._tileScale)
-            
+
             // Check if block is within the world
             const isWithinExsitingChunk = (
                 worldPos.chunk.z < wSize && worldPos.chunk.z >= 0 &&
@@ -330,7 +348,7 @@ class ClientGame {
 
                     // Early mesh update on client (if networked)
                     if (this.clientComs.isNetworked) this.updateChunks(worldPos)
-                            
+
                     // Send event to brain to update the chunk
                     this.clientComs.updateSingleBlock(worldPos, id)
 
@@ -341,7 +359,7 @@ class ClientGame {
                             if (sounds.BLOCK_BREAK_1) sounds.BLOCK_BREAK_1.play()
                             break
                         default:
-                            // Place block                        
+                            // Place block
                             if (sounds.BLOCK_PLACE_1) sounds.BLOCK_PLACE_1.play()
                             break
                     }
@@ -410,7 +428,7 @@ class ClientGame {
             })
         }
     }
-    
+
     ///////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////
@@ -423,7 +441,7 @@ class ClientGame {
         popup.classList.add("open")
 
         // Set popup timer
-        setTimeout(() => { 
+        setTimeout(() => {
             popup.classList.remove("open")
         }, 5000)
     }
@@ -438,7 +456,7 @@ class ClientGame {
         let element = document.createElement('a')
         element.setAttribute( 'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent( worldJSON ) )
         element.setAttribute( 'download', worldName || 'world.json' )
-      
+
         element.style.display = 'none'
         document.body.appendChild(element)
 
@@ -448,7 +466,7 @@ class ClientGame {
         // Remove element
         document.body.removeChild(element)
     }
-    
+
     // Export world as obj (ToDo: Move this somewhere)
     exportWorldMesh() {
         // Export options
@@ -507,7 +525,7 @@ class ClientGame {
         // Stop all sounds
         this.stopAllSounds()
     }
-    
+
     stopAllSounds() {
         for (const prop in sounds) {
             sounds[prop].stop()
@@ -532,7 +550,7 @@ class ClientGame {
         // Enable chat window
         $("#chat-window").style.display = 'inline-block'
         $("#chat-input").style.display = 'inline-block'
-        $("#chat-input").onsubmit = (e) => { 
+        $("#chat-input").onsubmit = (e) => {
             e.preventDefault()
             this.clientComs.sendChatMessage($("#chat-input-text").value, this.localPlayer.playerName, this.localPlayer.playerColor)
             $("#chat-input-text").value = ''
@@ -642,7 +660,7 @@ class ClientGame {
         ////////////////////////////////////////////////////
         // Init sounds
         ////////////////////////////////////////////////////
-        
+
         sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
         sounds.RAILGUN_SHOOT_1 = new BABYLON.Sound("railgun_shoot_2", soundSRC.RAILGUN_SHOOT_1, this.scene, null, { volume: 0.75, })
         sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
@@ -654,14 +672,14 @@ class ClientGame {
         sounds.STEP_GRASS_1 = new BABYLON.Sound("step_grass_1", soundSRC.STEP_GRASS_1, this.scene, null, { volume: 0.25, })
         sounds.STEP_GRASS_2 = new BABYLON.Sound("step_grass_2", soundSRC.STEP_GRASS_2, this.scene, null, { volume: 0.25, })
         sounds.STEP_GRASS_3 = new BABYLON.Sound("step_grass_3", soundSRC.STEP_GRASS_3, this.scene, null, { volume: 0.25, })
-        
-        sounds.AMB_WIND_1 = new BABYLON.Sound("amb_wind_1", soundSRC.AMB_WIND_1, this.scene, null, { 
+
+        sounds.AMB_WIND_1 = new BABYLON.Sound("amb_wind_1", soundSRC.AMB_WIND_1, this.scene, null, {
             loop: true,
             autoplay: true,
             volume: 0.25,
         })
 
-        sounds.MUSIC_BATTLE_1 = new BABYLON.Sound("music_battle_1", soundSRC.MUSIC_BATTLE_1, this.scene, null, { 
+        sounds.MUSIC_BATTLE_1 = new BABYLON.Sound("music_battle_1", soundSRC.MUSIC_BATTLE_1, this.scene, null, {
             loop: true,
             // autoplay: true,
             volume: 0.25,
@@ -674,7 +692,7 @@ class ClientGame {
         // Start interval for loading new chunks
         this.loadChunkInterval = setInterval(()=>{ this.queueProximalChunks() }, 250)
 
-        this.engine.runRenderLoop(() => { // setInterval( function(){ 
+        this.engine.runRenderLoop(() => { // setInterval( function(){
             // Update frame
             this.frame++
 
@@ -901,7 +919,7 @@ class ClientGame {
     ///////////////////////////////////////////////////////
     // Loops
     ///////////////////////////////////////////////////////
-    
+
     // (Not Yet Implemented)
     networkUpdate = () => { /* Here is where scheduled network messages should send */ }
 
