@@ -52,6 +52,7 @@ class ClientGame {
             mouseInertia: 0.5, // 0 = no mouse smoothing
             fov: settingsLoaded?.fov || 1.35,
             chunkDist: settingsLoaded?.chunkDist || 5,
+            volume: settingsLoaded?.volume || 1,
             // clientUpdateSpeed
             // ToDo: put player controls in here
         }
@@ -157,6 +158,9 @@ class ClientGame {
             if (this.mainCamera && this.clientWorld) this.mainCamera.maxZ = (this.settings.chunkDist + 1) * (this.clientWorld?._chunkSize || 8) * (this.clientWorld._tileScale || 1)
             this.updateSettings()
         }
+
+        // Volume
+        this.menu.optionsMenu.selectableElements[4].valueUpdateFunction = (val)=>{ this.settings.volume = val; this.updateSettings(); }
 
         // Defaults
         this.menu.optionsMenu.selectableElements[4].pressButton = ()=>{
@@ -661,6 +665,8 @@ class ClientGame {
         // Init sounds
         ////////////////////////////////////////////////////
 
+        // this.engine.audioEngine.setGlobalVolume(this.settings.volume)
+        BABYLON.Engine.audioEngine.setGlobalVolume(this.settings.volume)
         sounds.LASERGUN_SHOOT_1 = new BABYLON.Sound("lasergun_shoot_1", soundSRC.LASERGUN_SHOOT_1, this.scene)
         sounds.RAILGUN_SHOOT_1 = new BABYLON.Sound("railgun_shoot_2", soundSRC.RAILGUN_SHOOT_1, this.scene, null, { volume: 0.75, })
         sounds.BLOCK_PLACE_1 = new BABYLON.Sound("block_place_1", soundSRC.BLOCK_PLACE_1, this.scene)
@@ -932,6 +938,10 @@ class ClientGame {
             this.mainCamera.fov = this.settings.fov // 1 is default
             this.mainCamera.angularSensibility = this.settings.mouseSensitivity // Mouse sensitivity
             this.mainCamera.inertia = this.settings.mouseInertia // Mouse inertia
+        }
+        if (this.engine) {
+            // this.engine.audioEngine.setGlobalVolume(this.settings.volume)
+            BABYLON.Engine.audioEngine.setGlobalVolume(this.settings.volume)
         }
 
         // After updating, save to local storage

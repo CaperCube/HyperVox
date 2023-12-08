@@ -80,19 +80,19 @@ class MenuSystem extends TileRenderer {
         // Default slider
         const SliderDefaults = {
             tiles: [[2,2,2,2]],
-        
+
             upButtonOffset: {x: menuConstants.tileSize*5, y: 0},
             upTiles: [[41]],
-        
+
             downButtonOffset: {x: 0, y: 0},
             downTiles: [[39]],
-        
+
             sliderOffset: {x: (-menuConstants.tileSize/2) + 2, y: 0},
             sliderTiles: [[42]],
-        
+
             valRange: [0,10],
             posRange: [0, (menuConstants.tileSize*4)-4],
-        
+
             renderfunction: ()=>{this.render()},
         }
 
@@ -156,7 +156,7 @@ class MenuSystem extends TileRenderer {
         const bars = new UIElement({position: {x: 0, y: -menuConstants.tileSize/2}, tiles: [[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barJointTRB],[spriteParts.barVert],[spriteParts.barBendTL]]})
         const mainMenuTitle = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize/2}, tiles: [titleMid], text: 'Main Menu'})
         const playButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*2.5}, tiles: [buttonMid], text: 'Start Game'})
-        const joinButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [buttonMid], text: 'Join Online'})        
+        const joinButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*3.5}, tiles: [buttonMid], text: 'Join Online'})
         playButton.pressButton = () => { this.setScene(this.playMenu) }
         const optionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Options'})
         optionsButton.pressButton = () => { this.setScene(this.optionsMenu) }
@@ -211,12 +211,23 @@ class MenuSystem extends TileRenderer {
             defaultValue: settingsLoaded?.chunkDist || 5,
             valRange: [1,10],
         })
-        const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [buttonMid], text: 'Defaults'})
+
+        // Game Volume
+        const volumeSlider = new UISlider({
+            ...SliderDefaults,
+            text: `Volume`,
+            position: { x: menuConstants.tileSize, y: menuConstants.tileSize*5.5 },
+            increment: 0.1,
+            defaultValue: settingsLoaded?.volume || 1,
+            valRange: [0,1],
+        })
+
+        const defaultsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [buttonMid], text: 'Defaults'})
         // Back
-        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [button], text: 'Back'})
+        const optionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*7.5)}, tiles: [button], text: 'Back'})
         optionsBackButton.pressButton = () => { this.setScene(this.mainMenu) }
-        
-        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, mouseInertiaeSlider, fovSlider, chunkDistSlider, defaultsButton, optionsBackButton])
+
+        this.optionsMenu = new UIScene([bars3, optionsTitle], [lookSlider, mouseInertiaeSlider, fovSlider, chunkDistSlider, volumeSlider, defaultsButton, optionsBackButton])
 
         /////////////////////////////////////////////////////////
         // Play menu
@@ -229,7 +240,7 @@ class MenuSystem extends TileRenderer {
         const playRandomButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [button], text: 'Random'})
         const playBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*5.5)}, tiles: [button], text: 'Back'})
         playBackButton.pressButton = () => { this.setScene(this.mainMenu) }
-        
+
         this.playMenu = new UIScene([bars3, playMenuTitle], [playLoadButton, playSmallButton, playMedButton, playRandomButton, playBackButton])
 
         /////////////////////////////////////////////////////////
@@ -240,11 +251,11 @@ class MenuSystem extends TileRenderer {
         const pausePlayButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*1.5)}, tiles: [buttonLong], text: 'Back to Game'})
         const pauseOptionsButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*2.5)}, tiles: [button], text: 'Options'})
         pauseOptionsButton.pressButton = () => { this.setScene(this.pauseOptions) }
-        
+
         const pauseSaveButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*3.5)}, tiles: [buttonMid], text: 'Save World'})
         const pauseExportButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*4.5)}, tiles: [buttonLong], text: 'Export as Mesh'})
         const leaveButton = new UIElement({position: {x: menuConstants.tileSize, y: menuConstants.tileSize*5.5}, tiles: [buttonMid], text: 'Leave Game'})
-        
+
         this.pauseMenu = new UIScene([bars3, pauseTitle], [pausePlayButton, pauseSaveButton, leaveButton, pauseOptionsButton, pauseExportButton])
 
         /////////////////////////////////////////////////////////
@@ -257,11 +268,10 @@ class MenuSystem extends TileRenderer {
         /////////////////////////////////////////////////////////
         // Pause Options
         /////////////////////////////////////////////////////////
-        const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*6.5)}, tiles: [button], text: 'Back'})
+        const pauseOptionsBackButton = new UIElement({position: {x: menuConstants.tileSize, y: (menuConstants.tileSize*7.5)}, tiles: [button], text: 'Back'})
         pauseOptionsBackButton.pressButton = () => { this.setScene(this.pauseMenu) }
 
-        //[lookSlider, fovSlider, guiScaleSlider, chunkDistSlider, defaultsButton, optionsBackButton]
-        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, mouseInertiaeSlider, chunkDistSlider, defaultsButton, pauseOptionsBackButton])
+        this.pauseOptions = new UIScene([bars3, optionsTitle], [lookSlider, fovSlider, mouseInertiaeSlider, chunkDistSlider, volumeSlider, defaultsButton, pauseOptionsBackButton])
 
         // Selection vars
         this.selectedScene = this.mainMenu
