@@ -1,4 +1,5 @@
 import { getArrayPos } from '../../../../common/positionUtils.js'
+import { GunItem } from './inventory.js'
 
 export function updatePlayerCursor(player) {
     /////////////////////////////////////////////////
@@ -85,10 +86,15 @@ export function updatePlayerCursor(player) {
     else {
         player.setHoverText("")
     }
-    
+
     // if (typeof blockTypes[blockID]?.interact === "function") blockTypes[blockID].interact(this.clientGame, blockLocation, blockID)
-    
+
     // Position cursor meshes
-    player.selectMesh.position = new BABYLON.Vector3( player.selectCursor.x, player.selectCursor.y, player.selectCursor.z )
-    player.removeMesh.position = new BABYLON.Vector3( player.interactSelectCursor.x, player.interactSelectCursor.y, player.interactSelectCursor.z )
+    if (!(player.inventory?.items[player.inventory?.selectedIndex] instanceof GunItem)) {
+        player.selectMesh.position = new BABYLON.Vector3( player.selectCursor.x, player.selectCursor.y, player.selectCursor.z )
+        player.removeMesh.position = new BABYLON.Vector3( player.interactSelectCursor.x, player.interactSelectCursor.y, player.interactSelectCursor.z )
+    }
+    else {
+        player.selectMesh.position = player.removeMesh.position = new BABYLON.Vector3(-9999, -9999, -9999)
+    }
 }
