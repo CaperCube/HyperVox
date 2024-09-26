@@ -3,7 +3,7 @@ Font imports
 ============================================ */
 @font-face {
 	font-family: "BattlekourBody";
-	src: url("./src/BattlekourBody_v1.otf") format("otf");
+	src: url("./src/BattlekourBody_v1.otf");
 }
 
 /* ============================================
@@ -303,7 +303,7 @@ Side Menu & Tabs
 
 #side-menu {
 	display: inline-block;
-	position: absolute;
+	position: fixed;
 
 	padding: 0;
 
@@ -324,10 +324,10 @@ Side Menu & Tabs
 	display: inline-block;
 	position: relative;
 
-	padding: 20px;
+	padding: 40px 20px;
 
 	width: calc(100% - 40px);
-	height: calc(100% - 40px);
+	height: calc(100% - 125px);
 
 	overflow-y: auto;
 }
@@ -378,6 +378,25 @@ Side Menu & Tabs
 
 	user-select: none;
 	cursor: pointer;
+}
+
+.command-button {
+	position: relative;
+	left: 0px;
+	margin-bottom: 5px;
+
+	opacity: 0.5;
+	cursor: pointer;
+	user-select: none;
+}
+
+.command-button:hover {
+	left: 5px;
+	opacity: 1;
+}
+
+.command-button:active {
+	left: -2px;
 }
 
 /* ============================================

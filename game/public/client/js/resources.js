@@ -1,9 +1,6 @@
 // Babylon.js has an asset manager, consider looking into this for sound + texture assets
 // https://doc.babylonjs.com/divingDeeper/importers/assetManager
 
-import bkFont from '../src/textures/fonts/battlekourTitle.json' assert { type: "json" }
-import bkBodyFont from '../src/textures/fonts/battlekourBody.json' assert { type: "json" }
-
 ///////////////////////////////////////
 // Constants
 ///////////////////////////////////////
@@ -39,8 +36,8 @@ const imageSRC = {
 // Fonts
 ///////////////////////////////////////
 const fontJSON = {
-    battlekourTitle: bkFont,
-    battlekourBody: bkBodyFont
+    battlekourTitle: './client/src/textures/fonts/battlekourTitle.json',
+    battlekourBody: './client/src/textures/fonts/battlekourBody.json'
 }
 
 ///////////////////////////////////////

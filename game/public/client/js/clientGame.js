@@ -15,6 +15,7 @@ import HUDSystem from "./render2d/hudSystem.js"
 import { blockTypes } from '../../common/blockSystem.js'
 import { imageSRC, soundSRC, sounds } from "./resources.js"
 import { localStorageIsAllowed } from "../../common/localStorageUtils.js"
+import { chatCommands, commandOptions } from "../../brain/chatCommands.js"
 
 // This will be in charge of all client interactions, (should rendering / `BABYLON.scene` creation be seperate?)
 class ClientGame {
@@ -240,6 +241,25 @@ class ClientGame {
         // Chunk load interval
         this.loadChunkInterval = null
         this.chunkQueue = {}
+
+        ///////////////////////////////////////////////////////
+        // Sidebar init
+        ///////////////////////////////////////////////////////
+        const commandList = $("#command-list")
+
+        for (const [key, value] of Object.entries(chatCommands)) {
+            const element = document.createElement("div")
+            element.innerText = key
+            element.classList.add('command-button')
+            element.addEventListener('click', () => {
+                // Focus chat input
+                $("#chat-input-text").focus()
+                $("#chat-input-text").value += `${commandOptions.delimiter}${value.commands[0]} `
+            })
+            commandList.appendChild(element)
+        }
+
+        // const filterList = $("#filter-list")
     }
 
     ///////////////////////////////////////////////////////

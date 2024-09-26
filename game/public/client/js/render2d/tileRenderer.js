@@ -97,29 +97,41 @@ class TileRenderer {
 
     // Loads font based on .json files
     loadFonts({ path = `./client/src/textures/fonts/`, callback = ()=>{} }) {
-        const titleFont = {img: null, data: fontJSON.battlekourTitle, isLoaded: false}
-        const smallFont = {img: null, data: fontJSON.battlekourBody, isLoaded: false}
-        this.loadImage(`${path}${titleFont.data.metaData.imgName}`, (img)=>{
-            // load json
-            titleFont.img = img
-            titleFont.isLoaded = true
 
-            console.log('font loaded', titleFont)
-
-            this.fonts.push(titleFont)
-            
-            // Small font
-            this.loadImage(`${path}${smallFont.data.metaData.imgName}`, (img)=>{
-                // load json
-                smallFont.img = img
-                smallFont.isLoaded = true
-    
-                console.log('font loaded', smallFont)
-    
-                this.fonts.push(smallFont)
-                callback(smallFont)
+        // Big font
+        fetch(fontJSON.battlekourTitle)
+            .then(response => response.json())
+            .then(data => {
+                const titleFont = {img: null, data: data, isLoaded: false}
+                this.loadImage(`${path}${titleFont.data?.metaData?.imgName}`, (img)=>{
+                    // load json
+                    titleFont.img = img
+                    titleFont.isLoaded = true
+        
+                    console.log('font loaded', titleFont)
+        
+                    this.fonts.push(titleFont)
+                    
+                    // Small font
+                    fetch(fontJSON.battlekourBody)
+                        .then(response => response.json())
+                        .then(data => {
+                            const smallFont = {img: null, data: data, isLoaded: false}
+                            this.loadImage(`${path}${smallFont.data.metaData.imgName}`, (img)=>{
+                                // load json
+                                smallFont.img = img
+                                smallFont.isLoaded = true
+                    
+                                console.log('font loaded', smallFont)
+                    
+                                this.fonts.push(smallFont)
+                                callback(smallFont)
+                            })
+                        })
+                        .catch(error => console.error('Error:', error))
+                })
             })
-        })
+            .catch(error => console.error('Error:', error))
     }
 
     // Batch load assets
